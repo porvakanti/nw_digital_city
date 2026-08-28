@@ -81,7 +81,14 @@ safety net: if the venue wifi dies, the city still opens from a local file.
 python3 -m pip install openpyxl pyyaml
 python3 data/build_city.py          # rebuild city.json from data/raw/
 python3 -m unittest discover -s tests -v
+
+npm i playwright                    # once
+node tests/smoke.js                 # rehearsal check: drives the real page
 ```
+
+`tests/smoke.js` is the pre-stage check. It loads the city in a real browser,
+asserts the resolver finds what people are likely to shout, and confirms the
+agent actually moves the city rather than only describing it.
 
 ## Status
 
@@ -89,6 +96,6 @@ python3 -m unittest discover -s tests -v
 - [x] Renderer — the brick city (isometric, click-to-inspect, `NWCity.focus()`)
 - [x] Build choreography — opening city rise, per-category teardown and rebuild
 - [x] The character — minifigure, idle wander, flight, speech bubble and caption
-- [ ] Agent — natural language in, city out
+- [x] Agent — natural language in, city out, with a visible tool trace
 - [ ] Model adapter, speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode

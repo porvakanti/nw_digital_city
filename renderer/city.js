@@ -975,6 +975,36 @@
     rise() {
       cityRise();
     },
+    // Fly to a whole district rather than one lot — used when the agent is
+    // answering about a district or ranking within one.
+    focusDistrict(name) {
+      const wanted = String(name || "").toLowerCase();
+      const district = layout.districts.find((d) => d.name.toLowerCase() === wanted);
+      if (!district) return false;
+      const cx = district.cx + district.w / 2;
+      const cz = district.cz + district.d / 2;
+      showCategory(null);
+      flyTo(new THREE.Vector3(cx, 0, cz), Math.max(district.w, district.d) * 0.46);
+      sendFigure(new THREE.Vector3(cx, 0, cz + district.d * 0.3), "fly", FLIGHT);
+      walker.pinned = true;
+      return true;
+    },
+    // Let the agent write its own line rather than using the built-in narrator.
+    speak(caption, bubble) {
+      if (!caption && !bubble) {
+        say(null);
+        return;
+      }
+      bubbleText = bubble || "";
+      bubbleEl.textContent = bubbleText;
+      if (caption) {
+        captionEl.firstElementChild.textContent = caption;
+        captionEl.classList.add("on");
+      } else {
+        captionEl.classList.remove("on");
+      }
+    },
+    categories: CITY.categories,
     // pieces still mid-flight — used by rehearsal checks and tests
     pending() {
       return scheduled.length;
