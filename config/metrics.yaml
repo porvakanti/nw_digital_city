@@ -1,0 +1,141 @@
+# NW Digital City — visual configuration
+#
+# THE PIVOT POINT OF THIS PROJECT.
+#
+# data/city.json carries EVERY candidate metric for every category. Nothing in
+# it is specific to how we choose to draw the city. This file decides which
+# metric drives which visual layer, and how values map to tiers.
+#
+# So if the business view changes -- "market reach is the wrong lens, use spend"
+# -- you change one line under `layers:` below. No data rebuild, no code change.
+# Legend text, units and tier names all derive from the `metrics:` block, so the
+# on-screen explanation can never drift out of sync with what is drawn.
+
+city:
+  name: NW Digital City
+  scope_label: Vodafone Networks — Level 1 "Network"
+  agent_name: Crane           # the agent's display name; change freely
+
+# ---------------------------------------------------------------------------
+# LAYER BINDINGS — the four measures from the category blueprint deck.
+# Each value must name a key from `metrics:` below.
+# ---------------------------------------------------------------------------
+layers:
+  foundation:
+    metric: blueprint_state
+    caption: Blueprint maturity and captured category rules
+  height:
+    metric: market_reach      # ← swap to ava_adoption / cbp_total / spend_eur
+    caption: Putting the digital asset to work
+  value:
+    metric: spend_eur
+    caption: Commercial scale of sourcing activity
+  reactor:
+    metric: ai_rfps
+    caption: Structured rules and future autonomy readiness
+
+# ---------------------------------------------------------------------------
+# METRIC REGISTRY
+#
+# provisional: true  → the UI shows a "provisional measure" marker.
+# sample: true       → the UI shows a "sample data" marker. Use this for any
+#                      metric that is not yet real. It must be impossible to
+#                      present placeholder numbers as fact in front of 400 people.
+# ---------------------------------------------------------------------------
+metrics:
+
+  blueprint_state:
+    label: Blueprint status
+    description: Whether a category blueprint exists, and whether it is live.
+    kind: categorical
+    tiers:
+      - {id: none,   value: none,   label: Bare plot,        detail: No blueprint yet — the plot is empty ground.}
+      - {id: draft,  value: draft,  label: Plot marked out,  detail: Blueprint drafted. The plot is claimed but has no foundations.}
+      - {id: active, value: active, label: Foundation laid,  detail: Blueprint active. The plot can be built on.}
+
+  market_reach:
+    label: Blueprint reach
+    description: >
+      Number of local markets with a blueprint for this category. Kate's brief
+      notes that adoption is measured as one blueprint per L4 per local market,
+      so this counts how widely the category has actually been taken up.
+    unit: markets
+    kind: numeric
+    provisional: true
+    provisional_note: >
+      Standing in for AVA Sourcing adoption, which reads a flat 100% for every
+      category in the current extract and so cannot differentiate the skyline.
+    tiers:
+      - {id: plot,       max: 0,    label: Plot prepared, detail: No market has adopted this blueprint.}
+      - {id: small,      max: 1,    label: Small building, detail: Adopted in a single market.}
+      - {id: block,      max: 2,    label: Office block,   detail: Adopted in two markets.}
+      - {id: tower,      max: 4,    label: Tower,          detail: Adopted across three or four markets.}
+      - {id: skyscraper, max: null, label: Skyscraper,     detail: Adopted across five or more markets.}
+
+  ava_adoption:
+    label: AVA Sourcing adoption
+    description: Share of sourcing for this category run through AVA Sourcing.
+    unit: percent
+    kind: numeric
+    tiers:
+      - {id: plot,       max: 0.0,  label: Plot prepared, detail: No adoption.}
+      - {id: small,      max: 0.25, label: Small building, detail: Under 25% adoption.}
+      - {id: block,      max: 0.50, label: Office block,   detail: 25–50% adoption.}
+      - {id: tower,      max: 0.90, label: Tower,          detail: 50–90% adoption.}
+      - {id: skyscraper, max: null, label: Skyscraper,     detail: Over 90% adoption.}
+
+  cbp_total:
+    label: Blueprints created
+    description: Total category blueprints for this category, draft and active.
+    unit: blueprints
+    kind: numeric
+    tiers:
+      - {id: plot,       max: 0,    label: Plot prepared}
+      - {id: small,      max: 1,    label: Small building}
+      - {id: block,      max: 3,    label: Office block}
+      - {id: tower,      max: 7,    label: Tower}
+      - {id: skyscraper, max: null, label: Skyscraper}
+
+  spend_eur:
+    label: Spend FY26/27
+    description: >
+      Addressable spend for the category. Thresholds are rescaled from the
+      original deck to fit the Network distribution — Network's largest single
+      category is €75m, so the deck's ">€100m = hotel" rung was unreachable and
+      84% of categories collapsed into the bottom rung.
+    unit: eur
+    kind: numeric
+    tiers:
+      - {id: none,     max: 0,        label: No recorded spend, pieces: 0}
+      - {id: house_1,  max: 1000000,  label: One house,     pieces: 1}
+      - {id: house_2,  max: 5000000,  label: Two houses,    pieces: 2}
+      - {id: house_3,  max: 20000000, label: Three houses,  pieces: 3}
+      - {id: house_4,  max: 50000000, label: Four houses,   pieces: 4}
+      - {id: hotel,    max: null,     label: Hotel,         pieces: 5}
+
+  ai_rfps:
+    label: AI-generated RFPs
+    description: >
+      Sourcing events started as AI-generated RFPs. Drives the rooftop reactor.
+      Readiness signal only — this is not a claim that autonomous procurement
+      is live.
+    unit: rfps
+    kind: numeric
+    sample: true
+    sample_note: >
+      Placeholder data, seeded deterministically so rehearsal and stage show
+      identical results. Replace when the real figures land.
+    tiers:
+      - {id: dark,      max: 0,    label: Dark,           detail: Not yet measured.}
+      - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory — first AI-generated RFPs.}
+      - {id: steady,    max: 6,    label: Steady glow,    detail: Connected — core rules structured.}
+      - {id: reactor,   max: null, label: Full reactor,   detail: AI-ready candidate.}
+
+# ---------------------------------------------------------------------------
+# Honesty guardrails. The deck is explicit that measure four signals readiness,
+# not live autonomy. Keep it that way on stage.
+# ---------------------------------------------------------------------------
+disclosure:
+  show_provisional_badge: true
+  show_sample_badge: true
+  autonomy_note: Readiness signal — not a claim that autonomous procurement is live.
