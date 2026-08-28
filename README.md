@@ -86,7 +86,7 @@ python3 -m unittest discover -s tests -v
 ## Status
 
 - [x] Data pipeline, metric registry, privacy guards
-- [ ] Renderer — the brick city
+- [x] Renderer — the brick city (isometric, click-to-inspect, `NWCity.focus()`)
 - [ ] Agent — natural language in, city out
 - [ ] Model adapter, speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode

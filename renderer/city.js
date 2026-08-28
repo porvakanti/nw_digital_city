@@ -1,0 +1,658 @@
+/* NW Digital City — the renderer.
+ *
+ * Reads window.NW_CITY (data) and window.NW_CONFIG (which metric drives which
+ * visual layer) and builds an isometric brick city. It never fetches anything,
+ * so it runs from file:// with no server and no network — that is the on-stage
+ * safety net, and it is why the data arrives as a global rather than an import.
+ *
+ * Geography follows the category tree: L2 is a district, L3 is a plot, L4 is a
+ * building. The four measures of the blueprint story are the four things you
+ * can see: foundation, height, houses, reactor.
+ *
+ * Public API (the agent drives the city through this):
+ *   NWCity.focus(code)              fly to one category
+ *   NWCity.reset()                  back to the whole city
+ *   NWCity.setLayerMetric(l, m)     repoint a visual layer at another metric
+ */
+(function () {
+  "use strict";
+
+  const CITY = window.NW_CITY;
+  const CONFIG = window.NW_CONFIG;
+
+  // ---------------------------------------------------------------- palette
+  // Colour carries meaning in exactly one place: blueprint state, using the
+  // reserved status roles. District identity is carried by position and a name
+  // plate, never by hue — so nothing here depends on telling eight colours
+  // apart on a projector.
+  const C = {
+    sky: 0x080b12,
+    ground: 0x161b23,
+    districtPlate: 0x232a34,
+    plotPlate: 0x2f3742,
+    bare: 0x898781, // muted — absence, not a status
+    draft: 0xfab219, // status: warning
+    active: 0x0ca30c, // status: good
+    brick: 0xd9d3c6,
+    brickAlt: 0xc2bcae,
+    stud: 0xe4dfd3,
+    house: 0x2e9e4f, // Monopoly green
+    hotel: 0xe60000, // Vodafone red
+    reactor: 0x7fdcff,
+    label: "#e8eaf0",
+  };
+
+  // Decorative only — a Monopoly-style band on each district name plate. The
+  // name is printed on the plate itself, so hue never has to be distinguished.
+  const DISTRICT_BANDS = [
+    "#3987e5", "#d95926", "#199e70", "#c98500",
+    "#d55181", "#008300", "#9085e9", "#e66767",
+  ];
+
+  // ------------------------------------------------------------ dimensions
+  const CELL = 4.0;        // one building lot
+  const FOOT = 2.4;        // building footprint
+  const FLOOR_H = 1.15;
+  const PER_ROW = 4;       // buildings per row within a plot
+  const PLOT_PAD = 1.8;
+  const DISTRICT_PAD = 3.2;
+  const DISTRICT_MAX_W = 32;
+  const WORLD_MAX_W = 132;
+  // Floors per height tier. Six entries so any registered metric can drive it.
+  const FLOORS = [0, 2, 4, 7, 10, 14];
+
+  // ------------------------------------------------------------------ tiers
+  function metricDef(name) {
+    return CONFIG.metrics[name];
+  }
+
+  function tierIndex(metricName, value) {
+    const def = metricDef(metricName);
+    if (!def) return 0;
+    if (def.kind === "categorical") {
+      const i = def.tiers.findIndex((t) => t.value === value);
+      return i < 0 ? 0 : i;
+    }
+    const v = typeof value === "number" ? value : 0;
+    for (let i = 0; i < def.tiers.length; i++) {
+      const max = def.tiers[i].max;
+      if (max === null || max === undefined || v <= max) return i;
+    }
+    return def.tiers.length - 1;
+  }
+
+  function tierOf(metricName, value) {
+    return metricDef(metricName).tiers[tierIndex(metricName, value)];
+  }
+
+  function layerMetric(layer) {
+    return CONFIG.layers[layer].metric;
+  }
+
+  function valueFor(category, layer) {
+    return category.metrics[layerMetric(layer)];
+  }
+
+  // ----------------------------------------------------------------- layout
+  // Shelf packing: place boxes left to right, wrap to a new row when the shelf
+  // is full. Deterministic, so the city looks identical every run.
+  function shelfPack(items, maxWidth, gap) {
+    let x = 0, z = 0, rowDepth = 0, width = 0;
+    for (const item of items) {
+      if (x > 0 && x + item.w > maxWidth) {
+        x = 0;
+        z += rowDepth + gap;
+        rowDepth = 0;
+      }
+      item.x = x;
+      item.z = z;
+      x += item.w + gap;
+      width = Math.max(width, x - gap);
+      rowDepth = Math.max(rowDepth, item.d);
+    }
+    return { w: width, d: z + rowDepth };
+  }
+
+  function buildLayout() {
+    const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
+
+    const districts = CITY.districts.map((district) => {
+      const plots = district.plots.map((plot) => {
+        const cols = Math.min(plot.codes.length, PER_ROW);
+        const rows = Math.ceil(plot.codes.length / PER_ROW);
+        return {
+          name: plot.name,
+          codes: plot.codes,
+          cols,
+          rows,
+          w: cols * CELL + PLOT_PAD,
+          d: rows * CELL + PLOT_PAD,
+        };
+      });
+      const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
+      return {
+        name: district.name,
+        plots,
+        totals: district.totals,
+        w: inner.w + DISTRICT_PAD * 2,
+        d: inner.d + DISTRICT_PAD * 2 + 2.4, // extra depth for the name plate
+      };
+    });
+
+    // Widest districts first packs more tightly and keeps the skyline balanced.
+    const ordered = districts.slice().sort((a, b) => b.w - a.w || a.name.localeCompare(b.name));
+    const world = shelfPack(ordered, WORLD_MAX_W, 5.0);
+
+    const buildings = [];
+    for (const district of districts) {
+      district.cx = district.x - world.w / 2;
+      district.cz = district.z - world.d / 2;
+      for (const plot of district.plots) {
+        plot.cx = district.cx + DISTRICT_PAD + plot.x;
+        plot.cz = district.cz + DISTRICT_PAD + 2.4 + plot.z;
+        plot.codes.forEach((code, i) => {
+          const col = i % PER_ROW;
+          const row = Math.floor(i / PER_ROW);
+          buildings.push({
+            category: byCode.get(code),
+            district,
+            plot,
+            x: plot.cx + PLOT_PAD / 2 + col * CELL + CELL / 2,
+            z: plot.cz + PLOT_PAD / 2 + row * CELL + CELL / 2,
+          });
+        });
+      }
+    }
+    return { districts, buildings, size: world };
+  }
+
+  // ------------------------------------------------------------- instancing
+  // Thousands of bricks would be thousands of draw calls. Everything of one
+  // shape is collected here and drawn as a single InstancedMesh.
+  function Bucket() {
+    this.items = [];
+  }
+  Bucket.prototype.add = function (x, y, z, sx, sy, sz, color) {
+    this.items.push({ x, y, z, sx, sy, sz, color });
+  };
+  Bucket.prototype.mesh = function (geometry, material, castShadow, receiveShadow) {
+    if (!this.items.length) return null;
+    const mesh = new THREE.InstancedMesh(geometry, material, this.items.length);
+    const matrix = new THREE.Matrix4();
+    const color = new THREE.Color();
+    this.items.forEach((item, i) => {
+      matrix.makeScale(item.sx, item.sy, item.sz);
+      matrix.setPosition(item.x, item.y, item.z);
+      mesh.setMatrixAt(i, matrix);
+      if (item.color !== undefined && mesh.setColorAt) {
+        mesh.setColorAt(i, color.setHex(item.color));
+      }
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.castShadow = !!castShadow;
+    mesh.receiveShadow = !!receiveShadow;
+    return mesh;
+  };
+
+  // ------------------------------------------------------------------ scene
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(C.sky);
+
+  const layout = buildLayout();
+  const span = Math.max(layout.size.w, layout.size.d);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  document.body.appendChild(renderer.domElement);
+
+  const view = { size: span * 0.62, target: new THREE.Vector3(0, 0, 0) };
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 2000);
+  const CAM_DIR = new THREE.Vector3(1, 0.86, 1).normalize();
+
+  function applyCamera() {
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.left = -view.size * aspect;
+    camera.right = view.size * aspect;
+    camera.top = view.size;
+    camera.bottom = -view.size;
+    camera.position.copy(view.target).addScaledVector(CAM_DIR, 400);
+    camera.lookAt(view.target);
+    camera.updateProjectionMatrix();
+  }
+
+  // Frame content by projecting its bounding box onto the camera basis, so the
+  // fit is correct at any aspect ratio instead of guessed from a magic number.
+  function fitTo(box, margin) {
+    const up = new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(CAM_DIR, up).normalize();
+    const camUp = new THREE.Vector3().crossVectors(right, CAM_DIR).normalize();
+    const centre = box.getCenter(new THREE.Vector3());
+    let h = 0, v = 0;
+    for (const x of [box.min.x, box.max.x]) {
+      for (const y of [box.min.y, box.max.y]) {
+        for (const z of [box.min.z, box.max.z]) {
+          const p = new THREE.Vector3(x, y, z).sub(centre);
+          h = Math.max(h, Math.abs(p.dot(right)));
+          v = Math.max(v, Math.abs(p.dot(camUp)));
+        }
+      }
+    }
+    const aspect = window.innerWidth / window.innerHeight;
+    return { size: Math.max(v, h / aspect) * margin, target: centre.setY(0) };
+  }
+
+  scene.add(new THREE.HemisphereLight(0xa8c0e8, 0x232830, 0.46));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.14));
+  const sun = new THREE.DirectionalLight(0xfff4e6, 0.92);
+  sun.position.set(span * 0.55, span * 0.9, span * 0.35);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  const shade = span * 0.75;
+  Object.assign(sun.shadow.camera, {
+    left: -shade, right: shade, top: shade, bottom: -shade, near: 1, far: span * 3,
+  });
+  sun.shadow.camera.updateProjectionMatrix();
+  sun.shadow.bias = -0.0012;
+  scene.add(sun);
+  scene.add(sun.target);
+
+  // ------------------------------------------------------------- geometries
+  const box = new THREE.BoxGeometry(1, 1, 1);
+  const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
+
+  const matSolid = new THREE.MeshLambertMaterial();
+  const matPlate = new THREE.MeshLambertMaterial();
+  const matGhost = new THREE.MeshBasicMaterial({
+    color: C.bare, wireframe: true, transparent: true, opacity: 0.42,
+  });
+  const matGhostSolid = new THREE.MeshLambertMaterial({
+    color: C.bare, transparent: true, opacity: 0.13,
+  });
+  const matReactor = new THREE.MeshBasicMaterial({ color: C.reactor });
+
+  const plates = new Bucket();
+  const bricks = new Bucket();
+  const studs = new Bucket();
+  const houses = new Bucket();
+  const ghostBricks = new Bucket();
+  const ghostSolid = new Bucket();
+  const ghostHouses = new Bucket();
+  const reactors = new Bucket();
+
+  // world baseplate
+  const baseW = layout.size.w + 10;
+  const baseD = layout.size.d + 10;
+  const basePlate = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: C.ground }));
+  basePlate.scale.set(baseW, 1.2, baseD);
+  basePlate.position.set(0, -0.6, 0);
+  basePlate.receiveShadow = true;
+  scene.add(basePlate);
+
+  const labels = [];
+  function makeLabel(text, accent, scale) {
+    const pad = 16, fontSize = 40;
+    const measure = document.createElement("canvas").getContext("2d");
+    measure.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+    const w = Math.ceil(measure.measureText(text).width) + pad * 2 + 18;
+    const h = fontSize + pad * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(10,12,17,0.9)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, 0, 10, h);
+    ctx.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+    ctx.fillStyle = C.label;
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, pad + 12, h / 2 + 2);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.anisotropy = 4;
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
+    sprite.scale.set((w / h) * scale, scale, 1);
+    sprite.userData.base = { w: (w / h) * scale, h: scale };
+    sprite.renderOrder = 10;
+    return sprite;
+  }
+
+  // ---------------------------------------------------------------- build it
+  layout.districts.forEach((district, i) => {
+    plates.add(
+      district.cx + district.w / 2, -0.05, district.cz + district.d / 2,
+      district.w, 0.5, district.d, C.districtPlate
+    );
+    for (const plot of district.plots) {
+      plates.add(
+        plot.cx + plot.w / 2, 0.22, plot.cz + plot.d / 2,
+        plot.w, 0.34, plot.d, C.plotPlate
+      );
+    }
+    const band = DISTRICT_BANDS[i % DISTRICT_BANDS.length];
+    const label = makeLabel(district.name, band, 2.9);
+    label.position.set(district.cx + district.w / 2, 6.5, district.cz + 1.4);
+    scene.add(label);
+    labels.push(label);
+  });
+
+  const pickTargets = [];
+  const pickMaterial = new THREE.MeshBasicMaterial({
+    transparent: true, opacity: 0, depthWrite: false,
+  });
+
+  for (const building of layout.buildings) {
+    const category = building.category;
+    const state = category.blueprint_state;
+    const heightTier = tierIndex(layerMetric("height"), valueFor(category, "height"));
+    const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
+    const pieces = valueTier.pieces !== undefined
+      ? valueTier.pieces
+      : tierIndex(layerMetric("value"), valueFor(category, "value"));
+    const reactorTier = tierIndex(layerMetric("reactor"), valueFor(category, "reactor"));
+
+    const x = building.x, z = building.z;
+    const active = state === "active";
+    const floors = active ? FLOORS[Math.min(heightTier, FLOORS.length - 1)] : 0;
+
+    // Foundation. Kate's rule: draft claims the plot, active lays foundations.
+    const foundationColor = state === "active" ? C.active : state === "draft" ? C.draft : C.bare;
+    plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor);
+
+    let top = 0.62;
+    if (floors > 0) {
+      for (let f = 0; f < floors; f++) {
+        const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
+        bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? C.brickAlt : C.brick);
+      }
+      top = 0.62 + floors * FLOOR_H;
+      // studs only on the roof — enough to read as brick, cheap to draw
+      for (const dx of [-0.58, 0.58]) {
+        for (const dz of [-0.58, 0.58]) {
+          studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, C.stud);
+        }
+      }
+      if (reactorTier > 0) {
+        const glow = 0.32 + reactorTier * 0.16;
+        reactors.add(x, top + 0.34, z, glow * 2, 0.3, glow * 2);
+      }
+    } else {
+      // Nothing built: show the outline of what could stand here.
+      const ghostFloors = FLOORS[Math.min(Math.max(heightTier, 1), FLOORS.length - 1)];
+      const h = ghostFloors * FLOOR_H;
+      ghostBricks.add(x, 0.62 + h / 2, z, FOOT, h, FOOT);
+      ghostSolid.add(x, 0.62 + h / 2, z, FOOT, h, FOOT);
+    }
+
+    // Houses and hotel along the front of the lot. On an undeveloped plot they
+    // are ghosted — the value is real, the development is not.
+    if (pieces > 0) {
+      const hotel = valueTier.id === "hotel";
+      const count = hotel ? 1 : pieces;
+      const size = hotel ? 0.95 : 0.52;
+      const step = hotel ? 0 : 0.66;
+      const startX = x - ((count - 1) * step) / 2;
+      for (let p = 0; p < count; p++) {
+        const target = active ? houses : ghostHouses;
+        target.add(
+          startX + p * step, 0.62 + size / 2, z + FOOT / 2 + 0.75,
+          size, size, size, hotel ? C.hotel : C.house
+        );
+      }
+    }
+
+    const pick = new THREE.Mesh(box, pickMaterial);
+    pick.scale.set(CELL - 0.6, Math.max(top + 1.5, 3), CELL - 0.6);
+    pick.position.set(x, Math.max(top + 1.5, 3) / 2, z);
+    pick.userData.category = category;
+    scene.add(pick);
+    pickTargets.push(pick);
+  }
+
+  [
+    plates.mesh(box, matPlate, false, true),
+    bricks.mesh(box, matSolid, true, true),
+    studs.mesh(cyl, matSolid, true, false),
+    houses.mesh(box, matSolid, true, true),
+    ghostSolid.mesh(box, matGhostSolid, false, false),
+    ghostBricks.mesh(box, matGhost, false, false),
+    ghostHouses.mesh(box, matGhostSolid, false, false),
+    reactors.mesh(cyl, matReactor, false, false),
+  ].forEach((mesh) => mesh && scene.add(mesh));
+
+  // ------------------------------------------------------------------- HUD
+  const euro = (n) =>
+    n >= 1e6 ? `€${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}m`
+      : n > 0 ? `€${Math.round(n / 1e3)}k` : "—";
+
+  function renderStats() {
+    const t = CITY.totals;
+    const stats = [
+      [t.categories, "buildings"],
+      [t.with_blueprint, "developed"],
+      [t.bare_plots, "bare plots"],
+      [CITY.meta.counts.markets, "markets"],
+      [euro(t.spend_eur), "spend"],
+    ];
+    document.getElementById("stats").innerHTML = stats
+      .map(([n, k]) => `<div><span class="n">${n}</span><span class="k">${k}</span></div>`)
+      .join("");
+    document.getElementById("scope").textContent =
+      `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
+    document.getElementById("note").textContent =
+      `Anonymised extract, ${CITY.meta.source_extract_date}. ${CONFIG.disclosure.autonomy_note}`;
+  }
+
+  function renderLegend() {
+    const order = ["foundation", "height", "value", "reactor"];
+    document.getElementById("measures").innerHTML = order.map((layer, i) => {
+      const name = layerMetric(layer);
+      const def = metricDef(name);
+      let badge = "";
+      if (def.sample && CONFIG.disclosure.show_sample_badge) {
+        badge = '<span class="badge sample">sample data</span>';
+      } else if (def.provisional && CONFIG.disclosure.show_provisional_badge) {
+        badge = '<span class="badge provisional">provisional</span>';
+      }
+      const swatches = def.tiers.map((tier) => {
+        const color = swatchFor(layer, tier);
+        return `<span class="sw"><i style="background:${color}"></i>${tier.label}</span>`;
+      }).join("");
+      return `<div class="measure">
+        <div class="name">${i + 1}. ${def.label}${badge}</div>
+        <div class="by">${CONFIG.layers[layer].caption}</div>
+        <div class="swatches">${swatches}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function swatchFor(layer, tier) {
+    if (layer === "foundation") {
+      return { none: "#898781", draft: "#fab219", active: "#0ca30c" }[tier.value] || "#898781";
+    }
+    if (layer === "value") {
+      if (!tier.pieces) return "#3a3f47";
+      return tier.id === "hotel" ? "#e60000" : "#2e9e4f";
+    }
+    if (layer === "reactor") {
+      const steps = ["#3a3f47", "#3f7f96", "#5fbcdc", "#7fdcff"];
+      return steps[Math.min(tier.__i || 0, 3)];
+    }
+    // ordinal ramp, kept above the dark-surface contrast floor
+    const steps = ["#3a3f47", "#86b6ef", "#6da7ec", "#3987e5", "#256abf", "#184f95"];
+    return steps[Math.min(tier.__i || 0, 5)];
+  }
+
+  // stash tier order so swatchFor can shade by rank
+  Object.values(CONFIG.metrics).forEach((def) => def.tiers.forEach((t, i) => { t.__i = i; }));
+
+  const inspector = document.getElementById("inspector");
+  function showCategory(category) {
+    if (!category) {
+      inspector.classList.remove("on");
+      return;
+    }
+    const m = category.metrics;
+    const heightTier = tierOf(layerMetric("height"), valueFor(category, "height"));
+    const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
+    const stateTier = tierOf("blueprint_state", category.blueprint_state);
+    const rows = [
+      ["Blueprint", stateTier.label],
+      [metricDef(layerMetric("height")).label, `${valueFor(category, "height")} — ${heightTier.label}`],
+      ["Spend FY26/27", euro(m.spend_eur)],
+      ["Property", valueTier.label],
+      ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
+      ["Markets", category.markets.length ? category.markets.join(", ") : "—"],
+    ];
+    inspector.innerHTML = `
+      <div class="code">${category.code}</div>
+      <h3>${category.name}</h3>
+      <div class="where">${category.district} · ${category.plot}</div>
+      <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+      ${category.definition ? `<div class="def">${category.definition}</div>` : ""}`;
+    inspector.classList.add("on");
+  }
+
+  renderStats();
+  renderLegend();
+
+  // -------------------------------------------------------------- controls
+  const HOME = fitTo(
+    new THREE.Box3(
+      new THREE.Vector3(-baseW / 2, 0, -baseD / 2),
+      new THREE.Vector3(baseW / 2, 22, baseD / 2)
+    ),
+    1.04
+  );
+  view.size = HOME.size;
+  view.target.copy(HOME.target);
+  let dragging = false, lastX = 0, lastY = 0, moved = 0;
+  const anim = { active: false, t: 0, fromSize: 0, toSize: 0, from: new THREE.Vector3(), to: new THREE.Vector3() };
+
+  function flyTo(target, size) {
+    anim.from.copy(view.target);
+    anim.to.copy(target);
+    anim.fromSize = view.size;
+    anim.toSize = size;
+    anim.t = 0;
+    anim.active = true;
+  }
+
+  renderer.domElement.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    moved = 0;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  });
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    moved += Math.abs(dx) + Math.abs(dy);
+    const scale = (view.size * 2) / window.innerHeight;
+    // screen-right and screen-up projected onto the ground plane
+    const right = new THREE.Vector3().crossVectors(CAM_DIR, new THREE.Vector3(0, 1, 0)).normalize();
+    const fwd = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), right).normalize();
+    view.target.addScaledVector(right, -dx * scale).addScaledVector(fwd, -dy * scale);
+    anim.active = false;
+  });
+  const endDrag = () => { dragging = false; };
+  renderer.domElement.addEventListener("pointerup", endDrag);
+  renderer.domElement.addEventListener("pointercancel", endDrag);
+
+  renderer.domElement.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    view.size = THREE.MathUtils.clamp(view.size * (e.deltaY > 0 ? 1.1 : 0.9), 6, span * 1.4);
+    anim.active = false;
+  }, { passive: false });
+
+  const raycaster = new THREE.Raycaster();
+  renderer.domElement.addEventListener("click", (e) => {
+    if (moved > 6) return;
+    const pointer = new THREE.Vector2(
+      (e.clientX / window.innerWidth) * 2 - 1,
+      -(e.clientY / window.innerHeight) * 2 + 1
+    );
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(pickTargets, false)[0];
+    if (hit) {
+      showCategory(hit.object.userData.category);
+      flyTo(hit.object.position.clone().setY(0), Math.max(span * 0.16, 12));
+    } else {
+      showCategory(null);
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "r" || e.key === "R") {
+      showCategory(null);
+      flyTo(HOME.target, HOME.size);
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    applyCamera();
+  });
+
+  // ------------------------------------------------------------- public API
+  const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
+  const positionOf = new Map(layout.buildings.map((b) => [b.category.code, b]));
+
+  window.NWCity = {
+    data: CITY,
+    config: CONFIG,
+    focus(code) {
+      const category = byCode.get(String(code || "").toUpperCase());
+      if (!category) return false;
+      const spot = positionOf.get(category.code);
+      showCategory(category);
+      flyTo(new THREE.Vector3(spot.x, 0, spot.z), Math.max(span * 0.16, 12));
+      return true;
+    },
+    reset() {
+      showCategory(null);
+      flyTo(HOME.target, HOME.size);
+    },
+    setLayerMetric(layer, metric) {
+      if (!CONFIG.layers[layer] || !CONFIG.metrics[metric]) return false;
+      CONFIG.layers[layer].metric = metric;
+      window.location.reload();
+      return true;
+    },
+  };
+
+  // ------------------------------------------------------------------ loop
+  let ready = false;
+  function tick() {
+    requestAnimationFrame(tick);
+    if (anim.active) {
+      anim.t = Math.min(1, anim.t + 0.035);
+      const e = anim.t < 0.5 ? 4 * anim.t ** 3 : 1 - (-2 * anim.t + 2) ** 3 / 2; // ease in-out
+      view.target.lerpVectors(anim.from, anim.to, e);
+      view.size = anim.fromSize + (anim.toSize - anim.fromSize) * e;
+      if (anim.t >= 1) anim.active = false;
+    }
+    applyCamera();
+    const zoom = view.size / HOME.size;
+    for (const label of labels) {
+      const base = label.userData.base;
+      label.scale.set(base.w * zoom, base.h * zoom, 1);
+      label.material.opacity = THREE.MathUtils.clamp((zoom - 0.28) * 4, 0, 1);
+    }
+    renderer.render(scene, camera);
+    if (!ready) {
+      ready = true;
+      document.body.dataset.ready = "1";
+    }
+  }
+
+  applyCamera();
+  tick();
+})();

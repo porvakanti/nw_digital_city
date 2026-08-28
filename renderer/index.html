@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NW Digital City</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --ink:        #ffffff;
+    --ink-2:      #c3c2b7;
+    --ink-muted:  #898781;
+    --panel:      rgba(13, 15, 20, 0.82);
+    --hairline:   rgba(255, 255, 255, 0.12);
+    --good:       #0ca30c;
+    --warning:    #fab219;
+    --muted-tier: #898781;
+    --reactor:    #7fdcff;
+    --hotel:      #e60000;
+    --house:      #2e9e4f;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: #05070d;
+    color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+  }
+  canvas { display: block; }
+
+  .hud { position: fixed; pointer-events: none; }
+  .hud > * { pointer-events: auto; }
+
+  /* ---- title ---- */
+  #masthead { top: 20px; left: 20px; max-width: 380px; }
+  #masthead h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  #masthead p {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  /* ---- stats strip ---- */
+  #stats {
+    display: flex;
+    gap: 22px;
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+  }
+  #stats div { min-width: 0; white-space: nowrap; }
+  #stats .n {
+    display: block;
+    font-size: 20px;
+    font-weight: 620;
+    line-height: 1.1;
+  }
+  #stats .k {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+  }
+
+  /* ---- legend ---- */
+  #legend {
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    padding: 16px 18px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+  }
+  #legend h2 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  .measure { margin-bottom: 12px; }
+  .measure:last-child { margin-bottom: 0; }
+  .measure .name { font-size: 13px; font-weight: 600; }
+  .measure .by { font-size: 12px; color: var(--ink-2); }
+  .swatches { display: flex; gap: 6px; align-items: center; margin-top: 5px; flex-wrap: wrap; }
+  .sw {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--ink-2);
+  }
+  .sw i {
+    width: 10px; height: 10px; border-radius: 2px;
+    display: inline-block; flex: none;
+  }
+  .badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+  }
+  .badge.provisional { background: rgba(250, 178, 25, 0.16); color: var(--warning); }
+  .badge.sample      { background: rgba(224, 90, 90, 0.16);  color: #e88; }
+
+  /* ---- inspector ---- */
+  #inspector {
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    padding: 16px 18px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    display: none;
+  }
+  #inspector.on { display: block; }
+  #inspector .code {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  #inspector h3 { margin: 3px 0 2px; font-size: 16px; font-weight: 620; }
+  #inspector .where { font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
+  #inspector .def {
+    font-size: 12px;
+    color: var(--ink-2);
+    border-top: 1px solid var(--hairline);
+    padding-top: 10px;
+    margin-top: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .rows { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 12px; }
+  .rows dt { color: var(--ink-muted); }
+  .rows dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---- hint ---- */
+  #hint {
+    bottom: 20px;
+    right: 20px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: right;
+  }
+  kbd {
+    font: inherit;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  #note {
+    margin-top: 6px;
+    max-width: 260px;
+    color: #6f6d68;
+  }
+</style>
+</head>
+<body>
+  <div class="hud" id="masthead">
+    <h1>NW Digital City</h1>
+    <p id="scope">Vodafone Networks — category blueprint estate</p>
+    <div id="stats"></div>
+  </div>
+
+  <div class="hud" id="inspector"></div>
+
+  <div class="hud" id="legend">
+    <h2>How to read the city</h2>
+    <div id="measures"></div>
+  </div>
+
+  <div class="hud" id="hint">
+    drag to pan · scroll to zoom · <kbd>R</kbd> reset · click a building
+    <div id="note"></div>
+  </div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="city-data.js"></script>
+  <script src="city.js"></script>
+</body>
+</html>
