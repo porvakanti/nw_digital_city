@@ -154,6 +154,60 @@
   .rows dt { color: var(--ink-muted); }
   .rows dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 
+  /* ---- the builder's speech bubble ---- */
+  #bubble {
+    position: fixed;
+    max-width: 260px;
+    padding: 9px 13px;
+    background: #f7f4ec;
+    color: #14161a;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+  }
+  #bubble.on { opacity: 1; }
+  #bubble::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    margin-left: -7px;
+    border: 7px solid transparent;
+    border-top-color: #f7f4ec;
+    border-bottom: 0;
+  }
+
+  /* ---- lower third: the agent's line, readable from the back of the room ---- */
+  #caption {
+    left: 50%;
+    bottom: 34px;
+    transform: translateX(-50%);
+    max-width: 900px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  #caption.on { opacity: 1; }
+  #caption b {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(8, 10, 14, 0.9);
+    border: 1px solid var(--hairline);
+    border-left: 4px solid var(--hotel);
+    border-radius: 8px;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    backdrop-filter: blur(8px);
+  }
+
   /* ---- hint ---- */
   #hint {
     bottom: 20px;
@@ -189,6 +243,10 @@
     <h2>How to read the city</h2>
     <div id="measures"></div>
   </div>
+
+  <div id="bubble"></div>
+
+  <div class="hud" id="caption"><b></b></div>
 
   <div class="hud" id="hint">
     drag to pan · scroll to zoom · <kbd>R</kbd> reset · click a building

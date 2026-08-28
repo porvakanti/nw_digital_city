@@ -88,7 +88,7 @@ python3 -m unittest discover -s tests -v
 - [x] Data pipeline, metric registry, privacy guards
 - [x] Renderer — the brick city (isometric, click-to-inspect, `NWCity.focus()`)
 - [x] Build choreography — opening city rise, per-category teardown and rebuild
-- [ ] The character — minifigure, idle, flight, construction
+- [x] The character — minifigure, idle wander, flight, speech bubble and caption
 - [ ] Agent — natural language in, city out
 - [ ] Model adapter, speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode

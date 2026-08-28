@@ -679,6 +679,181 @@
   renderStats();
   renderLegend();
 
+  // ----------------------------------------------------------- the builder
+  // A minifigure in a hard hat — deliberately the same object Gorkem is handing
+  // out on the day, so the thing in someone's hand is the thing on the screen.
+  const FIGURE_SCALE = 0.72;
+
+  function buildFigure() {
+    const group = new THREE.Group();
+    const mat = (hex) => new THREE.MeshLambertMaterial({ color: hex });
+    const overalls = mat(0xe60000);
+    const legs = mat(0x2b3140);
+    const skin = mat(0xf3c85c);
+    const hat = mat(0xffc21a);
+
+    const part = (material, x, y, z, sx, sy, sz, geometry) => {
+      const mesh = new THREE.Mesh(geometry || box, material);
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+
+    part(legs, -0.32, 0.55, 0, 0.52, 1.1, 0.68);
+    part(legs, 0.32, 0.55, 0, 0.52, 1.1, 0.68);
+    part(overalls, 0, 1.6, 0, 1.42, 1.05, 0.78);
+    const armL = part(overalls, -0.92, 1.62, 0, 0.38, 0.92, 0.5);
+    const armR = part(overalls, 0.92, 1.62, 0, 0.38, 0.92, 0.5);
+    part(skin, 0, 2.4, 0, 0.86, 0.66, 0.86, cyl);
+    part(hat, 0, 2.79, 0, 0.94, 0.34, 0.94, cyl);
+    part(hat, 0, 2.6, 0, 1.34, 0.12, 1.34, cyl);
+
+    group.userData.arms = [armL, armR];
+    group.scale.setScalar(FIGURE_SCALE);
+    return group;
+  }
+
+  const figure = buildFigure();
+  scene.add(figure);
+
+  // Where the builder can stand: just in front of each lot, never inside one.
+  const standings = layout.buildings.map((b) => new THREE.Vector3(b.x, 0, b.z + CELL * 0.6));
+
+  const walker = {
+    mode: "idle",
+    from: standings[0].clone(),
+    to: standings[0].clone(),
+    start: 0,
+    duration: 3,
+    holdUntil: 0,
+    pinned: false,
+  };
+  figure.position.copy(walker.to);
+
+  function sendFigure(target, mode, duration) {
+    walker.from.copy(figure.position).setY(0);
+    walker.to.copy(target);
+    walker.mode = mode;
+    walker.start = clockNow();
+    walker.duration = duration;
+    walker.holdUntil = 0;
+  }
+
+  function wander(now) {
+    const next = standings[Math.floor(Math.random() * standings.length)];
+    const distance = figure.position.distanceTo(next);
+    sendFigure(next, "walk", Math.max(1.4, distance / 9));
+    walker.holdUntil = 0;
+    return now;
+  }
+
+  function updateFigure(now) {
+    const t = walker.duration > 0
+      ? THREE.MathUtils.clamp((now - walker.start) / walker.duration, 0, 1)
+      : 1;
+    const ease = t * t * (3 - 2 * t);
+    figure.position.lerpVectors(walker.from, walker.to, ease);
+
+    // Flying arcs over the city; walking bobs along the ground.
+    if (walker.mode === "fly") {
+      figure.position.y = Math.sin(Math.PI * t) * 14;
+    } else if (walker.mode === "walk" && t < 1) {
+      figure.position.y = Math.abs(Math.sin(now * 7)) * 0.14;
+    } else {
+      figure.position.y = 0;
+    }
+
+    const heading = walker.to.clone().sub(walker.from);
+    if (heading.lengthSq() > 0.02) figure.rotation.y = Math.atan2(heading.x, heading.z);
+
+    // Arms swing when moving, and go up when the building lands.
+    const moving = t < 1;
+    const swing = moving ? Math.sin(now * 9) * 0.7 : 0;
+    const cheering = walker.mode === "watch" && now < walker.holdUntil - 1.5;
+    figure.userData.arms.forEach((arm, i) => {
+      arm.rotation.x = cheering ? -2.2 : swing * (i ? -1 : 1);
+    });
+
+    if (t >= 1) {
+      if (walker.mode === "fly") {
+        walker.mode = "watch";
+        walker.holdUntil = now + 3;
+      } else if (walker.pinned) {
+        // stay with the category until the city is reset
+      } else if (walker.mode !== "watch" || now > walker.holdUntil) {
+        if (!walker.holdUntil) walker.holdUntil = now + 1.2 + Math.random() * 2.5;
+        if (now > walker.holdUntil) wander(now);
+      }
+    }
+  }
+
+  // --------------------------------------------------------------- the voice
+  // Deterministic for now. When the model lands it replaces these sentences,
+  // but the fallback has to be able to carry the demo on its own.
+  function narrate(category) {
+    const m = category.metrics;
+    const spend = euro(m.spend_eur);
+    if (category.blueprint_state === "none") {
+      return m.spend_eur > 0
+        ? {
+            caption: `${spend} of spend. No blueprint. Nothing to build here yet.`,
+            bubble: `Empty plot. There's ${spend} sitting on this ground and no rules to build with.`,
+          }
+        : {
+            caption: `No blueprint, and no recorded spend. This plot is still open ground.`,
+            bubble: `Nothing here yet. Someone has to claim this plot.`,
+          };
+    }
+    if (category.blueprint_state === "draft") {
+      return {
+        caption: `Blueprint drafted but not active. The plot is marked out, no foundations.`,
+        bubble: `Someone has claimed this plot — the blueprint is still in draft.`,
+      };
+    }
+    const reach = m.market_reach;
+    const markets = `${reach} market${reach === 1 ? "" : "s"}`;
+    const tier = tierOf(layerMetric("height"), valueFor(category, "height"));
+    return {
+      caption: m.spend_eur > 0
+        ? `${markets} building on this blueprint. ${spend} of spend.`
+        : `${markets} building on this blueprint.`,
+      bubble: `${tier.label}. Adopted across ${markets}.`,
+    };
+  }
+
+  const bubbleEl = document.getElementById("bubble");
+  const captionEl = document.getElementById("caption");
+  let bubbleText = "";
+
+  function say(category) {
+    if (!category) {
+      bubbleText = "";
+      bubbleEl.classList.remove("on");
+      captionEl.classList.remove("on");
+      return;
+    }
+    const lines = narrate(category);
+    bubbleText = lines.bubble;
+    bubbleEl.textContent = lines.bubble;
+    captionEl.firstElementChild.textContent = lines.caption;
+    captionEl.classList.add("on");
+  }
+
+  function placeBubble() {
+    if (!bubbleText) return;
+    const head = figure.position.clone();
+    head.y += 3.4 * FIGURE_SCALE;
+    head.project(camera);
+    const x = (head.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-head.y * 0.5 + 0.5) * window.innerHeight - 12;
+    const onScreen = head.z < 1 && x > 0 && x < window.innerWidth;
+    bubbleEl.style.left = `${x}px`;
+    bubbleEl.style.top = `${y}px`;
+    bubbleEl.classList.toggle("on", onScreen);
+  }
+
   // -------------------------------------------------------------- controls
   const HOME = fitTo(
     new THREE.Box3(
@@ -745,10 +920,20 @@
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(pickTargets, false)[0];
     if (hit) {
-      showCategory(hit.object.userData.category);
+      const clicked = hit.object.userData.category;
+      showCategory(clicked);
+      say(clicked);
       flyTo(hit.object.position.clone().setY(0), FOCUS_SIZE);
+      sendFigure(
+        new THREE.Vector3(hit.object.position.x, 0, hit.object.position.z + CELL * 0.6),
+        "fly",
+        FLIGHT
+      );
+      walker.pinned = true;
     } else {
       showCategory(null);
+      say(null);
+      walker.pinned = false;
     }
   });
 
@@ -776,7 +961,11 @@
       if (!category) return false;
       const spot = positionOf.get(category.code);
       showCategory(category);
-      flyTo(new THREE.Vector3(spot.x, 0, spot.z), FOCUS_SIZE);
+      const ground = new THREE.Vector3(spot.x, 0, spot.z);
+      flyTo(ground, FOCUS_SIZE);
+      sendFigure(new THREE.Vector3(spot.x, 0, spot.z + CELL * 0.6), "fly", FLIGHT);
+      walker.pinned = true;
+      say(category);
       // Fly first, then tear the building down and reassemble it, so the
       // construction lands once the camera has settled on the plot.
       clearTimeout(window.__nwBuildTimer);
@@ -792,6 +981,8 @@
     },
     reset() {
       showCategory(null);
+      say(null);
+      walker.pinned = false;
       flyTo(HOME.target, HOME.size);
     },
     setLayerMetric(layer, metric) {
@@ -814,7 +1005,9 @@
       if (t >= 1) anim.active = false;
     }
     stepBuild();
+    updateFigure(clockNow());
     applyCamera();
+    placeBubble();
     const zoom = view.size / HOME.size;
     for (const label of labels) {
       const base = label.userData.base;
