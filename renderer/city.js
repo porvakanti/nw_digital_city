@@ -190,6 +190,7 @@
   }
   Bucket.prototype.add = function (x, y, z, sx, sy, sz, color) {
     this.items.push({ x, y, z, sx, sy, sz, color });
+    return this.items.length - 1;
   };
   Bucket.prototype.mesh = function (geometry, material, castShadow, receiveShadow) {
     if (!this.items.length) return null;
@@ -403,59 +404,65 @@
     const state = category.blueprint_state;
     const heightTier = tierIndex(layerMetric("height"), valueFor(category, "height"));
     const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
-    const pieces = valueTier.pieces !== undefined
+    const pieceCount = valueTier.pieces !== undefined
       ? valueTier.pieces
       : tierIndex(layerMetric("value"), valueFor(category, "value"));
     const reactorTier = tierIndex(layerMetric("reactor"), valueFor(category, "reactor"));
 
     const palette = brickSet(building.district.index);
+    const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null };
+    building.pieces = pieces;
     const x = building.x, z = building.z;
     const active = state === "active";
     const floors = active ? FLOORS[Math.min(heightTier, FLOORS.length - 1)] : 0;
 
     // Foundation. Kate's rule: draft claims the plot, active lays foundations.
     const foundationColor = state === "active" ? C.active : state === "draft" ? C.draft : C.bare;
-    plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor);
+    pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
 
     let top = 0.62;
     if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
-        bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main);
+        pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
       }
       top = 0.62 + floors * FLOOR_H;
       // studs only on the roof — enough to read as brick, cheap to draw
       for (const dx of [-0.58, 0.58]) {
         for (const dz of [-0.58, 0.58]) {
-          studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud);
+          pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
         }
       }
       if (reactorTier > 0) {
         const glow = 0.32 + reactorTier * 0.16;
-        reactors.add(x, top + 0.34, z, glow * 2, 0.3, glow * 2);
+        pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.34, z, glow * 2, 0.3, glow * 2) };
       }
     } else {
       // Nothing built: show the outline of what could stand here.
       const ghostFloors = FLOORS[Math.min(Math.max(heightTier, 1), FLOORS.length - 1)];
       const h = ghostFloors * FLOOR_H;
-      ghostBricks.add(x, 0.62 + h / 2, z, FOOT, h, FOOT);
-      ghostSolid.add(x, 0.62 + h / 2, z, FOOT, h, FOOT);
+      pieces.ghosts.push({ bucket: "ghostBricks", i: ghostBricks.add(x, 0.62 + h / 2, z, FOOT, h, FOOT) });
+      pieces.ghosts.push({ bucket: "ghostSolid", i: ghostSolid.add(x, 0.62 + h / 2, z, FOOT, h, FOOT) });
     }
 
     // Houses and hotel along the front of the lot. On an undeveloped plot they
     // are ghosted — the value is real, the development is not.
-    if (pieces > 0) {
+    if (pieceCount > 0) {
       const hotel = valueTier.id === "hotel";
-      const count = hotel ? 1 : pieces;
+      const count = hotel ? 1 : pieceCount;
       const size = hotel ? 0.95 : 0.52;
       const step = hotel ? 0 : 0.66;
       const startX = x - ((count - 1) * step) / 2;
       for (let p = 0; p < count; p++) {
         const target = active ? houses : ghostHouses;
-        target.add(
-          startX + p * step, 0.62 + size / 2, z + FOOT / 2 + 0.75,
-          size, size, size, hotel ? C.hotel : C.house
-        );
+        const bucketName = active ? "houses" : "ghostHouses";
+        pieces.houses.push({
+          bucket: bucketName,
+          i: target.add(
+            startX + p * step, 0.62 + size / 2, z + FOOT / 2 + 0.75,
+            size, size, size, hotel ? C.hotel : C.house
+          ),
+        });
       }
     }
 
@@ -467,16 +474,114 @@
     pickTargets.push(pick);
   }
 
-  [
-    plates.mesh(box, matPlate, false, true),
-    bricks.mesh(box, matSolid, true, true),
-    studs.mesh(cyl, matSolid, true, false),
-    houses.mesh(box, matSolid, true, true),
-    ghostSolid.mesh(box, matGhostSolid, false, false),
-    ghostBricks.mesh(box, matGhost, false, false),
-    ghostHouses.mesh(box, matGhostSolid, false, false),
-    reactors.mesh(cyl, matReactor, false, false),
-  ].forEach((mesh) => mesh && scene.add(mesh));
+  const BUCKETS = {
+    plates: { bucket: plates, mesh: plates.mesh(box, matPlate, false, true) },
+    bricks: { bucket: bricks, mesh: bricks.mesh(box, matSolid, true, true) },
+    studs: { bucket: studs, mesh: studs.mesh(cyl, matSolid, true, false) },
+    houses: { bucket: houses, mesh: houses.mesh(box, matSolid, true, true) },
+    ghostSolid: { bucket: ghostSolid, mesh: ghostSolid.mesh(box, matGhostSolid, false, false) },
+    ghostBricks: { bucket: ghostBricks, mesh: ghostBricks.mesh(box, matGhost, false, false) },
+    ghostHouses: { bucket: ghostHouses, mesh: ghostHouses.mesh(box, matGhostSolid, false, false) },
+    reactors: { bucket: reactors, mesh: reactors.mesh(cyl, matReactor, false, false) },
+  };
+  Object.values(BUCKETS).forEach((entry) => entry.mesh && scene.add(entry.mesh));
+
+  // --------------------------------------------------------------- the build
+  // Pieces are instances inside shared meshes, so "building" a category means
+  // rewriting a handful of instance matrices over time. One building can be
+  // torn down and reassembled without its neighbours so much as flickering.
+  const BUILD_SPEED = Number(new URLSearchParams(location.search).get("speed")) || 1;
+  const MATRIX = new THREE.Matrix4();
+  const dirty = new Set();
+  let scheduled = [];
+
+  function setPiece(ref, progress) {
+    const entry = BUCKETS[ref.bucket];
+    if (!entry || !entry.mesh) return;
+    const item = entry.bucket.items[ref.i];
+    if (progress <= 0) {
+      MATRIX.makeScale(0, 0, 0);
+      MATRIX.setPosition(item.x, item.y, item.z);
+    } else {
+      const e = 1 - Math.pow(1 - progress, 3);
+      const squash = 0.7 + 0.3 * e;
+      MATRIX.makeScale(item.sx, item.sy * squash, item.sz);
+      MATRIX.setPosition(item.x, item.y + (1 - e) * 6, item.z);
+    }
+    entry.mesh.setMatrixAt(ref.i, MATRIX);
+    dirty.add(entry.mesh);
+  }
+
+  function schedule(ref, at, duration) {
+    if (!ref) return;
+    setPiece(ref, 0);
+    scheduled.push({ ref, at, duration });
+  }
+
+  // The order is the point: foundation, then height, then value, then reactor.
+  // Every build re-teaches the four measures without anyone narrating them.
+  function buildSequence(building, t0, rate) {
+    const k = 1 / (BUILD_SPEED * rate);
+    const p = building.pieces;
+    let t = t0;
+    schedule(p.foundation, t, 0.34 * k);
+    t += 0.3 * k;
+    p.ghosts.forEach((g) => schedule(g, t, 0.45 * k));
+    p.floors.forEach((f, i) => schedule(f, t + i * 0.1 * k, 0.32 * k));
+    t += p.floors.length * 0.1 * k;
+    p.studs.forEach((st) => schedule(st, t, 0.24 * k));
+    t += 0.18 * k;
+    p.houses.forEach((h, i) => schedule(h, t + i * 0.07 * k, 0.28 * k));
+    t += (p.houses.length * 0.07 + 0.2) * k;
+    if (p.reactor) {
+      schedule(p.reactor, t, 0.45 * k);
+      t += 0.45 * k;
+    }
+    return t;
+  }
+
+  function clockNow() {
+    return performance.now() / 1000;
+  }
+
+  // The opening shot: the whole city assembles itself, district by district.
+  function cityRise() {
+    const t0 = clockNow() + 0.35;
+    layout.buildings.forEach((building, i) => {
+      buildSequence(building, t0 + building.district.index * 0.16 + i * 0.006, 3.2);
+    });
+  }
+
+  function rebuild(building) {
+    const from = clockNow();
+    scheduled = scheduled.filter((s) => !ownsPiece(building, s.ref));
+    return buildSequence(building, from, 1);
+  }
+
+  function ownsPiece(building, ref) {
+    const p = building.pieces;
+    if (p.foundation === ref || p.reactor === ref) return true;
+    return p.floors.includes(ref) || p.studs.includes(ref)
+      || p.houses.includes(ref) || p.ghosts.includes(ref);
+  }
+
+  function stepBuild() {
+    if (!scheduled.length) return;
+    const now = clockNow();
+    const still = [];
+    for (const entry of scheduled) {
+      const progress = (now - entry.at) / entry.duration;
+      if (progress < 0) {
+        still.push(entry);
+        continue;
+      }
+      setPiece(entry.ref, Math.min(1, progress));
+      if (progress < 1) still.push(entry);
+    }
+    scheduled = still;
+    for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
+    dirty.clear();
+  }
 
   // ------------------------------------------------------------------- HUD
   const euro = (n) =>
@@ -585,14 +690,18 @@
   view.size = HOME.size;
   view.target.copy(HOME.target);
   let dragging = false, lastX = 0, lastY = 0, moved = 0;
-  const anim = { active: false, t: 0, fromSize: 0, toSize: 0, from: new THREE.Vector3(), to: new THREE.Vector3() };
+  const FLIGHT = 1.2; // seconds
+  const FOCUS_SIZE = CELL * 3.4; // frame the plot, not the building
+  const anim = { active: false, start: 0, duration: FLIGHT, fromSize: 0, toSize: 0,
+                 from: new THREE.Vector3(), to: new THREE.Vector3() };
 
-  function flyTo(target, size) {
+  function flyTo(target, size, duration) {
     anim.from.copy(view.target);
     anim.to.copy(target);
     anim.fromSize = view.size;
     anim.toSize = size;
-    anim.t = 0;
+    anim.start = clockNow();
+    anim.duration = duration || FLIGHT;
     anim.active = true;
   }
 
@@ -637,7 +746,7 @@
     const hit = raycaster.intersectObjects(pickTargets, false)[0];
     if (hit) {
       showCategory(hit.object.userData.category);
-      flyTo(hit.object.position.clone().setY(0), Math.max(span * 0.16, 12));
+      flyTo(hit.object.position.clone().setY(0), FOCUS_SIZE);
     } else {
       showCategory(null);
     }
@@ -667,8 +776,19 @@
       if (!category) return false;
       const spot = positionOf.get(category.code);
       showCategory(category);
-      flyTo(new THREE.Vector3(spot.x, 0, spot.z), Math.max(span * 0.16, 12));
+      flyTo(new THREE.Vector3(spot.x, 0, spot.z), FOCUS_SIZE);
+      // Fly first, then tear the building down and reassemble it, so the
+      // construction lands once the camera has settled on the plot.
+      clearTimeout(window.__nwBuildTimer);
+      window.__nwBuildTimer = setTimeout(() => rebuild(spot), FLIGHT * 900);
       return true;
+    },
+    rise() {
+      cityRise();
+    },
+    // pieces still mid-flight — used by rehearsal checks and tests
+    pending() {
+      return scheduled.length;
     },
     reset() {
       showCategory(null);
@@ -687,12 +807,13 @@
   function tick() {
     requestAnimationFrame(tick);
     if (anim.active) {
-      anim.t = Math.min(1, anim.t + 0.035);
-      const e = anim.t < 0.5 ? 4 * anim.t ** 3 : 1 - (-2 * anim.t + 2) ** 3 / 2; // ease in-out
+      const t = Math.min(1, (clockNow() - anim.start) / anim.duration);
+      const e = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2; // ease in-out
       view.target.lerpVectors(anim.from, anim.to, e);
       view.size = anim.fromSize + (anim.toSize - anim.fromSize) * e;
-      if (anim.t >= 1) anim.active = false;
+      if (t >= 1) anim.active = false;
     }
+    stepBuild();
     applyCamera();
     const zoom = view.size / HOME.size;
     for (const label of labels) {
@@ -708,5 +829,6 @@
   }
 
   applyCamera();
+  cityRise();
   tick();
 })();
