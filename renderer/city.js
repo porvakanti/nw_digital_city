@@ -42,12 +42,27 @@
     label: "#e8eaf0",
   };
 
-  // Decorative only — a Monopoly-style band on each district name plate. The
-  // name is printed on the plate itself, so hue never has to be distinguished.
+  // Monopoly property-group colours. Reinforcement only: every district also
+  // carries a printed name plate and its own patch of ground, so identity never
+  // rests on telling eight hues apart. The measures that must be read exactly
+  // — status, height, houses, reactor — stay on shape, height and count.
   const DISTRICT_BANDS = [
     "#3987e5", "#d95926", "#199e70", "#c98500",
     "#d55181", "#008300", "#9085e9", "#e66767",
   ];
+
+  // A Lego brick reads as a light face over a saturated body, so each district
+  // hue is mixed toward white for the wall and left darker for the banding.
+  function brickSet(index) {
+    const base = new THREE.Color(DISTRICT_BANDS[index % DISTRICT_BANDS.length]);
+    const wall = base.clone().lerp(new THREE.Color(0xffffff), 0.26);
+    return {
+      main: wall.getHex(),
+      alt: wall.clone().lerp(base, 0.5).getHex(),
+      stud: wall.clone().lerp(new THREE.Color(0xffffff), 0.3).getHex(),
+      band: base.getHex(),
+    };
+  }
 
   // ------------------------------------------------------------ dimensions
   const CELL = 4.0;        // one building lot
@@ -116,7 +131,7 @@
   function buildLayout() {
     const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
 
-    const districts = CITY.districts.map((district) => {
+    const districts = CITY.districts.map((district, index) => {
       const plots = district.plots.map((plot) => {
         const cols = Math.min(plot.codes.length, PER_ROW);
         const rows = Math.ceil(plot.codes.length / PER_ROW);
@@ -131,6 +146,7 @@
       });
       const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
       return {
+        index,
         name: district.name,
         plots,
         totals: district.totals,
@@ -284,14 +300,46 @@
   const ghostHouses = new Bucket();
   const reactors = new Bucket();
 
+  // A Lego baseplate is a grid of studs. Cheaper as a repeating texture than as
+  // thousands of cylinders, and the plates are few enough to each own one.
+  const STUD_TILE = 2.0;
+  function studTexture(hex, studHex) {
+    const size = 128;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#" + hex.toString(16).padStart(6, "0");
+    ctx.fillRect(0, 0, size, size);
+    const r = size * 0.27;
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2 + size * 0.03, r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#" + studHex.toString(16).padStart(6, "0");
+    ctx.fill();
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.anisotropy = 8;
+    return tex;
+  }
+
+  function studdedPlate(x, y, z, w, h, d, hex, studHex) {
+    const tex = studTexture(hex, studHex);
+    tex.repeat.set(Math.max(1, Math.round(w / STUD_TILE)), Math.max(1, Math.round(d / STUD_TILE)));
+    const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ map: tex }));
+    mesh.scale.set(w, h, d);
+    mesh.position.set(x, y, z);
+    mesh.receiveShadow = true;
+    scene.add(mesh);
+    return mesh;
+  }
+
   // world baseplate
   const baseW = layout.size.w + 10;
   const baseD = layout.size.d + 10;
-  const basePlate = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: C.ground }));
-  basePlate.scale.set(baseW, 1.2, baseD);
-  basePlate.position.set(0, -0.6, 0);
-  basePlate.receiveShadow = true;
-  scene.add(basePlate);
+  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x232b36);
 
   const labels = [];
   function makeLabel(text, accent, scale) {
@@ -323,18 +371,23 @@
 
   // ---------------------------------------------------------------- build it
   layout.districts.forEach((district, i) => {
-    plates.add(
+    const palette = brickSet(i);
+    studdedPlate(
       district.cx + district.w / 2, -0.05, district.cz + district.d / 2,
-      district.w, 0.5, district.d, C.districtPlate
+      district.w, 0.5, district.d, C.districtPlate, 0x39434f
+    );
+    // The Monopoly property band: a coloured kerb along the front of the block.
+    plates.add(
+      district.cx + district.w / 2, 0.16, district.cz + 0.55,
+      district.w - 1.2, 0.42, 1.1, palette.band
     );
     for (const plot of district.plots) {
-      plates.add(
+      studdedPlate(
         plot.cx + plot.w / 2, 0.22, plot.cz + plot.d / 2,
-        plot.w, 0.34, plot.d, C.plotPlate
+        plot.w, 0.34, plot.d, C.plotPlate, 0x4a5563
       );
     }
-    const band = DISTRICT_BANDS[i % DISTRICT_BANDS.length];
-    const label = makeLabel(district.name, band, 2.9);
+    const label = makeLabel(district.name, DISTRICT_BANDS[i % DISTRICT_BANDS.length], 2.9);
     label.position.set(district.cx + district.w / 2, 6.5, district.cz + 1.4);
     scene.add(label);
     labels.push(label);
@@ -355,6 +408,7 @@
       : tierIndex(layerMetric("value"), valueFor(category, "value"));
     const reactorTier = tierIndex(layerMetric("reactor"), valueFor(category, "reactor"));
 
+    const palette = brickSet(building.district.index);
     const x = building.x, z = building.z;
     const active = state === "active";
     const floors = active ? FLOORS[Math.min(heightTier, FLOORS.length - 1)] : 0;
@@ -367,13 +421,13 @@
     if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
-        bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? C.brickAlt : C.brick);
+        bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main);
       }
       top = 0.62 + floors * FLOOR_H;
       // studs only on the roof — enough to read as brick, cheap to draw
       for (const dx of [-0.58, 0.58]) {
         for (const dz of [-0.58, 0.58]) {
-          studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, C.stud);
+          studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud);
         }
       }
       if (reactorTier > 0) {
