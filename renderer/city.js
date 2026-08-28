@@ -30,7 +30,7 @@
     ground: 0x161b23,
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
-    bare: 0x898781, // muted — absence, not a status
+    bare: 0x7c8794, // muted — absence, not a status
     draft: 0xfab219, // status: warning
     active: 0x0ca30c, // status: good
     brick: 0xd9d3c6,
@@ -55,11 +55,11 @@
   // hue is mixed toward white for the wall and left darker for the banding.
   function brickSet(index) {
     const base = new THREE.Color(DISTRICT_BANDS[index % DISTRICT_BANDS.length]);
-    const wall = base.clone().lerp(new THREE.Color(0xffffff), 0.26);
+    const wall = base.clone().lerp(new THREE.Color(0xffffff), 0.1);
     return {
       main: wall.getHex(),
-      alt: wall.clone().lerp(base, 0.5).getHex(),
-      stud: wall.clone().lerp(new THREE.Color(0xffffff), 0.3).getHex(),
+      alt: wall.clone().lerp(new THREE.Color(0x000000), 0.16).getHex(),
+      stud: wall.clone().lerp(new THREE.Color(0xffffff), 0.22).getHex(),
       band: base.getHex(),
     };
   }
@@ -285,10 +285,10 @@
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
   const matGhost = new THREE.MeshBasicMaterial({
-    color: C.bare, wireframe: true, transparent: true, opacity: 0.42,
+    color: C.bare, wireframe: true, transparent: true, opacity: 0.3,
   });
   const matGhostSolid = new THREE.MeshLambertMaterial({
-    color: C.bare, transparent: true, opacity: 0.13,
+    color: C.bare, transparent: true, opacity: 0.07,
   });
   const matReactor = new THREE.MeshBasicMaterial({ color: C.reactor });
 
