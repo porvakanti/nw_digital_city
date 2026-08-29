@@ -698,6 +698,20 @@
         );
       }
 
+      // Catenary: a mast every so often along one edge and a wire above the
+      // track. Nothing else says tram quite as quickly as an overhead line.
+      const masts = Math.max(2, Math.round(span / 8));
+      for (let i = 0; i <= masts; i++) {
+        const t = i / masts - 0.5;
+        kerbs.add(
+          r.x + (r.vertical ? width / 2 - 0.2 : t * span), DECK_Y + 1.9,
+          r.z + (r.vertical ? t * span : width / 2 - 0.2),
+          0.16, 2.4, 0.16, 0x6b727c
+        );
+      }
+      kerbs.add(r.x, DECK_Y + 2.7, r.z,
+        r.vertical ? 0.09 : span, 0.09, r.vertical ? span : 0.09, 0x8a919b);
+
       const piers = Math.max(2, Math.round(span / 9));
       for (let i = 0; i <= piers; i++) {
         const t = i / piers - 0.5;
@@ -900,37 +914,20 @@
       });
     }
 
-    // A little traffic up on the flyovers, or they read as sculpture.
+    // The trams own the flyovers. Cars up there were just more cars; a
+    // viaduct that exists to carry the tram line explains itself, and the
+    // roadway underneath stays clear for the traffic that belongs on it.
+    const rails = new Bucket();
     for (const deck of decks || []) {
-      for (let i = 0; i < 4; i++) {
-        const forward = rnd() < 0.5;
-        const kind = rnd() < 0.7 ? "car" : "truck";
-        const vehicle = vehicleBody(kind, PAINT[Math.floor(rnd() * PAINT.length)]);
-        group.add(vehicle);
-        vehicles.push({
-          object: vehicle, road: deck, y: deck.y,
-          lane: (forward ? 1 : -1) * 0.8,
-          t: rnd(), speed: (forward ? 1 : -1) * (0.08 + rnd() * 0.04),
-        });
-      }
-    }
-
-    // The tram takes the longest street in the city and keeps it.
-    const avenue = roads.slice().sort(
-      (a, b) => Math.max(b.w, b.d) - Math.max(a.w, a.d)
-    )[0];
-    if (avenue) {
-      const rails = new Bucket();
-      const length = avenue.vertical ? avenue.d : avenue.w;
+      const length = deck.vertical ? deck.d : deck.w;
       for (const side of [-0.62, 0.62]) {
         rails.add(
-          avenue.x + (avenue.vertical ? side : 0), 0.13, avenue.z + (avenue.vertical ? 0 : side),
-          avenue.vertical ? 0.14 : length, 0.06, avenue.vertical ? length : 0.14,
+          deck.x + (deck.vertical ? side : 0), deck.y + 0.05,
+          deck.z + (deck.vertical ? 0 : side),
+          deck.vertical ? 0.14 : length, 0.06, deck.vertical ? length : 0.14,
           0x6d737d
         );
       }
-      const railMesh = rails.mesh(box, new THREE.MeshLambertMaterial(), false, false);
-      if (railMesh) scene.add(railMesh);
 
       const tram = new THREE.Group();
       for (let car = 0; car < 3; car++) {
@@ -948,8 +945,16 @@
         tram.add(unit);
       }
       group.add(tram);
-      vehicles.push({ object: tram, road: avenue, lane: 0, t: 0.2, speed: 0.035, tram: true });
+      // It runs to the end of the viaduct and comes back, the way a tram works
+      // a terminus. Wrapping it round would pop the whole thing from one end
+      // of the deck to the other in a single frame.
+      vehicles.push({
+        object: tram, road: deck, y: deck.y, lane: 0,
+        t: 0.15 + rnd() * 0.5, speed: 0.05, tram: true, bounce: true,
+      });
     }
+    const railMesh = rails.mesh(box, new THREE.MeshLambertMaterial(), false, false);
+    if (railMesh) scene.add(railMesh);
 
     scene.add(group);
   }
@@ -957,20 +962,33 @@
   function updateTraffic(delta) {
     for (const v of vehicles) {
       v.t += v.speed * delta;
-      if (v.t > 1) v.t -= 1;
-      if (v.t < 0) v.t += 1;
+      if (v.bounce) {
+        // Reverse at each end rather than wrapping round.
+        if (v.t > 1) { v.t = 2 - v.t; v.speed = -v.speed; }
+        if (v.t < 0) { v.t = -v.t; v.speed = -v.speed; }
+      } else {
+        if (v.t > 1) v.t -= 1;
+        if (v.t < 0) v.t += 1;
+      }
       const r = v.road;
       const length = r.vertical ? r.d : r.w;
       const along = (v.t - 0.5) * length;
       const facing = v.speed > 0 ? 1 : -1;
 
       if (v.tram) {
-        // carriages follow the leader down the same line
+        // A tram that turns back has to keep all three carriages on the deck,
+        // so it runs the length less its own, and the carriages trail rather
+        // than wrapping round.
+        const TRAIN = 11.5;
+        const usable = v.bounce ? Math.max(6, length - TRAIN) : length;
+        const lead = (v.t - 0.5) * usable;
         for (const unit of v.object.children) {
-          let at = along + unit.userData.offset * facing;
+          let at = lead + unit.userData.offset * facing;
           const half = length / 2;
-          if (at > half) at -= length;
-          if (at < -half) at += length;
+          if (!v.bounce) {
+            if (at > half) at -= length;
+            if (at < -half) at += length;
+          }
           unit.position.set(
             r.x + (r.vertical ? 0 : at),
             v.y || 0,

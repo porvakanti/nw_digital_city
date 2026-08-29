@@ -193,6 +193,14 @@ The flyovers sit only on the two outer roads at the **back** of the map. From
 this camera a raised deck anywhere else cuts across the skyline and hides the
 buildings, which are the whole point.
 
+**The trams own the flyovers.** Cars up on the deck were just more cars, and a
+raised road with no reason to be raised reads as decoration. A viaduct that
+exists to carry the tram line explains itself: rails, masts and an overhead
+wire on the deck, and the roadway underneath left clear for the traffic that
+belongs on it. Each tram runs to the end of its viaduct and comes back, the way
+a tram works a terminus, rather than wrapping round and popping from one end to
+the other in a single frame.
+
 Street lamps alternate kerbs rather than facing each other. Lamps on both sides
 threw overlapping pools that filled the road with light and left nothing to
 look at; staggered, half as many fittings light the whole street and the dark
