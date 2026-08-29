@@ -378,10 +378,12 @@
       district.cx + district.w / 2, -0.05, district.cz + district.d / 2,
       district.w, 0.5, district.d, C.districtPlate, 0x39434f
     );
-    // The Monopoly property band: a coloured kerb along the front of the block.
+    // The Monopoly property band. It used to run flat down the whole block
+    // edge, which at street level read as a canal. Now it is short and raised,
+    // so it reads as a marker at the front of the block.
     plates.add(
-      district.cx + district.w / 2, 0.16, district.cz + 0.55,
-      district.w - 1.2, 0.42, 1.1, palette.band
+      district.cx + district.w / 2, 0.42, district.cz + 0.8,
+      Math.min(district.w * 0.42, 13), 0.62, 0.7, palette.band
     );
     for (const plot of district.plots) {
       studdedPlate(
@@ -401,6 +403,7 @@
   // leftover ground, and people walking about in it. None of it encodes data.
   // it is there so the city reads as a place rather than as a bar chart with
   // studs, which is what makes an empty lot feel like an empty lot.
+  const PAVEMENT_TOP = 0.25;
   const lampHeads = [];
   const walkers = [];
   const vehicles = [];
@@ -408,6 +411,7 @@
 
   function buildStreetscape() {
     const roadBucket = new Bucket();
+    const pavementBucket = new Bucket();
     const dashBucket = new Bucket();
     const trunkBucket = new Bucket();
     const canopyBucket = new Bucket();
@@ -432,7 +436,9 @@
     }
     const rowKeys = [...rows.keys()].sort((a, b) => a - b);
 
-    const ROAD = 3.6;
+    const ROAD = 4.8;
+    const PAVEMENT = 1.15;
+    const KERB_H = 0.26;
     const roads = [];
     const road = (x, z, w, d) => roads.push({ x, z, w, d, vertical: d > w });
 
@@ -467,6 +473,17 @@
     for (const r of roads) {
       roadBucket.add(r.x, 0.02, r.z, r.w, 0.16, r.d, 0x3b414b);
 
+      // Pavements down both sides. People belong on these, not in the road.
+      const short = r.vertical ? r.w : r.d;
+      const walkway = short / 2 - PAVEMENT / 2;
+      for (const side of [-1, 1]) {
+        pavementBucket.add(
+          r.x + (r.vertical ? side * walkway : 0), 0.12, r.z + (r.vertical ? 0 : side * walkway),
+          r.vertical ? PAVEMENT : r.w, KERB_H, r.vertical ? r.d : PAVEMENT,
+          0x878e99
+        );
+      }
+
       // centre line
       const length = r.vertical ? r.d : r.w;
       const steps = Math.max(1, Math.floor(length / 3.2));
@@ -482,7 +499,7 @@
       }
 
       // lamp posts down both kerbs
-      const half = (r.vertical ? r.w : r.d) / 2 - 0.5;
+      const half = (r.vertical ? r.w : r.d) / 2 - PAVEMENT / 2;
       const lampSteps = Math.max(1, Math.floor(length / 11));
       for (let i = 0; i < lampSteps; i++) {
         const t = (i + 0.5) / lampSteps - 0.5;
@@ -524,6 +541,7 @@
     const solid = new THREE.MeshLambertMaterial();
     [
       roadBucket.mesh(box, solid, false, true),
+      pavementBucket.mesh(box, solid, false, true),
       dashBucket.mesh(box, solid, false, false),
       trunkBucket.mesh(box, solid, true, false),
       canopyBucket.mesh(cone, solid, true, false),
@@ -565,7 +583,10 @@
         group.add(dog);
       }
 
-      const lane = (rnd() - 0.5) * (r.vertical ? r.w : r.d) * 0.55;
+      // On the pavement, on one side or the other, not down the middle of the road.
+      const short = r.vertical ? r.w : r.d;
+      const side = rnd() < 0.5 ? -1 : 1;
+      const lane = side * (short / 2 - 0.6 + (rnd() - 0.5) * 0.5);
       walkers.push({
         person,
         dog,
@@ -618,6 +639,23 @@
     return group;
   }
 
+  function cycle(colour) {
+    const group = new THREE.Group();
+    const piece = (hex, x, y, z, sx, sy, sz) => {
+      const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: hex }));
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      group.add(mesh);
+    };
+    piece(0x1b1e24, -0.42, 0.22, 0, 0.1, 0.44, 0.44);   // rear wheel
+    piece(0x1b1e24, 0.42, 0.22, 0, 0.1, 0.44, 0.44);    // front wheel
+    piece(0x9aa3ae, 0, 0.4, 0, 0.95, 0.09, 0.09);       // frame
+    piece(colour, -0.05, 0.75, 0, 0.32, 0.55, 0.3);     // rider
+    piece(0xf3c85c, -0.05, 1.1, 0, 0.28, 0.26, 0.26);   // head
+    return group;
+  }
+
   function buildTraffic(roads, rnd) {
     const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
     const group = new THREE.Group();
@@ -637,6 +675,22 @@
         lane: (forward ? 1 : -1) * 0.85,
         t: rnd(),
         speed: (forward ? 1 : -1) * (kind === "bus" ? 0.05 : 0.07 + rnd() * 0.05),
+      });
+    }
+
+    // A few cyclists, keeping in close to the kerb where a cycle lane would be.
+    for (let i = 0; i < 6; i++) {
+      const road = usable[Math.floor(rnd() * usable.length)] || roads[0];
+      const forward = rnd() < 0.5;
+      const short = road.vertical ? road.w : road.d;
+      const bike = cycle([0x46a06a, 0xd94f4f, 0x3f7fd0, 0xe0b53c][Math.floor(rnd() * 4)]);
+      group.add(bike);
+      vehicles.push({
+        object: bike,
+        road,
+        lane: (forward ? 1 : -1) * (short / 2 - 1.55),
+        t: rnd(),
+        speed: (forward ? 1 : -1) * (0.035 + rnd() * 0.02),
       });
     }
 
@@ -725,13 +779,13 @@
       const x = r.x + (r.vertical ? w.lane : along);
       const z = r.z + (r.vertical ? along : w.lane);
       const bob = Math.abs(Math.sin(now * 8 + w.lane)) * 0.06;
-      w.person.position.set(x, bob, z);
+      w.person.position.set(x, PAVEMENT_TOP + bob, z);
       w.person.rotation.y = r.vertical ? (w.speed > 0 ? 0 : Math.PI) : (w.speed > 0 ? Math.PI / 2 : -Math.PI / 2);
       if (w.dog) {
         const trail = 0.9 * (w.speed > 0 ? -1 : 1);
         w.dog.position.set(
           x + (r.vertical ? 0.45 : trail),
-          0,
+          PAVEMENT_TOP,
           z + (r.vertical ? trail : 0.45)
         );
         w.dog.rotation.y = w.person.rotation.y;
@@ -948,8 +1002,6 @@
       .join("");
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
-    document.getElementById("note").textContent =
-      `Anonymised extract, ${CITY.meta.source_extract_date}. ${CONFIG.disclosure.autonomy_note}`;
   }
 
   function renderLegend() {
