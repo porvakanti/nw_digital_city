@@ -5,6 +5,7 @@
     python3 run.py test       every check: python tests, eval set, browser smoke
     python3 run.py eval       the agent's question set against whatever .env says
     python3 run.py build      rebuild city.json from the workbook in data/raw/
+    python3 run.py package    a zip of just the city, safe to send to anyone
 
 Run it from the repository root on your own machine. It makes a virtual
 environment in .venv the first time, installs into that, and never touches the
@@ -102,6 +103,44 @@ def serve(python: Path) -> int:
         return 0
 
 
+def package() -> int:
+    """Zip up the parts someone needs to open the city, and nothing else.
+
+    Deliberately narrow. data/raw holds the source workbook with blueprint
+    owner names and email addresses in it, and the surest way that never
+    reaches anyone is for the thing you send to be built from a list of files
+    rather than from a folder.
+    """
+    import zipfile
+
+    out = ROOT / "nw-digital-city.zip"
+    renderer = ROOT / "renderer"
+    files = sorted(f for f in renderer.rglob("*") if f.is_file())
+    if not files:
+        print("nothing to package: renderer/ is empty", file=sys.stderr)
+        return 1
+
+    readme = (
+        "NW Digital City\n"
+        "===============\n\n"
+        "Open index.html in Chrome. Nothing to install, no network needed.\n\n"
+        "Press T for a two-minute guided tour, or type a category code, a\n"
+        "category name, a district or a question into the box at the bottom.\n\n"
+        "R resets the view, N is night, P is what we could build, K is the ask.\n\n"
+        "The figures are an anonymised extract: no names, no contacts.\n"
+    )
+
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as bundle:
+        for path in files:
+            bundle.write(path, Path("nw-digital-city") / path.relative_to(renderer))
+        bundle.writestr("nw-digital-city/READ ME FIRST.txt", readme)
+
+    size = out.stat().st_size / 1e6
+    print(f"· wrote {out.name} ({size:.1f} MB, {len(files) + 1} files)")
+    print("  It contains the renderer only. The workbook in data/raw is not in it.")
+    return 0
+
+
 def check(python: Path) -> int:
     failures = 0
     failures += subprocess.call([str(python), "-m", "unittest", "discover",
@@ -116,9 +155,14 @@ def check(python: Path) -> int:
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "serve"
-    if command not in ("serve", "test", "eval", "build"):
-        print("usage: python3 run.py [serve|test|eval|build]", file=sys.stderr)
+    if command not in ("serve", "test", "eval", "build", "package"):
+        print("usage: python3 run.py [serve|test|eval|build|package]", file=sys.stderr)
         return 2
+
+    # Packaging is pure standard library, so it should not make anyone wait for
+    # a virtual environment they are not going to use.
+    if command == "package":
+        return package()
 
     python = ensure_environment()
     if command == "build":
