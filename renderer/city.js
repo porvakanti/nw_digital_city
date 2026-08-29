@@ -403,6 +403,8 @@
   // studs, which is what makes an empty lot feel like an empty lot.
   const lampHeads = [];
   const walkers = [];
+  const vehicles = [];
+  const headlights = [];
 
   function buildStreetscape() {
     const roadBucket = new Bucket();
@@ -530,6 +532,7 @@
     ].forEach((mesh) => mesh && scene.add(mesh));
 
     buildPedestrians(roads, rnd);
+    buildTraffic(roads, rnd);
   }
 
   // People, and a few dogs. Small, slow and never in the way. They exist so
@@ -573,6 +576,143 @@
       });
     }
     scene.add(group);
+  }
+
+  // Traffic. Vehicles keep to a lane on their side of the centre line and run
+  // the length of a street, which is enough to read as a working city from the
+  // isometric camera. The tram is the exception: it gets its own avenue, rails
+  // and a fixed route, because a tram is the thing that makes a model city look
+  // like somebody planned it.
+  function vehicleBody(kind, colour) {
+    const group = new THREE.Group();
+    const panel = (hex, x, y, z, sx, sy, sz) => {
+      const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: hex }));
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+    const glass = 0x2b3644;
+
+    if (kind === "bus") {
+      panel(colour, 0, 0.62, 0, 3.4, 0.95, 1.15);
+      panel(glass, 0, 0.95, 0, 3.2, 0.28, 1.2);
+      panel(0x1b1e24, -1.1, 0.16, 0, 0.5, 0.32, 1.25);
+      panel(0x1b1e24, 1.1, 0.16, 0, 0.5, 0.32, 1.25);
+    } else if (kind === "truck") {
+      panel(colour, -1.15, 0.62, 0, 1.2, 0.9, 1.1);
+      panel(glass, -1.15, 0.92, 0, 1.0, 0.26, 1.15);
+      panel(0xd8d4c8, 0.55, 0.78, 0, 2.2, 1.2, 1.15);
+      panel(0x1b1e24, -1.1, 0.16, 0, 0.45, 0.32, 1.2);
+      panel(0x1b1e24, 0.9, 0.16, 0, 0.45, 0.32, 1.2);
+    } else {
+      panel(colour, 0, 0.42, 0, 2.0, 0.5, 0.95);
+      panel(glass, 0.05, 0.76, 0, 1.05, 0.34, 0.88);
+      panel(0x1b1e24, -0.65, 0.14, 0, 0.4, 0.28, 1.0);
+      panel(0x1b1e24, 0.65, 0.14, 0, 0.4, 0.28, 1.0);
+    }
+
+    const lamp = panel(0xfff0c0, kind === "bus" ? 1.72 : 1.03, 0.45, 0, 0.12, 0.16, 0.75);
+    headlights.push(lamp);
+    return group;
+  }
+
+  function buildTraffic(roads, rnd) {
+    const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
+    const group = new THREE.Group();
+    const usable = roads.filter((r) => Math.max(r.w, r.d) > 16);
+
+    for (let i = 0; i < 34; i++) {
+      const road = usable[Math.floor(rnd() * usable.length)] || roads[0];
+      const roll = rnd();
+      const kind = roll < 0.62 ? "car" : roll < 0.84 ? "truck" : "bus";
+      const forward = rnd() < 0.5;
+      const vehicle = vehicleBody(kind, PAINT[Math.floor(rnd() * PAINT.length)]);
+      group.add(vehicle);
+      vehicles.push({
+        object: vehicle,
+        road,
+        // keep right, so the lane offset follows the direction of travel
+        lane: (forward ? 1 : -1) * 0.85,
+        t: rnd(),
+        speed: (forward ? 1 : -1) * (kind === "bus" ? 0.05 : 0.07 + rnd() * 0.05),
+      });
+    }
+
+    // The tram takes the longest street in the city and keeps it.
+    const avenue = roads.slice().sort(
+      (a, b) => Math.max(b.w, b.d) - Math.max(a.w, a.d)
+    )[0];
+    if (avenue) {
+      const rails = new Bucket();
+      const length = avenue.vertical ? avenue.d : avenue.w;
+      for (const side of [-0.62, 0.62]) {
+        rails.add(
+          avenue.x + (avenue.vertical ? side : 0), 0.13, avenue.z + (avenue.vertical ? 0 : side),
+          avenue.vertical ? 0.14 : length, 0.06, avenue.vertical ? length : 0.14,
+          0x6d737d
+        );
+      }
+      const railMesh = rails.mesh(box, new THREE.MeshLambertMaterial(), false, false);
+      if (railMesh) scene.add(railMesh);
+
+      const tram = new THREE.Group();
+      for (let car = 0; car < 3; car++) {
+        const unit = new THREE.Group();
+        const body = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0xe60000 }));
+        body.scale.set(2.9, 1.05, 1.25);
+        body.position.y = 0.72;
+        body.castShadow = true;
+        unit.add(body);
+        const windows = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0xf3f1e8 }));
+        windows.scale.set(2.6, 0.34, 1.3);
+        windows.position.y = 1.0;
+        unit.add(windows);
+        unit.userData.offset = (car - 1) * 3.1;
+        tram.add(unit);
+      }
+      group.add(tram);
+      vehicles.push({ object: tram, road: avenue, lane: 0, t: 0.2, speed: 0.035, tram: true });
+    }
+
+    scene.add(group);
+  }
+
+  function updateTraffic(delta) {
+    for (const v of vehicles) {
+      v.t += v.speed * delta;
+      if (v.t > 1) v.t -= 1;
+      if (v.t < 0) v.t += 1;
+      const r = v.road;
+      const length = r.vertical ? r.d : r.w;
+      const along = (v.t - 0.5) * length;
+      const facing = v.speed > 0 ? 1 : -1;
+
+      if (v.tram) {
+        // carriages follow the leader down the same line
+        for (const unit of v.object.children) {
+          let at = along + unit.userData.offset * facing;
+          const half = length / 2;
+          if (at > half) at -= length;
+          if (at < -half) at += length;
+          unit.position.set(
+            r.x + (r.vertical ? 0 : at),
+            0,
+            r.z + (r.vertical ? at : 0)
+          );
+          unit.rotation.y = r.vertical ? Math.PI / 2 : 0;
+        }
+        continue;
+      }
+
+      v.object.position.set(
+        r.x + (r.vertical ? v.lane : along),
+        0,
+        r.z + (r.vertical ? along : v.lane)
+      );
+      v.object.rotation.y = (r.vertical ? Math.PI / 2 : 0) + (facing > 0 ? 0 : Math.PI);
+    }
   }
 
   function updateWalkers(now, delta) {
@@ -874,7 +1014,7 @@
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
     inspector.innerHTML = `
-      <button class="panel-toggle" data-collapse>${category.code}<span class="caret">&#9662;</span></button>
+      <button class="panel-toggle" data-collapse data-drag>${category.code}<span class="caret">&#9662;</span></button>
       <h3>${category.name}</h3>
       <div class="panel-body">
         <div class="where">${category.district} &middot; ${category.plot}</div>
@@ -1145,11 +1285,56 @@
     }
   });
 
-  // Panels collapse so the city can be seen behind them.
+  // Panels collapse and can be dragged out of the way. Both behaviours are
+  // delegated, because the category card is re-rendered on every question and
+  // would otherwise lose its handlers.
+  let drag = null;
+  let dragEndedAt = 0;
+
   document.addEventListener("click", (e) => {
     const toggle = e.target.closest("[data-collapse]");
-    if (toggle) toggle.closest(".hud").classList.toggle("collapsed");
+    // A drag ends with a click on the handle; do not also collapse the panel.
+    if (toggle && performance.now() - dragEndedAt > 250) {
+      toggle.closest(".hud").classList.toggle("collapsed");
+    }
   });
+
+  document.addEventListener("pointerdown", (e) => {
+    const handle = e.target.closest("[data-drag]");
+    if (!handle) return;
+    const panel = handle.closest(".hud");
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    // Panels are anchored by whichever corner suits them; pin to top-left
+    // before moving so one set of coordinates governs.
+    panel.style.left = `${rect.left}px`;
+    panel.style.top = `${rect.top}px`;
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    panel.style.transform = "none";
+    drag = { panel, handle, x: e.clientX, y: e.clientY, left: rect.left, top: rect.top, moved: 0 };
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  document.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+    // Always leave enough of the panel on screen to grab it again.
+    const maxLeft = window.innerWidth - 80;
+    const maxTop = window.innerHeight - 44;
+    drag.panel.style.left = `${THREE.MathUtils.clamp(drag.left + dx, 80 - drag.panel.offsetWidth, maxLeft)}px`;
+    drag.panel.style.top = `${THREE.MathUtils.clamp(drag.top + dy, 0, maxTop)}px`;
+  });
+
+  const endDragPanel = () => {
+    if (!drag) return;
+    if (drag.moved > 5) dragEndedAt = performance.now();
+    drag = null;
+  };
+  document.addEventListener("pointerup", endDragPanel);
+  document.addEventListener("pointercancel", endDragPanel);
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
@@ -1253,6 +1438,7 @@
     tick.last = nowSec;
     stepBuild();
     updateWalkers(nowSec, delta);
+    updateTraffic(delta);
     updateFigure(nowSec);
     applyCamera();
     placeBubble();

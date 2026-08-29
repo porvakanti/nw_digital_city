@@ -105,6 +105,8 @@
     text-align: left;
   }
   .panel-toggle:hover { color: var(--ink); }
+  .panel-toggle[data-drag] { cursor: grab; }
+  .panel-toggle[data-drag]:active { cursor: grabbing; }
   .panel-toggle .caret {
     margin-left: auto;
     font-size: 13px;
@@ -219,6 +221,7 @@
     display: none;
   }
   #trace.on { display: block; }
+  #trace h2 { cursor: grab; }
   #trace h2 {
     margin: 0 0 8px;
     font-size: 10px;
@@ -346,6 +349,7 @@
     border-radius: 4px;
     padding: 1px 5px;
   }
+  #hint .tip { margin-top: 3px; color: var(--ink-muted); }
   #note {
     margin-top: 7px;
     padding-top: 7px;
@@ -364,7 +368,7 @@
   <div class="hud" id="inspector"></div>
 
   <div class="hud" id="legend">
-    <button class="panel-toggle" data-collapse>How to read the city<span class="caret">&#9662;</span></button>
+    <button class="panel-toggle" data-collapse data-drag>How to read the city<span class="caret">&#9662;</span></button>
     <div class="panel-body"><div id="measures"></div></div>
   </div>
 
@@ -372,7 +376,7 @@
 
   <div class="hud" id="caption"><b></b></div>
 
-  <div class="hud" id="trace"><h2>Agent</h2><div id="calls"></div></div>
+  <div class="hud" id="trace"><h2 data-drag>Agent</h2><div id="calls"></div></div>
 
   <div class="hud" id="chips"></div>
 
@@ -384,6 +388,7 @@
 
   <div class="hud" id="hint">
     drag to pan · scroll to zoom · <kbd>R</kbd> reset · click a building
+    <div class="tip">panel headers can be dragged</div>
     <div id="note"></div>
   </div>
 
