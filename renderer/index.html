@@ -50,15 +50,19 @@
   /* ---- stats strip ---- */
   #stats {
     display: flex;
-    gap: 22px;
+    gap: 8px;
     margin-top: 14px;
-    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  #stats .stat {
+    min-width: 0;
+    white-space: nowrap;
+    padding: 9px 13px;
     background: var(--panel);
     border: 1px solid var(--hairline);
     border-radius: 10px;
     backdrop-filter: blur(8px);
   }
-  #stats div { min-width: 0; white-space: nowrap; }
   #stats .n {
     display: block;
     font-size: 20px;
@@ -85,14 +89,31 @@
     border-radius: 10px;
     backdrop-filter: blur(8px);
   }
-  #legend h2 {
-    margin: 0 0 10px;
-    font-size: 11px;
+  .panel-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--ink-muted);
+    font: 600 11px system-ui, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--ink-muted);
-    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
   }
+  .panel-toggle:hover { color: var(--ink); }
+  .panel-toggle .caret {
+    margin-left: auto;
+    font-size: 13px;
+    line-height: 1;
+    transition: transform 0.18s;
+  }
+  .collapsed .panel-toggle .caret { transform: rotate(-90deg); }
+  .panel-body { margin-top: 10px; }
+  .collapsed .panel-body { display: none; }
   .measure { margin-bottom: 12px; }
   .measure:last-child { margin-bottom: 0; }
   .measure .name { font-size: 13px; font-weight: 600; }
@@ -140,6 +161,7 @@
     text-transform: uppercase;
   }
   #inspector h3 { margin: 3px 0 2px; font-size: 16px; font-weight: 620; }
+  #inspector .panel-toggle { margin-bottom: 2px; }
   #inspector .where { font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
   #inspector .def {
     font-size: 12px;
@@ -307,8 +329,14 @@
   #hint {
     bottom: 20px;
     right: 20px;
-    font-size: 11px;
-    color: var(--ink-muted);
+    max-width: 300px;
+    padding: 10px 13px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    font-size: 11.5px;
+    color: var(--ink-2);
     text-align: right;
   }
   kbd {
@@ -319,9 +347,10 @@
     padding: 1px 5px;
   }
   #note {
-    margin-top: 6px;
-    max-width: 260px;
-    color: #6f6d68;
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px solid var(--hairline);
+    color: var(--ink-muted);
   }
 </style>
 </head>
@@ -335,8 +364,8 @@
   <div class="hud" id="inspector"></div>
 
   <div class="hud" id="legend">
-    <h2>How to read the city</h2>
-    <div id="measures"></div>
+    <button class="panel-toggle" data-collapse>How to read the city<span class="caret">&#9662;</span></button>
+    <div class="panel-body"><div id="measures"></div></div>
   </div>
 
   <div id="bubble"></div>

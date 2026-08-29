@@ -1,8 +1,8 @@
-/* NW Digital City — the renderer.
+/* NW Digital City, the renderer.
  *
  * Reads window.NW_CITY (data) and window.NW_CONFIG (which metric drives which
  * visual layer) and builds an isometric brick city. It never fetches anything,
- * so it runs from file:// with no server and no network — that is the on-stage
+ * so it runs from file:// with no server and no network. That is the on-stage
  * safety net, and it is why the data arrives as a global rather than an import.
  *
  * Geography follows the category tree: L2 is a district, L3 is a plot, L4 is a
@@ -23,14 +23,14 @@
   // ---------------------------------------------------------------- palette
   // Colour carries meaning in exactly one place: blueprint state, using the
   // reserved status roles. District identity is carried by position and a name
-  // plate, never by hue — so nothing here depends on telling eight colours
+  // plate, never by hue, so nothing here depends on telling eight colours
   // apart on a projector.
   const C = {
     sky: 0x080b12,
     ground: 0x24422c, // Lego grass baseplate
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
-    bare: 0x7c8794, // muted — absence, not a status
+    bare: 0x7c8794, // muted: absence rather than a status
     draft: 0xfab219, // status: warning
     active: 0x0ca30c, // status: good
     brick: 0xd9d3c6,
@@ -45,7 +45,7 @@
   // Monopoly property-group colours. Reinforcement only: every district also
   // carries a printed name plate and its own patch of ground, so identity never
   // rests on telling eight hues apart. The measures that must be read exactly
-  // — status, height, houses, reactor — stay on shape, height and count.
+  // status, height, houses and reactor, stay on shape, height and count.
   const DISTRICT_BANDS = [
     "#3987e5", "#d95926", "#199e70", "#c98500",
     "#d55181", "#008300", "#9085e9", "#e66767",
@@ -398,7 +398,7 @@
   // ---------------------------------------------------------- streetscape
   // The gaps between district blocks were dead grey space. They are streets:
   // asphalt with lane markings, lamp posts along the kerbs, parkland on the
-  // leftover ground, and people walking about in it. None of it encodes data —
+  // leftover ground, and people walking about in it. None of it encodes data.
   // it is there so the city reads as a place rather than as a bar chart with
   // studs, which is what makes an empty lot feel like an empty lot.
   const lampHeads = [];
@@ -421,7 +421,7 @@
     }
 
     // Districts were shelf-packed, so their rows and the gaps between them are
-    // already a street grid — it only has to be drawn.
+    // already a street grid, so it only has to be drawn.
     const rows = new Map();
     for (const d of layout.districts) {
       const key = Math.round(d.z);
@@ -532,7 +532,7 @@
     buildPedestrians(roads, rnd);
   }
 
-  // People, and a few dogs. Small, slow, and never in the way — they exist so
+  // People, and a few dogs. Small, slow and never in the way. They exist so
   // the streets are not empty while the room looks at the skyline.
   function buildPedestrians(roads, rnd) {
     const COATS = [0xd94f4f, 0x3f7fd0, 0xe0b53c, 0x46a06a, 0xb35fb0, 0xdd8a3a];
@@ -634,7 +634,7 @@
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
       }
       top = 0.62 + floors * FLOOR_H;
-      // studs only on the roof — enough to read as brick, cheap to draw
+      // studs only on the roof: enough to read as brick, cheap to draw
       for (const dx of [-0.58, 0.58]) {
         for (const dz of [-0.58, 0.58]) {
           pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
@@ -653,7 +653,7 @@
     }
 
     // Houses and hotel along the front of the lot. On an undeveloped plot they
-    // are ghosted — the value is real, the development is not.
+    // are ghosted, because the value is real but the development is not.
     if (pieceCount > 0) {
       const hotel = valueTier.id === "hotel";
       const count = hotel ? 1 : pieceCount;
@@ -793,19 +793,18 @@
   // ------------------------------------------------------------------- HUD
   const euro = (n) =>
     n >= 1e6 ? `€${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}m`
-      : n > 0 ? `€${Math.round(n / 1e3)}k` : "—";
+      : n > 0 ? `€${Math.round(n / 1e3)}k` : "Not recorded";
 
   function renderStats() {
     const t = CITY.totals;
     const stats = [
-      [t.categories, "buildings"],
       [t.with_blueprint, "developed"],
       [t.empty_lots, "empty lots"],
       [CITY.meta.counts.markets, "markets"],
       [euro(t.spend_eur), "spend"],
     ];
     document.getElementById("stats").innerHTML = stats
-      .map(([n, k]) => `<div><span class="n">${n}</span><span class="k">${k}</span></div>`)
+      .map(([n, k]) => `<div class="stat"><span class="n">${n}</span><span class="k">${k}</span></div>`)
       .join("");
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
@@ -868,18 +867,20 @@
     const stateTier = tierOf("blueprint_state", category.blueprint_state);
     const rows = [
       ["Blueprint", stateTier.label],
-      [metricDef(layerMetric("height")).label, `${valueFor(category, "height")} — ${heightTier.label}`],
+      [metricDef(layerMetric("height")).label, `${heightTier.label} (${valueFor(category, "height")})`],
       ["Spend FY26/27", euro(m.spend_eur)],
       ["Property", valueTier.label],
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
-      ["Markets", category.markets.length ? category.markets.join(", ") : "—"],
+      ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
     inspector.innerHTML = `
-      <div class="code">${category.code}</div>
+      <button class="panel-toggle" data-collapse>${category.code}<span class="caret">&#9662;</span></button>
       <h3>${category.name}</h3>
-      <div class="where">${category.district} · ${category.plot}</div>
-      <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
-      ${category.definition ? `<div class="def">${category.definition}</div>` : ""}`;
+      <div class="panel-body">
+        <div class="where">${category.district} &middot; ${category.plot}</div>
+        <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+        ${category.definition ? `<div class="def">${category.definition}</div>` : ""}
+      </div>`;
     inspector.classList.add("on");
   }
 
@@ -887,7 +888,7 @@
   renderLegend();
 
   // ----------------------------------------------------------- the builder
-  // A minifigure in a hard hat — deliberately the same object Gorkem is handing
+  // A minifigure in a hard hat, deliberately the same object Gorkem is handing
   // out on the day, so the thing in someone's hand is the thing on the screen.
   const FIGURE_SCALE = 0.72;
 
@@ -1006,17 +1007,17 @@
       return m.spend_eur > 0
         ? {
             caption: `${spend} of spend. No blueprint. Nothing to build here yet.`,
-            bubble: `Empty lot. There's ${spend} sitting on this ground and no rules to build with.`,
+            bubble: `Empty lot. ${spend} sitting on this ground, and no rules to build with.`,
           }
         : {
-            caption: `No blueprint, and no recorded spend. This lot is still open ground.`,
+            caption: `No blueprint and no recorded spend. This lot is still open ground.`,
             bubble: `Nothing here yet. Someone has to claim this lot.`,
           };
     }
     if (category.blueprint_state === "draft") {
       return {
         caption: `Blueprint drafted but not active. The lot is marked out, no foundations.`,
-        bubble: `Someone has claimed this lot — the blueprint is still in draft.`,
+        bubble: `Someone has claimed this lot. The blueprint is still in draft.`,
       };
     }
     const reach = m.market_reach;
@@ -1144,6 +1145,12 @@
     }
   });
 
+  // Panels collapse so the city can be seen behind them.
+  document.addEventListener("click", (e) => {
+    const toggle = e.target.closest("[data-collapse]");
+    if (toggle) toggle.closest(".hud").classList.toggle("collapsed");
+  });
+
   window.addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") {
       showCategory(null);
@@ -1182,7 +1189,7 @@
     rise() {
       cityRise();
     },
-    // Fly to a whole district rather than one lot — used when the agent is
+    // Fly to a whole district rather than one lot. Used when the agent is
     // answering about a district or ranking within one.
     focusDistrict(name) {
       const wanted = String(name || "").toLowerCase();
@@ -1212,7 +1219,7 @@
       }
     },
     categories: CITY.categories,
-    // pieces still mid-flight — used by rehearsal checks and tests
+    // pieces still mid-flight, used by rehearsal checks and tests
     pending() {
       return scheduled.length;
     },

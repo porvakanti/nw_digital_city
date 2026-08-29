@@ -13,7 +13,7 @@
 
 city:
   name: NW Digital City
-  scope_label: Vodafone Networks — Level 1 "Network"
+  scope_label: Vodafone Networks, Level 1 "Network"
   agent_name: Crane           # the agent's display name; change freely
 
 # ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ metrics:
     description: Whether a category blueprint exists, and whether it is live.
     kind: categorical
     tiers:
-      - {id: none,   value: none,   label: Empty lot,        detail: No blueprint yet — the lot is empty ground.}
+      - {id: none,   value: none,   label: Empty lot,        detail: No blueprint yet. The lot is empty ground.}
       - {id: draft,  value: draft,  label: Lot marked out,   detail: Blueprint drafted. The lot is claimed but has no foundations.}
       - {id: active, value: active, label: Foundation laid,  detail: Blueprint active. The lot can be built on.}
 
@@ -80,8 +80,8 @@ metrics:
     tiers:
       - {id: plot,       max: 0.0,  label: Lot prepared,  detail: No adoption.}
       - {id: small,      max: 0.25, label: Small building, detail: Under 25% adoption.}
-      - {id: block,      max: 0.50, label: Office block,   detail: 25–50% adoption.}
-      - {id: tower,      max: 0.90, label: Tower,          detail: 50–90% adoption.}
+      - {id: block,      max: 0.50, label: Office block,   detail: 25 to 50% adoption.}
+      - {id: tower,      max: 0.90, label: Tower,          detail: 50 to 90% adoption.}
       - {id: skyscraper, max: null, label: Skyscraper,     detail: Over 90% adoption.}
 
   cbp_total:
@@ -100,7 +100,7 @@ metrics:
     label: Spend FY26/27
     description: >
       Addressable spend for the category. Thresholds are rescaled from the
-      original deck to fit the Network distribution — Network's largest single
+      original deck to fit the Network distribution. Network's largest single
       category is €75m, so the deck's ">€100m = hotel" rung was unreachable and
       84% of categories collapsed into the bottom rung.
     unit: eur
@@ -117,7 +117,7 @@ metrics:
     label: AI-generated RFPs
     description: >
       Sourcing events started as AI-generated RFPs. Drives the rooftop reactor.
-      Readiness signal only — this is not a claim that autonomous procurement
+      A readiness signal only. This is not a claim that autonomous procurement
       is live.
     unit: rfps
     kind: numeric
@@ -127,8 +127,8 @@ metrics:
       identical results. Replace when the real figures land.
     tiers:
       - {id: dark,      max: 0,    label: Dark,           detail: Not yet measured.}
-      - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory — first AI-generated RFPs.}
-      - {id: steady,    max: 6,    label: Steady glow,    detail: Connected — core rules structured.}
+      - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory. First AI-generated RFPs.}
+      - {id: steady,    max: 6,    label: Steady glow,    detail: Connected. Core rules structured.}
       - {id: reactor,   max: null, label: Full reactor,   detail: AI-ready candidate.}
 
 # ---------------------------------------------------------------------------
@@ -138,4 +138,4 @@ metrics:
 disclosure:
   show_provisional_badge: true
   show_sample_badge: true
-  autonomy_note: Readiness signal — not a claim that autonomous procurement is live.
+  autonomy_note: A readiness signal. Not a claim that autonomous procurement is live.

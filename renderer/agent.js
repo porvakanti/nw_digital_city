@@ -3,7 +3,7 @@
  * An agent is not a chat box bolted onto a chart. It is something with tools
  * and the freedom to decide which to call and in what order. So the tools are
  * real functions over the city data, the decision about which to call is made
- * here, and the calls are shown on screen as they happen — because "trust me,
+ * here, and the calls are shown on screen as they happen, because "trust me,
  * it's thinking" is not an argument anyone in a 400-person room has to accept.
  *
  * This layer is deliberately deterministic. When the model endpoint lands it
@@ -205,7 +205,7 @@
   }
 
   // Tool calls are near-instant over 145 rows, which makes the panel unreadable.
-  // The pause is presentation, not fake work — the calls below are real, and
+  // The pause is presentation rather than fake work. The calls below are real, and
   // when the model is wired in its latency replaces this entirely.
   const beat = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -213,7 +213,7 @@
     const result = tools[fn](...args);
     const out = result && result.label ? result.label
       : typeof result === "string" ? result
-        : result ? "ok" : "—";
+        : result ? "ok" : "none";
     logCall(fn, args, out);
     await beat(240);
     return result;
@@ -258,7 +258,7 @@
         return;
       }
       CITYVIEW.speak(
-        `${gaps.list.length} empty lots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name} — ${euro(top.metrics.spend_eur)}, no blueprint.`,
+        `${gaps.list.length} empty lots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name}, worth ${euro(top.metrics.spend_eur)}, with no blueprint.`,
         `${top.name} is the most valuable empty lot here.`
       );
       return;
@@ -285,8 +285,8 @@
       const reach = pick.metrics.market_reach;
       CITYVIEW.speak(
         direction === "asc"
-          ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)} — ${euro(pick.metrics.spend_eur)} and ${reach === 0 ? "no blueprint at all" : plural(reach, "market")}.`
-          : `${pick.code} ${pick.name} leads ${scopeText(scope)} — ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
+          ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${euro(pick.metrics.spend_eur)}, ${reach === 0 ? "and no blueprint at all" : plural(reach, "market")}.`
+          : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
         direction === "asc" ? "This is where I'd start." : "This is the one to copy."
       );
       return;
@@ -312,7 +312,7 @@
       await call("render", "district", found.hit);
       CITYVIEW.speak(
         `${found.hit}: ${s.built} of ${s.count} lots built, ${euro(s.spend)} of spend.`,
-        `${found.hit} — ${s.bare} lots still empty.`
+        `${found.hit}: ${s.bare} lots still empty.`
       );
       return;
     }
@@ -323,7 +323,7 @@
       await call("render", "focus", lead.code);
       CITYVIEW.speak(
         `${found.hit} holds ${plural(inPlot.length, "category", "categories")}. ${lead.code} ${lead.name} is the most adopted.`,
-        `${found.hit} — ${plural(inPlot.length, "building")}.`
+        `${found.hit}: ${plural(inPlot.length, "building")}.`
       );
       return;
     }
