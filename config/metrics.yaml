@@ -26,12 +26,14 @@ layers:
     caption: Blueprint maturity and captured category rules
   height:
     metric: market_reach      # ← swap to ava_adoption / cbp_total / spend_eur
-    caption: Putting the digital asset to work
+    caption: >-
+      How widely the blueprint has been adopted. Height rises only once a
+      foundation is laid; a drafted lot shows an outline instead.
   value:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
   reactor:
-    metric: ai_rfps
+    metric: ai_rfps_sample   # ← flip to ai_rfps the day real figures land
     caption: Structured rules and future autonomy readiness
 
 # ---------------------------------------------------------------------------
@@ -130,6 +132,24 @@ metrics:
       - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory. First AI-generated RFPs.}
       - {id: steady,    max: 6,    label: Steady glow,    detail: Connected. Core rules structured.}
       - {id: reactor,   max: null, label: Full reactor,   detail: AI-ready candidate.}
+
+  ai_rfps_sample:
+    label: AI-generated RFPs
+    description: >
+      Stand-in for the AI-generated RFP count while the real column is empty.
+      Seeded from a fixed value so rehearsal and the live run agree, and zero
+      for any category without an active blueprint.
+    unit: rfps
+    kind: numeric
+    sample: true
+    sample_note: >
+      Not real data. Replace by pointing the reactor layer at ai_rfps once the
+      real figures land.
+    tiers:
+      - {id: dark,      max: 0,    label: Dark,          detail: Not yet measured.}
+      - {id: flicker,   max: 2,    label: Flicker,       detail: Exploratory. First AI-generated RFPs.}
+      - {id: steady,    max: 6,    label: Steady glow,   detail: Connected. Core rules structured.}
+      - {id: reactor,   max: null, label: Full reactor,  detail: AI-ready candidate.}
 
 # ---------------------------------------------------------------------------
 # Honesty guardrails. The deck is explicit that measure four signals readiness,

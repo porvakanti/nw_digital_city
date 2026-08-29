@@ -131,10 +131,28 @@ class TestConfigBinding(unittest.TestCase):
             finite = [b for b in bounds if b is not None]
             self.assertEqual(finite, sorted(finite), f"{name}: tiers out of order")
 
+    def test_bound_layers_have_data_to_draw(self):
+        """A layer bound to an empty column silently draws nothing.
+
+        This is not hypothetical: the reactor layer was bound to `ai_rfps`,
+        which is null for all 145 categories because the real column has not
+        arrived yet, so every rooftop resolved to the "Dark" tier and no
+        reactor was ever drawn, while the legend advertised four states.
+        """
+        for layer, binding in self.config["layers"].items():
+            name = binding["metric"]
+            values = [c["metrics"].get(name) for c in self.city["categories"]]
+            present = [v for v in values if v is not None]
+            self.assertTrue(present, f"layer {layer} is bound to {name}, which is empty")
+            self.assertGreater(
+                len(set(present)), 1,
+                f"layer {layer} is bound to {name}, which never varies, so it draws one tier"
+            )
+
     def test_unreal_metrics_are_badged(self):
         """Placeholder or stand-in numbers must be flagged, not quietly presented."""
         registry = self.config["metrics"]
-        self.assertTrue(registry["ai_rfps"].get("sample"))
+        self.assertTrue(registry["ai_rfps_sample"].get("sample"))
         self.assertTrue(registry["market_reach"].get("provisional"))
         self.assertTrue(self.config["disclosure"]["show_sample_badge"])
         self.assertTrue(self.config["disclosure"]["show_provisional_badge"])

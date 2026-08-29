@@ -248,6 +248,21 @@ build. A311 Field Maintenance: €75m of spend, no blueprint, nothing to build
 with. That is the argument for blueprints delivered by the demo instead of by a
 slide.
 
+## 8a. A bug worth remembering
+
+The reactor layer was bound to `ai_rfps`, the real column, which is null for
+all 145 categories because the data has not arrived. Every rooftop therefore
+resolved to the "Dark" tier and no reactor was ever drawn, while the legend
+advertised four states. Nothing failed and nothing logged; the city just
+quietly rendered three measures out of four.
+
+It is now bound to `ai_rfps_sample`, and a test asserts that every bound layer
+points at a column that has values and varies. Flip the binding back to
+`ai_rfps` when the real figures land.
+
+The general lesson: the configurable-layer design means a layer can be pointed
+at nothing at all, and the failure is silent. The test is the guard.
+
 ## 9. Open questions
 
 For Kate, on the data and the framing (1 to 5 and 7). Question 6 needs

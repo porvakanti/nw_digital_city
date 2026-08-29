@@ -263,8 +263,10 @@
     return { size: Math.max(v, h / aspect) * margin, target: centre.setY(0) };
   }
 
-  scene.add(new THREE.HemisphereLight(0xa8c0e8, 0x232830, 0.46));
-  scene.add(new THREE.AmbientLight(0xffffff, 0.14));
+  const hemi = new THREE.HemisphereLight(0xa8c0e8, 0x232830, 0.46);
+  scene.add(hemi);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.14);
+  scene.add(ambient);
   const sun = new THREE.DirectionalLight(0xfff4e6, 0.92);
   sun.position.set(span * 0.55, span * 0.9, span * 0.35);
   sun.castShadow = true;
@@ -282,6 +284,7 @@
   const box = new THREE.BoxGeometry(1, 1, 1);
   const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
   const cone = new THREE.ConeGeometry(0.5, 1, 7);
+  const disc = new THREE.CircleGeometry(0.5, 18).rotateX(-Math.PI / 2);
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
@@ -292,6 +295,13 @@
     color: C.bare, transparent: true, opacity: 0.07,
   });
   const matReactor = new THREE.MeshBasicMaterial({ color: C.reactor });
+  const matWindow = new THREE.MeshBasicMaterial({ vertexColors: false });
+  const matBeam = new THREE.MeshBasicMaterial({
+    color: 0x8fe8ff, transparent: true, opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const matPool = new THREE.MeshBasicMaterial({
+    color: 0xffe6a6, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
 
   const plates = new Bucket();
   const bricks = new Bucket();
@@ -299,6 +309,9 @@
   const houses = new Bucket();
   const ghostBricks = new Bucket();
   const ghostSolid = new Bucket();
+  const windows = new Bucket();
+  const lightPools = new Bucket();
+  const beams = new Bucket();
   const ghostHouses = new Bucket();
   const reactors = new Bucket();
 
@@ -404,6 +417,7 @@
   // it is there so the city reads as a place rather than as a bar chart with
   // studs, which is what makes an empty lot feel like an empty lot.
   const PAVEMENT_TOP = 0.25;
+  let lampMesh = null;
   const lampHeads = [];
   const walkers = [];
   const vehicles = [];
@@ -509,6 +523,7 @@
           postBucket.add(x, 1.15, z, 0.16, 2.3, 0.16, 0x2b3038);
           headBucket.add(x, 2.42, z, 0.5, 0.24, 0.5, 0xffe6a6);
           lampHeads.push({ x, y: 2.42, z });
+          lightPools.add(x, 0.3, z, 5.2, 1, 5.2, 0xffe6a6);
         }
       }
     }
@@ -546,7 +561,7 @@
       trunkBucket.mesh(box, solid, true, false),
       canopyBucket.mesh(cone, solid, true, false),
       postBucket.mesh(box, solid, true, false),
-      headBucket.mesh(box, new THREE.MeshLambertMaterial({ emissive: 0x000000 }), false, false),
+      (lampMesh = headBucket.mesh(box, new THREE.MeshBasicMaterial({ color: 0xffe6a6 }), false, false)),
     ].forEach((mesh) => mesh && scene.add(mesh));
 
     buildPedestrians(roads, rnd);
@@ -653,6 +668,7 @@
     piece(0x9aa3ae, 0, 0.4, 0, 0.95, 0.09, 0.09);       // frame
     piece(colour, -0.05, 0.75, 0, 0.32, 0.55, 0.3);     // rider
     piece(0xf3c85c, -0.05, 1.1, 0, 0.28, 0.26, 0.26);   // head
+    group.scale.setScalar(1.45);
     return group;
   }
 
@@ -679,7 +695,7 @@
     }
 
     // A few cyclists, keeping in close to the kerb where a cycle lane would be.
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 11; i++) {
       const road = usable[Math.floor(rnd() * usable.length)] || roads[0];
       const forward = rnd() < 0.5;
       const short = road.vertical ? road.w : road.d;
@@ -826,6 +842,12 @@
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
+        // Window strips on the two faces the isometric camera can see. Some
+        // are left dark so the skyline is not uniformly lit at night.
+        const lit = (f * 7 + x * 3 + z) % 10 < 7;
+        const glass = lit ? 0xffd98a : 0x2a2f38;
+        windows.add(x + FOOT / 2, y, z, 0.06, 0.42, FOOT * 0.62, glass);
+        windows.add(x, y, z + FOOT / 2, FOOT * 0.62, 0.42, 0.06, glass);
       }
       top = 0.62 + floors * FLOOR_H;
       // studs only on the roof: enough to read as brick, cheap to draw
@@ -835,8 +857,13 @@
         }
       }
       if (reactorTier > 0) {
-        const glow = 0.32 + reactorTier * 0.16;
+        const glow = 0.42 + reactorTier * 0.2;
         pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.34, z, glow * 2, 0.3, glow * 2) };
+        // A beam so the reactor reads from across the city once it is dark.
+        // Only 28 of 145 categories have any AI-generated RFPs, so these stay
+        // rare, which is the point: the skyline becomes a readiness map.
+        const reach = 4 + reactorTier * 3.4;
+        beams.add(x, top + 0.4 + reach / 2, z, glow * 2.6, reach, glow * 2.6);
       }
     } else {
       // Nothing built: show the outline of what could stand here.
@@ -884,7 +911,12 @@
     ghostBricks: { bucket: ghostBricks, mesh: ghostBricks.mesh(box, matGhost, false, false) },
     ghostHouses: { bucket: ghostHouses, mesh: ghostHouses.mesh(box, matGhostSolid, false, false) },
     reactors: { bucket: reactors, mesh: reactors.mesh(cyl, matReactor, false, false) },
+    windows: { bucket: windows, mesh: windows.mesh(box, matWindow, false, false) },
   };
+  const poolMesh = lightPools.mesh(disc, matPool, false, false);
+  if (poolMesh) scene.add(poolMesh);
+  const beamMesh = beams.mesh(cyl, matBeam, false, false);
+  if (beamMesh) scene.add(beamMesh);
   Object.values(BUCKETS).forEach((entry) => entry.mesh && scene.add(entry.mesh));
 
   // --------------------------------------------------------------- the build
@@ -982,6 +1014,43 @@
     scheduled = still;
     for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
     dirty.clear();
+  }
+
+  // -------------------------------------------------------------- nightfall
+  // Measure four is the weakest thing to look at by daylight: a small disc on
+  // a roof. With the city dark, the reactors are the only bright thing left,
+  // and the skyline becomes a map of where Networks is AI-ready.
+  const DAY = {
+    sky: C.sky,
+    hemi: 0.46,
+    ambient: 0.14,
+    sun: 0.92,
+    sunColour: 0xfff4e6,
+  };
+  let isNight = false;
+
+  function setNight(on) {
+    isNight = !!on;
+    scene.background = new THREE.Color(isNight ? 0x04060d : DAY.sky);
+    hemi.intensity = isNight ? 0.13 : DAY.hemi;
+    ambient.intensity = isNight ? 0.05 : DAY.ambient;
+    sun.intensity = isNight ? 0.16 : DAY.sun;
+    sun.color.setHex(isNight ? 0x8fa8d8 : DAY.sunColour);
+
+    if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = isNight;
+    if (poolMesh) poolMesh.visible = isNight;
+    if (beamMesh) beamMesh.visible = isNight;
+
+    // Lamp heads and headlights are lit fittings; they only read as lights
+    // once there is darkness for them to sit in.
+    if (BUCKETS.reactors.mesh) {
+      BUCKETS.reactors.mesh.material.color.setHex(isNight ? 0xbdf1ff : C.reactor);
+    }
+    for (const lamp of headlights) {
+      lamp.material.color.setHex(isNight ? 0xfff6d8 : 0xfff0c0);
+    }
+    if (lampMesh) lampMesh.material.color.setHex(isNight ? 0xfff3c4 : 0xffe6a6);
+    document.body.classList.toggle("night", isNight);
   }
 
   // ------------------------------------------------------------------- HUD
@@ -1389,6 +1458,7 @@
   document.addEventListener("pointercancel", endDragPanel);
 
   window.addEventListener("keydown", (e) => {
+    if (e.key === "n" || e.key === "N") setNight(!isNight);
     if (e.key === "r" || e.key === "R") {
       showCategory(null);
       flyTo(HOME.target, HOME.size);
@@ -1425,6 +1495,10 @@
     },
     rise() {
       cityRise();
+    },
+    night(on) {
+      setNight(on === undefined ? !isNight : on);
+      return isNight;
     },
     // Fly to a whole district rather than one lot. Used when the agent is
     // answering about a district or ranking within one.
@@ -1507,6 +1581,7 @@
     }
   }
 
+  setNight(false);
   applyCamera();
   cityRise();
   tick();

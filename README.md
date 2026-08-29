@@ -100,5 +100,6 @@ agent actually moves the city rather than only describing it.
 - [x] Build choreography, opening city rise, per-category teardown and rebuild
 - [x] The character, minifigure, idle wander, flight, speech bubble and caption
 - [x] Agent, natural language in, city out, with a visible tool trace
+- [x] Night mode, lit windows, lamplight and reactor beams
 - [ ] Model adapter, speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode
