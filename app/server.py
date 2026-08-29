@@ -4,7 +4,13 @@ The city is a static page. A browser calling a model directly would have to
 carry the credential in the page, where anyone can read it, so this sits in
 between: it holds the key, adds the prompt, and hands back a decision.
 
-One endpoint, no state, no database. It runs the same in a container on a
+It also serves the page itself. That is not tidiness, it is the difference
+between "set a key in .env and run one command" and a list of steps someone
+has to get right in a green room. Because the page and the agent come from the
+same origin, the browser finds the endpoint on its own: no query parameter, no
+second server, no CORS to think about.
+
+One service, no state, no database. It runs the same in a container on a
 laptop, on Cloud Run, and in the internal environment; only the environment
 variables change.
 """
@@ -12,18 +18,27 @@ variables change.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from . import env
 from . import plan as planning
 from . import providers
 
-app = FastAPI(title="NW Digital City agent", version="1.0")
+env.load()
 
-# The renderer is opened from a file so that it still works with no network.
-# That makes every request to this service cross-origin by definition.
+RENDERER = Path(__file__).resolve().parent.parent / "renderer"
+
+app = FastAPI(title="NW Digital City", version="1.0")
+
+# Served from here the page is same-origin and needs none of this. It stays
+# because the page can also be opened straight off the disk, which is the
+# fallback if anything about the venue network goes wrong, and from a file://
+# origin every request here is cross-origin by definition.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("NW_ALLOW_ORIGINS", "*").split(","),
@@ -46,7 +61,17 @@ class Ask(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True, "provider": os.environ.get("NW_PROVIDER", "mock")}
+    """What is actually wired up, so the page can say so instead of guessing."""
+    provider = os.environ.get("NW_PROVIDER", "mock").strip().lower()
+    model = os.environ.get("NW_MODEL") or providers.DEFAULT_MODELS.get(provider, "")
+    ready = True
+    detail = ""
+    if provider in ("gemini", "claude") and not os.environ.get("NW_API_KEY", "").strip():
+        ready, detail = False, "NW_API_KEY is not set"
+    if provider == "vertex" and not os.environ.get("NW_PROJECT", "").strip():
+        ready, detail = False, "NW_PROJECT is not set"
+    return {"ok": True, "provider": provider, "model": model,
+            "ready": ready, "detail": detail}
 
 
 @app.post("/plan")
@@ -67,3 +92,9 @@ def make_plan(ask: Ask) -> dict:
             intent="unknown", source="error", notes=[f"{type(exc).__name__}: {exc}"]
         ).as_dict()
     return planning.parse(raw, names, source).as_dict()
+
+
+# Mounted last, because a mount at the root would otherwise swallow /plan and
+# /health. html=True serves index.html for the bare address.
+if RENDERER.is_dir():
+    app.mount("/", StaticFiles(directory=RENDERER, html=True), name="city")

@@ -4,8 +4,8 @@ Runs the questions people are likely to ask against whichever provider is
 configured, and reports what each one decided. Use it against the mock while
 building, and against the real endpoint before the all-hands.
 
-    NW_PROVIDER=mock   python3 -m app.eval
-    NW_PROVIDER=gemini NW_API_KEY=... python3 -m app.eval
+    ./run.sh eval          whatever .env is set to
+    NW_PROVIDER=mock ./run.sh eval
 """
 
 from __future__ import annotations
@@ -15,8 +15,11 @@ import os
 import pathlib
 import sys
 
+from . import env
 from . import plan as planning
 from . import providers
+
+env.load()
 
 CITY = pathlib.Path(__file__).resolve().parent.parent / "data" / "city.json"
 

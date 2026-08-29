@@ -376,8 +376,45 @@
   // The endpoint is optional. Without it the rules below run, which is also
   // what happens if the endpoint is slow, unreachable or unsure, so the demo
   // never depends on a network call succeeding.
-  const ENDPOINT =
-    new URLSearchParams(location.search).get("agent") || window.NW_AGENT_ENDPOINT || "";
+  //
+  // Nothing has to be typed to wire it up. Served by app/server.py the page
+  // and the agent share an origin, so the page just asks its own address.
+  // Opened from a file there is no address to ask, and the local rules run.
+  function resolveEndpoint() {
+    const asked = new URLSearchParams(location.search).get("agent");
+    if (asked) return asked === "off" ? "" : asked;
+    if (window.NW_AGENT_ENDPOINT) return window.NW_AGENT_ENDPOINT;
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      return location.origin;
+    }
+    return "";
+  }
+
+  const ENDPOINT = resolveEndpoint();
+
+  /* Ask the service what it is running so the badge states a fact rather than
+   * an assumption. A page opened from a file skips this and says so. */
+  async function probe() {
+    const badge = document.getElementById("modelBadge");
+    if (!badge) return;
+    const show = (text, live) => {
+      badge.textContent = text;
+      badge.dataset.live = live ? "yes" : "no";
+      badge.hidden = false;
+    };
+    if (!ENDPOINT) return show("local rules, no model", false);
+    try {
+      const reply = await fetch(`${ENDPOINT.replace(/\/$/, "")}/health`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      const health = await reply.json();
+      if (!health.ready) return show(`${health.provider}: ${health.detail}`, false);
+      show(health.provider === "mock" ? "local rules, no model" : `${health.model}`,
+           health.provider !== "mock");
+    } catch (err) {
+      show("local rules, model unreachable", false);
+    }
+  }
 
   function vocabulary() {
     return {
@@ -503,6 +540,8 @@
     });
     chips.appendChild(button);
   }
+
+  probe();
 
   window.NWAgent = { ask: submit, tools, similarity, endpoint: ENDPOINT };
 })();

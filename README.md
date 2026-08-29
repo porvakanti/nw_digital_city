@@ -67,11 +67,15 @@ The source workbook contains blueprint owner names and email addresses.
 ## Layout
 
 ```
+run.py                 the only command anyone needs to run
 config/metrics.yaml    which metric drives which visual layer
 data/build_city.py     workbook to anonymised city.json
 data/city.json         the only data the renderer needs
 renderer/city.js       the brick city, the builder, the choreography
 renderer/agent.js      the tools, the resolver, the visible trace
+app/server.py          serves the page and holds the model credential
+app/plan.py            what the model is allowed to decide, and the validation
+app/providers.py       mock, Gemini, Vertex AI, Claude behind one interface
 tests/                 privacy and data integrity, plus a browser smoke test
 ```
 
@@ -81,44 +85,51 @@ safety net: if the venue wifi dies, the city still opens from a local file.
 ## Running it
 
 ```bash
-python3 -m pip install openpyxl pyyaml
-python3 data/build_city.py          # rebuild city.json from data/raw/
-python3 -m unittest discover -s tests -v
+./run.sh            # or: python3 run.py
+```
 
-npm i playwright                    # once
-node tests/smoke.js                 # rehearsal check: drives the real page
+From the repository root on your own machine. That is the whole thing. The
+first run makes a virtual environment in `.venv`, installs what it needs,
+writes a `.env` if there is not one, starts the service and opens the city in a
+browser. Later runs skip straight to the last two.
+
+To use a model, put the key in `.env` and run it again:
+
+```ini
+NW_PROVIDER=gemini
+NW_API_KEY=your-google-ai-studio-key
+```
+
+Nothing else. No second server, no query parameter, no exporting variables into
+a shell. The service holds the key and serves the page, so the browser asks its
+own address for the agent and the badge on the ask bar names the model that is
+answering. With `NW_PROVIDER=mock`, or no key, the badge says so and the city
+answers with its own rules.
+
+```bash
+./run.sh test       # python tests, the agent's question set, the browser smoke test
+./run.sh eval       # just the question set, against whatever .env says
+./run.sh build      # rebuild city.json from the workbook in data/raw/
 ```
 
 `tests/smoke.js` is the pre-stage check. It loads the city in a real browser,
 asserts the resolver finds what people are likely to shout, and confirms the
 agent actually moves the city rather than only describing it.
 
+### If everything goes wrong
+
+`renderer/index.html` opens straight off the disk, with no server and no
+network. The city, the choreography and the agent's own rules all work; only
+the model is missing. That is the safety net, and it is why the renderer has no
+runtime dependencies.
+
 ## The agent
 
 Ask in plain English. The city is what the agent does, not what it talks about.
 
-Without a model endpoint the browser uses its own rules, which is also what
-happens if the endpoint is slow, unreachable or unsure. The demo never depends
-on a network call succeeding.
-
-### Running it with a model
-
-```bash
-python3 -m pip install -r app/requirements.txt
-cp .env.example .env            # set NW_PROVIDER=gemini and NW_API_KEY
-set -a; . ./.env; set +a
-python3 -m uvicorn app.server:app --port 8099
-```
-
-Then open `renderer/index.html?agent=http://127.0.0.1:8099`. Without the query
-parameter the page runs entirely on its own.
-
-Check the decisions before trusting them:
-
-```bash
-NW_PROVIDER=mock   python3 -m app.eval      # 29 questions, no key, no network
-NW_PROVIDER=gemini python3 -m app.eval      # the same 29 against the real model
-```
+Without a model the browser uses its own rules, which is also what happens if
+the endpoint is slow, unreachable or unsure. The demo never depends on a
+network call succeeding.
 
 ### The model never sees the numbers
 

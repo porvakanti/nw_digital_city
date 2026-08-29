@@ -282,6 +282,23 @@
     font: 600 13px system-ui, sans-serif;
     cursor: pointer;
   }
+  /* Says which model is answering, or that nothing is. Live is a fact worth
+     stating on stage; local rules are worth stating honestly. */
+  #modelBadge {
+    flex: none;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    color: var(--ink-muted);
+    font: 11px ui-monospace, "SF Mono", Menlo, monospace;
+    white-space: nowrap;
+  }
+  #modelBadge[data-live="yes"] {
+    color: var(--reactor);
+    border-color: rgba(127, 220, 255, 0.4);
+    background: rgba(127, 220, 255, 0.08);
+  }
+
   #chips {
     left: 50%;
     bottom: 82px;
@@ -377,6 +394,7 @@
   <div class="hud" id="ask">
     <input id="askInput" type="text" autocomplete="off" spellcheck="false"
            placeholder="Ask about a category, a district or a market…">
+    <span id="modelBadge" hidden></span>
     <button id="askGo">Ask</button>
   </div>
 
