@@ -236,12 +236,12 @@
 
   // ----------------------------------------------------------------- intents
   const WORST = /\b(worst|weakest|behind|lagging|lowest|least|poorest)\b/;
-  const BEST = /\b(best|strongest|biggest|largest|most|top|highest|leading)\b/;
-  const GAPS = /\b(gap|gaps|empty|bare|gaps|undeveloped|missing|nothing|unbuilt|opportunit\w*)\b/;
+  const BEST = /\b(best|strongest|biggest|largest|most|top|highest|lead|leads|leading|ahead)\b/;
+  const GAPS = /\b(gap|gaps|empty|bare|undeveloped|missing|nothing|unbuilt|opportunit\w*)\b|no blueprint|without a blueprint/;
   const SUMMARY = /\b(how many|summary|overview|overall|status|count|total)\b/;
   const RESET = /\b(reset|whole city|zoom out|everything|all of it|back|daylight)\b/;
   const COULD_BE = /\b(could|potential|opportunit\w*|what if|unbuilt|upside|if we built)\b/;
-  const AFTER_DARK = /\b(night|dark|readiness|autonom\w*|ai.?ready|reactors?|rfps?)\b/;
+  const AFTER_DARK = /\b(night|dark|readiness|autonom\w*|ai.?ready|reactors?|rfps?)\b|lights? (off|out)/;
 
   /** City-wide questions accept a place as scope, never a single category.
    *  Without this, "what could we build?" latches onto whichever category name
@@ -256,104 +256,83 @@
     return scope.kind === "category" ? scope.hit.name : scope.hit;
   }
 
-  async function ask(text) {
-    const query = String(text || "").trim();
-    if (!query) return;
-    resetTrace();
-
-    if (RESET.test(query.toLowerCase())) {
-      await call("render", "reset");
-      CITYVIEW.speak(null, null);
+  // ------------------------------------------------------------- the actions
+  // One function per thing the city can be asked to do. Both the local rules
+  // and the model endpoint end up here, so the two paths cannot drift.
+  async function runGaps(scope) {
+    const gaps = await call("find_gaps", scope);
+    const top = gaps.list[0];
+    if (scope && scope.kind === "district") await call("render", "district", scope.hit);
+    else if (top) await call("render", "focus", top.code);
+    if (!top) {
+      CITYVIEW.speak(`Every lot in ${scopeText(scope)} has a blueprint.`, "Nothing empty here.");
       return;
     }
+    CITYVIEW.speak(
+      `${gaps.list.length} empty lots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name}, worth ${euro(top.metrics.spend_eur)}, with no blueprint.`,
+      `${top.name} is the most valuable empty lot here.`
+    );
+  }
 
-    if (AFTER_DARK.test(query.toLowerCase())) {
-      await call("render", "night");
-      const lit = categories.filter((c) => c.metrics.ai_rfps_sample > 0).length;
-      CITYVIEW.speak(
-        `${lit} of ${categories.length} categories have started any AI-generated RFPs. The lit rooftops are where the rules are structured enough to try.`,
-        "The dark roofs are the work still to do."
-      );
+  async function runSummary(scope) {
+    const s = await call("summarise", scope);
+    if (scope && scope.kind === "district") await call("render", "district", scope.hit);
+    CITYVIEW.speak(
+      `${scopeText(scope)}: ${s.built} of ${s.count} lots built, ${s.bare} still empty, ${euro(s.spend)} of spend.`,
+      `${s.bare} lots here are still empty ground.`
+    );
+  }
+
+  async function runRank(scope, metric, direction) {
+    const ranked = await call("rank", scope, metric, direction);
+    const pick = direction === "asc"
+      ? ranked.list.find((c) => c.blueprint_state === "none") || ranked.list[0]
+      : ranked.list[0];
+    if (!pick) {
+      CITYVIEW.speak(`Nothing to rank in ${scopeText(scope)}.`, "Nothing here.");
       return;
     }
+    await call("render", "focus", pick.code);
+    const reach = pick.metrics.market_reach;
+    CITYVIEW.speak(
+      direction === "asc"
+        ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${euro(pick.metrics.spend_eur)}, ${reach === 0 ? "and no blueprint at all" : plural(reach, "market")}.`
+        : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
+      direction === "asc" ? "This is where I would start." : "This is the one to copy."
+    );
+  }
 
-    const found = await call("find_category", query);
+  async function runCouldBe(scope) {
+    const gaps = await call("find_gaps", scope);
+    await call("render", "potential");
+    const drafted = categories.filter((c) => c.blueprint_state === "draft").length;
+    const unbuilt = gaps.list.reduce((sum, c) => sum + c.metrics.spend_eur, 0);
+    CITYVIEW.speak(
+      `${drafted} drafts waiting to go active, and ${gaps.list.length} lots with no blueprint carrying ${euro(unbuilt)} between them. This is the skyline if we built them.`,
+      "This is what the record says we could build."
+    );
+  }
 
-    // Ranking, gaps and summaries operate on whatever scope was named.
-    const lower = query.toLowerCase();
-    const scope = found.kind === "none" ? null : found;
+  async function runNight() {
+    await call("render", "night");
+    const lit = categories.filter((c) => c.metrics.ai_rfps_sample > 0).length;
+    CITYVIEW.speak(
+      `${lit} of ${categories.length} categories have started any AI-generated RFPs. The lit rooftops are where the rules are structured enough to try.`,
+      "The dark roofs are the work still to do."
+    );
+  }
 
-    if (COULD_BE.test(lower)) {
-      const gaps = await call("find_gaps", placeScope(found));
-      const raised = await call("render", "potential");
-      const drafted = categories.filter((c) => c.blueprint_state === "draft").length;
-      const unbuiltSpend = gaps.list.reduce((sum, c) => sum + c.metrics.spend_eur, 0);
-      CITYVIEW.speak(
-        `${drafted} drafts waiting to go active, and ${gaps.list.length} lots with no blueprint carrying ${euro(unbuiltSpend)} between them. This is the skyline if we built them.`,
-        "This is what the record says we could build."
-      );
-      return;
-    }
+  async function runReset() {
+    await call("render", "reset");
+    CITYVIEW.speak(null, null);
+  }
 
-    if (GAPS.test(lower)) {
-      const gaps = await call("find_gaps", placeScope(found));
-      const top = gaps.list[0];
-      if (scope && scope.kind === "district") await call("render", "district", scope.hit);
-      else if (top) await call("render", "focus", top.code);
-      if (!top) {
-        CITYVIEW.speak(`Every lot in ${scopeText(scope)} has a blueprint.`, "Nothing bare here.");
-        return;
-      }
-      CITYVIEW.speak(
-        `${gaps.list.length} empty lots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name}, worth ${euro(top.metrics.spend_eur)}, with no blueprint.`,
-        `${top.name} is the most valuable empty lot here.`
-      );
-      return;
-    }
-
-    if (SUMMARY.test(lower)) {
-      const s = await call("summarise", placeScope(found));
-      if (scope && scope.kind === "district") await call("render", "district", scope.hit);
-      CITYVIEW.speak(
-        `${scopeText(scope)}: ${s.built} of ${s.count} lots built, ${s.bare} still empty, ${euro(s.spend)} of spend.`,
-        `${s.bare} lots here are still empty ground.`
-      );
-      return;
-    }
-
-    if (WORST.test(lower) || BEST.test(lower)) {
-      const direction = WORST.test(lower) ? "asc" : "desc";
-      const metric = /spend|value|money|euro/.test(lower) ? "spend_eur" : "market_reach";
-      const ranked = await call("rank", scope, metric, direction);
-      const pick = direction === "asc"
-        ? ranked.list.find((c) => c.blueprint_state === "none") || ranked.list[0]
-        : ranked.list[0];
-      await call("render", "focus", pick.code);
-      const reach = pick.metrics.market_reach;
-      CITYVIEW.speak(
-        direction === "asc"
-          ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${euro(pick.metrics.spend_eur)}, ${reach === 0 ? "and no blueprint at all" : plural(reach, "market")}.`
-          : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
-        direction === "asc" ? "This is where I'd start." : "This is the one to copy."
-      );
-      return;
-    }
-
-    if (found.kind === "none") {
-      CITYVIEW.speak(
-        `I can't find that in the city. Try a category code, a category name, a district or a market.`,
-        "I don't know that one."
-      );
-      return;
-    }
-
+  async function runPlace(found) {
     if (found.kind === "category") {
       await call("get_metrics", found.hit.code);
       await call("render", "focus", found.hit.code);
-      // the renderer's own narrator writes the line for a single category
-      return;
+      return; // the renderer's narrator writes the line for a single category
     }
-
     if (found.kind === "district") {
       const s = await call("summarise", found);
       await call("render", "district", found.hit);
@@ -363,7 +342,6 @@
       );
       return;
     }
-
     if (found.kind === "plot") {
       const inPlot = categories.filter((c) => c.plot === found.hit);
       const lead = inPlot.slice().sort((a, b) => b.metrics.market_reach - a.metrics.market_reach)[0];
@@ -374,7 +352,6 @@
       );
       return;
     }
-
     if (found.kind === "market") {
       const inMarket = categories.filter((c) => c.markets.includes(found.hit));
       const lead = inMarket.slice().sort((a, b) => b.metrics.spend_eur - a.metrics.spend_eur)[0];
@@ -387,7 +364,100 @@
         `${found.hit} has adopted ${plural(inMarket.length, "blueprint")}. The largest is ${lead.code} ${lead.name}.`,
         `${found.hit} is building in ${plural(inMarket.length, "category", "categories")}.`
       );
+      return;
     }
+    CITYVIEW.speak(
+      "I cannot find that in the city. Try a category code, a category name, a district or a market.",
+      "I do not know that one."
+    );
+  }
+
+  // ------------------------------------------------------------- the model
+  // The endpoint is optional. Without it the rules below run, which is also
+  // what happens if the endpoint is slow, unreachable or unsure, so the demo
+  // never depends on a network call succeeding.
+  const ENDPOINT =
+    new URLSearchParams(location.search).get("agent") || window.NW_AGENT_ENDPOINT || "";
+
+  function vocabulary() {
+    return {
+      categories: categories.map((c) => `${c.code} ${c.name}`),
+      districts,
+      plots,
+      markets,
+    };
+  }
+
+  async function remotePlan(question) {
+    if (!ENDPOINT) return null;
+    const controller = new AbortController();
+    const giveUp = setTimeout(() => controller.abort(), 6000);
+    try {
+      const reply = await fetch(`${ENDPOINT.replace(/\/$/, "")}/plan`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question, names: vocabulary() }),
+        signal: controller.signal,
+      });
+      if (!reply.ok) return null;
+      return await reply.json();
+    } catch (err) {
+      return null;
+    } finally {
+      clearTimeout(giveUp);
+    }
+  }
+
+  /** Turn a plan's target back into the scope shape the tools expect. */
+  function scopeFromPlan(plan) {
+    const kind = plan.target && plan.target.kind;
+    const value = plan.target && plan.target.value;
+    if (!kind || kind === "none" || !value) return null;
+    if (kind === "category") {
+      const hit = byCode.get(String(value).toUpperCase());
+      return hit ? { kind, hit } : null;
+    }
+    return { kind, hit: value };
+  }
+
+  async function ask(text) {
+    const query = String(text || "").trim();
+    if (!query) return;
+    resetTrace();
+
+    const plan = await remotePlan(query);
+    if (plan && plan.intent && plan.intent !== "unknown") {
+      logCall("plan", [query], `${plan.intent} via ${plan.source}`);
+      await beat(200);
+      const scope = scopeFromPlan(plan);
+      if (plan.preamble) CITYVIEW.speak(null, plan.preamble);
+      switch (plan.intent) {
+        case "gaps": return runGaps(scope);
+        case "summary": return runSummary(scope);
+        case "rank": return runRank(scope, plan.metric, plan.direction);
+        case "could_be": return runCouldBe(scope);
+        case "night": return runNight();
+        case "reset": return runReset();
+        default: return runPlace(scope || { kind: "none" });
+      }
+    }
+    if (plan) logCall("plan", [query], "no decision, using local rules");
+
+    const lower = query.toLowerCase();
+    if (RESET.test(lower)) return runReset();
+    if (AFTER_DARK.test(lower)) return runNight();
+
+    const found = await call("find_category", query);
+    const scope = placeScope(found);
+    if (COULD_BE.test(lower)) return runCouldBe(scope);
+    if (GAPS.test(lower)) return runGaps(scope);
+    if (SUMMARY.test(lower)) return runSummary(scope);
+    if (WORST.test(lower) || BEST.test(lower)) {
+      const direction = WORST.test(lower) ? "asc" : "desc";
+      const metric = /spend|value|money|euro/.test(lower) ? "spend_eur" : "market_reach";
+      return runRank(scope, metric, direction);
+    }
+    return runPlace(found);
   }
 
   // --------------------------------------------------------------------- UI
@@ -434,5 +504,5 @@
     chips.appendChild(button);
   }
 
-  window.NWAgent = { ask: submit, tools, similarity };
+  window.NWAgent = { ask: submit, tools, similarity, endpoint: ENDPOINT };
 })();

@@ -282,6 +282,34 @@ building there.
 That is 32 lots: 12 drafts, and 20 categories carrying €176m with no blueprint
 at all. Press P, or ask the agent what we could build.
 
+## 8c. The model layer
+
+The renderer is a static page, so a browser calling a model directly would have
+to carry the credential where anyone can read it. A small proxy holds the key,
+adds the prompt and returns a decision. That proxy is the only thing that ever
+gets deployed, and it is the same container on a laptop, on Cloud Run and in
+the internal environment.
+
+**The model never sees the numbers.** It gets the question and the vocabulary,
+names only, and returns an intent and a target. The tools then run in the
+browser against city.json. The model does understanding, the code does
+arithmetic. That means no figure on screen can be invented, and no spend figure
+leaves the laptop while we build against a temporary endpoint.
+
+**Nothing it says is trusted.** An invented category is dropped, a category
+offered as the scope of an area question is ignored, a preamble containing
+digits is discarded, and an unparseable reply becomes an unknown intent, which
+falls back to the browser's own rules. `/plan` never returns an error to the
+caller, because a 500 on the day would take the demo down with it.
+
+**Both paths meet in the same place.** The local rules and the model both end
+up calling the same run functions, so the two cannot drift apart and the
+fallback behaves like the real thing.
+
+`app/eval.py` runs 29 likely questions against whichever provider is
+configured. Run it against the mock while building and against the real
+endpoint before the all-hands.
+
 ## 9. Open questions
 
 For Kate, on the data and the framing (1 to 5 and 7). Question 6 needs

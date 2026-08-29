@@ -93,6 +93,59 @@ node tests/smoke.js                 # rehearsal check: drives the real page
 asserts the resolver finds what people are likely to shout, and confirms the
 agent actually moves the city rather than only describing it.
 
+## The agent
+
+Ask in plain English. The city is what the agent does, not what it talks about.
+
+Without a model endpoint the browser uses its own rules, which is also what
+happens if the endpoint is slow, unreachable or unsure. The demo never depends
+on a network call succeeding.
+
+### Running it with a model
+
+```bash
+python3 -m pip install -r app/requirements.txt
+cp .env.example .env            # set NW_PROVIDER=gemini and NW_API_KEY
+set -a; . ./.env; set +a
+python3 -m uvicorn app.server:app --port 8099
+```
+
+Then open `renderer/index.html?agent=http://127.0.0.1:8099`. Without the query
+parameter the page runs entirely on its own.
+
+Check the decisions before trusting them:
+
+```bash
+NW_PROVIDER=mock   python3 -m app.eval      # 29 questions, no key, no network
+NW_PROVIDER=gemini python3 -m app.eval      # the same 29 against the real model
+```
+
+### The model never sees the numbers
+
+The prompt carries names only: category codes and titles, districts, plots and
+markets. The model decides *which* lot to fly to and what kind of answer is
+wanted; the tools then run in the browser against `city.json` and work out what
+is actually on that lot.
+
+So no figure on screen can have been invented, and no spend figure leaves the
+laptop while we are building against a temporary endpoint. Replies are
+validated before they are used: an invented category is dropped, a category
+offered as the scope of an area question is ignored, and a sentence containing
+figures is discarded.
+
+### Providers
+
+| `NW_PROVIDER` | Needs | Notes |
+| --- | --- | --- |
+| `mock` | nothing | Default. No key, no network, deterministic. |
+| `gemini` | `NW_API_KEY` | Google AI Studio key. |
+| `vertex` | `NW_PROJECT`, `NW_REGION` | Application default credentials, no key. |
+| `claude` | `NW_API_KEY` | Anthropic API. |
+
+`app/Dockerfile` builds the one container that gets deployed. The same image
+runs on a laptop, on Cloud Run, and in the internal environment; only the
+environment variables change.
+
 ## Status
 
 - [x] Data pipeline, metric registry, privacy guards
@@ -101,5 +154,6 @@ agent actually moves the city rather than only describing it.
 - [x] The character, minifigure, idle wander, flight, speech bubble and caption
 - [x] Agent, natural language in, city out, with a visible tool trace
 - [x] Night mode, lit windows, lamplight and reactor beams
-- [ ] Model adapter, speech input, offline bundle
+- [x] Model layer: provider adapter, proxy, eval set
+- [ ] Speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode
