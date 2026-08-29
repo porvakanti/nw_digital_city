@@ -1,0 +1,19 @@
+# Source data — never committed. Contains blueprint owner names and email
+# addresses. Only the anonymised, derived data/city.json belongs in git.
+data/raw/
+*.xlsx
+*.xlsm
+*.csv
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+.streamlit/secrets.toml
+node_modules/
+dist/
+.DS_Store
