@@ -135,6 +135,11 @@
     /** Categories in a scope, ordered by a metric. */
     rank(scope, metric, direction) {
       let pool = categories;
+      // Ranking within a single category is meaningless, so a category scope is
+      // read as the district it sits in.
+      if (scope && scope.kind === "category") {
+        pool = pool.filter((c) => c.district === scope.hit.district);
+      }
       if (scope && scope.kind === "district") pool = pool.filter((c) => c.district === scope.hit);
       if (scope && scope.kind === "plot") pool = pool.filter((c) => c.plot === scope.hit);
       if (scope && scope.kind === "market") {
@@ -171,6 +176,16 @@
     render(action, argument) {
       if (action === "focus") return CITYVIEW.focus(argument) ? "flying" : "not found";
       if (action === "district") return CITYVIEW.focusDistrict(argument) ? "flying" : "not found";
+      if (action === "potential") {
+        const shown = CITYVIEW.potential(true);
+        return `${shown.lots} lots raised`;
+      }
+      if (action === "night") {
+        CITYVIEW.night(true);
+        return "after dark";
+      }
+      CITYVIEW.potential(false);
+      CITYVIEW.night(false);
       CITYVIEW.reset();
       return "wide";
     },
@@ -224,7 +239,17 @@
   const BEST = /\b(best|strongest|biggest|largest|most|top|highest|leading)\b/;
   const GAPS = /\b(gap|gaps|empty|bare|gaps|undeveloped|missing|nothing|unbuilt|opportunit\w*)\b/;
   const SUMMARY = /\b(how many|summary|overview|overall|status|count|total)\b/;
-  const RESET = /\b(reset|whole city|zoom out|everything|all of it|back)\b/;
+  const RESET = /\b(reset|whole city|zoom out|everything|all of it|back|daylight)\b/;
+  const COULD_BE = /\b(could|potential|opportunit\w*|what if|unbuilt|upside|if we built)\b/;
+  const AFTER_DARK = /\b(night|dark|readiness|autonom\w*|ai.?ready|reactors?|rfps?)\b/;
+
+  /** City-wide questions accept a place as scope, never a single category.
+   *  Without this, "what could we build?" latches onto whichever category name
+   *  scores highest against the question and scopes the answer to it. */
+  function placeScope(found) {
+    if (!found || found.kind === "none" || found.kind === "category") return null;
+    return found;
+  }
 
   function scopeText(scope) {
     if (!scope || scope.kind === "none") return "Networks";
@@ -242,14 +267,36 @@
       return;
     }
 
+    if (AFTER_DARK.test(query.toLowerCase())) {
+      await call("render", "night");
+      const lit = categories.filter((c) => c.metrics.ai_rfps_sample > 0).length;
+      CITYVIEW.speak(
+        `${lit} of ${categories.length} categories have started any AI-generated RFPs. The lit rooftops are where the rules are structured enough to try.`,
+        "The dark roofs are the work still to do."
+      );
+      return;
+    }
+
     const found = await call("find_category", query);
 
     // Ranking, gaps and summaries operate on whatever scope was named.
     const lower = query.toLowerCase();
     const scope = found.kind === "none" ? null : found;
 
+    if (COULD_BE.test(lower)) {
+      const gaps = await call("find_gaps", placeScope(found));
+      const raised = await call("render", "potential");
+      const drafted = categories.filter((c) => c.blueprint_state === "draft").length;
+      const unbuiltSpend = gaps.list.reduce((sum, c) => sum + c.metrics.spend_eur, 0);
+      CITYVIEW.speak(
+        `${drafted} drafts waiting to go active, and ${gaps.list.length} lots with no blueprint carrying ${euro(unbuiltSpend)} between them. This is the skyline if we built them.`,
+        "This is what the record says we could build."
+      );
+      return;
+    }
+
     if (GAPS.test(lower)) {
-      const gaps = await call("find_gaps", scope);
+      const gaps = await call("find_gaps", placeScope(found));
       const top = gaps.list[0];
       if (scope && scope.kind === "district") await call("render", "district", scope.hit);
       else if (top) await call("render", "focus", top.code);
@@ -265,7 +312,7 @@
     }
 
     if (SUMMARY.test(lower)) {
-      const s = await call("summarise", scope);
+      const s = await call("summarise", placeScope(found));
       if (scope && scope.kind === "district") await call("render", "district", scope.hit);
       CITYVIEW.speak(
         `${scopeText(scope)}: ${s.built} of ${s.count} lots built, ${s.bare} still empty, ${euro(s.spend)} of spend.`,
@@ -372,8 +419,9 @@
     "Spring 2/R",
     "batteries",
     "Where are the biggest gaps?",
+    "What could we build?",
+    "Show me AI readiness",
     "How is Energy doing?",
-    "Germany",
   ];
   const chips = document.getElementById("chips");
   for (const preset of PRESETS) {

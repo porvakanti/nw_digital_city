@@ -90,7 +90,8 @@ placeholder numbers as fact to 400 people.
 
 - **A221 has 16 markets and €0 spend.** Our tallest building has no houses.
   Probably unmapped rather than truly zero. Worth asking.
-- All 89 empty lots show €0 spend, same suspicion.
+- 69 of the 89 empty lots show €0 spend. The other 20 carry €176m between
+  them, which is the number the "city we could be" view is built on.
 - Extract is a month old; a fresher pull before the all-hands would help.
 
 ## 4. Privacy
@@ -266,6 +267,20 @@ points at a column that has values and varies. Flip the binding back to
 
 The general lesson: the configurable-layer design means a layer can be pointed
 at nothing at all, and the failure is silent. The test is the guard.
+
+## 8b. The city we could be
+
+A projection, not a forecast, and drawn in a translucent material so it can
+never be confused with what has been built.
+
+Every undeveloped lot rises to the height its own record justifies. A drafted
+lot is sized by the reach its blueprint already has, because the work is done
+and only activation is missing. An empty lot is sized by the spend sitting on
+it. A lot with neither stays an outline, because nothing on record justifies a
+building there.
+
+That is 32 lots: 12 drafts, and 20 categories carrying €176m with no blueprint
+at all. Press P, or ask the agent what we could build.
 
 ## 9. Open questions
 

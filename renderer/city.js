@@ -297,6 +297,9 @@
   });
   const matReactor = new THREE.MeshBasicMaterial({ color: C.reactor });
   const matWindow = new THREE.MeshBasicMaterial({ vertexColors: false });
+  const matPotential = new THREE.MeshLambertMaterial({
+    transparent: true, opacity: 0.62, emissive: 0x123040,
+  });
   const matBeam = new THREE.MeshBasicMaterial({
     color: 0x8fe8ff, transparent: true, opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
   });
@@ -312,6 +315,7 @@
   const ghostSolid = new Bucket();
   const roofs = new Bucket();
   const ghostRoofs = new Bucket();
+  const potential = new Bucket();
   const windows = new Bucket();
   const lightPools = new Bucket();
   const beams = new Bucket();
@@ -889,6 +893,22 @@
         }
       }
     } else {
+      // What this lot could carry, shown only in the "could be" view. A drafted
+      // lot is sized by the reach its blueprint already has; an empty one by the
+      // spend sitting on it. A lot with neither stays an outline, because there
+      // is nothing on record to justify a building.
+      const spendTier = tierIndex(layerMetric("value"), valueFor(category, "value"));
+      const couldBe = state === "draft" ? heightTier : spendTier;
+      const couldFloors = couldBe > 0 ? FLOORS[Math.min(couldBe, FLOORS.length - 1)] : 0;
+      pieces.potential = [];
+      for (let f = 0; f < couldFloors; f++) {
+        const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
+        pieces.potential.push({
+          bucket: "potential",
+          i: potential.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main),
+        });
+      }
+
       // Nothing built: show the outline of what could stand here.
       const ghostFloors = FLOORS[Math.min(Math.max(heightTier, 1), FLOORS.length - 1)];
       const h = ghostFloors * FLOOR_H;
@@ -945,6 +965,7 @@
     ghostHouses: { bucket: ghostHouses, mesh: ghostHouses.mesh(box, matGhostSolid, false, false) },
     reactors: { bucket: reactors, mesh: reactors.mesh(cyl, matReactor, false, false) },
     windows: { bucket: windows, mesh: windows.mesh(box, matWindow, false, false) },
+    potential: { bucket: potential, mesh: potential.mesh(box, matPotential, false, false) },
     roofs: { bucket: roofs, mesh: roofs.mesh(pyramid, matSolid, true, false) },
     ghostRoofs: { bucket: ghostRoofs, mesh: ghostRoofs.mesh(pyramid, matGhostSolid, false, false) },
   };
@@ -1049,6 +1070,41 @@
     scheduled = still;
     for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
     dirty.clear();
+  }
+
+  // ------------------------------------------------------- the city we could be
+  // Raise every undeveloped lot to the height its own record justifies, hold
+  // it, then let it fall away again. It is a projection, not a forecast, and
+  // it is drawn in a different material so it can never be mistaken for what
+  // has actually been built.
+  let showingPotential = false;
+
+  function potentialLots() {
+    return layout.buildings.filter((b) => b.pieces.potential && b.pieces.potential.length);
+  }
+
+  function setPotential(on) {
+    showingPotential = !!on;
+    const lots = potentialLots();
+    if (!showingPotential) {
+      for (const b of lots) {
+        scheduled = scheduled.filter((s) => !b.pieces.potential.includes(s.ref));
+        for (const ref of b.pieces.potential) setPiece(ref, 0);
+      }
+      for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
+      dirty.clear();
+      return { lots: 0, spend: 0 };
+    }
+
+    const t0 = clockNow();
+    let spend = 0;
+    lots.forEach((b, i) => {
+      if (b.category.blueprint_state === "none") spend += b.category.metrics.spend_eur;
+      b.pieces.potential.forEach((ref, f) => {
+        schedule(ref, t0 + i * 0.02 + f * 0.06, 0.34);
+      });
+    });
+    return { lots: lots.length, spend };
   }
 
   // -------------------------------------------------------------- nightfall
@@ -1494,6 +1550,7 @@
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "n" || e.key === "N") setNight(!isNight);
+    if (e.key === "p" || e.key === "P") window.NWCity.potential();
     if (e.key === "r" || e.key === "R") {
       showCategory(null);
       flyTo(HOME.target, HOME.size);
@@ -1534,6 +1591,10 @@
     night(on) {
       setNight(on === undefined ? !isNight : on);
       return isNight;
+    },
+    potential(on) {
+      const result = setPotential(on === undefined ? !showingPotential : on);
+      return { showing: showingPotential, ...result };
     },
     // Fly to a whole district rather than one lot. Used when the agent is
     // answering about a district or ranking within one.
