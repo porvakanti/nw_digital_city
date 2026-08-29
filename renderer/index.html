@@ -244,10 +244,14 @@
   }
   #trace .call:first-of-type { border-top: 0; }
   @keyframes traceIn { from { opacity: 0; transform: translateX(6px); } }
+  #trace .call { overflow: hidden; }
   #trace .fn {
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     color: var(--reactor);
     white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #trace .out { color: var(--ink-2); margin-left: auto; text-align: right; }
 
@@ -350,6 +354,70 @@
   }
 
   /* ---- hint ---- */
+  /* ---- the closing ask ----
+     The four things the room is being asked to go away and do. It is the
+     point of the whole session, so it gets the screen to itself rather than
+     living in a corner. */
+  #asks {
+    inset: 0;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 6, 12, 0.72);
+    backdrop-filter: blur(3px);
+  }
+  #asks.on { display: flex; }
+  #asks .card {
+    width: min(720px, 86vw);
+    padding: 34px 40px 30px;
+    background: rgba(10, 12, 17, 0.95);
+    border: 1px solid var(--hairline);
+    border-left: 4px solid var(--hotel);
+    border-radius: 14px;
+  }
+  #asks h2 {
+    margin: 0 0 4px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  #asks p.lede { margin: 0 0 22px; font-size: 26px; font-weight: 650; letter-spacing: -0.01em; }
+  #asks ol { margin: 0; padding: 0; list-style: none; counter-reset: ask; }
+  #asks li {
+    counter-increment: ask;
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    padding: 11px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 16px;
+  }
+  #asks li::before {
+    content: counter(ask);
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--hotel);
+    color: #fff;
+    font: 600 12px/22px system-ui, sans-serif;
+    text-align: center;
+  }
+  #asks li:last-child::before { background: var(--reactor); color: #05070d; }
+  #asks .sign {
+    margin: 24px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  #asks .close {
+    margin-top: 18px;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+
   #hint {
     bottom: 20px;
     right: 20px;
@@ -402,8 +470,24 @@
     <button id="askGo">Ask</button>
   </div>
 
+  <div class="hud" id="asks">
+    <div class="card">
+      <h2>Develop your district</h2>
+      <p class="lede">Four things to take away.</p>
+      <ol>
+        <li>Complete and maintain your category blueprint.</li>
+        <li>Put it to work through AVA Sourcing.</li>
+        <li>Use it for meaningful sourcing events.</li>
+        <li>Structure the knowledge and rules that power what comes next.</li>
+      </ol>
+      <p class="sign">Blueprints today. Smart procurement tomorrow.</p>
+      <p class="close">Press <kbd>K</kbd> or click anywhere to go back to the city.</p>
+    </div>
+  </div>
+
   <div class="hud" id="hint">
-    drag to pan · scroll to zoom · <kbd>R</kbd> reset · click a building
+    drag to pan · scroll to zoom · click a building<br>
+    <kbd>R</kbd> reset · <kbd>N</kbd> night · <kbd>P</kbd> what we could build · <kbd>K</kbd> the asks
     <div class="tip">panel headers can be dragged</div>
   </div>
 

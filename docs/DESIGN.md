@@ -352,11 +352,62 @@ caller, because a 500 on the day would take the demo down with it.
 up calling the same run functions, so the two cannot drift apart and the
 fallback behaves like the real thing.
 
-`app/eval.py` runs 29 likely questions against whichever provider is
+`app/eval.py` runs 32 likely questions against whichever provider is
 configured. Run it against the mock while building and against the real
 endpoint before the all-hands.
 
-## 9. Open questions
+## 8d. The closing ask
+
+The narrative ends on three asks and the deck ends on four. They are the point
+of the session for the 400 people watching, and for a while they existed
+nowhere in the app, which meant the demo finished on a nice picture instead of
+on an instruction. Press K, or ask the agent what we are asking people to do,
+and the four asks take the screen over the city:
+
+1. Complete and maintain your category blueprint.
+2. Put it to work through AVA Sourcing.
+3. Use it for meaningful sourcing events.
+4. Structure the knowledge and rules that power what comes next.
+
+Signed off with the line the deck closes on: **blueprints today, smart
+procurement tomorrow**. The fourth ask carries the reactor colour rather than
+red, because it is the one that belongs to the smart-city layer.
+
+## 9. Checked against the brief
+
+Re-read of the deck, the narrative and the workbook, against what is built.
+
+**The structure matches exactly.** Slide 10 lists 8 districts, 31 plots and the
+L4 count for every plot. Ours agrees on all 31, and totals 145. Slide 11's
+picture of an L2 holding L3 plots holding L4 buildings is the layout the
+renderer draws.
+
+**The four measures are all built**, in the deck's own order: foundation from
+blueprint status, height from adoption, houses and hotel from value, reactor
+from AI-generated RFPs. The narrative's rule that a draft claims the plot and
+an active blueprint lays the foundation is the rule in the code.
+
+**Where we deviate, and why:**
+
+| The brief | What we built | Why |
+| --- | --- | --- |
+| Height from % AVA adoption | Height from blueprint reach, badged provisional | The column reads a flat 100% for all 145 categories. See 3.1. |
+| Value bands <5m / 5-20 / 20-50 / 50-100 / >100m | <1m / 1-5 / 5-20 / 20-50 / >50m | The narrative says the thresholds are still to be decided. On the deck's bands, Networks has no hotels at all. See 3.2. |
+| "Plot of land" for an L4 | District, plot, lot | The sources use plot for both L3 and L4, which made "7 of 18 plots" wrong in two different ways. See 2. |
+| Glow, or an electric car, for AI | Rooftop reactor and a beam | The narrative leaves the representation open. A roof fitting scales with the building; a car does not. |
+| Three tiers of readiness | Four | Ours splits "no activity" from "some activity" so a dark roof means nothing at all has started. |
+
+**One thing in the deck is not built.** The legend on slide 9 lists five
+elements: foundation, height, houses and hotel, glow, and a **vault for
+knowledge resilience**. The four-measures slide and the narrative both list
+four, with no vault. It is not clear whether the vault is a fifth measure or an
+earlier draft of the foundation idea, and the workbook carries no column that
+would drive it. It is question 8 for Kate rather than a guess in the renderer.
+
+**Not built, deliberately:** speech input, cut on stage risk; the L3 street
+view as a separate mode, since the plot is already the camera's focus frame.
+
+## 10. Open questions
 
 For Kate, on the data and the framing (1 to 5 and 7). Question 6 needs
 whoever owns the GCP environment; Tomas is in Customer Value, not infra.
@@ -369,3 +420,5 @@ whoever owns the GCP environment; Tomas is in Customer Value, not infra.
 6. Which Vertex AI models are available in the internal environment, and what
    is the approval path to deploy a container there?
 7. Which categories will be called on the day, so they can be pre-cached?
+8. Slide 9 lists a vault for knowledge resilience that the four-measures slide
+   and the narrative do not. Is it a fifth measure, and what would drive it?

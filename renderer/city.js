@@ -1876,9 +1876,23 @@
   document.addEventListener("pointerup", endDragPanel);
   document.addEventListener("pointercancel", endDragPanel);
 
+  // The closing ask. It is the point of the whole session, so it takes the
+  // screen; a click anywhere puts the city back.
+  const asksEl = document.getElementById("asks");
+  let showingAsks = false;
+
+  function setAsks(on) {
+    showingAsks = !!on;
+    asksEl.classList.toggle("on", showingAsks);
+    return showingAsks;
+  }
+
+  asksEl.addEventListener("click", () => setAsks(false));
+
   window.addEventListener("keydown", (e) => {
     if (e.key === "n" || e.key === "N") setNight(!isNight);
     if (e.key === "p" || e.key === "P") window.NWCity.potential();
+    if (e.key === "k" || e.key === "K") setAsks(!showingAsks);
     if (e.key === "r" || e.key === "R") {
       showCategory(null);
       flyTo(HOME.target, HOME.size);
@@ -1924,6 +1938,9 @@
       const result = setPotential(on === undefined ? !showingPotential : on);
       return { showing: showingPotential, ...result };
     },
+    asks(on) {
+      return setAsks(on === undefined ? !showingAsks : on);
+    },
     // Fly to a whole district rather than one lot. Used when the agent is
     // answering about a district or ranking within one.
     focusDistrict(name) {
@@ -1961,6 +1978,7 @@
     reset() {
       showCategory(null);
       say(null);
+      setAsks(false);
       walker.pinned = false;
       flyTo(HOME.target, HOME.size);
     },

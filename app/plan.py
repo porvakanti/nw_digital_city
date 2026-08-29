@@ -25,6 +25,7 @@ INTENTS = [
     "rank",       # best or worst in a scope
     "could_be",   # raise every undeveloped lot
     "night",      # after dark, the readiness view
+    "asks",       # the four things the room is being asked to do
     "reset",      # back to the whole city, daylight
     "unknown",    # nothing in the city matches
 ]
@@ -47,13 +48,16 @@ Intents:
 - rank: asks for the best, worst, biggest or weakest
 - could_be: asks what could be built, the potential or the upside
 - night: asks about AI readiness, autonomy, reactors or AI-generated RFPs
+- asks: asks what people should do, what is being asked of them, or the
+  takeaways from the session
 - reset: asks to go back, zoom out or see the whole city
 - unknown: nothing in the city matches the question
 
 Rules:
 - Only ever name a target that appears in the lists you are given. Never invent
   a code or a name.
-- A category is never the target for gaps, summary, could_be, night or reset.
+- A category is never the target for gaps, summary, could_be, night, asks or
+  reset.
   Those are answered for a district, a plot, a market, or the whole city.
 - You have no figures. Do not state or guess any number, amount or percentage.
   The application fills those in.
@@ -149,7 +153,8 @@ def parse(raw: str, names: dict[str, list[str]], source: str) -> Plan:
             notes.append(f"dropped invented {kind} {value!r}")
 
     # A single category cannot scope a question about a whole area.
-    if plan.intent in ("gaps", "summary", "could_be", "night", "reset") and plan.kind == "category":
+    area_intents = ("gaps", "summary", "could_be", "night", "asks", "reset")
+    if plan.intent in area_intents and plan.kind == "category":
         notes.append("category target ignored for an area question")
         plan.kind, plan.value = "none", ""
 

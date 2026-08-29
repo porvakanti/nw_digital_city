@@ -184,6 +184,10 @@
         CITYVIEW.night(true);
         return "after dark";
       }
+      if (action === "asks") {
+        CITYVIEW.asks(true);
+        return "the four asks";
+      }
       CITYVIEW.potential(false);
       CITYVIEW.night(false);
       CITYVIEW.reset();
@@ -242,6 +246,7 @@
   const RESET = /\b(reset|whole city|zoom out|everything|all of it|back|daylight)\b/;
   const COULD_BE = /\b(could|potential|opportunit\w*|what if|unbuilt|upside|if we built)\b/;
   const AFTER_DARK = /\b(night|dark|readiness|autonom\w*|ai.?ready|reactors?|rfps?)\b|lights? (off|out)/;
+  const ASKS = /\b(asks?|asking|takeaways?|actions?|next steps?)\b|call to action|what (should|do|are) (we|i|you)/;
 
   /** City-wide questions accept a place as scope, never a single category.
    *  Without this, "what could we build?" latches onto whichever category name
@@ -311,6 +316,15 @@
       `${drafted} drafts waiting to go active, and ${gaps.list.length} lots with no blueprint carrying ${euro(unbuilt)} between them. This is the skyline if we built them.`,
       "This is what the record says we could build."
     );
+  }
+
+  /* The closing beat. Four things the room is being asked to go and do, taken
+   * straight from the narrative, so the session ends on an instruction rather
+   * than on a picture. */
+  async function runAsks() {
+    await call("render", "asks");
+    // The card carries the words; a caption underneath would only repeat them.
+    CITYVIEW.speak(null, "Blueprints today. Smart procurement tomorrow.");
   }
 
   async function runNight() {
@@ -474,6 +488,7 @@
         case "rank": return runRank(scope, plan.metric, plan.direction);
         case "could_be": return runCouldBe(scope);
         case "night": return runNight();
+        case "asks": return runAsks();
         case "reset": return runReset();
         default: return runPlace(scope || { kind: "none" });
       }
@@ -482,6 +497,7 @@
 
     const lower = query.toLowerCase();
     if (RESET.test(lower)) return runReset();
+    if (ASKS.test(lower)) return runAsks();
     if (AFTER_DARK.test(lower)) return runNight();
 
     const found = await call("find_category", query);
@@ -529,6 +545,7 @@
     "What could we build?",
     "Show me AI readiness",
     "How is Energy doing?",
+    "What are we asking people to do?",
   ];
   const chips = document.getElementById("chips");
   for (const preset of PRESETS) {

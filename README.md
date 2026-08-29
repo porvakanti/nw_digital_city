@@ -165,6 +165,8 @@ environment variables change.
 - [x] The character, minifigure, idle wander, flight, speech bubble and caption
 - [x] Agent, natural language in, city out, with a visible tool trace
 - [x] Night mode, lit windows, lamplight and reactor beams
-- [x] Model layer: provider adapter, proxy, eval set
+- [x] Model layer: provider adapter, service, eval set, one-command start
+- [x] Streets that read as streets, flyovers, the closing ask
+- [x] Checked against the deck, the narrative and the workbook (docs/DESIGN.md §9)
 - [ ] Speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode

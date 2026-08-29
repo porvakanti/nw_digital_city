@@ -32,6 +32,7 @@ class ProviderError(RuntimeError):
 # Good enough to develop and test the whole path with no key and no network,
 # and good enough to stand in if the endpoint is unreachable on the day.
 _RULES: list[tuple[str, dict]] = [
+    (r"\b(asks?|asking|takeaways?|actions?|next steps?)\b|what (should|do|are) (we|i|you)", {"intent": "asks"}),
     (r"\b(night|dark|readiness|autonom|ai.?ready|reactor|rfp)|lights? (off|out)", {"intent": "night"}),
     (r"\b(could|potential|opportunit|what if|unbuilt|upside)", {"intent": "could_be"}),
     (r"\b(gap|empty|bare|missing|nothing|unbuilt)|no blueprint|without a blueprint", {"intent": "gaps"}),
