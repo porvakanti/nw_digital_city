@@ -297,8 +297,12 @@
   });
   const matReactor = new THREE.MeshBasicMaterial({ color: C.reactor });
   const matWindow = new THREE.MeshBasicMaterial({ vertexColors: false });
+  const matRiseCap = new THREE.MeshBasicMaterial({ color: 0x9fe9ff });
+  const matRiseBeam = new THREE.MeshBasicMaterial({
+    color: 0x7fdcff, transparent: true, opacity: 0.2, depthWrite: false,
+  });
   const matPotential = new THREE.MeshLambertMaterial({
-    transparent: true, opacity: 0.62, emissive: 0x123040,
+    transparent: true, opacity: 0.82, emissive: 0x1d5f7d,
   });
   const matBeam = new THREE.MeshBasicMaterial({
     color: 0x8fe8ff, transparent: true, opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
@@ -316,6 +320,8 @@
   const roofs = new Bucket();
   const ghostRoofs = new Bucket();
   const potential = new Bucket();
+  const potentialCaps = new Bucket();
+  const riseBeams = new Bucket();
   const windows = new Bucket();
   const lightPools = new Bucket();
   const beams = new Bucket();
@@ -425,6 +431,7 @@
   // studs, which is what makes an empty lot feel like an empty lot.
   const PAVEMENT_TOP = 0.25;
   let lampMesh = null;
+  let streetMaterial = null;
   const lampHeads = [];
   const walkers = [];
   const vehicles = [];
@@ -438,6 +445,10 @@
     const canopyBucket = new Bucket();
     const postBucket = new Bucket();
     const headBucket = new Bucket();
+    const paintBucket = new Bucket();
+    const shelterBucket = new Bucket();
+    const signBucket = new Bucket();
+    const signalBucket = new Bucket();
 
     const bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
     for (const d of layout.districts) {
@@ -519,18 +530,94 @@
         );
       }
 
-      // lamp posts down both kerbs
+      // Lamp posts, alternating kerbs rather than facing each other. Lamps on
+      // both sides threw overlapping pools that filled the street with light
+      // and left nothing to look at; staggering them lights the whole road
+      // with half the fittings and keeps the dark between them.
       const half = (r.vertical ? r.w : r.d) / 2 - PAVEMENT / 2;
-      const lampSteps = Math.max(1, Math.floor(length / 11));
+      const lampSteps = Math.max(1, Math.floor(length / 9));
       for (let i = 0; i < lampSteps; i++) {
         const t = (i + 0.5) / lampSteps - 0.5;
-        for (const side of [-1, 1]) {
-          const x = r.x + (r.vertical ? side * half : t * r.w);
-          const z = r.z + (r.vertical ? t * r.d : side * half);
-          postBucket.add(x, 1.15, z, 0.16, 2.3, 0.16, 0x2b3038);
-          headBucket.add(x, 2.42, z, 0.5, 0.24, 0.5, 0xffe6a6);
-          lampHeads.push({ x, y: 2.42, z });
-          lightPools.add(x, 0.3, z, 5.2, 1, 5.2, 0xffe6a6);
+        const side = i % 2 ? 1 : -1;
+        const x = r.x + (r.vertical ? side * half : t * r.w);
+        const z = r.z + (r.vertical ? t * r.d : side * half);
+        postBucket.add(x, 1.15, z, 0.16, 2.3, 0.16, 0x2b3038);
+        // A short arm reaching over the road, so the light is thrown where
+        // the traffic is rather than straight down onto the pavement.
+        postBucket.add(
+          x - (r.vertical ? side * 0.4 : 0), 2.3, z - (r.vertical ? 0 : side * 0.4),
+          r.vertical ? 0.9 : 0.14, 0.14, r.vertical ? 0.14 : 0.9, 0x2b3038
+        );
+        const hx = x - (r.vertical ? side * 0.8 : 0);
+        const hz = z - (r.vertical ? 0 : side * 0.8);
+        headBucket.add(hx, 2.22, hz, 0.5, 0.22, 0.5, 0xffe6a6);
+        lampHeads.push({ x: hx, y: 2.22, z: hz });
+        lightPools.add(hx, 0.3, hz, 4.8, 1, 4.8, 0xffe6a6);
+      }
+
+      // A painted cycle lane inside each kerb. The cyclists were already
+      // riding there; the paint is what tells the room that is a cycle lane
+      // and not a rider in the gutter.
+      const laneOffset = short / 2 - 1.55;
+      for (const side of [-1, 1]) {
+        paintBucket.add(
+          r.x + (r.vertical ? side * laneOffset : 0), 0.105,
+          r.z + (r.vertical ? 0 : side * laneOffset),
+          r.vertical ? 0.95 : r.w, 0.03, r.vertical ? r.d : 0.95,
+          0x7d4a3c
+        );
+      }
+
+      // Zebra crossings near each end, where people cross in a real street.
+      for (const end of [-1, 1]) {
+        const cx = r.x + (r.vertical ? 0 : end * (r.w / 2 - 3.6));
+        const cz = r.z + (r.vertical ? end * (r.d / 2 - 3.6) : 0);
+        const bars = 5;
+        for (let b = 0; b < bars; b++) {
+          const o = (b / (bars - 1) - 0.5) * (short - PAVEMENT * 2 - 0.6);
+          dashBucket.add(
+            cx + (r.vertical ? o : 0), 0.115, cz + (r.vertical ? 0 : o),
+            r.vertical ? 0.42 : 2.2, 0.04, r.vertical ? 2.2 : 0.42,
+            0xf1eee4
+          );
+        }
+      }
+
+      // A bus stop or two on the longer streets: a shelter on the pavement and
+      // a flag on a post. Small, but it is the kind of detail that says place.
+      if (length > 26) {
+        for (const end of [-1, 1]) {
+          const side = end;
+          const sx = r.x + (r.vertical ? side * walkway : end * r.w * 0.22);
+          const sz = r.z + (r.vertical ? end * r.d * 0.22 : side * walkway);
+          shelterBucket.add(sx, PAVEMENT_TOP + 0.62, sz,
+            r.vertical ? 0.16 : 2.4, 1.2, r.vertical ? 2.4 : 0.16, 0x3d4550);
+          shelterBucket.add(sx, PAVEMENT_TOP + 1.28, sz,
+            r.vertical ? 1.0 : 2.6, 0.12, r.vertical ? 2.6 : 1.0, 0xc9ccd2);
+          postBucket.add(sx + (r.vertical ? -side * 0.7 : 1.6), PAVEMENT_TOP + 0.8,
+            sz + (r.vertical ? 1.6 : -side * 0.7), 0.1, 1.6, 0.1, 0x2b3038);
+          signBucket.add(sx + (r.vertical ? -side * 0.7 : 1.6), PAVEMENT_TOP + 1.66,
+            sz + (r.vertical ? 1.6 : -side * 0.7), 0.5, 0.34, 0.5, 0xe60000);
+        }
+      }
+    }
+
+    // Traffic lights where two streets meet. Nothing reads as a city faster
+    // than a signal head on a corner.
+    const verticals = roads.filter((r) => r.vertical);
+    const horizontals = roads.filter((r) => !r.vertical);
+    for (const v of verticals) {
+      for (const h of horizontals) {
+        const meets = Math.abs(v.x - h.x) < h.w / 2 && Math.abs(h.z - v.z) < v.d / 2;
+        if (!meets) continue;
+        for (const [ox, oz] of [[-1, -1], [1, 1]]) {
+          const x = v.x + ox * (v.w / 2 + 0.4);
+          const z = h.z + oz * (h.d / 2 + 0.4);
+          postBucket.add(x, 1.35, z, 0.14, 2.7, 0.14, 0x2b3038);
+          shelterBucket.add(x, 2.86, z, 0.34, 0.86, 0.34, 0x21252c);
+          signalBucket.add(x, 3.14, z + 0.19, 0.16, 0.16, 0.04, 0xe23b3b);
+          signalBucket.add(x, 2.88, z + 0.19, 0.16, 0.16, 0.04, 0xf0b429);
+          signalBucket.add(x, 2.62, z + 0.19, 0.16, 0.16, 0.04, 0x3fbf6a);
         }
       }
     }
@@ -560,7 +647,7 @@
       }
     }
 
-    const solid = new THREE.MeshLambertMaterial();
+    const solid = (streetMaterial = new THREE.MeshLambertMaterial());
     [
       roadBucket.mesh(box, solid, false, true),
       pavementBucket.mesh(box, solid, false, true),
@@ -568,11 +655,87 @@
       trunkBucket.mesh(box, solid, true, false),
       canopyBucket.mesh(cone, solid, true, false),
       postBucket.mesh(box, solid, true, false),
+      paintBucket.mesh(box, solid, false, true),
+      shelterBucket.mesh(box, solid, true, false),
+      signBucket.mesh(box, solid, true, false),
+      signalBucket.mesh(box, new THREE.MeshBasicMaterial(), false, false),
       (lampMesh = headBucket.mesh(box, new THREE.MeshBasicMaterial({ color: 0xffe6a6 }), false, false)),
     ].forEach((mesh) => mesh && scene.add(mesh));
 
     buildPedestrians(roads, rnd);
-    buildTraffic(roads, rnd);
+    buildTraffic(roads, rnd, buildFlyovers(roads));
+  }
+
+  /* Flyovers.
+   *
+   * Two of them, and only on the two outer roads at the back of the map. A
+   * raised deck anywhere else would cut across the skyline from this camera
+   * and hide the buildings, which are the entire point. At the back it reads
+   * as the ring road every city has, and blocks nothing.
+   */
+  function buildFlyovers(roads) {
+    const DECK_Y = 4.6;
+    const decks = [];
+    const parts = new Bucket();
+    const kerbs = new Bucket();
+    const ramps = new THREE.Group();
+    const rampMaterial = new THREE.MeshLambertMaterial({ color: 0x424953 });
+
+    for (const r of [roads[0], roads[2]]) {
+      if (!r) continue;
+      const length = r.vertical ? r.d : r.w;
+      const span = length * 0.58;
+      const width = 3.4;
+      const rampRun = 9;
+
+      parts.add(r.x, DECK_Y, r.z,
+        r.vertical ? width : span, 0.34, r.vertical ? span : width, 0x4a515c);
+      for (const side of [-1, 1]) {
+        kerbs.add(
+          r.x + (r.vertical ? side * (width / 2 - 0.14) : 0), DECK_Y + 0.36,
+          r.z + (r.vertical ? 0 : side * (width / 2 - 0.14)),
+          r.vertical ? 0.24 : span, 0.42, r.vertical ? span : 0.24, 0xb9bfc8
+        );
+      }
+
+      const piers = Math.max(2, Math.round(span / 9));
+      for (let i = 0; i <= piers; i++) {
+        const t = i / piers - 0.5;
+        parts.add(
+          r.x + (r.vertical ? 0 : t * span), DECK_Y / 2, r.z + (r.vertical ? t * span : 0),
+          0.8, DECK_Y, 0.8, 0x555c67
+        );
+      }
+
+      // The ramps down at each end. A deck that simply stops in mid-air looks
+      // like a mistake; the slope is what makes it read as a road.
+      for (const end of [-1, 1]) {
+        const slope = new THREE.Mesh(box, rampMaterial);
+        const rise = Math.atan2(DECK_Y, rampRun);
+        const run = Math.sqrt(DECK_Y * DECK_Y + rampRun * rampRun);
+        const centre = end * (span / 2 + rampRun / 2);
+        slope.position.set(
+          r.x + (r.vertical ? 0 : centre), DECK_Y / 2, r.z + (r.vertical ? centre : 0)
+        );
+        slope.scale.set(r.vertical ? width : run, 0.34, r.vertical ? run : width);
+        if (r.vertical) slope.rotation.x = end * rise;
+        else slope.rotation.z = -end * rise;
+        slope.castShadow = true;
+        ramps.add(slope);
+      }
+
+      decks.push({
+        x: r.x, z: r.z, vertical: r.vertical,
+        w: r.vertical ? width : span, d: r.vertical ? span : width,
+        y: DECK_Y + 0.17,
+      });
+    }
+
+    const solid = new THREE.MeshLambertMaterial();
+    [parts.mesh(box, solid, true, true), kerbs.mesh(box, solid, true, false)]
+      .forEach((mesh) => mesh && scene.add(mesh));
+    scene.add(ramps);
+    return decks;
   }
 
   // People, and a few dogs. Small, slow and never in the way. They exist so
@@ -685,11 +848,13 @@
     add(box, 0x2b3140, -0.16, 0.5, 0, 0.16, 0.3, 0.22);  // legs
     add(box, 0xf3c85c, -0.12, 1.13, 0, 0.28, 0.26, 0.26); // head
     add(box, 0xd94f4f, -0.12, 1.28, 0, 0.32, 0.1, 0.3);   // helmet
-    group.scale.setScalar(1.5);
+    add(box, 0xff3b30, -0.62, 0.5, 0, 0.09, 0.12, 0.12);  // rear light
+    add(box, 0xf1eee4, 0.56, 0.56, 0, 0.09, 0.12, 0.12);  // and a front one
+    group.scale.setScalar(1.7);
     return group;
   }
 
-  function buildTraffic(roads, rnd) {
+  function buildTraffic(roads, rnd, decks) {
     const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
     const group = new THREE.Group();
     const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
@@ -733,6 +898,21 @@
         t: rnd(),
         speed: (forward ? 1 : -1) * (0.035 + rnd() * 0.02),
       });
+    }
+
+    // A little traffic up on the flyovers, or they read as sculpture.
+    for (const deck of decks || []) {
+      for (let i = 0; i < 4; i++) {
+        const forward = rnd() < 0.5;
+        const kind = rnd() < 0.7 ? "car" : "truck";
+        const vehicle = vehicleBody(kind, PAINT[Math.floor(rnd() * PAINT.length)]);
+        group.add(vehicle);
+        vehicles.push({
+          object: vehicle, road: deck, y: deck.y,
+          lane: (forward ? 1 : -1) * 0.8,
+          t: rnd(), speed: (forward ? 1 : -1) * (0.08 + rnd() * 0.04),
+        });
+      }
     }
 
     // The tram takes the longest street in the city and keeps it.
@@ -793,7 +973,7 @@
           if (at < -half) at += length;
           unit.position.set(
             r.x + (r.vertical ? 0 : at),
-            0,
+            v.y || 0,
             r.z + (r.vertical ? at : 0)
           );
           unit.rotation.y = r.vertical ? Math.PI / 2 : 0;
@@ -803,7 +983,7 @@
 
       v.object.position.set(
         r.x + (r.vertical ? v.lane : along),
-        0,
+        v.y || 0,
         r.z + (r.vertical ? along : v.lane)
       );
       v.object.rotation.y = (r.vertical ? Math.PI / 2 : 0) + (facing > 0 ? 0 : Math.PI);
@@ -908,6 +1088,21 @@
           i: potential.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main),
         });
       }
+      if (couldFloors > 0) {
+        // A lit cap and a column of light. Thirty-two translucent towers in a
+        // city of a hundred and forty-five were too quiet to notice from the
+        // back of a room; the light is what makes the view land in one look.
+        const crown = 0.62 + couldFloors * FLOOR_H;
+        pieces.potential.push({
+          bucket: "potentialCaps",
+          i: potentialCaps.add(x, crown + 0.14, z, FOOT + 0.34, 0.28, FOOT + 0.34),
+        });
+        const reach = 9 + couldFloors * 0.9;
+        pieces.potential.push({
+          bucket: "riseBeams",
+          i: riseBeams.add(x, crown + 0.3 + reach / 2, z, 1.5, reach, 1.5),
+        });
+      }
 
       // Nothing built: show the outline of what could stand here.
       const ghostFloors = FLOORS[Math.min(Math.max(heightTier, 1), FLOORS.length - 1)];
@@ -924,7 +1119,9 @@
       // pitched roof, a hotel is a long two-storey block. Colour alone was not
       // enough at the distance the room will be watching from.
       const hotel = valueTier.id === "hotel";
-      const front = z + FOOT / 2 + 0.85;
+      // Kept inside the lot. Pushed further forward the hotel overhung the
+      // kerb and clipped whatever stood on the next lot along.
+      const front = z + FOOT / 2 + 0.42;
       const bodies = active ? houses : ghostHouses;
       const bodyName = active ? "houses" : "ghostHouses";
       const caps = active ? roofs : ghostRoofs;
@@ -933,10 +1130,21 @@
         pieces.houses.push({ bucket: name, i: bucket.add(...args) });
 
       if (hotel) {
-        push(bodies, bodyName, x, 0.62 + 0.5, front, 1.85, 1.0, 0.9, C.hotel);
-        push(bodies, bodyName, x, 0.62 + 1.25, front, 1.25, 0.5, 0.68, C.hotel);
-        push(caps, capName, x, 0.62 + 1.68, front, 1.5, 0.42, 0.86, 0xb00000);
+        // The Monopoly hotel: one long red block exactly as wide as the four
+        // houses it replaces, two storeys where a house has one, a white band
+        // of windows across it and a sign on the roof. Told at a glance by
+        // being longer, taller and lighter, not only by being red, because at
+        // the back of a 400-seat room red and green are the same shape.
+        const width = 2.72;
+        push(bodies, bodyName, x, 0.62 + 0.34, front, width, 0.68, 0.88, C.hotel);
+        push(bodies, bodyName, x, 0.62 + 0.74, front, width - 0.22, 0.2, 0.92, 0xf1eee4);
+        push(bodies, bodyName, x, 0.62 + 1.06, front, width - 0.1, 0.44, 0.88, C.hotel);
+        push(caps, capName, x, 0.62 + 1.5, front, width, 0.46, 1.0, 0xb00000);
+        push(bodies, bodyName, x, 0.62 + 1.88, front, 0.9, 0.3, 0.16, 0xf1eee4);
       } else {
+        // A house: one small cube under a pitched roof. Four of them fill the
+        // same frontage the hotel occupies, which is what makes the upgrade
+        // read as an upgrade rather than as a different colour.
         const step = 0.72;
         const startX = x - ((pieceCount - 1) * step) / 2;
         for (let p = 0; p < pieceCount; p++) {
@@ -966,6 +1174,8 @@
     reactors: { bucket: reactors, mesh: reactors.mesh(cyl, matReactor, false, false) },
     windows: { bucket: windows, mesh: windows.mesh(box, matWindow, false, false) },
     potential: { bucket: potential, mesh: potential.mesh(box, matPotential, false, false) },
+    potentialCaps: { bucket: potentialCaps, mesh: potentialCaps.mesh(box, matRiseCap, false, false) },
+    riseBeams: { bucket: riseBeams, mesh: riseBeams.mesh(cyl, matRiseBeam, false, false) },
     roofs: { bucket: roofs, mesh: roofs.mesh(pyramid, matSolid, true, false) },
     ghostRoofs: { bucket: ghostRoofs, mesh: ghostRoofs.mesh(pyramid, matGhostSolid, false, false) },
   };
@@ -1083,6 +1293,34 @@
     return layout.buildings.filter((b) => b.pieces.potential && b.pieces.potential.length);
   }
 
+  /* The built city has to get out of the way for this to land.
+   *
+   * The first version raised the towers and changed nothing else, and from the
+   * back of a room it read as almost the same picture. So the whole scene
+   * changes mood: the light drops, everything that has actually been built
+   * desaturates to grey, and what could be built is the only thing with colour
+   * and light in it. The change is in the presentation, never in the figures. */
+  const BLUEPRINT = {
+    sky: 0x061019, hemi: 0.2, ambient: 0.1, sun: 0.3, sunColour: 0x9fb8e0,
+    built: 0x6f757d, street: 0x585e66,
+  };
+
+  function setBlueprintMood(on) {
+    scene.background = new THREE.Color(on ? BLUEPRINT.sky : DAY.sky);
+    hemi.intensity = on ? BLUEPRINT.hemi : DAY.hemi;
+    ambient.intensity = on ? BLUEPRINT.ambient : DAY.ambient;
+    sun.intensity = on ? BLUEPRINT.sun : DAY.sun;
+    sun.color.setHex(on ? BLUEPRINT.sunColour : DAY.sunColour);
+    // Instance colours multiply the material colour, so one value here greys
+    // every brick, house and roof in the city at once.
+    matSolid.color.setHex(on ? BLUEPRINT.built : 0xffffff);
+    matPlate.color.setHex(on ? BLUEPRINT.built : 0xffffff);
+    if (streetMaterial) streetMaterial.color.setHex(on ? BLUEPRINT.street : 0xffffff);
+    // The faint outlines would sit inside the towers and muddy them.
+    if (BUCKETS.ghostSolid.mesh) BUCKETS.ghostSolid.mesh.visible = !on;
+    document.body.classList.toggle("blueprint", on);
+  }
+
   function setPotential(on) {
     showingPotential = !!on;
     const lots = potentialLots();
@@ -1093,17 +1331,26 @@
       }
       for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
       dirty.clear();
+      setBlueprintMood(false);
+      if (isNight) setNight(true);
       return { lots: 0, spend: 0 };
     }
 
+    if (isNight) setNight(false);
+    setBlueprintMood(true);
+
+    // Raise them as a wave across the map rather than all at once, so the eye
+    // has something to follow and the room can see how far it spreads.
     const t0 = clockNow();
+    const reach = Math.max(1, layout.size.w + layout.size.d);
     let spend = 0;
-    lots.forEach((b, i) => {
+    for (const b of lots) {
       if (b.category.blueprint_state === "none") spend += b.category.metrics.spend_eur;
+      const sweep = ((b.x + layout.size.w / 2) + (b.z + layout.size.d / 2)) / reach;
       b.pieces.potential.forEach((ref, f) => {
-        schedule(ref, t0 + i * 0.02 + f * 0.06, 0.34);
+        schedule(ref, t0 + sweep * 1.5 + f * 0.07, 0.36);
       });
-    });
+    }
     return { lots: lots.length, spend };
   }
 
@@ -1176,8 +1423,9 @@
         badge = '<span class="badge provisional">provisional</span>';
       }
       const swatches = def.tiers.map((tier) => {
-        const color = swatchFor(layer, tier);
-        return `<span class="sw"><i style="background:${color}"></i>${tier.label}</span>`;
+        const icon = iconFor(layer, tier)
+          || `<i style="background:${swatchFor(layer, tier)}"></i>`;
+        return `<span class="sw">${icon}${tier.label}</span>`;
       }).join("");
       return `<div class="measure">
         <div class="name">${i + 1}. ${def.label}${badge}</div>
@@ -1185,6 +1433,42 @@
         <div class="swatches">${swatches}</div>
       </div>`;
     }).join("");
+  }
+
+  /* The two measures people were confusing are the two drawn as shapes. Height
+   * is a building that gets taller; value is houses that become a hotel. So the
+   * legend draws the shapes rather than naming their colours. */
+  function iconFor(layer, tier) {
+    const svg = (w, h, body) =>
+      `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${body}</svg>`;
+
+    if (layer === "height") {
+      const floors = FLOORS[Math.min(tier.__i || 0, FLOORS.length - 1)];
+      const colour = swatchFor(layer, tier);
+      if (!floors) return svg(14, 16, `<rect x="1" y="12" width="12" height="3" rx="1" fill="#5b6068"/>`);
+      const h = Math.max(3, Math.round(floors * 0.95));
+      return svg(14, 16, `<rect x="1" y="12" width="12" height="3" rx="1" fill="#5b6068"/>`
+        + `<rect x="3.5" y="${12 - h}" width="7" height="${h}" rx="1" fill="${colour}"/>`);
+    }
+
+    if (layer === "value") {
+      if (!tier.pieces) return svg(16, 16, `<rect x="1" y="12" width="14" height="3" rx="1" fill="#5b6068"/>`);
+      const ground = `<rect x="0" y="13" width="26" height="2.5" rx="1" fill="#5b6068"/>`;
+      if (tier.id === "hotel") {
+        return svg(26, 16, ground
+          + `<rect x="3" y="7.5" width="20" height="5.5" fill="#e60000"/>`
+          + `<rect x="4.5" y="9" width="17" height="1.6" fill="#f1eee4"/>`
+          + `<path d="M2 7.5 L13 3 L24 7.5 Z" fill="#b00000"/>`);
+      }
+      let houses = "";
+      for (let i = 0; i < tier.pieces; i++) {
+        const x = 2 + i * 6;
+        houses += `<rect x="${x}" y="8.5" width="4.4" height="4.5" fill="#2e9e4f"/>`
+          + `<path d="M${x - 0.7} 8.5 L${x + 2.2} 5.4 L${x + 5.1} 8.5 Z" fill="#1f7a3c"/>`;
+      }
+      return svg(26, 16, ground + houses);
+    }
+    return "";
   }
 
   function swatchFor(layer, tier) {
@@ -1242,7 +1526,7 @@
   // ----------------------------------------------------------- the builder
   // A minifigure in a hard hat, deliberately the same object Gorkem is handing
   // out on the day, so the thing in someone's hand is the thing on the screen.
-  const FIGURE_SCALE = 0.72;
+  const FIGURE_SCALE = 0.82;
 
   function buildFigure() {
     const group = new THREE.Group();
@@ -1251,26 +1535,70 @@
     const legs = mat(0x2b3140);
     const skin = mat(0xf3c85c);
     const hat = mat(0xffc21a);
+    const hiVis = mat(0xd7ef4a);
+    const dark = mat(0x1b1e24);
+    const paper = mat(0xf1eee4);
+    const steel = mat(0xb9c0c9);
 
-    const part = (material, x, y, z, sx, sy, sz, geometry) => {
+    const part = (parent, material, x, y, z, sx, sy, sz, geometry) => {
       const mesh = new THREE.Mesh(geometry || box, material);
       mesh.position.set(x, y, z);
       mesh.scale.set(sx, sy, sz);
       mesh.castShadow = true;
-      group.add(mesh);
+      parent.add(mesh);
       return mesh;
     };
 
-    part(legs, -0.32, 0.55, 0, 0.52, 1.1, 0.68);
-    part(legs, 0.32, 0.55, 0, 0.52, 1.1, 0.68);
-    part(overalls, 0, 1.6, 0, 1.42, 1.05, 0.78);
-    const armL = part(overalls, -0.92, 1.62, 0, 0.38, 0.92, 0.5);
-    const armR = part(overalls, 0.92, 1.62, 0, 0.38, 0.92, 0.5);
-    part(skin, 0, 2.4, 0, 0.86, 0.66, 0.86, cyl);
-    part(hat, 0, 2.79, 0, 0.94, 0.34, 0.94, cyl);
-    part(hat, 0, 2.6, 0, 1.34, 0.12, 1.34, cyl);
+    // Legs, with the hip block a real minifigure has between them.
+    part(group, legs, -0.32, 0.5, 0, 0.52, 1.0, 0.68);
+    part(group, legs, 0.32, 0.5, 0, 0.52, 1.0, 0.68);
+    part(group, dark, -0.32, 0.06, 0.06, 0.56, 0.14, 0.8);
+    part(group, dark, 0.32, 0.06, 0.06, 0.56, 0.14, 0.8);
+    part(group, legs, 0, 1.06, 0, 1.24, 0.24, 0.72);
 
-    group.userData.arms = [armL, armR];
+    // Torso, and the hi-vis over it. Anyone who has been on a site recognises
+    // the shape before they read a word of the screen.
+    part(group, overalls, 0, 1.62, 0, 1.42, 1.05, 0.78);
+    for (const face of [0.4, -0.4]) {
+      part(group, hiVis, -0.46, 1.62, face, 0.44, 1.0, 0.06);
+      part(group, hiVis, 0.46, 1.62, face, 0.44, 1.0, 0.06);
+      part(group, hiVis, 0, 1.5, face, 1.3, 0.16, 0.05);
+    }
+    part(group, dark, 0, 1.16, 0, 1.46, 0.2, 0.82);   // tool belt
+    part(group, steel, 0.6, 1.14, 0.3, 0.16, 0.34, 0.16); // and something on it
+
+    // Arms pivot at the shoulder, so the swing reads as a swing rather than a
+    // part spinning about its own middle.
+    const arms = [];
+    for (const side of [-1, 1]) {
+      const shoulder = new THREE.Group();
+      shoulder.position.set(side * 0.92, 2.05, 0);
+      shoulder.rotation.z = side * 0.12;
+      part(shoulder, overalls, 0, -0.45, 0, 0.38, 0.92, 0.5);
+      part(shoulder, skin, 0, -1.0, 0.04, 0.34, 0.26, 0.34, cyl);
+      group.add(shoulder);
+      arms.push(shoulder);
+    }
+    // The blueprint itself, carried in the left hand. It is the thing the whole
+    // city is about, so the character who builds it should be holding one.
+    part(arms[0], paper, 0.02, -1.16, 0.16, 0.62, 0.06, 0.78);
+    part(arms[0], steel, 0.02, -1.13, 0.42, 0.5, 0.05, 0.12);
+
+    // Neck, head and a face. A blank cylinder read as a peg; two eyes and a
+    // mouth are what make it the minifigure in Gorkem's hand.
+    part(group, skin, 0, 2.16, 0, 0.5, 0.2, 0.5, cyl);
+    part(group, skin, 0, 2.46, 0, 0.86, 0.66, 0.86, cyl);
+    part(group, dark, -0.17, 2.52, 0.42, 0.13, 0.16, 0.06);
+    part(group, dark, 0.17, 2.52, 0.42, 0.13, 0.16, 0.06);
+    part(group, dark, 0, 2.32, 0.42, 0.3, 0.07, 0.06);
+
+    // Hard hat: brim, crown and the ridge down the middle.
+    part(group, hat, 0, 2.66, 0, 1.34, 0.12, 1.34, cyl);
+    part(group, hat, 0, 2.86, 0, 0.94, 0.36, 0.94, cyl);
+    part(group, hat, 0, 3.02, 0, 0.22, 0.12, 0.9);
+    part(group, hat, 0, 2.72, 0.56, 0.62, 0.1, 0.3);
+
+    group.userData.arms = arms;
     group.scale.setScalar(FIGURE_SCALE);
     return group;
   }
@@ -1678,6 +2006,14 @@
   }
 
   setNight(false);
+  // The city we could be starts collapsed. Its pieces live in the same meshes
+  // as everything else, so without this they would stand there from the first
+  // frame and the reveal would have nothing left to reveal.
+  for (const b of potentialLots()) {
+    for (const ref of b.pieces.potential) setPiece(ref, 0);
+  }
+  for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
+  dirty.clear();
   applyCamera();
   cityRise();
   tick();

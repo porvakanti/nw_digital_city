@@ -172,13 +172,31 @@ identity never rests on separating eight hues on a projector. The measures that
 must be read exactly (status, height, houses, reactor) stay on shape, height
 and count.
 
-Houses and the hotel differ in **silhouette**, not only colour: a house is a
-small cube under a pitched roof, a hotel is a long two-storey block. Colour
-alone could not be read at the distance the room watches from.
+Houses and the hotel differ in **silhouette**, not only colour. This took three
+attempts. Red block against green block was not enough, and neither was a
+slightly taller red block. What works is the Monopoly rule made literal: the
+hotel is one long block exactly as wide as the four houses it replaces, two
+storeys where a house has one, with a white band of windows and a sign on the
+roof. Longer, taller and lighter, so it reads before the colour does. The
+legend draws the same shapes rather than naming their colours, because a red
+square beside a green square teaches nobody what a hotel looks like.
 
 Streets, parkland, lamp posts, traffic and pedestrians encode **nothing**. They exist so
 the place reads as a place, which is what makes an empty lot feel like empty
-ground rather than a missing bar on a chart.
+ground rather than a missing bar on a chart. The test is whether someone can
+tell they are looking at a city, and then at a street, without reading a word
+of the screen. That is why there are painted cycle lanes rather than only
+cyclists, zebra crossings, bus shelters, signals on the corners, and two
+flyovers.
+
+The flyovers sit only on the two outer roads at the **back** of the map. From
+this camera a raised deck anywhere else cuts across the skyline and hides the
+buildings, which are the whole point.
+
+Street lamps alternate kerbs rather than facing each other. Lamps on both sides
+threw overlapping pools that filled the road with light and left nothing to
+look at; staggered, half as many fittings light the whole street and the dark
+between them survives.
 
 Trademark note: LEGO and the Iron Man arc reactor are other people's marks. The
 aesthetic is fine for an internal all-hands; the names and logos should stay
@@ -282,13 +300,41 @@ building there.
 That is 32 lots: 12 drafts, and 20 categories carrying €176m with no blueprint
 at all. Press P, or ask the agent what we could build.
 
+**The first version of this did not land.** Thirty-two translucent towers
+appearing in a city of a hundred and forty-five buildings, with everything else
+unchanged, read from the back of a room as almost the same picture. Raising
+them higher than the record justifies was never an option, so the change had to
+be in the presentation rather than in the figures.
+
+So the whole scene changes mood. The light drops, every brick that has actually
+been laid desaturates to grey, and what could be built is the only thing on
+screen with colour and light in it: a lit cap on each roof and a column of
+light above it. The towers rise as a wave across the map instead of all at
+once, so the eye has something to follow and the room can see how far it
+spreads. Same 32 lots, same €176m, a picture nobody can mistake for the one
+before it.
+
 ## 8c. The model layer
 
 The renderer is a static page, so a browser calling a model directly would have
-to carry the credential where anyone can read it. A small proxy holds the key,
-adds the prompt and returns a decision. That proxy is the only thing that ever
-gets deployed, and it is the same container on a laptop, on Cloud Run and in
-the internal environment.
+to carry the credential where anyone can read it. A small service holds the
+key, adds the prompt and returns a decision. That service is the only thing
+that ever gets deployed, and it is the same container on a laptop, on Cloud Run
+and in the internal environment.
+
+**It serves the page as well as answering it.** The first version did not, and
+turning the agent on meant a pip install, a shell that exported the right
+variables, a uvicorn command and a query parameter on the page address: four
+chances to get it wrong, in a green room, minutes before going on stage. Now
+the page and the agent share an origin, so the browser asks its own address and
+there is nothing to pass in. `run.py` makes the virtual environment, installs
+into it, writes `.env` from the example, starts the service and opens the
+browser. The whole model setup is the key in `.env`.
+
+A badge on the ask bar names the model that is actually answering. It reads
+`/health` rather than assuming, and says plainly when the city is running on
+its own rules instead, because claiming a model on stage that is not connected
+is worse than admitting there is none.
 
 **The model never sees the numbers.** It gets the question and the vocabulary,
 names only, and returns an intent and a target. The tools then run in the

@@ -129,6 +129,10 @@
     width: 10px; height: 10px; border-radius: 2px;
     display: inline-block; flex: none;
   }
+  /* Where the city tells two things apart by shape, the legend has to do the
+     same. A red square next to a green square does not teach anyone what a
+     hotel looks like on the board. */
+  .sw svg { display: block; flex: none; }
   .badge {
     display: inline-block;
     margin-left: 6px;
