@@ -214,7 +214,14 @@
 
   // ------------------------------------------------------------------ scene
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(C.sky);
+  /* The sky is the renderer's clear colour rather than scene.background.
+   * A Color background forces three.js to clear the frame at the start of
+   * every render call, which would wipe the city out from under the second
+   * pass that draws the builder on top of it. */
+  let sky = C.sky;
+  function setSky(hex) {
+    sky = hex;
+  }
 
   const layout = buildLayout();
   const span = Math.max(layout.size.w, layout.size.d);
@@ -400,17 +407,32 @@
   // ---------------------------------------------------------------- build it
   layout.districts.forEach((district, i) => {
     const palette = brickSet(i);
+    // Ground tinted a few percent toward the district hue. Not enough to carry
+    // meaning on its own, which is the rule, but enough that the eye groups
+    // the block together.
+    const ground = new THREE.Color(C.districtPlate)
+      .lerp(new THREE.Color(palette.band), 0.14).getHex();
     studdedPlate(
       district.cx + district.w / 2, -0.05, district.cz + district.d / 2,
-      district.w, 0.5, district.d, C.districtPlate, 0x39434f
+      district.w, 0.5, district.d, ground, 0x39434f
     );
-    // The Monopoly property band. It used to run flat down the whole block
-    // edge, which at street level read as a canal. Now it is short and raised,
-    // so it reads as a marker at the front of the block.
-    plates.add(
-      district.cx + district.w / 2, 0.42, district.cz + 0.8,
-      Math.min(district.w * 0.42, 13), 0.62, 0.7, palette.band
-    );
+    // A kerb right round the district, in its own colour. Without it there is
+    // no line where one district stops and the parkland starts, so a small
+    // district next to a big lawn looks enormous and a big one looks small.
+    // This is slide 11's coloured L2 rectangle, built in bricks.
+    const KERB = 0.9;
+    for (const side of [-1, 1]) {
+      plates.add(
+        district.cx + district.w / 2, 0.3,
+        district.cz + district.d / 2 + side * (district.d / 2 - KERB / 2),
+        district.w, 0.42, KERB, palette.band
+      );
+      plates.add(
+        district.cx + district.w / 2 + side * (district.w / 2 - KERB / 2), 0.3,
+        district.cz + district.d / 2,
+        KERB, 0.42, district.d, palette.band
+      );
+    }
     for (const plot of district.plots) {
       studdedPlate(
         plot.cx + plot.w / 2, 0.22, plot.cz + plot.d / 2,
@@ -1324,7 +1346,7 @@
   };
 
   function setBlueprintMood(on) {
-    scene.background = new THREE.Color(on ? BLUEPRINT.sky : DAY.sky);
+    setSky(on ? BLUEPRINT.sky : DAY.sky);
     hemi.intensity = on ? BLUEPRINT.hemi : DAY.hemi;
     ambient.intensity = on ? BLUEPRINT.ambient : DAY.ambient;
     sun.intensity = on ? BLUEPRINT.sun : DAY.sun;
@@ -1387,7 +1409,7 @@
 
   function setNight(on) {
     isNight = !!on;
-    scene.background = new THREE.Color(isNight ? 0x04060d : DAY.sky);
+    setSky(isNight ? 0x04060d : DAY.sky);
     hemi.intensity = isNight ? 0.13 : DAY.hemi;
     ambient.intensity = isNight ? 0.05 : DAY.ambient;
     sun.intensity = isNight ? 0.16 : DAY.sun;
@@ -1624,8 +1646,49 @@
   const figure = buildFigure();
   scene.add(figure);
 
-  // Where the builder can stand: just in front of each lot, never inside one.
-  const standings = layout.buildings.map((b) => new THREE.Vector3(b.x, 0, b.z + CELL * 0.6));
+  /* Even in the diagonal lane a tall neighbour can cut across him, so he
+   * carries a marker that is drawn over everything: a small pin in hard-hat
+   * yellow above his head. It is how you find him in a wide shot, and how the
+   * room keeps track of him when the camera is moving. */
+  const marker = new THREE.Mesh(
+    new THREE.ConeGeometry(0.42, 0.9, 4).rotateX(Math.PI),
+    new THREE.MeshBasicMaterial({ color: 0xffc21a })
+  );
+  scene.add(marker);
+
+  /* The builder is drawn in a second pass, over the finished city.
+   *
+   * A minifigure standing among five-storey towers is behind one of them from
+   * this camera more often than not, and the one thing that must never happen
+   * is the hero of the piece disappearing at the moment the room is watching
+   * him. Moving where he stands helped and did not solve it, because on a full
+   * plot there is no clear line at all.
+   *
+   * So he and his marker go on their own layer. The city is drawn, the depth
+   * buffer is cleared, and he is drawn on top of it, which keeps his own parts
+   * correctly ordered against each other while never letting a building hide
+   * him. He reads as a marker on a map, which is what he is.
+   */
+  const FIGURE_LAYER = 1;
+  figure.traverse((o) => o.layers.set(FIGURE_LAYER));
+  marker.layers.set(FIGURE_LAYER);
+  for (const light of [hemi, ambient, sun]) light.layers.enableAll();
+  renderer.autoClear = false;
+  
+
+  /* Where the builder can stand.
+   *
+   * Straight in front of the lot put him behind whatever stands in the next
+   * row, which from this camera is nearer than he is, so on a dense plot the
+   * hero of the whole thing was a yellow pixel between two towers.
+   *
+   * The gaps between lots run diagonally, and the camera looks straight down
+   * one of those diagonals, so the crossing point between four lots is the one
+   * spot with a clear line back to the viewer. That is where he stands.
+   */
+  const standings = layout.buildings.map(
+    (b) => new THREE.Vector3(b.x + CELL * 0.5, 0, b.z + CELL * 0.5)
+  );
 
   const walker = {
     mode: "idle",
@@ -1673,6 +1736,15 @@
 
     const heading = walker.to.clone().sub(walker.from);
     if (heading.lengthSq() > 0.02) figure.rotation.y = Math.atan2(heading.x, heading.z);
+
+    const lift = 3.4 * figure.scale.y / FIGURE_SCALE;
+    marker.position.set(
+      figure.position.x,
+      figure.position.y + lift + Math.sin(now * 2.4) * 0.16,
+      figure.position.z
+    );
+    marker.scale.setScalar(figure.scale.y / FIGURE_SCALE);
+    marker.rotation.y = now * 1.1;
 
     // Arms swing when moving, and go up when the building lands.
     const moving = t < 1;
@@ -1907,7 +1979,21 @@
 
   asksEl.addEventListener("click", () => setAsks(false));
 
+  /* Single-key shortcuts are for the person driving the city, not for the
+   * person typing a question into it. Typing "reset the view" used to reset
+   * the view, turn on night, raise the potential and open the asks before the
+   * sentence was finished. So the keys are ignored the moment focus is in a
+   * field, and whenever a modifier is held. */
+  function typingInAField(target) {
+    if (!target) return false;
+    const tag = target.tagName;
+    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT"
+      || target.isContentEditable;
+  }
+
   window.addEventListener("keydown", (e) => {
+    if (typingInAField(e.target)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "n" || e.key === "N") setNight(!isNight);
     if (e.key === "p" || e.key === "P") window.NWCity.potential();
     if (e.key === "k" || e.key === "K") setAsks(!showingAsks);
@@ -2029,11 +2115,22 @@
     applyCamera();
     placeBubble();
     const zoom = view.size / HOME.size;
+    // The builder is the hero of this thing, and at the wide view a figure
+    // scaled to the street was a speck nobody could find. It grows as the
+    // camera pulls back, capped, so it stays a character rather than becoming
+    // a monument standing over the city.
+    figure.scale.setScalar(FIGURE_SCALE * THREE.MathUtils.clamp(zoom * 1.9, 1, 2.6));
     for (const label of labels) {
       const base = label.userData.base;
       label.scale.set(base.w * zoom, base.h * zoom, 1);
       label.material.opacity = THREE.MathUtils.clamp((zoom - 0.28) * 4, 0, 1);
     }
+    camera.layers.set(0);
+    renderer.setClearColor(sky, 1);
+    renderer.clear();
+    renderer.render(scene, camera);
+    camera.layers.set(FIGURE_LAYER);
+    renderer.clearDepth();
     renderer.render(scene, camera);
     if (!ready) {
       ready = true;
