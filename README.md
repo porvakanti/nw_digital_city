@@ -7,6 +7,9 @@ category is actually doing. Built for the Networks all-hands, September 2026.
 Ask it about a category in plain English and it finds it, reasons about it, and
 builds it in front of you.
 
+Design decisions, data caveats and the open questions for Kate and Tomas
+are written up in [docs/DESIGN.md](docs/DESIGN.md).
+
 ## The metaphor
 
 Four measures from the category blueprint story, four things you can see:
