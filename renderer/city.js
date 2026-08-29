@@ -27,7 +27,7 @@
   // apart on a projector.
   const C = {
     sky: 0x080b12,
-    ground: 0x161b23,
+    ground: 0x24422c, // Lego grass baseplate
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
     bare: 0x7c8794, // muted — absence, not a status
@@ -281,6 +281,7 @@
   // ------------------------------------------------------------- geometries
   const box = new THREE.BoxGeometry(1, 1, 1);
   const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
+  const cone = new THREE.ConeGeometry(0.5, 1, 7);
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
@@ -340,7 +341,7 @@
   // world baseplate
   const baseW = layout.size.w + 10;
   const baseD = layout.size.d + 10;
-  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x232b36);
+  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x2c5136);
 
   const labels = [];
   function makeLabel(text, accent, scale) {
@@ -393,6 +394,212 @@
     scene.add(label);
     labels.push(label);
   });
+
+  // ---------------------------------------------------------- streetscape
+  // The gaps between district blocks were dead grey space. They are streets:
+  // asphalt with lane markings, lamp posts along the kerbs, parkland on the
+  // leftover ground, and people walking about in it. None of it encodes data —
+  // it is there so the city reads as a place rather than as a bar chart with
+  // studs, which is what makes an empty lot feel like an empty lot.
+  const lampHeads = [];
+  const walkers = [];
+
+  function buildStreetscape() {
+    const roadBucket = new Bucket();
+    const dashBucket = new Bucket();
+    const trunkBucket = new Bucket();
+    const canopyBucket = new Bucket();
+    const postBucket = new Bucket();
+    const headBucket = new Bucket();
+
+    const bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
+    for (const d of layout.districts) {
+      bounds.minX = Math.min(bounds.minX, d.cx);
+      bounds.maxX = Math.max(bounds.maxX, d.cx + d.w);
+      bounds.minZ = Math.min(bounds.minZ, d.cz);
+      bounds.maxZ = Math.max(bounds.maxZ, d.cz + d.d);
+    }
+
+    // Districts were shelf-packed, so their rows and the gaps between them are
+    // already a street grid — it only has to be drawn.
+    const rows = new Map();
+    for (const d of layout.districts) {
+      const key = Math.round(d.z);
+      if (!rows.has(key)) rows.set(key, []);
+      rows.get(key).push(d);
+    }
+    const rowKeys = [...rows.keys()].sort((a, b) => a - b);
+
+    const ROAD = 3.6;
+    const roads = [];
+    const road = (x, z, w, d) => roads.push({ x, z, w, d, vertical: d > w });
+
+    const pad = 2.4;
+    const minX = bounds.minX - pad, maxX = bounds.maxX + pad;
+    const minZ = bounds.minZ - pad, maxZ = bounds.maxZ + pad;
+    const spanX = maxX - minX, spanZ = maxZ - minZ;
+    road((minX + maxX) / 2, minZ, spanX + ROAD * 2, ROAD);
+    road((minX + maxX) / 2, maxZ, spanX + ROAD * 2, ROAD);
+    road(minX, (minZ + maxZ) / 2, ROAD, spanZ);
+    road(maxX, (minZ + maxZ) / 2, ROAD, spanZ);
+
+    for (let i = 0; i < rowKeys.length - 1; i++) {
+      const above = rows.get(rowKeys[i]);
+      const below = rows.get(rowKeys[i + 1]);
+      const z0 = Math.max(...above.map((d) => d.cz + d.d));
+      const z1 = Math.min(...below.map((d) => d.cz));
+      road((minX + maxX) / 2, (z0 + z1) / 2, spanX, Math.max(ROAD, z1 - z0));
+    }
+
+    for (const key of rowKeys) {
+      const row = rows.get(key).slice().sort((a, b) => a.cx - b.cx);
+      const z0 = Math.min(...row.map((d) => d.cz)) - 1.2;
+      const z1 = Math.max(...row.map((d) => d.cz + d.d)) + 1.2;
+      for (let i = 0; i < row.length - 1; i++) {
+        const x0 = row[i].cx + row[i].w;
+        const x1 = row[i + 1].cx;
+        road((x0 + x1) / 2, (z0 + z1) / 2, Math.max(ROAD, x1 - x0), z1 - z0);
+      }
+    }
+
+    for (const r of roads) {
+      roadBucket.add(r.x, 0.02, r.z, r.w, 0.16, r.d, 0x3b414b);
+
+      // centre line
+      const length = r.vertical ? r.d : r.w;
+      const steps = Math.max(1, Math.floor(length / 3.2));
+      for (let i = 0; i < steps; i++) {
+        const t = (i + 0.5) / steps - 0.5;
+        const dx = r.vertical ? 0 : t * r.w;
+        const dz = r.vertical ? t * r.d : 0;
+        dashBucket.add(
+          r.x + dx, 0.11, r.z + dz,
+          r.vertical ? 0.16 : 1.1, 0.04, r.vertical ? 1.1 : 0.16,
+          0xd6d2c4
+        );
+      }
+
+      // lamp posts down both kerbs
+      const half = (r.vertical ? r.w : r.d) / 2 - 0.5;
+      const lampSteps = Math.max(1, Math.floor(length / 11));
+      for (let i = 0; i < lampSteps; i++) {
+        const t = (i + 0.5) / lampSteps - 0.5;
+        for (const side of [-1, 1]) {
+          const x = r.x + (r.vertical ? side * half : t * r.w);
+          const z = r.z + (r.vertical ? t * r.d : side * half);
+          postBucket.add(x, 1.15, z, 0.16, 2.3, 0.16, 0x2b3038);
+          headBucket.add(x, 2.42, z, 0.5, 0.24, 0.5, 0xffe6a6);
+          lampHeads.push({ x, y: 2.42, z });
+        }
+      }
+    }
+
+    // Parkland on whatever ground the blocks and streets do not use.
+    const blocked = (x, z) => {
+      for (const d of layout.districts) {
+        if (x > d.cx - 1.4 && x < d.cx + d.w + 1.4 && z > d.cz - 1.4 && z < d.cz + d.d + 1.4) return true;
+      }
+      for (const r of roads) {
+        if (Math.abs(x - r.x) < r.w / 2 + 1 && Math.abs(z - r.z) < r.d / 2 + 1) return true;
+      }
+      return false;
+    };
+
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    for (let x = -baseW / 2 + 3; x < baseW / 2 - 3; x += 4.6) {
+      for (let z = -baseD / 2 + 3; z < baseD / 2 - 3; z += 4.6) {
+        const jx = x + (rnd() - 0.5) * 2;
+        const jz = z + (rnd() - 0.5) * 2;
+        if (blocked(jx, jz) || rnd() > 0.34) continue;
+        const scale = 0.8 + rnd() * 0.6;
+        trunkBucket.add(jx, 0.45 * scale, jz, 0.22, 0.9 * scale, 0.22, 0x5b4632);
+        canopyBucket.add(jx, (0.9 + 0.6) * scale, jz, 1.5 * scale, 1.7 * scale, 1.5 * scale, 0x2f7d46);
+        canopyBucket.add(jx, (0.9 + 1.35) * scale, jz, 1.1 * scale, 1.3 * scale, 1.1 * scale, 0x39916f);
+      }
+    }
+
+    const solid = new THREE.MeshLambertMaterial();
+    [
+      roadBucket.mesh(box, solid, false, true),
+      dashBucket.mesh(box, solid, false, false),
+      trunkBucket.mesh(box, solid, true, false),
+      canopyBucket.mesh(cone, solid, true, false),
+      postBucket.mesh(box, solid, true, false),
+      headBucket.mesh(box, new THREE.MeshLambertMaterial({ emissive: 0x000000 }), false, false),
+    ].forEach((mesh) => mesh && scene.add(mesh));
+
+    buildPedestrians(roads, rnd);
+  }
+
+  // People, and a few dogs. Small, slow, and never in the way — they exist so
+  // the streets are not empty while the room looks at the skyline.
+  function buildPedestrians(roads, rnd) {
+    const COATS = [0xd94f4f, 0x3f7fd0, 0xe0b53c, 0x46a06a, 0xb35fb0, 0xdd8a3a];
+    const group = new THREE.Group();
+    const longRoads = roads.filter((r) => Math.max(r.w, r.d) > 14);
+
+    for (let i = 0; i < 34; i++) {
+      const r = longRoads[Math.floor(rnd() * longRoads.length)] || roads[0];
+      const coat = COATS[Math.floor(rnd() * COATS.length)];
+      const person = new THREE.Group();
+      const body = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: coat }));
+      body.scale.set(0.42, 0.8, 0.36);
+      body.position.y = 0.4;
+      body.castShadow = true;
+      person.add(body);
+      const head = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0xf3c85c }));
+      head.scale.set(0.34, 0.32, 0.32);
+      head.position.y = 0.96;
+      person.add(head);
+      group.add(person);
+
+      let dog = null;
+      if (rnd() < 0.28) {
+        dog = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0x8a6b4a }));
+        dog.scale.set(0.42, 0.28, 0.24);
+        dog.position.y = 0.15;
+        group.add(dog);
+      }
+
+      const lane = (rnd() - 0.5) * (r.vertical ? r.w : r.d) * 0.55;
+      walkers.push({
+        person,
+        dog,
+        road: r,
+        lane,
+        t: rnd(),
+        speed: (0.05 + rnd() * 0.05) * (rnd() < 0.5 ? 1 : -1),
+      });
+    }
+    scene.add(group);
+  }
+
+  function updateWalkers(now, delta) {
+    for (const w of walkers) {
+      w.t += w.speed * delta;
+      if (w.t > 1) w.t -= 1;
+      if (w.t < 0) w.t += 1;
+      const r = w.road;
+      const along = (w.t - 0.5) * (r.vertical ? r.d : r.w);
+      const x = r.x + (r.vertical ? w.lane : along);
+      const z = r.z + (r.vertical ? along : w.lane);
+      const bob = Math.abs(Math.sin(now * 8 + w.lane)) * 0.06;
+      w.person.position.set(x, bob, z);
+      w.person.rotation.y = r.vertical ? (w.speed > 0 ? 0 : Math.PI) : (w.speed > 0 ? Math.PI / 2 : -Math.PI / 2);
+      if (w.dog) {
+        const trail = 0.9 * (w.speed > 0 ? -1 : 1);
+        w.dog.position.set(
+          x + (r.vertical ? 0.45 : trail),
+          0,
+          z + (r.vertical ? trail : 0.45)
+        );
+        w.dog.rotation.y = w.person.rotation.y;
+      }
+    }
+  }
+
+  buildStreetscape();
 
   const pickTargets = [];
   const pickMaterial = new THREE.MeshBasicMaterial({
@@ -593,7 +800,7 @@
     const stats = [
       [t.categories, "buildings"],
       [t.with_blueprint, "developed"],
-      [t.bare_plots, "bare plots"],
+      [t.empty_lots, "empty lots"],
       [CITY.meta.counts.markets, "markets"],
       [euro(t.spend_eur), "spend"],
     ];
@@ -799,17 +1006,17 @@
       return m.spend_eur > 0
         ? {
             caption: `${spend} of spend. No blueprint. Nothing to build here yet.`,
-            bubble: `Empty plot. There's ${spend} sitting on this ground and no rules to build with.`,
+            bubble: `Empty lot. There's ${spend} sitting on this ground and no rules to build with.`,
           }
         : {
-            caption: `No blueprint, and no recorded spend. This plot is still open ground.`,
-            bubble: `Nothing here yet. Someone has to claim this plot.`,
+            caption: `No blueprint, and no recorded spend. This lot is still open ground.`,
+            bubble: `Nothing here yet. Someone has to claim this lot.`,
           };
     }
     if (category.blueprint_state === "draft") {
       return {
-        caption: `Blueprint drafted but not active. The plot is marked out, no foundations.`,
-        bubble: `Someone has claimed this plot — the blueprint is still in draft.`,
+        caption: `Blueprint drafted but not active. The lot is marked out, no foundations.`,
+        bubble: `Someone has claimed this lot — the blueprint is still in draft.`,
       };
     }
     const reach = m.market_reach;
@@ -1034,8 +1241,12 @@
       view.size = anim.fromSize + (anim.toSize - anim.fromSize) * e;
       if (t >= 1) anim.active = false;
     }
+    const nowSec = clockNow();
+    const delta = Math.min(0.1, nowSec - (tick.last || nowSec));
+    tick.last = nowSec;
     stepBuild();
-    updateFigure(clockNow());
+    updateWalkers(nowSec, delta);
+    updateFigure(nowSec);
     applyCamera();
     placeBubble();
     const zoom = view.size / HOME.size;

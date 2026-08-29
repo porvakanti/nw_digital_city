@@ -49,9 +49,9 @@ metrics:
     description: Whether a category blueprint exists, and whether it is live.
     kind: categorical
     tiers:
-      - {id: none,   value: none,   label: Bare plot,        detail: No blueprint yet — the plot is empty ground.}
-      - {id: draft,  value: draft,  label: Plot marked out,  detail: Blueprint drafted. The plot is claimed but has no foundations.}
-      - {id: active, value: active, label: Foundation laid,  detail: Blueprint active. The plot can be built on.}
+      - {id: none,   value: none,   label: Empty lot,        detail: No blueprint yet — the lot is empty ground.}
+      - {id: draft,  value: draft,  label: Lot marked out,   detail: Blueprint drafted. The lot is claimed but has no foundations.}
+      - {id: active, value: active, label: Foundation laid,  detail: Blueprint active. The lot can be built on.}
 
   market_reach:
     label: Blueprint reach
@@ -66,7 +66,7 @@ metrics:
       Standing in for AVA Sourcing adoption, which reads a flat 100% for every
       category in the current extract and so cannot differentiate the skyline.
     tiers:
-      - {id: plot,       max: 0,    label: Plot prepared, detail: No market has adopted this blueprint.}
+      - {id: plot,       max: 0,    label: Lot prepared,  detail: No market has adopted this blueprint.}
       - {id: small,      max: 1,    label: Small building, detail: Adopted in a single market.}
       - {id: block,      max: 2,    label: Office block,   detail: Adopted in two markets.}
       - {id: tower,      max: 4,    label: Tower,          detail: Adopted across three or four markets.}
@@ -78,7 +78,7 @@ metrics:
     unit: percent
     kind: numeric
     tiers:
-      - {id: plot,       max: 0.0,  label: Plot prepared, detail: No adoption.}
+      - {id: plot,       max: 0.0,  label: Lot prepared,  detail: No adoption.}
       - {id: small,      max: 0.25, label: Small building, detail: Under 25% adoption.}
       - {id: block,      max: 0.50, label: Office block,   detail: 25–50% adoption.}
       - {id: tower,      max: 0.90, label: Tower,          detail: 50–90% adoption.}
@@ -90,7 +90,7 @@ metrics:
     unit: blueprints
     kind: numeric
     tiers:
-      - {id: plot,       max: 0,    label: Plot prepared}
+      - {id: plot,       max: 0,    label: Lot prepared}
       - {id: small,      max: 1,    label: Small building}
       - {id: block,      max: 3,    label: Office block}
       - {id: tower,      max: 7,    label: Tower}

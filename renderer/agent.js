@@ -254,12 +254,12 @@
       if (scope && scope.kind === "district") await call("render", "district", scope.hit);
       else if (top) await call("render", "focus", top.code);
       if (!top) {
-        CITYVIEW.speak(`Every plot in ${scopeText(scope)} has a blueprint.`, "Nothing bare here.");
+        CITYVIEW.speak(`Every lot in ${scopeText(scope)} has a blueprint.`, "Nothing bare here.");
         return;
       }
       CITYVIEW.speak(
-        `${gaps.list.length} bare plots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name} — ${euro(top.metrics.spend_eur)}, no blueprint.`,
-        `${top.name} is the most valuable empty plot here.`
+        `${gaps.list.length} empty lots in ${scopeText(scope)}. The biggest is ${top.code} ${top.name} — ${euro(top.metrics.spend_eur)}, no blueprint.`,
+        `${top.name} is the most valuable empty lot here.`
       );
       return;
     }
@@ -268,8 +268,8 @@
       const s = await call("summarise", scope);
       if (scope && scope.kind === "district") await call("render", "district", scope.hit);
       CITYVIEW.speak(
-        `${scopeText(scope)}: ${s.built} of ${s.count} plots developed, ${s.bare} still bare, ${euro(s.spend)} of spend.`,
-        `${s.bare} plots here are still empty ground.`
+        `${scopeText(scope)}: ${s.built} of ${s.count} lots built, ${s.bare} still empty, ${euro(s.spend)} of spend.`,
+        `${s.bare} lots here are still empty ground.`
       );
       return;
     }
@@ -285,7 +285,7 @@
       const reach = pick.metrics.market_reach;
       CITYVIEW.speak(
         direction === "asc"
-          ? `${pick.code} ${pick.name} is the weakest plot in ${scopeText(scope)} — ${euro(pick.metrics.spend_eur)} and ${reach === 0 ? "no blueprint at all" : plural(reach, "market")}.`
+          ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)} — ${euro(pick.metrics.spend_eur)} and ${reach === 0 ? "no blueprint at all" : plural(reach, "market")}.`
           : `${pick.code} ${pick.name} leads ${scopeText(scope)} — ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
         direction === "asc" ? "This is where I'd start." : "This is the one to copy."
       );
@@ -311,8 +311,8 @@
       const s = await call("summarise", found);
       await call("render", "district", found.hit);
       CITYVIEW.speak(
-        `${found.hit}: ${s.built} of ${s.count} plots developed, ${euro(s.spend)} of spend.`,
-        `${found.hit} — ${s.bare} plots still empty.`
+        `${found.hit}: ${s.built} of ${s.count} lots built, ${euro(s.spend)} of spend.`,
+        `${found.hit} — ${s.bare} lots still empty.`
       );
       return;
     }

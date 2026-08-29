@@ -306,7 +306,7 @@ def summarise(categories) -> dict:
         "with_blueprint": len(built),
         "active": sum(1 for c in categories if c["blueprint_state"] == "active"),
         "draft_only": sum(1 for c in categories if c["blueprint_state"] == "draft"),
-        "bare_plots": len(categories) - len(built),
+        "empty_lots": len(categories) - len(built),
         "blueprints": sum(c["metrics"]["cbp_total"] for c in categories),
         "spend_eur": round(sum(c["metrics"]["spend_eur"] for c in categories), 2),
     }
@@ -339,8 +339,8 @@ def main() -> None:
     meta, totals = city["meta"], city["totals"]
     print(f"\n{meta['scope']} — {meta['counts']['districts']} districts, "
           f"{meta['counts']['plots']} plots, {meta['counts']['categories']} buildings")
-    print(f"  {totals['with_blueprint']} developed / {totals['bare_plots']} bare "
-          f"({totals['bare_plots'] / totals['categories']:.0%} of the city is empty ground)")
+    print(f"  {totals['with_blueprint']} developed / {totals['empty_lots']} empty lots "
+          f"({totals['empty_lots'] / totals['categories']:.0%} of the city is empty ground)")
     print(f"  {totals['blueprints']} blueprints across {meta['counts']['markets']} markets")
     print(f"  €{totals['spend_eur'] / 1e6:,.0f}m addressable spend")
     print(f"\nwrote {args.out.relative_to(REPO)}")

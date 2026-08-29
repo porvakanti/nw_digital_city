@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-08-28T20:16:54+00:00",
+    "generated_at": "2026-08-29T08:28:35+00:00",
     "source": "Category_Blueprint_Allhands.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network (Level 1)",
@@ -43,7 +43,7 @@
     "with_blueprint": 56,
     "active": 44,
     "draft_only": 12,
-    "bare_plots": 89,
+    "empty_lots": 89,
     "blueprints": 112,
     "spend_eur": 760489502.28
   },
@@ -119,7 +119,7 @@
         "with_blueprint": 17,
         "active": 15,
         "draft_only": 2,
-        "bare_plots": 20,
+        "empty_lots": 20,
         "blueprints": 32,
         "spend_eur": 86151697.9
       }
@@ -171,7 +171,7 @@
         "with_blueprint": 7,
         "active": 7,
         "draft_only": 0,
-        "bare_plots": 11,
+        "empty_lots": 11,
         "blueprints": 15,
         "spend_eur": 47041336.1
       }
@@ -212,7 +212,7 @@
         "with_blueprint": 1,
         "active": 1,
         "draft_only": 0,
-        "bare_plots": 11,
+        "empty_lots": 11,
         "blueprints": 2,
         "spend_eur": 87739230
       }
@@ -272,7 +272,7 @@
         "with_blueprint": 4,
         "active": 3,
         "draft_only": 1,
-        "bare_plots": 12,
+        "empty_lots": 12,
         "blueprints": 9,
         "spend_eur": 116824354.57
       }
@@ -306,7 +306,7 @@
         "with_blueprint": 6,
         "active": 4,
         "draft_only": 2,
-        "bare_plots": 4,
+        "empty_lots": 4,
         "blueprints": 7,
         "spend_eur": 286347825.51
       }
@@ -357,7 +357,7 @@
         "with_blueprint": 8,
         "active": 1,
         "draft_only": 7,
-        "bare_plots": 9,
+        "empty_lots": 9,
         "blueprints": 9,
         "spend_eur": 12574661.32
       }
@@ -421,7 +421,7 @@
         "with_blueprint": 7,
         "active": 7,
         "draft_only": 0,
-        "bare_plots": 18,
+        "empty_lots": 18,
         "blueprints": 30,
         "spend_eur": 18600010.01
       }
@@ -455,7 +455,7 @@
         "with_blueprint": 6,
         "active": 6,
         "draft_only": 0,
-        "bare_plots": 4,
+        "empty_lots": 4,
         "blueprints": 8,
         "spend_eur": 105210386.87
       }
