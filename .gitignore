@@ -17,3 +17,6 @@ venv/
 node_modules/
 dist/
 .DS_Store
+
+# Built by ./run.sh package, not source.
+nw-digital-city.zip

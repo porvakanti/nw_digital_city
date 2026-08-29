@@ -381,6 +381,39 @@ Signed off with the line the deck closes on: **blueprints today, smart
 procurement tomorrow**. The fourth ask carries the reactor colour rather than
 red, because it is the one that belongs to the smart-city layer.
 
+## 8e. Making it explain itself
+
+Three things a first pair of fresh eyes found, all of them the same mistake:
+assuming the reader already knows what they are looking at.
+
+**Single keys were firing while somebody typed.** Typing "reset" into the ask
+box reset the view; anything containing an N, a P or a K turned on night,
+raised the potential and opened the asks before the sentence was finished. The
+shortcuts now stand down whenever focus is in a field.
+
+**Districts had no edge.** Their footprint already carries meaning, a district
+is as big as the number of categories it holds, but with parkland running right
+up to the ground plate there was no line saying where one stopped. A small
+district beside a big lawn read as enormous. Each one now sits inside a kerb in
+its own colour, on ground tinted a few percent toward it, which is slide 11's
+coloured L2 rectangle built in bricks. The legend explains the ground before it
+explains the measures.
+
+**The builder was invisible.** He stood in front of his lot, which from this
+camera is behind whatever occupies the next row, so on a full plot the hero of
+the piece was a yellow pixel between two towers. Moving him into the diagonal
+lane between four lots, the one direction the camera looks straight down,
+helped and did not solve it. So he is drawn in a second pass: the city renders,
+the depth buffer is cleared, and he is drawn over it, which keeps his own parts
+correctly ordered while never letting a building hide him. He reads as a marker
+on a map, which is what he is. That pass required moving the sky off
+`scene.background`, which forces a full clear on every render call.
+
+**And a guided tour**, which is one sequence doing three jobs: an introduction
+for someone seeing this for the first time, the run of show on stage, and the
+end-to-end test in `docs/DEMO.md`. It advances on a click, never on a timer,
+because nobody wants a demo running ahead of them while a room asks a question.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

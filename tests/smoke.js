@@ -11,7 +11,9 @@ const { chromium } = require("playwright");
 const path = require("path");
 const fs = require("fs");
 
-const PAGE = "file://" + path.join(__dirname, "..", "renderer", "index.html");
+// ?clean skips the first-run welcome card, which would otherwise sit over the
+// city for every check in here.
+const PAGE = "file://" + path.join(__dirname, "..", "renderer", "index.html") + "?clean";
 
 // What the room is likely to shout, and what it has to resolve to.
 const RESOLUTIONS = [

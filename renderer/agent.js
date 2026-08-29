@@ -174,6 +174,10 @@
 
     /** Drive the city. The visualisation is the agent's output surface. */
     render(action, argument) {
+      // Anything other than the projection itself ends the projection. Without
+      // this, flying to a category while "what we could be" was on left the
+      // whole city greyed out with no way to tell why.
+      if (action !== "potential") CITYVIEW.potential(false);
       if (action === "focus") return CITYVIEW.focus(argument) ? "flying" : "not found";
       if (action === "district") return CITYVIEW.focusDistrict(argument) ? "flying" : "not found";
       if (action === "potential") {
@@ -560,5 +564,130 @@
 
   probe();
 
-  window.NWAgent = { ask: submit, tools, similarity, endpoint: ENDPOINT };
+  /* ------------------------------------------------------------- the tour
+   *
+   * The same sequence does three jobs. It introduces the city to somebody
+   * seeing it for the first time, it is the run of show on stage, and it is
+   * the end-to-end test: walk it through and every part of the application
+   * has been exercised in a sensible order.
+   *
+   * It advances on a click, never on a timer. Nobody wants a demo running
+   * ahead of them while a room is asking a question.
+   */
+  const TOUR = [
+    {
+      title: "One city, one org.",
+      body: "Eight coloured blocks, one for each L2 area in Networks. Inside a block are its plots, and inside a plot are the lots, one for every L4 category. A block is as big as the number of categories it holds, so Access Radio/Fixed is the largest and Transmission Infrastructure is among the smallest. The green between the blocks is parkland, not part of any district.",
+      run: () => CITYVIEW.reset(),
+    },
+    {
+      title: "Ask it about a category.",
+      body: "That word was typed in plain English. The agent worked out which of the 145 lots was meant, looked up its figures, sent the builder and rebuilt the lot in front of you. Watch the order it builds in: foundation, then the building, then the property, then the roof.",
+      run: () => submit("batteries"),
+    },
+    {
+      title: "Four measures, in the order they are built.",
+      body: "The foundation is whether the blueprint exists. The height of the building is how widely it has been adopted. The green houses and the red hotel are the spend behind it, exactly as in Monopoly. The light on the roof is AI readiness. The panel on the right is every tool the agent called to get here, in order.",
+      run: () => {},
+    },
+    {
+      title: "Where the work is.",
+      body: "Eighty-nine of the 145 lots are still empty ground, and some of them carry serious money. The agent ranks them and flies to the biggest.",
+      run: () => submit("Where are the biggest gaps?"),
+    },
+    {
+      title: "The city we could be.",
+      body: "Everything already built goes grey, and the lots that could be built rise in their place, each one only as tall as its own record justifies. Nothing here is a forecast. It is what is already on the sheet.",
+      run: () => submit("What could we build?"),
+    },
+    {
+      title: "After dark.",
+      body: "The lights go down and the only thing left glowing is the readiness layer: the categories where the rules are structured enough that an AI-generated RFP has actually been started. The dark roofs are the work still to do.",
+      run: () => submit("Show me AI readiness"),
+    },
+    {
+      title: "What we are asking for.",
+      body: "Four things, and they are the reason for all of the above.",
+      run: () => submit("What are we asking people to do?"),
+    },
+    {
+      title: "Over to you.",
+      body: "Type a category code like A221, a category name, a district, or a whole question. Click any building to inspect it. Drag to pan, scroll to zoom, press R to come back here.",
+      run: () => CITYVIEW.reset(),
+    },
+  ];
+
+  const tourEl = document.getElementById("tour");
+  const welcomeEl = document.getElementById("welcome");
+  let tourStep = -1;
+
+  function showTourStep(index) {
+    tourStep = index;
+    if (index < 0 || index >= TOUR.length) return endTour();
+    const step = TOUR[index];
+    tourEl.querySelector(".step").textContent = `Step ${index + 1} of ${TOUR.length}`;
+    tourEl.querySelector("h3").textContent = step.title;
+    tourEl.querySelector("p").textContent = step.body;
+    document.getElementById("tourNext").textContent =
+      index === TOUR.length - 1 ? "Finish" : "Next";
+    tourEl.classList.add("on");
+    step.run();
+  }
+
+  function startTour() {
+    welcomeEl.classList.remove("on");
+    showTourStep(0);
+  }
+
+  function endTour() {
+    tourStep = -1;
+    tourEl.classList.remove("on");
+  }
+
+  document.getElementById("tourNext").addEventListener("click", () => showTourStep(tourStep + 1));
+  document.getElementById("tourExit").addEventListener("click", endTour);
+  document.getElementById("welcomeTour").addEventListener("click", startTour);
+  document.getElementById("welcomeSkip").addEventListener("click", () => {
+    welcomeEl.classList.remove("on");
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const el = e.target;
+    const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA"
+      || el.isContentEditable);
+    if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "t" || e.key === "T") return startTour();
+    if (tourStep < 0) return;
+    if (e.key === "Escape") endTour();
+    if (e.key === " " || e.key === "ArrowRight") {
+      e.preventDefault();
+      showTourStep(tourStep + 1);
+    }
+    if (e.key === "ArrowLeft") showTourStep(Math.max(0, tourStep - 1));
+  });
+
+  /* Offered once. Somebody rehearsing does not want to dismiss a welcome card
+   * every time they reload, and on the day it must not be on screen at all. */
+  function offerWelcome() {
+    let seen = null;
+    try {
+      seen = window.localStorage.getItem("nw-city-welcomed");
+    } catch (err) {
+      seen = null; // a file:// origin or blocked storage; show it and move on
+    }
+    if (seen) return;
+    welcomeEl.classList.add("on");
+    try {
+      window.localStorage.setItem("nw-city-welcomed", "1");
+    } catch (err) {
+      /* nothing to remember it with, which is survivable */
+    }
+  }
+
+  if (!new URLSearchParams(location.search).has("clean")) offerWelcome();
+
+  window.NWAgent = {
+    ask: submit, tools, similarity, endpoint: ENDPOINT,
+    tour: startTour, tourStep: () => tourStep,
+  };
 })();

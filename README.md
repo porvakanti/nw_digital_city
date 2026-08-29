@@ -110,7 +110,11 @@ answers with its own rules.
 ./run.sh test       # python tests, the agent's question set, the browser smoke test
 ./run.sh eval       # just the question set, against whatever .env says
 ./run.sh build      # rebuild city.json from the workbook in data/raw/
+./run.sh package    # a zip of just the city, safe to send to anyone
 ```
+
+[docs/DEMO.md](docs/DEMO.md) is the end-to-end script: what to type, in what
+order, and what should happen at each step.
 
 `tests/smoke.js` is the pre-stage check. It loads the city in a real browser,
 asserts the resolver finds what people are likely to shout, and confirms the
@@ -168,5 +172,6 @@ environment variables change.
 - [x] Model layer: provider adapter, service, eval set, one-command start
 - [x] Streets that read as streets, flyovers, the closing ask
 - [x] Checked against the deck, the narrative and the workbook (docs/DESIGN.md §9)
+- [x] Guided tour, first-run welcome, demo script, shareable bundle
 - [ ] Speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode
