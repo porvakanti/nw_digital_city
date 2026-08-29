@@ -171,7 +171,11 @@ identity never rests on separating eight hues on a projector. The measures that
 must be read exactly (status, height, houses, reactor) stay on shape, height
 and count.
 
-Streets, parkland, lamp posts and pedestrians encode **nothing**. They exist so
+Houses and the hotel differ in **silhouette**, not only colour: a house is a
+small cube under a pitched roof, a hotel is a long two-storey block. Colour
+alone could not be read at the distance the room watches from.
+
+Streets, parkland, lamp posts, traffic and pedestrians encode **nothing**. They exist so
 the place reads as a place, which is what makes an empty lot feel like empty
 ground rather than a missing bar on a chart.
 

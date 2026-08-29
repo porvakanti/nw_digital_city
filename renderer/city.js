@@ -285,6 +285,7 @@
   const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
   const cone = new THREE.ConeGeometry(0.5, 1, 7);
   const disc = new THREE.CircleGeometry(0.5, 18).rotateX(-Math.PI / 2);
+  const pyramid = new THREE.ConeGeometry(0.72, 1, 4).rotateY(Math.PI / 4);
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
@@ -309,6 +310,8 @@
   const houses = new Bucket();
   const ghostBricks = new Bucket();
   const ghostSolid = new Bucket();
+  const roofs = new Bucket();
+  const ghostRoofs = new Bucket();
   const windows = new Bucket();
   const lightPools = new Bucket();
   const beams = new Bucket();
@@ -575,7 +578,7 @@
     const group = new THREE.Group();
     const longRoads = roads.filter((r) => Math.max(r.w, r.d) > 14);
 
-    for (let i = 0; i < 34; i++) {
+    for (let i = 0; i < 52; i++) {
       const r = longRoads[Math.floor(rnd() * longRoads.length)] || roads[0];
       const coat = COATS[Math.floor(rnd() * COATS.length)];
       const person = new THREE.Group();
@@ -656,29 +659,47 @@
 
   function cycle(colour) {
     const group = new THREE.Group();
-    const piece = (hex, x, y, z, sx, sy, sz) => {
-      const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: hex }));
+    const add = (geo, hex, x, y, z, sx, sy, sz, rot) => {
+      const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: hex }));
       mesh.position.set(x, y, z);
       mesh.scale.set(sx, sy, sz);
+      if (rot) mesh.rotation.z = Math.PI / 2;
       mesh.castShadow = true;
       group.add(mesh);
+      return mesh;
     };
-    piece(0x1b1e24, -0.42, 0.22, 0, 0.1, 0.44, 0.44);   // rear wheel
-    piece(0x1b1e24, 0.42, 0.22, 0, 0.1, 0.44, 0.44);    // front wheel
-    piece(0x9aa3ae, 0, 0.4, 0, 0.95, 0.09, 0.09);       // frame
-    piece(colour, -0.05, 0.75, 0, 0.32, 0.55, 0.3);     // rider
-    piece(0xf3c85c, -0.05, 1.1, 0, 0.28, 0.26, 0.26);   // head
-    group.scale.setScalar(1.45);
+    // Wheels are discs standing on edge, not blocks: it is the round wheel
+    // that makes the silhouette read as a bicycle at this distance.
+    add(cyl, 0x24282f, -0.44, 0.3, 0, 0.6, 0.09, 0.6, true);
+    add(cyl, 0x24282f, 0.44, 0.3, 0, 0.6, 0.09, 0.6, true);
+    add(box, 0xb9c0c9, 0, 0.42, 0, 0.95, 0.07, 0.07);   // crossbar
+    add(box, 0xb9c0c9, -0.2, 0.34, 0, 0.07, 0.3, 0.07); // seat post
+    add(box, 0xb9c0c9, 0.34, 0.52, 0, 0.07, 0.36, 0.07); // head tube
+    add(box, 0x24282f, 0.34, 0.68, 0, 0.09, 0.07, 0.46); // handlebars
+    add(box, colour, -0.12, 0.78, 0, 0.3, 0.5, 0.28);    // torso
+    add(box, colour, 0.08, 0.72, 0, 0.34, 0.09, 0.1);    // arms reaching forward
+    add(box, 0x2b3140, -0.16, 0.5, 0, 0.16, 0.3, 0.22);  // legs
+    add(box, 0xf3c85c, -0.12, 1.13, 0, 0.28, 0.26, 0.26); // head
+    add(box, 0xd94f4f, -0.12, 1.28, 0, 0.32, 0.1, 0.3);   // helmet
+    group.scale.setScalar(1.5);
     return group;
   }
 
   function buildTraffic(roads, rnd) {
     const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
     const group = new THREE.Group();
-    const usable = roads.filter((r) => Math.max(r.w, r.d) > 16);
+    const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
+    // Weight by length so long avenues carry more traffic than short links.
+    // Zooming into any part of the city should find something moving.
+    const weighted = [];
+    for (const r of usable) {
+      const share = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
+      for (let n = 0; n < share; n++) weighted.push(r);
+    }
+    const pickRoad = () => weighted[Math.floor(rnd() * weighted.length)] || roads[0];
 
-    for (let i = 0; i < 34; i++) {
-      const road = usable[Math.floor(rnd() * usable.length)] || roads[0];
+    for (let i = 0; i < 58; i++) {
+      const road = pickRoad();
       const roll = rnd();
       const kind = roll < 0.62 ? "car" : roll < 0.84 ? "truck" : "bus";
       const forward = rnd() < 0.5;
@@ -695,8 +716,8 @@
     }
 
     // A few cyclists, keeping in close to the kerb where a cycle lane would be.
-    for (let i = 0; i < 11; i++) {
-      const road = usable[Math.floor(rnd() * usable.length)] || roads[0];
+    for (let i = 0; i < 20; i++) {
+      const road = pickRoad();
       const forward = rnd() < 0.5;
       const short = road.vertical ? road.w : road.d;
       const bike = cycle([0x46a06a, 0xd94f4f, 0x3f7fd0, 0xe0b53c][Math.floor(rnd() * 4)]);
@@ -731,15 +752,15 @@
       for (let car = 0; car < 3; car++) {
         const unit = new THREE.Group();
         const body = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0xe60000 }));
-        body.scale.set(2.9, 1.05, 1.25);
-        body.position.y = 0.72;
+        body.scale.set(3.5, 1.26, 1.5);
+        body.position.y = 0.86;
         body.castShadow = true;
         unit.add(body);
         const windows = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0xf3f1e8 }));
-        windows.scale.set(2.6, 0.34, 1.3);
-        windows.position.y = 1.0;
+        windows.scale.set(3.1, 0.4, 1.56);
+        windows.position.y = 1.2;
         unit.add(windows);
-        unit.userData.offset = (car - 1) * 3.1;
+        unit.userData.offset = (car - 1) * 3.8;
         tram.add(unit);
       }
       group.add(tram);
@@ -857,13 +878,15 @@
         }
       }
       if (reactorTier > 0) {
-        const glow = 0.42 + reactorTier * 0.2;
-        pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.34, z, glow * 2, 0.3, glow * 2) };
-        // A beam so the reactor reads from across the city once it is dark.
-        // Only 28 of 145 categories have any AI-generated RFPs, so these stay
-        // rare, which is the point: the skyline becomes a readiness map.
-        const reach = 4 + reactorTier * 3.4;
-        beams.add(x, top + 0.4 + reach / 2, z, glow * 2.6, reach, glow * 2.6);
+        const glow = 0.3 + reactorTier * 0.12;
+        pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.3, z, glow * 1.15, 0.26, glow * 1.15) };
+        // A beam only for the top two tiers. Twenty-eight categories have
+        // some AI-generated RFPs, which is too many columns to pick out; the
+        // thirteen that are steady or better read as landmarks instead.
+        if (reactorTier >= 2) {
+          const reach = 7 + reactorTier * 3.4;
+          beams.add(x, top + 0.35 + reach / 2, z, glow * 2.2, reach, glow * 2.2);
+        }
       }
     } else {
       // Nothing built: show the outline of what could stand here.
@@ -876,21 +899,31 @@
     // Houses and hotel along the front of the lot. On an undeveloped plot they
     // are ghosted, because the value is real but the development is not.
     if (pieceCount > 0) {
+      // Houses and a hotel have to be told apart at a glance, so they differ in
+      // silhouette rather than only in colour: a house is a small cube under a
+      // pitched roof, a hotel is a long two-storey block. Colour alone was not
+      // enough at the distance the room will be watching from.
       const hotel = valueTier.id === "hotel";
-      const count = hotel ? 1 : pieceCount;
-      const size = hotel ? 0.95 : 0.52;
-      const step = hotel ? 0 : 0.66;
-      const startX = x - ((count - 1) * step) / 2;
-      for (let p = 0; p < count; p++) {
-        const target = active ? houses : ghostHouses;
-        const bucketName = active ? "houses" : "ghostHouses";
-        pieces.houses.push({
-          bucket: bucketName,
-          i: target.add(
-            startX + p * step, 0.62 + size / 2, z + FOOT / 2 + 0.75,
-            size, size, size, hotel ? C.hotel : C.house
-          ),
-        });
+      const front = z + FOOT / 2 + 0.85;
+      const bodies = active ? houses : ghostHouses;
+      const bodyName = active ? "houses" : "ghostHouses";
+      const caps = active ? roofs : ghostRoofs;
+      const capName = active ? "roofs" : "ghostRoofs";
+      const push = (bucket, name, ...args) =>
+        pieces.houses.push({ bucket: name, i: bucket.add(...args) });
+
+      if (hotel) {
+        push(bodies, bodyName, x, 0.62 + 0.5, front, 1.85, 1.0, 0.9, C.hotel);
+        push(bodies, bodyName, x, 0.62 + 1.25, front, 1.25, 0.5, 0.68, C.hotel);
+        push(caps, capName, x, 0.62 + 1.68, front, 1.5, 0.42, 0.86, 0xb00000);
+      } else {
+        const step = 0.72;
+        const startX = x - ((pieceCount - 1) * step) / 2;
+        for (let p = 0; p < pieceCount; p++) {
+          const hx = startX + p * step;
+          push(bodies, bodyName, hx, 0.62 + 0.26, front, 0.52, 0.52, 0.52, C.house);
+          push(caps, capName, hx, 0.62 + 0.68, front, 0.62, 0.34, 0.62, 0x1f7a3c);
+        }
       }
     }
 
@@ -912,6 +945,8 @@
     ghostHouses: { bucket: ghostHouses, mesh: ghostHouses.mesh(box, matGhostSolid, false, false) },
     reactors: { bucket: reactors, mesh: reactors.mesh(cyl, matReactor, false, false) },
     windows: { bucket: windows, mesh: windows.mesh(box, matWindow, false, false) },
+    roofs: { bucket: roofs, mesh: roofs.mesh(pyramid, matSolid, true, false) },
+    ghostRoofs: { bucket: ghostRoofs, mesh: ghostRoofs.mesh(pyramid, matGhostSolid, false, false) },
   };
   const poolMesh = lightPools.mesh(disc, matPool, false, false);
   if (poolMesh) scene.add(poolMesh);

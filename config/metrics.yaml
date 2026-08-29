@@ -23,7 +23,9 @@ city:
 layers:
   foundation:
     metric: blueprint_state
-    caption: Blueprint maturity and captured category rules
+    caption: >-
+      Whether the category rules have been captured. An empty lot carries a
+      faint outline of the building that could stand there.
   height:
     metric: market_reach      # ← swap to ava_adoption / cbp_total / spend_eur
     caption: >-
