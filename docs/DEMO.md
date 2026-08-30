@@ -12,9 +12,15 @@ This is the safety net: if the venue wifi dies on the day, this still runs.
 
 **With the model.** From the repository root:
 
-```bash
-./run.sh            # or: python3 run.py  (Windows: py run.py)
-```
+| Your machine | Run this |
+| --- | --- |
+| Windows | double-click **`run.cmd`** |
+| macOS, Linux | `./run.sh` |
+
+`run.sh` is a shell script. Double-clicking it on Windows opens it in a text
+editor or a browser, because Windows does not know what a `.sh` file is. If
+`run.cmd` reports there is no Python, it tells you how to install one; the
+model is the only part that needs it.
 
 It makes a virtual environment, installs into it, writes `.env` if there is
 none, starts the service and opens a browser. To use a model, edit `.env`:
@@ -129,5 +135,11 @@ Press `R`.
   from a file, or when `.env` has no key. Everything still works.
 - **The badge says "gemini: NW_API_KEY is not set".** The key is missing from
   `.env`, or `./run.sh` was not restarted after it was added.
+- **`run.sh` opened in Notepad or a browser.** You are on Windows. Use
+  `run.cmd`.
+- **"Python was not found; run without arguments to install from the Microsoft
+  Store".** That is the Windows stub, not Python. `winget install
+  Python.Python.3.12`, or python.org with "Add python.exe to PATH" ticked.
+  Without it, open `renderer/index.html` directly; only the model is missing.
 - **A question resolves to the wrong lot.** Note the question. `./run.sh eval`
   is where a new case gets added so it stays fixed.

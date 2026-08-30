@@ -84,11 +84,14 @@ safety net: if the venue wifi dies, the city still opens from a local file.
 
 ## Running it
 
-```bash
-./run.sh            # or: python3 run.py
-```
+| Your machine | Run this |
+| --- | --- |
+| Windows | double-click **`run.cmd`**, or `run.cmd` in a terminal |
+| macOS, Linux | `./run.sh` |
 
-From the repository root on your own machine. That is the whole thing. The
+From the repository root. That is the whole thing. (`run.sh` is a shell script:
+double-clicking it on Windows opens it in a text editor or a browser, which is
+Windows telling you it has no idea what the file is, not an error in it.) The
 first run makes a virtual environment in `.venv`, installs what it needs,
 writes a `.env` if there is not one, starts the service and opens the city in a
 browser. Later runs skip straight to the last two.
@@ -113,12 +116,20 @@ answers with its own rules.
 ./run.sh package    # a zip of just the city, safe to send to anyone
 ```
 
+On Windows the same four are `run.cmd test`, `run.cmd eval`, and so on.
+
 [docs/DEMO.md](docs/DEMO.md) is the end-to-end script: what to type, in what
 order, and what should happen at each step.
 
 `tests/smoke.js` is the pre-stage check. It loads the city in a real browser,
 asserts the resolver finds what people are likely to shout, and confirms the
 agent actually moves the city rather than only describing it.
+
+### Without Python
+
+Everything except the model works with no Python and nothing installed: open
+`renderer/index.html` in Chrome. `run.cmd` says the same thing, and tells you
+how to install Python, if it cannot find one.
 
 ### If everything goes wrong
 
