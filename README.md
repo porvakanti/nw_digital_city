@@ -168,9 +168,17 @@ figures is discarded.
 | `vertex` | `NW_PROJECT`, `NW_REGION` | Application default credentials, no key. |
 | `claude` | `NW_API_KEY` | Anthropic API. |
 
-`app/Dockerfile` builds the one container that gets deployed. The same image
-runs on a laptop, on Cloud Run, and in the internal environment; only the
-environment variables change.
+`Dockerfile` builds the one container that gets deployed: the page and the
+service that answers it, together. The same image runs on a laptop, on Cloud
+Run, and in the internal environment; only the environment variables change.
+
+```bash
+PROJECT=your-gcp-project ./deploy/cloudrun.sh
+```
+
+[docs/DEPLOY.md](docs/DEPLOY.md) covers the deploy, what is needed from
+whoever owns the environment, and how this gets listed in the VP&C Agent
+Marketplace.
 
 ## Status
 
@@ -184,5 +192,7 @@ environment variables change.
 - [x] Streets that read as streets, flyovers, the closing ask
 - [x] Checked against the deck, the narrative and the workbook (docs/DESIGN.md §9)
 - [x] Guided tour, first-run welcome, demo script, shareable bundle
+- [x] Cloud Run deploy, Vertex AI on a service account, no key in the deployment
+- [ ] Listed in the Agent Marketplace
 - [ ] Speech input, offline bundle
 - [ ] Real AI-RFP data, rehearsal mode
