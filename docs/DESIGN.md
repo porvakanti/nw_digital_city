@@ -960,6 +960,47 @@ another failing on an identical file. A check that leaks resources, or that
 borrows its strictness from the version of the tool that happens to be
 installed, is not measuring the thing it claims to measure.
 
+## 8s. The half of "it works on a phone" that was not true
+
+The phone layout was built, checked and merged, and then the first attempt to
+open it on an actual iPhone got nowhere. Everything I had verified was true.
+The thing I had not verified was whether the file could be opened at all.
+
+**iOS will not open a downloaded HTML file in a browser.** Safari cannot read
+a file in the Files sandbox, Chrome on iOS is Safari underneath because Apple
+requires it, and the Files app's own preview does not run JavaScript, so it
+renders a blank page. There is no arrangement of taps that gets there.
+
+So "it works on a phone" was half a claim. The layout, the buttons, the pinch
+and the tour all work, on a phone screen, and I have the checks to show it.
+None of that is reachable from an email attachment on the device most people
+read email on. I had tested the destination and not the journey.
+
+The fix is a URL, and the one available today is the laptop itself:
+
+```
+run.cmd serve lan
+```
+
+It binds to the network instead of to localhost and prints the address another
+device sees, worked out by opening a UDP socket towards a public address and
+reading back which interface the routing table chose. Nothing is sent. It is
+the only way to get the right answer on a laptop with a VPN, a dock and two
+adapters, where the hostname resolves to something no phone can reach.
+
+**A separate word, not a flag with a default.** Plain `run.cmd` stays on
+127.0.0.1. Answering the network is a decision somebody should make on
+purpose, and it prints what it has done and who can now reach it.
+
+### What it means for the reviewers
+
+The guide and the email now say to use a laptop, and say why, because a
+reviewer who taps the attachment and gets a blank page concludes the thing is
+broken and does not write back. Telling them in advance costs a sentence.
+
+For a reviewer on a phone the answer is a deployed URL, which is the argument
+for getting the internal deployment done rather than a nice-to-have.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

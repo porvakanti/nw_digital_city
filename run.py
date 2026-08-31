@@ -2,6 +2,7 @@
 """One command. Everything else is an implementation detail.
 
     python3 run.py            start the city and open a browser
+    python3 run.py serve lan  the same, reachable from a phone on the same wifi
     python3 run.py test       every check: python tests, eval set, browser smoke
     python3 run.py eval       six questions against whatever .env says
     python3 run.py eval all   all 32, if the key's limits allow it
@@ -100,15 +101,52 @@ def open_when_ready(url: str) -> None:
             time.sleep(0.25)
 
 
-def serve(python: Path) -> int:
+def lan_address() -> str:
+    """This machine's address on the local network, as another device sees it.
+
+    Asked by opening a UDP socket towards a public address and reading back
+    which interface the routing table chose. Nothing is sent and nothing needs
+    to be reachable; it is the only way to get the right answer on a laptop
+    with a VPN, a docking station and two wifi adapters, where the hostname
+    resolves to something no phone can reach.
+    """
+    import socket
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect(("10.255.255.255", 1))
+            return probe.getsockname()[0]
+    except OSError:
+        return ""
+
+
+def serve(python: Path, lan: bool = False) -> int:
+    """Serve the city, on this machine only or to the local network.
+
+    Local only by default, because a service that answers the network is a
+    decision rather than a convenience. `run.cmd serve lan` is that decision,
+    and it is how you open the city on your own phone: iOS will not run a
+    downloaded HTML file in a browser, so a URL is the only way in.
+    """
+    host = "0.0.0.0" if lan else "127.0.0.1"
     url = f"http://127.0.0.1:{PORT}/"
     print(f"\n  NW Digital City   {url}")
+    if lan:
+        address = lan_address()
+        if address:
+            print(f"  on this network   http://{address}:{PORT}/")
+            print("                    open that on a phone on the same wifi")
+        else:
+            print("  on this network   could not work out this machine's address;")
+            print("                    `ipconfig` will show it")
+        print("\n  Anyone on this network can now reach it. Stop it when you")
+        print("  are done, and do not do this on a network you do not trust.")
     print(f"  agent             {provider()}")
     print("\n  ctrl-c to stop\n")
     threading.Thread(target=open_when_ready, args=(url,), daemon=True).start()
     try:
         return subprocess.call([str(python), "-m", "uvicorn", "app.server:app",
-                                "--host", "127.0.0.1", "--port", str(PORT)], cwd=ROOT)
+                                "--host", host, "--port", str(PORT)], cwd=ROOT)
     except KeyboardInterrupt:
         return 0
 
@@ -332,7 +370,7 @@ def main() -> int:
         return models(python)
     if command == "test":
         return check(python)
-    return serve(python)
+    return serve(python, lan="lan" in sys.argv[2:])
 
 
 if __name__ == "__main__":

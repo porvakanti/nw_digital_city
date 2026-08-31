@@ -47,6 +47,10 @@ so it uses the browser's own rules and the badge says so.
 ./run.sh models     # what the configured key can actually call
 ```
 
+If you are presenting this, read `READING-THE-CITY.md` first. It is what every
+part of the picture means and what the picture is saying, with the figures to
+quote and the three places the data is soft.
+
 ## The script
 
 Nine beats. Press `T` for the guided tour and it runs them in order, or type
@@ -143,6 +147,30 @@ Press `R`.
 | `Germany` | Markets resolve too. 21 of them. |
 | `which category leads on spend` | Ranking, and it flies to the winner. |
 | `banana bread` | It says it cannot find that, rather than guessing. |
+
+## Seeing it on your own phone
+
+A downloaded HTML file cannot be opened in a browser on iOS. Safari and Chrome
+cannot read a file saved on the device, Chrome on iOS is Safari underneath in
+any case, and the Files app preview does not run JavaScript, so it shows a
+blank page. Android will usually manage it, awkwardly.
+
+The way in is a URL, and the quickest one is your own laptop:
+
+```
+run.cmd serve lan
+```
+
+It prints two addresses. The second, something like
+`http://192.168.1.24:8099/`, is this machine as another device on the same
+wifi sees it. Type that into the phone's browser.
+
+The first time, Windows will ask whether to allow Python through the firewall.
+Private networks is the answer; it does not need public ones.
+
+This puts the city on your local network for as long as it is running, which
+is a decision rather than a convenience, hence the separate word. Plain
+`run.cmd` stays on this machine only.
 
 ## On a phone
 
