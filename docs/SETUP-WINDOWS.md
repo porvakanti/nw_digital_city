@@ -80,11 +80,15 @@ skips it politely if not). Skip this unless you want the full check.
 winget install OpenJS.NodeJS.LTS
 ```
 
-Then, once, in the project folder:
+Then, once, in the project folder, **two** commands:
 
 ```powershell
 npm.cmd install playwright
+npx.cmd playwright install chromium
 ```
+
+The first installs the library, the second downloads a browser for it to
+drive. Without the second, the check fails with "Executable doesn't exist".
 
 **Note the `.cmd`.** PowerShell refuses to run `npm` on its own, with a long
 message about `npm.ps1` not being digitally signed. That is PowerShell's script
@@ -99,7 +103,10 @@ signed-remote scripts for your account only, and does not need an administrator:
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-Either way, this is optional. It only enables the browser test.
+Either way, this is optional, but it is the check that catches a broken
+renderer: the fourteen browser tests load the real page, drive the agent, and
+confirm the city moved. Nothing else in the suite can see that. Worth the two
+minutes if you are going to change anything.
 
 ---
 
