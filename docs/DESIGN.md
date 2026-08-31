@@ -583,6 +583,29 @@ consulted only when nothing was recognised by name, they require *every* word
 of the question to appear as a whole word, and they score below any name match
 that got close. One word in common is a coincidence; all of them is a reason.
 
+## 8j. Say why, not just that
+
+`batteries` came back as `focus` with no target: the right intent, pointing at
+nothing, and the camera going nowhere. The eval reported the symptom and none
+of the cause, so the first guess was that the model had failed, when in fact
+the model answered and the validation cut its answer down.
+
+**A failing case now prints the plan's notes.** They were always recorded and
+never shown. "dropped invented category 'Lead Acid Cells'" is a different
+problem from "no JSON in reply" and both used to look like `focus` with an
+empty target.
+
+**And a code inside a longer answer is now read as a code.** Models format a
+target in ways a prompt cannot fully pin down: `D504 (Batteries)`, `category
+D504`, `the D504 lot`. The code has to exist in the vocabulary to count, so
+this cannot admit an invented one, but refusing a real one over punctuation is
+throwing away a correct answer for the second time in two days.
+
+The pattern is worth naming, because it has now happened three times: every
+one of these failures was the validation being stricter than the thing it was
+validating. Being strict about what a model may *invent* is right. Being
+strict about how it *phrases* something real is just a bug with good manners.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

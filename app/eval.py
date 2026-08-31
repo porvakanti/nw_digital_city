@@ -159,6 +159,12 @@ def main() -> int:
             wanted = want_intent.replace("|", " or ")
             detail += f"   (wanted {wanted}" + (f" -> {want_target}" if want_target else "") + ")"
         print(f"{mark}{question:44s} {detail}")
+        # A plan that arrived and was then cut down says so in its notes.
+        # Without this, "focus" with no target looks like the model failing
+        # when it is the validation refusing what the model actually said.
+        if not ok:
+            for note in got.notes:
+                print(f"        {note}")
 
     print(f"\n{passed}/{len(cases)} as expected")
     return 0 if passed == len(cases) else 1
