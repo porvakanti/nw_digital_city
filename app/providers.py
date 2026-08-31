@@ -60,20 +60,22 @@ UNREACHABLE = """no answer from {host} within {seconds:.0f}s.
   Neither stops the demo. Without a model the city answers with its own rules,
   and every question in the script still works."""
 
-THROTTLED = """the free tier's limits have been reached.
+THROTTLED = """out of requests for {model} today.
 
-  A free Gemini key allows roughly 5 requests a minute and 20 a day. The full
-  question set is 32 questions, so on a free key it cannot finish in one day
-  no matter how patiently it is paced.
+  Rate limits are per model, and a free Gemini key allows roughly 5 requests a
+  minute and 20 a day for each one. The quickest thing you can do is use a
+  different model, because it has its own untouched allowance:
 
-  What to do, in order of effort:
+    NW_MODEL=gemini-3.5-flash-lite      in .env, then run it again
 
-    run.cmd eval          the six-question sample, which fits the free tier
-    wait until tomorrow    the daily count resets at midnight Pacific
-    set up billing         https://aistudio.google.com/apikey, still free to
-                           start but with limits that are not in the way
-    use Vertex AI          which is where this deploys anyway, and is not
-                           subject to the AI Studio free tier at all
+  The lite models are faster and cheaper and route these questions perfectly
+  well; this is deciding which lot to fly to, not writing an essay.
+
+  Otherwise: the daily count resets at midnight Pacific, which is mid-morning
+  in Europe. Or turn on billing at https://aistudio.google.com/apikey, which
+  is free to start and lifts the limits out of the way. Or use Vertex AI,
+  which is where this deploys and is not subject to the AI Studio free tier at
+  all.
 
   None of this affects the demo. One question is one request, and nobody is
   going to ask twenty of them on a stage."""
@@ -243,7 +245,7 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
                 time.sleep(_retry_after(reply) or _backoff(attempt))
                 continue
             if reply.status_code == 429:
-                raise ProviderError(THROTTLED)
+                raise ProviderError(THROTTLED.format(model=name))
             return reply
         raise ProviderError("gave up after retrying")  # pragma: no cover
 

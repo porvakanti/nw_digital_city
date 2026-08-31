@@ -153,9 +153,11 @@ Press `R`.
   Without it, open `renderer/index.html` directly; only the model is missing.
 - **Some questions work, then everything fails with 429, 503 or a timeout.**
   You are over the free tier's rate limit: about 5 requests a minute and 20 a
-  day. `run.cmd eval` uses six questions so it fits; `run.cmd eval all` needs
-  billing, or Vertex AI, or tomorrow. The demo itself is one request per
-  question and is nowhere near the limit.
+  day, **and those limits are per model**. The quickest fix is a different
+  model, which has its own untouched allowance: put
+  `NW_MODEL=gemini-3.5-flash-lite` in `.env`. Otherwise the daily count resets
+  at midnight Pacific. The demo itself is one request per question and is
+  nowhere near the limit.
 - **Every eval question fails.** Run `run.cmd models`. It makes one small
   request and tells you which of three things it is: a network that cannot
   reach Google, a key that is refused, or a model name that no longer exists.

@@ -491,6 +491,18 @@ are paced to the limit rather than fired as fast as the network allows, 429 and
 is genuinely out for the day is told so in those words rather than through a
 transport error.
 
+Even the six-question sample then hit the wall, because the daily count had
+already been spent finding all this out. Which surfaced the useful fact: **the
+limits are per model.** A key with nothing left for `gemini-3.5-flash` has an
+untouched allowance for `gemini-3.5-flash-lite`, and a lite model routes these
+questions perfectly well, since this is deciding which lot to fly to rather
+than writing an essay. That is now the first thing the message suggests, ahead
+of waiting until tomorrow.
+
+The message itself also stopped being printed once per failed question. Twenty
+lines of advice, three times over, is how you hide the one line that says which
+question failed. One line per case now, and the explanation once at the end.
+
 The demo was never at risk. One question is one request, and nobody asks twenty
 questions on a stage. It was only ever the test that was too big for the tier.
 

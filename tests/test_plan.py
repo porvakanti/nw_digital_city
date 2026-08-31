@@ -73,3 +73,42 @@ class TestPlanParsing(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProviderDispatchTests(unittest.TestCase):
+    """Every provider name the code offers must actually resolve to something.
+
+    Added after an edit deleted the mock provider's implementation while
+    leaving the line that calls it, and every check still reported a summary
+    that looked like a pass.
+    """
+
+    def test_every_advertised_provider_is_implemented(self):
+        from app import providers
+
+        for name in ("mock", "gemini", "vertex", "claude"):
+            with self.subTest(provider=name):
+                self.assertIn(name, providers.DEFAULT_MODELS | {"mock": ""},
+                              "provider is not in DEFAULT_MODELS")
+
+    def test_the_mock_provider_answers_without_a_key_or_a_network(self):
+        import os
+
+        from app import providers
+
+        saved = os.environ.get("NW_PROVIDER")
+        os.environ["NW_PROVIDER"] = "mock"
+        try:
+            raw, source = providers.complete(
+                "system", "batteries",
+                {"categories": ["D504 Batteries"], "districts": ["Energy"],
+                 "plots": [], "markets": []},
+            )
+        finally:
+            if saved is None:
+                os.environ.pop("NW_PROVIDER", None)
+            else:
+                os.environ["NW_PROVIDER"] = saved
+
+        self.assertEqual(source, "mock")
+        self.assertIn("D504", raw)

@@ -220,5 +220,5 @@ that it starts in a couple of seconds and opens your browser at
 | Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |
 | `npm.ps1 cannot be loaded ... not digitally signed` | PowerShell's script policy. Use `npm.cmd` instead of `npm`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
 | Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
-| 429, 503, or timeouts after a few good answers | The free tier's rate limit: about 5 requests a minute and 20 a day. `run.cmd eval` fits inside that; `eval all` does not. Usage at <https://aistudio.google.com/apikey>. |
+| 429, 503, or timeouts after a few good answers | The free tier's rate limit: about 5 requests a minute and 20 a day, **per model**. Set `NW_MODEL=gemini-3.5-flash-lite` in `.env` for a fresh allowance, or wait for the reset at midnight Pacific. Usage at <https://aistudio.google.com/apikey>. |
 | Every question times out | The network cannot reach Google. `run.cmd models` says which of the three it is. A corporate proxy needs `setx HTTPS_PROXY http://your-proxy:port`, and a proxy that re-signs certificates also needs `setx SSL_CERT_FILE` pointing at the company root certificate. |

@@ -108,6 +108,7 @@ def main() -> int:
 
     passed = 0
     errors = 0
+    advice = ""
     last = 0.0
     for question, want_intent, want_target in cases:
         wait = gap - (time.monotonic() - last)
@@ -118,7 +119,12 @@ def main() -> int:
             raw, source = providers.complete(system, question, names)
             got = planning.parse(raw, names, source)
         except Exception as exc:  # noqa: BLE001 - report, do not stop the run
-            print(f"  ERROR  {question!r}: {type(exc).__name__}: {exc}")
+            # One line per case. The full explanation is printed once at the
+            # end: the same twenty-line message three times over is how you
+            # hide the one line that says which question failed.
+            first = str(exc).strip().splitlines()[0] if str(exc).strip() else ""
+            print(f"  ERROR  {question:44s} {type(exc).__name__}: {first}")
+            advice = str(exc)
             errors += 1
             # Three of these in a row is the endpoint, not the questions.
             # Printing the same failure thirty-two times buries the one line
@@ -126,10 +132,13 @@ def main() -> int:
             if errors == 3:
                 print("\n  Three in a row, so this is the provider rather than")
                 print("  the questions. Stopping here.\n")
-                print("  Run `run.cmd models`. It makes one small request and")
-                print("  says which of these it is: over the rate limit, unable")
-                print("  to reach Google, a key that is refused, or a model")
-                print("  name that no longer exists.")
+                if "\n" in advice:
+                    print(advice)
+                else:
+                    print("  Run `run.cmd models`. It makes one small request and")
+                    print("  says which of these it is: over the rate limit,")
+                    print("  unable to reach Google, a key that is refused, or a")
+                    print("  model name that no longer exists.")
                 return 1
             continue
 
