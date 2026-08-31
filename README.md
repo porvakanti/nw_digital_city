@@ -89,6 +89,9 @@ safety net: if the venue wifi dies, the city still opens from a local file.
 | Windows | double-click **`run.cmd`**, or `run.cmd` in a terminal |
 | macOS, Linux | `./run.sh` |
 
+Setting a Windows laptop up from scratch, including VS Code, is written out
+step by step in [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md).
+
 From the repository root. That is the whole thing. (`run.sh` is a shell script:
 double-clicking it on Windows opens it in a text editor or a browser, which is
 Windows telling you it has no idea what the file is, not an error in it.) The

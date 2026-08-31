@@ -1,5 +1,68 @@
 # Deploying it, and putting it in the Agent Marketplace
 
+## First, the plain version
+
+You have three ways to get this in front of somebody, in order of effort.
+
+**1. Email them a zip.** `run.cmd package` writes `nw-digital-city.zip`. They
+unzip it and double-click `index.html`. No infrastructure, no accounts, no
+waiting. Everything works except the Gemini model, and the agent falls back to
+its own rules, which handle every question in the demo. **For Kate and Tomas
+this week, do this.**
+
+**2. Put the folder on a static host, get a link.** The `renderer` folder is
+just files: drag it onto <https://app.netlify.com/drop> and you have a public
+URL in about ten seconds, or put it in a Google Cloud Storage bucket with
+website hosting turned on. Same caveat: no model, everything else works. Good
+for "send it round the team".
+
+**3. Cloud Run, for the real thing.** A URL with the model behind it, which is
+also what gets deployed internally. This is the rest of this document.
+
+### How Cloud Run compares to Streamlit Community Cloud
+
+You already know the Streamlit flow: point it at a GitHub repo, it works out
+how to run it, you get a URL. Cloud Run is the same idea with one extra step in
+the middle:
+
+| | Streamlit Community Cloud | Cloud Run |
+| --- | --- | --- |
+| You give it | a GitHub repo | a container image |
+| It works out how to run it from | `requirements.txt` | the `Dockerfile` |
+| You get back | a URL | a URL |
+| It sleeps when idle | yes | yes, and costs nothing while asleep |
+| Secrets | Advanced settings | `--set-env-vars`, or Secret Manager |
+
+**A container image** is the extra concept, and it is simpler than it sounds:
+a zip of your code together with the exact operating system and libraries it
+needs, so it runs identically everywhere. The `Dockerfile` at the root of this
+repo is the recipe for building it, and it is fifteen lines: start from Python
+3.12, install four packages, copy in `app` and `renderer`, run uvicorn.
+
+**Why this project needs Cloud Run rather than Streamlit.** Streamlit renders
+Python widgets. This is a 3D scene with its own camera and animation loop,
+served alongside a small web service. Streamlit would end up hosting it in an
+iframe, which adds a layer and gains nothing. Cloud Run just serves it.
+
+**You do not run the Docker command yourself.** `deploy/cloudrun.sh` hands the
+folder to Cloud Build, which builds the image in Google's cloud and deploys it.
+Nothing needs installing on your laptop except the `gcloud` command.
+
+### What you would actually type, once
+
+```powershell
+winget install Google.CloudSDK
+gcloud auth login
+gcloud config set project YOUR-PROJECT-ID
+bash deploy/cloudrun.sh
+```
+
+Five to ten minutes the first time, mostly waiting for the build. It prints the
+URL at the end. Every deploy after that is the last line again.
+
+`bash` is there because the script is a shell script; Git for Windows installs
+`bash`, so if you have Git you have it. Running it from Git Bash works too.
+
 ## What actually gets deployed
 
 One container. It holds the page and the small service that answers questions,
@@ -44,7 +107,7 @@ For the all-hands, set `--min-instances 1` the morning of, so the first question
 on stage does not pay for a cold start. That is one flag and a few euros for a
 day.
 
-### What I need from whoever owns the environment
+### What Tomas, or whoever owns the environment, needs to tell us
 
 1. A GCP project, and the ability to deploy a container to Cloud Run in it.
 2. Vertex AI enabled, and which Gemini models are available in the region.
@@ -56,8 +119,19 @@ day.
 
 ## Putting it in the Agent Marketplace
 
-Foundry lists agents from `data/agents.json` and renders each one's detail page
-from that entry. Two things are needed.
+Foundry, the VP&C Agent Marketplace, is a Streamlit app. Every agent on it is a
+row in `data/agents.json`: name, tagline, what it does, who owns it, some sample
+prompts, and a link. The detail page is rendered from that row. Adding an agent
+to the marketplace is, in the normal case, **adding an entry to a JSON file**.
+
+There is one wrinkle. Foundry expects an agent to be a chat: a *playground*
+adapter takes a message and returns reply text, and the page draws a chat panel.
+Where a platform cannot be embedded, like Emplay and Looker, it shows a sample
+transcript and a button that opens the agent in its own tab instead.
+
+This agent is not a chat. The answer is a city moving, not a paragraph. So it
+takes the second shape: sample transcript in the marketplace, button that opens
+the real thing. That needs no code in Foundry at all.
 
 ### 1. An entry in `data/agents.json`
 
@@ -92,33 +166,34 @@ from that entry. Two things are needed.
 
 `deep_link` is what the Cloud Run deploy prints.
 
-### 2. A playground adapter, or none at all
+### 2. How it gets tried, and the two options
 
-The existing adapters are all conversational: `send()` takes a message and
-returns reply text, and the marketplace renders a chat panel. This agent is not
-a chat panel. Its whole point is that the answer is a city moving, not a
-paragraph.
+**Deep link, which is what I would do.** Add a `CityPlayground` adapter with
+`embeddable = False` and the marketplace behaves exactly as it does for Emplay
+and Looker today: the detail page shows the sample transcript, and the button
+opens the city in a new tab. **Nothing changes in Foundry's code.** It costs a
+reviewer one click.
 
-There are two honest ways to list it, and the second is better:
-
-**Deep link only.** Set `embeddable = False` on a `CityPlayground` adapter, and
-Foundry shows the sample transcript and an "Open agent" button, exactly as it
-does for Emplay and Looker today. Nothing new is needed. It costs the reviewer
-one click and a new tab.
-
-**Embedded.** A third kind of playground alongside chat: an *embedded surface*.
-The adapter declares a URL and the detail page renders it with
-`st.components.v1.iframe(url, height=720)` instead of a chat box. That needs a
-small change in `foundry/pages/agent.py` to branch on the adapter kind, and
-this service already supports being framed: set `NW_FRAME_ANCESTORS` to the
+**Embedded, later.** A third kind of playground alongside chat: an *embedded
+surface*, where the adapter gives a URL and the detail page renders
+`st.components.v1.iframe(url, height=720)` instead of a chat box. That is a
+small change in `foundry/pages/agent.py` to branch on the adapter's kind, and
+this service is already ready for its half: set `NW_FRAME_ANCESTORS` to the
 marketplace's origin and it sends `Content-Security-Policy: frame-ancestors
-<that origin>`. Unset, it refuses to be framed by anyone, which is the right
-default.
+<that origin>`, so the marketplace can frame it and nobody else can. Unset, it
+refuses everyone, which is the right default.
 
-I would do the deep link first, because it works today with a data change and
-no code, and add the embedded surface once the marketplace has a second agent
-that wants one. A "surface kind" on the playground contract is worth adding
-when two things need it, not one.
+Do the deep link first. It works today with a data change and no code. Add the
+embedded surface when a *second* agent wants one, because a new concept on the
+playground contract earns its place at two users, not one.
+
+### In short
+
+| To do this | You change |
+| --- | --- |
+| List it in the marketplace | one entry in `data/agents.json` |
+| Make the button work | `deep_link`, from the Cloud Run URL |
+| Show it inside the page instead | ~10 lines in `foundry/pages/agent.py`, and set `NW_FRAME_ANCESTORS` here |
 
 ### Where it sits in the marketplace's own story
 
