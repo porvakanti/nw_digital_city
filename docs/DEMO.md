@@ -10,6 +10,12 @@ you can either click **Next** eight times or drive it yourself.
 animations, the builder and the agent all work with no server and no network.
 This is the safety net: if the venue wifi dies on the day, this still runs.
 
+**To send to somebody else**, `run.cmd package` writes `NW Digital City.html`,
+which is the same thing folded into one file they can double-click. index.html
+on its own is a shell that loads four other files, so it opens as a blank page
+and is not the thing to attach. `docs/REVIEW-GUIDE.md` is the page to send
+with it.
+
 **With the model.** From the repository root:
 
 | Your machine | Run this |

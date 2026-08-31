@@ -4,11 +4,17 @@
 
 You have three ways to get this in front of somebody, in order of effort.
 
-**1. Email them a zip.** `run.cmd package` writes `nw-digital-city.zip`. They
-unzip it and double-click `index.html`. No infrastructure, no accounts, no
-waiting. Everything works except the Gemini model, and the agent falls back to
-its own rules, which handle every question in the demo. **For Kate and Tomas
-this week, do this.**
+**1. Email them one file.** `run.cmd package` writes **`NW Digital City.html`**,
+the whole city folded into a single file they double-click. No unzipping, no
+folder to hunt through, no infrastructure, no accounts. Everything works
+except the Gemini model, and the agent falls back to its own rules, which
+handle every question in the demo. Send `docs/REVIEW-GUIDE.md` with it.
+**For Kate and Tomas this week, do this.**
+
+The same command also writes `nw-digital-city.zip`, which is the city as
+separate files for anyone who wants to see how it works. Do not attach
+`renderer/index.html` on its own: it is a shell that loads four other files
+and opens as a blank page.
 
 **2. Put the folder on a static host, get a link.** The `renderer` folder is
 just files: drag it onto <https://app.netlify.com/drop> and you have a public
