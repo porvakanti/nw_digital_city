@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 
 from . import env, providers
 
@@ -43,11 +44,27 @@ def main() -> int:
         print("NW_API_KEY is not set in .env, so there is nothing to ask.")
         return 1
 
+    print("Asking Google what this key can call...")
+    started = time.monotonic()
     try:
         available = providers.gemini_models(key)
-    except Exception as exc:  # noqa: BLE001 - the message matters more than the class
-        print(f"Could not list models: {type(exc).__name__}: {exc}")
+    except providers.ProviderError as exc:
+        print(f"\n{exc}")
         return 1
+    except Exception as exc:  # noqa: BLE001 - the message matters more than the class
+        took = time.monotonic() - started
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        print(f"\nFailed after {took:.1f}s: {type(exc).__name__}: {exc}\n")
+        if status in (400, 401, 403):
+            print("  That is the key being refused, not the network. Check that")
+            print("  NW_API_KEY in .env is a Google AI Studio key, pasted whole,")
+            print("  with no quotes and no trailing spaces.")
+        else:
+            print("  The network reached Google and Google said no. The status")
+            print("  above is the thing to search for.")
+        return 1
+    took = time.monotonic() - started
+    print(f"Answered in {took:.1f}s.\n")
 
     if not available:
         print("This key can see no models that support generateContent.")

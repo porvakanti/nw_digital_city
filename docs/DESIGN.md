@@ -459,6 +459,28 @@ This matters more than it looks. The all-hands is months away, and by then the
 model in any config file may not exist. A demo that repairs itself is worth
 more than a config file that was right once.
 
+**And then the same run started timing out instead.** A different failure
+wearing the same clothes: every question failing, no clue which layer. Three
+things came out of that.
+
+The command-line timeout went from 8 seconds to 30. Eight was optimistic for a
+first call that goes through a corporate proxy, negotiates TLS and carries a
+prompt naming 145 categories. The browser keeps its own six-second deadline,
+because on a stage a slow answer is worse than no answer and the local rules
+are instant. Those two numbers are deliberately different and the code says why.
+
+A transport failure now says it is the network, not the model, and names the
+three things it usually is on a corporate laptop: a proxy, TLS interception, or
+the host being blocked. `run.cmd models` makes one small request and separates
+*cannot reach Google* from *key refused* from *model gone*, which is three
+afternoons of guessing collapsed into ten seconds.
+
+**And the badge stopped keeping up appearances.** It read `/health` once at
+load and then said "gemini-3.5-flash" forever, including through a run where
+every single call timed out and the city was answering on its own rules. It now
+changes to "model did not answer" the moment one does. A badge that claims a
+model which is silent is worse than no badge.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

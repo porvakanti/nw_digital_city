@@ -412,14 +412,18 @@
 
   /* Ask the service what it is running so the badge states a fact rather than
    * an assumption. A page opened from a file skips this and says so. */
+  function badgeSays(text, live) {
+    const badge = document.getElementById("modelBadge");
+    if (!badge) return;
+    badge.textContent = text;
+    badge.dataset.live = live ? "yes" : "no";
+    badge.hidden = false;
+  }
+
   async function probe() {
     const badge = document.getElementById("modelBadge");
     if (!badge) return;
-    const show = (text, live) => {
-      badge.textContent = text;
-      badge.dataset.live = live ? "yes" : "no";
-      badge.hidden = false;
-    };
+    const show = badgeSays;
     if (!ENDPOINT) return show("local rules, no model", false);
     try {
       const reply = await fetch(`${ENDPOINT.replace(/\/$/, "")}/health`, {
@@ -443,10 +447,18 @@
     };
   }
 
+  /* Six seconds, and not a second more.
+   *
+   * The service will wait half a minute for a model, because on a command line
+   * waiting is free. On a stage it is not: six seconds of a still city with 400
+   * people watching is already too long, and the local rules answer instantly.
+   * So the browser gives up early and lets them. */
+  const PATIENCE = 6000;
+
   async function remotePlan(question) {
     if (!ENDPOINT) return null;
     const controller = new AbortController();
-    const giveUp = setTimeout(() => controller.abort(), 6000);
+    const giveUp = setTimeout(() => controller.abort(), PATIENCE);
     try {
       const reply = await fetch(`${ENDPOINT.replace(/\/$/, "")}/plan`, {
         method: "POST",
@@ -455,8 +467,15 @@
         signal: controller.signal,
       });
       if (!reply.ok) return null;
-      return await reply.json();
+      const plan = await reply.json();
+      badgeSays(plan && plan.source && plan.source !== "error"
+        ? `${plan.source}` : "model did not answer", plan && plan.source !== "error");
+      return plan;
     } catch (err) {
+      // The badge said a model was wired up. If it is not answering, the badge
+      // has to stop saying so: claiming a model that is silent is worse than
+      // admitting the city is on its own rules.
+      badgeSays("model did not answer", false);
       return null;
     } finally {
       clearTimeout(giveUp);
