@@ -11,9 +11,24 @@ const { chromium } = require("playwright");
 const path = require("path");
 const fs = require("fs");
 
+/* Two configurations, one page.
+ *
+ * Opened from a file the agent has no service to ask and uses the browser's
+ * own rules. Served, it asks the service first and takes a different branch
+ * through the same code. The served one is what gets deployed, and until this
+ * could be pointed at a URL that branch had never been driven in a browser at
+ * all: everything in the suite was testing the fallback.
+ *
+ *   node tests/smoke.js                              the file
+ *   NW_SMOKE_URL=http://127.0.0.1:8099 node ...      the service
+ */
+const SERVED = (process.env.NW_SMOKE_URL || "").replace(/\/+$/, "");
+
 // ?clean skips the first-run welcome card, which would otherwise sit over the
 // city for every check in here.
-const PAGE = "file://" + path.join(__dirname, "..", "renderer", "index.html") + "?clean";
+const PAGE = (SERVED
+  ? SERVED + "/index.html"
+  : "file://" + path.join(__dirname, "..", "renderer", "index.html")) + "?clean";
 
 // What the room is likely to shout, and what it has to resolve to.
 const RESOLUTIONS = [
@@ -60,6 +75,8 @@ const check = (name, ok, detail) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
+  console.log(SERVED ? `· driving the served page at ${SERVED}`
+                     : "· driving the page from a file");
   await page.goto(PAGE);
   await page.waitForSelector('body[data-ready="1"]', { timeout: 30000 });
 
@@ -130,6 +147,36 @@ const check = (name, ok, detail) => {
   check("a weak name still beats a definition",
     byName.kind === "plot" && byName.label === "Radio Equipment",
     `${byName.kind} ${byName.label}`);
+
+  /* Served only: the deployed shape.
+   *
+   * The agent is supposed to ask the service, believe a plan it gets back and
+   * drive the city from it. From a file there is nothing to ask, so none of
+   * that runs. These three are the only checks in the suite that see it.
+   */
+  if (SERVED) {
+    const health = await page.evaluate(
+      async (base) => (await fetch(base + "/health")).json(), SERVED);
+    check("service says what is wired up", health.ok === true,
+      `${health.provider}${health.ready ? "" : " — " + health.detail}`);
+
+    await page.evaluate(() => window.NWCity.reset());
+    await page.fill("#askInput", "batteries");
+    await page.click("#askGo");
+    await page.waitForTimeout(4000);
+    const planned = await page.evaluate(() => ({
+      trace: document.getElementById("calls").innerText,
+      // The title deed is the city saying which lot it is standing on.
+      deed: document.getElementById("inspector").innerText,
+    }));
+    // The trace names the source, so a plan that silently fell back to the
+    // local rules cannot pass this as though the service had answered.
+    check("a plan comes back from the service",
+      /plan/.test(planned.trace) && !/using local rules/.test(planned.trace),
+      planned.trace.split("\n").find((l) => /plan/.test(l)) || "no plan in the trace");
+    check("the city acts on the plan", /D504/.test(planned.deed),
+      planned.deed.split("\n")[1] || "no title deed open");
+  }
 
   check("no page errors", errors.length === 0, errors[0] || "");
   await browser.close();

@@ -1,0 +1,33 @@
+# What does NOT get uploaded to Cloud Build.
+#
+# Written out rather than left implicit. With no file here gcloud generates one
+# from .gitignore, which would in fact exclude the right things today, but the
+# workbook in data/raw carries blueprint owner names and email addresses and
+# that is not a thing to protect by side effect of another file.
+#
+# The same reasoning as `run.py package`, which builds its zip from a list
+# rather than by walking a folder. The Dockerfile is the third layer: it copies
+# app and renderer by name, so even an upload carrying more than it should
+# could not put it in the image.
+
+.git
+.gitignore
+.gcloudignore
+
+# The extract's source, and the key.
+data/raw/
+.env
+
+# Nothing here belongs in a build.
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+tests/
+docs/
+deploy/
+*.zip
+*.png
+run.cmd
+run.sh
+requirements-dev.txt

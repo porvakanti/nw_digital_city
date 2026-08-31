@@ -92,6 +92,14 @@ project), builds the image with Cloud Build, deploys, and prints the URL.
 Overridable the same way: `REGION`, `SERVICE`, `PROVIDER`, `MODEL`,
 `FRAME_ANCESTORS`.
 
+**What gets uploaded to Cloud Build is decided by `.gcloudignore`**, which is
+committed rather than left for gcloud to infer from `.gitignore`. The workbook
+in `data/raw` has blueprint owner names and email addresses in it, and that is
+not something to keep out of a build by side effect of another file. The
+script refuses to run if the file is missing. The Dockerfile is the layer
+under that: it copies `app` and `renderer` by name, so even an upload carrying
+more than it should could not put it in the image.
+
 It deploys with `NW_PROVIDER=vertex`, which uses the service account's
 application default credentials. **No API key exists anywhere in the deployed
 system.** The Google AI Studio key is for building on a laptop.
@@ -212,7 +220,7 @@ Same image, same command shape, different address. What changes:
 | `NW_PROVIDER` | `vertex` | `vertex` |
 | `NW_PROJECT` | the pilot project | the internal project |
 | `NW_REGION` | `europe-west1` | whatever is approved |
-| `NW_MODEL` | `gemini-2.0-flash` | whichever Gemini is available there |
+| `NW_MODEL` | `gemini-3.5-flash` | whichever Gemini is available there |
 | Access | `--allow-unauthenticated` | behind whatever fronts internal apps |
 | `NW_FRAME_ANCESTORS` | marketplace origin | marketplace origin |
 
