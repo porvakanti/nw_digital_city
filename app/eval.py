@@ -1,11 +1,16 @@
 """The pre-stage check for the agent.
 
 Runs the questions people are likely to ask against whichever provider is
-configured, and reports what each one decided. Use it against the mock while
-building, and against the real endpoint before the all-hands.
+configured, and reports what each one decided.
 
-    ./run.sh eval          whatever .env is set to
-    NW_PROVIDER=mock ./run.sh eval
+    run.cmd eval          six questions, one per intent
+    run.cmd eval all      all 32
+
+Six by default because of arithmetic, not caution. A free Gemini key allows
+about 5 requests a minute and 20 a day; 32 questions cannot finish inside that
+however patiently they are paced. The sample covers every intent the agent can
+choose, which is what the check is actually for. Against the mock, or Vertex,
+or a key with billing on it, run `all`.
 """
 
 from __future__ import annotations
@@ -14,6 +19,7 @@ import json
 import os
 import pathlib
 import sys
+import time
 
 from . import env
 from . import plan as planning
@@ -60,6 +66,19 @@ CASES: list[tuple[str, str, str]] = [
 ]
 
 
+# One per intent, plus the two ways a category is named. Enough to catch a
+# model that has started routing questions somewhere silly, which is the only
+# thing this check exists to catch.
+SAMPLE = (
+    "batteries",
+    "how is Energy doing",
+    "where are the biggest gaps",
+    "what could we build",
+    "show me AI readiness",
+    "banana bread",
+)
+
+
 def vocabulary_from_city() -> dict[str, list[str]]:
     city = json.loads(CITY.read_text(encoding="utf-8"))
     return {
@@ -73,12 +92,28 @@ def vocabulary_from_city() -> dict[str, list[str]]:
 def main() -> int:
     names = vocabulary_from_city()
     system = planning.SYSTEM_PROMPT + "\n\n" + planning.vocabulary(names)
-    provider = os.environ.get("NW_PROVIDER", "mock")
-    print(f"provider: {provider}   cases: {len(CASES)}\n")
+    provider = os.environ.get("NW_PROVIDER", "mock").strip().lower()
+
+    everything = "all" in sys.argv[1:]
+    cases = CASES if everything else [c for c in CASES if c[0] in SAMPLE]
+
+    # Requests a minute. A free Gemini key allows five, and going over is how
+    # a run turns into a wall of 429s. The mock has no such problem.
+    rpm = float(os.environ.get("NW_RPM", "0" if provider == "mock" else "5"))
+    gap = 60.0 / rpm if rpm > 0 else 0.0
+
+    print(f"provider: {provider}   cases: {len(cases)}"
+          + (f"   paced at {rpm:.0f}/min" if gap else "")
+          + ("" if everything else "   (sample; `eval all` for all 32)") + "\n")
 
     passed = 0
     errors = 0
-    for question, want_intent, want_target in CASES:
+    last = 0.0
+    for question, want_intent, want_target in cases:
+        wait = gap - (time.monotonic() - last)
+        if last and wait > 0:
+            time.sleep(wait)
+        last = time.monotonic()
         try:
             raw, source = providers.complete(system, question, names)
             got = planning.parse(raw, names, source)
@@ -92,10 +127,9 @@ def main() -> int:
                 print("\n  Three in a row, so this is the provider rather than")
                 print("  the questions. Stopping here.\n")
                 print("  Run `run.cmd models`. It makes one small request and")
-                print("  tells you which of the three things this is:")
-                print("    a network that cannot reach Google,")
-                print("    a key that is not accepted,")
-                print("    or a model name that no longer exists.")
+                print("  says which of these it is: over the rate limit, unable")
+                print("  to reach Google, a key that is refused, or a model")
+                print("  name that no longer exists.")
                 return 1
             continue
 
@@ -111,8 +145,8 @@ def main() -> int:
             detail += f"   (wanted {want_intent}" + (f" -> {want_target}" if want_target else "") + ")"
         print(f"{mark}{question:44s} {detail}")
 
-    print(f"\n{passed}/{len(CASES)} as expected")
-    return 0 if passed == len(CASES) else 1
+    print(f"\n{passed}/{len(cases)} as expected")
+    return 0 if passed == len(cases) else 1
 
 
 if __name__ == "__main__":

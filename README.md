@@ -114,7 +114,8 @@ answers with its own rules.
 
 ```bash
 ./run.sh test       # python tests, the agent's question set, the browser smoke test
-./run.sh eval       # just the question set, against whatever .env says
+./run.sh eval       # six questions, one per intent, against whatever .env says
+./run.sh eval all   # all 32, if the key's limits allow it
 ./run.sh build      # rebuild city.json from the workbook in data/raw/
 ./run.sh package    # a zip of just the city, safe to send to anyone
 ./run.sh models     # which models the configured key can actually call

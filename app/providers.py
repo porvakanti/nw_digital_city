@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import re
+import time
 
 import httpx
 
@@ -39,24 +41,42 @@ class ProviderError(RuntimeError):
     pass
 
 
-UNREACHABLE = """could not reach {host} within {seconds:.0f}s.
+UNREACHABLE = """no answer from {host} within {seconds:.0f}s.
 
-  This is the network rather than the key or the model. On a corporate laptop
-  the usual causes are, in order:
+  Two quite different things look like this.
 
-    1. A proxy. If your browser needs one, so does this:
-         setx HTTPS_PROXY http://your-proxy:port
-       and open a new terminal.
-    2. TLS interception. If the proxy re-signs certificates, point Python at
-       the company root certificate:
-         setx SSL_CERT_FILE C:\\path\\to\\corporate-root.pem
-    3. The host being blocked outright, which is a question for IT.
+  1. You are over a rate limit. A free Gemini key allows only a handful of
+     requests a minute and a small number a day, and once you are past them
+     the service stops answering rather than saying no politely. Check
+     https://aistudio.google.com/apikey for your current usage. This is by far
+     the most likely cause if some questions worked and then they stopped.
 
-  To rule out the deadline itself, try it with a longer one:
-    setx NW_TIMEOUT 60
+  2. The network cannot reach Google. On a managed laptop that is usually a
+     proxy, `setx HTTPS_PROXY http://your-proxy:port`, or a proxy that
+     re-signs certificates, `setx SSL_CERT_FILE C:\\path\\to\\root.pem`.
 
-  None of this stops the demo. Without a model the city answers with its own
-  rules, and every question in the script still works."""
+  To rule out the deadline itself: setx NW_TIMEOUT 60
+
+  Neither stops the demo. Without a model the city answers with its own rules,
+  and every question in the script still works."""
+
+THROTTLED = """the free tier's limits have been reached.
+
+  A free Gemini key allows roughly 5 requests a minute and 20 a day. The full
+  question set is 32 questions, so on a free key it cannot finish in one day
+  no matter how patiently it is paced.
+
+  What to do, in order of effort:
+
+    run.cmd eval          the six-question sample, which fits the free tier
+    wait until tomorrow    the daily count resets at midnight Pacific
+    set up billing         https://aistudio.google.com/apikey, still free to
+                           start but with limits that are not in the way
+    use Vertex AI          which is where this deploys anyway, and is not
+                           subject to the AI Studio free tier at all
+
+  None of this affects the demo. One question is one request, and nobody is
+  going to ask twenty of them on a stage."""
 
 
 # ---------------------------------------------------------------- mock
@@ -150,6 +170,26 @@ def gemini_models(key: str) -> list[str]:
     return out
 
 
+def _backoff(attempt: int) -> float:
+    """Wait longer each time, with a little jitter so retries do not sync up."""
+    return min(8.0, 1.5 * (2 ** attempt)) + random.random() * 0.4
+
+
+def _retry_after(reply: httpx.Response) -> float:
+    """However long the service asked us to wait, if it said."""
+    header = reply.headers.get("retry-after", "").strip()
+    if header.isdigit():
+        return min(30.0, float(header))
+    try:
+        for detail in reply.json().get("error", {}).get("details", []):
+            delay = str(detail.get("retryDelay", ""))
+            if delay.endswith("s") and delay[:-1].replace(".", "", 1).isdigit():
+                return min(30.0, float(delay[:-1]))
+    except (ValueError, AttributeError):
+        pass
+    return 0.0
+
+
 def _pick_gemini(key: str) -> str:
     """Choose a model that exists, preferring a fast one.
 
@@ -176,16 +216,38 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
     model = _resolved.get(model, model)
-    try:
-        reply = httpx.post(f"{GEMINI_ROOT}/models/{model}:generateContent", json=body,
-                           headers={"x-goog-api-key": key}, timeout=_timeout())
-    except httpx.TransportError as exc:
-        # A timeout or a refused connection is the network, not the model, and
-        # saying so saves an hour of looking at model names.
-        raise ProviderError(
-            UNREACHABLE.format(host="generativelanguage.googleapis.com",
-                               seconds=TIMEOUT)
-        ) from exc
+
+    def call(name: str) -> httpx.Response:
+        """One request, retried through the failures that are worth retrying.
+
+        429 is the free tier's rate limit and 503 is the service being busy.
+        Both pass on their own, so a short wait beats an error message; a key
+        that is out of requests for the day does not pass, and gets told so.
+        """
+        attempts = int(os.environ.get("NW_RETRIES", "3"))
+        for attempt in range(attempts):
+            try:
+                reply = httpx.post(
+                    f"{GEMINI_ROOT}/models/{name}:generateContent", json=body,
+                    headers={"x-goog-api-key": key}, timeout=_timeout(),
+                )
+            except httpx.TransportError as exc:
+                if attempt == attempts - 1:
+                    raise ProviderError(UNREACHABLE.format(
+                        host="generativelanguage.googleapis.com", seconds=TIMEOUT
+                    )) from exc
+                time.sleep(_backoff(attempt))
+                continue
+
+            if reply.status_code in (429, 503) and attempt < attempts - 1:
+                time.sleep(_retry_after(reply) or _backoff(attempt))
+                continue
+            if reply.status_code == 429:
+                raise ProviderError(THROTTLED)
+            return reply
+        raise ProviderError("gave up after retrying")  # pragma: no cover
+
+    reply = call(model)
 
     # A 404 here means the model is gone, not that the key is wrong. Ask what
     # is there, take the best of it, and say so rather than failing 32 times in
@@ -194,10 +256,7 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
         replacement = _pick_gemini(key)
         print(f"· {model} is not available; using {replacement}", flush=True)
         _resolved[model] = replacement
-        reply = httpx.post(
-            f"{GEMINI_ROOT}/models/{replacement}:generateContent", json=body,
-            headers={"x-goog-api-key": key}, timeout=_timeout(),
-        )
+        reply = call(replacement)
 
     if reply.status_code == 404:
         raise ProviderError(
