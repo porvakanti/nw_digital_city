@@ -7,7 +7,7 @@
  *   npm i playwright   (browsers are already present in CI images)
  *   node tests/smoke.js
  */
-const { chromium } = require("playwright");
+const { chromium, devices } = require("playwright");
 const path = require("path");
 const fs = require("fs");
 
@@ -65,6 +65,114 @@ const check = (name, ok, detail) => {
   if (!ok) failures++;
   console.log(`${ok ? "  ok  " : "FAIL  "}${name}${detail ? " — " + detail : ""}`);
 };
+
+/* The same page on a phone.
+ *
+ * Not the demo, and never will be: the demo is a laptop and a projector. It
+ * is how a reviewer opens a link, and the first version of this laid a 320px
+ * legend over the whole city, hid the question box behind six lines of
+ * starter prompts, and offered a corner note advising them to hover a
+ * building and press T.
+ *
+ * A second context on the browser already launched, rather than a third full
+ * run: only the things that differ on a touchscreen are worth checking twice.
+ */
+async function onAPhone(browser) {
+  const ctx = await browser.newContext({ ...devices["iPhone 13"] });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  console.log("· and again on a phone");
+  await page.goto(PAGE);
+  await page.waitForSelector('body[data-ready="1"]', { timeout: 30000 });
+
+  check("phone: buttons replace the keyboard shortcuts",
+    (await page.isVisible("#touchbar")) && !(await page.isVisible("#hint")));
+
+  // The original failure, and the one most likely to come back: a panel
+  // written for a laptop corner, laid over the city on a 390px screen.
+  const overlap = await page.evaluate(() => {
+    const boxes = ["ask", "touchbar", "chips", "legend", "trace"]
+      .map((id) => [id, document.getElementById(id)])
+      .filter(([, el]) => el && getComputedStyle(el).display !== "none")
+      .map(([id, el]) => [id, el.getBoundingClientRect()])
+      .filter(([, r]) => r.width > 0 && r.height > 0);
+    const hits = [];
+    for (let a = 0; a < boxes.length; a++) {
+      for (let b = a + 1; b < boxes.length; b++) {
+        const [ia, ra] = boxes[a], [ib, rb] = boxes[b];
+        if (ra.left < rb.right && rb.left < ra.right
+            && ra.top < rb.bottom && rb.top < ra.bottom) hits.push(`${ia} over ${ib}`);
+      }
+    }
+    return hits;
+  });
+  check("phone: nothing is laid over anything else", overlap.length === 0,
+    overlap.join(", "));
+
+  check("phone: the page does not scroll sideways",
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+
+  // Every button, because they are the only way in without a keyboard.
+  const state = () => page.evaluate(() => window.NWCity.state());
+  await page.tap("#touchbar button[data-command='night']");
+  await page.waitForTimeout(1200);
+  check("phone: Night", (await state()).night === true);
+  await page.tap("#touchbar button[data-command='night']");
+  await page.waitForTimeout(900);
+
+  await page.tap("#touchbar button[data-command='potential']");
+  await page.waitForTimeout(1800);
+  check("phone: Could be", (await state()).potential === true);
+  await page.tap("#touchbar button[data-command='potential']");
+  await page.waitForTimeout(1200);
+
+  await page.tap("#touchbar button[data-command='asks']");
+  await page.waitForTimeout(900);
+  const asksFits = await page.evaluate(() => {
+    const c = document.querySelector("#asks .card");
+    if (!c) return false;
+    const r = c.getBoundingClientRect();
+    return r.left >= -1 && r.right <= innerWidth + 1;
+  });
+  check("phone: The ask, and the card fits", (await state()).asks && asksFits);
+  await page.tap("#asks");
+  await page.waitForTimeout(600);
+
+  await page.tap("#touchbar button[data-command='tour']");
+  await page.waitForTimeout(1200);
+  check("phone: Tour", await page.isVisible("#tour"));
+  await page.tap("#tourExit");
+  await page.waitForTimeout(400);
+
+  await page.tap("#askInput");
+  await page.fill("#askInput", "batteries");
+  await page.tap("#askGo");
+  await page.waitForTimeout(4500);
+  const deed = await page.evaluate(
+    () => document.getElementById("inspector").innerText);
+  check("phone: a typed question still works", /D504/.test(deed),
+    deed.split("\n")[1] || "no title deed");
+
+  /* Two fingers are the only way to zoom without a scroll wheel. Synthesised
+   * rather than driven, because Playwright has no pinch: two pointers down,
+   * moving apart, which is exactly what the handler listens for. */
+  const before = (await state()).size;
+  await page.evaluate(() => {
+    const canvas = document.querySelector("canvas");
+    const send = (type, id, x) => canvas.dispatchEvent(new PointerEvent(type,
+      { pointerId: id, clientX: x, clientY: 300, bubbles: true, pointerType: "touch" }));
+    send("pointerdown", 1, 150); send("pointerdown", 2, 250);
+    send("pointermove", 1, 100); send("pointermove", 2, 300);
+    send("pointerup", 1, 100); send("pointerup", 2, 300);
+  });
+  const after = (await state()).size;
+  check("phone: pinching zooms", after < before - 0.01,
+    `${before.toFixed(1)} to ${after.toFixed(1)}`);
+
+  check("phone: no page errors", errors.length === 0, errors[0] || "");
+  await ctx.close();
+}
 
 (async () => {
   const browser = await chromium.launch({
@@ -181,6 +289,8 @@ const check = (name, ok, detail) => {
   }
 
   check("no page errors", errors.length === 0, errors[0] || "");
+
+  await onAPhone(browser);
   await browser.close();
   console.log(failures ? `\n${failures} failed` : "\nall passed");
   process.exit(failures ? 1 : 0);

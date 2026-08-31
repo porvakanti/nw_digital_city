@@ -16,6 +16,15 @@ It is one file, so there is nothing to unzip and no folder to hunt through.
 The whole city is inside it: the data, the 3D, and the part that answers
 questions. It works with the wifi off.
 
+**On a phone it works too.** Everything in this guide can be done on a phone:
+open the file from your mail app and it lays itself out for the screen, with
+buttons along the bottom instead of the keyboard shortcuts. Drag one finger to
+move, pinch to zoom, tap a building to open its card.
+
+A laptop is better, and if you have one to hand, use it. The city is a wide
+shape and a portrait phone screen is a narrow one, so it starts small. Turning
+the phone sideways helps a lot.
+
 ## The first two minutes
 
 The city builds itself when it loads. Let it finish.
@@ -67,6 +76,11 @@ to open its title deed, which is the Monopoly card for that category.
 Keys, if you prefer them: **R** resets, **N** is night, **P** is what we could
 build, **K** is the closing ask, **T** starts the tour again.
 
+**On a phone** those five are buttons along the bottom of the screen instead:
+Tour, Reset, Night, Could be, The ask. The starter questions above them scroll
+sideways. And there is no hovering on a touchscreen, so tap a building rather
+than hovering it: same card, one tap.
+
 ## Two calls I have made that I would like you to overturn or confirm
 
 **Height is market take-up, not adoption.** The adoption column in the extract
@@ -107,6 +121,8 @@ Anything at all, but these especially:
 - **The question box uses simple rules in this version.** The full version
   runs a language model behind it, which handles much looser phrasing. What
   you have is the offline fallback, and it covers everything in this guide.
+- **On a phone the city starts small.** It is a wide shape on a narrow screen.
+  Pinch to zoom in, or turn the phone sideways.
 
 ## On the data
 

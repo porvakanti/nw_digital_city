@@ -785,6 +785,68 @@ the same starting point: how to open it, what the four visual measures mean,
 six things to type, what feedback is useful, and a list of what is already
 known so nobody spends their time reporting the placeholder rooftop lights.
 
+## 8p. What happens when Kate opens it on her phone
+
+Asked before it was sent, which is the right time to ask it. The answer was
+that it loaded and was unusable, and I only know that because I opened it on
+one rather than reasoning about whether it would work.
+
+On a 390 pixel screen:
+
+- The legend is a fixed 320 pixel panel pinned to a corner. At 671 pixels tall
+  it covered the city, the starter questions and most of the ask bar.
+- The starter questions wrapped into a six-line block across the middle of the
+  map.
+- The hint in the corner read "hover a building, scroll to zoom, press T",
+  three instructions for hardware that is not there.
+- There was no way to zoom at all. Zoom was the scroll wheel, and one finger
+  panned. Two fingers did nothing.
+- Tapping the question box zoomed the whole page in, because iOS does that to
+  any input under 16 pixels and does not undo it.
+
+None of which is surprising. It was built for a laptop driving a projector,
+which is what the day is. But a phone is how a reviewer opens a link, and
+"it does not work on the thing they will actually use" is not a detail.
+
+### What it is now
+
+**A phone gets its own layout.** Everything along the bottom is one stack,
+each item placed off the one below it rather than off the screen, so nothing
+can land on top of anything else: question box, buttons, starter questions,
+the agent's last line, then the two reference panels. The legend and the trace
+start collapsed, with their headers visible so it is clear they are there. The
+starter questions became one row that scrolls sideways instead of a block that
+wraps. Landscape, which has almost no height, drops the panels entirely.
+
+**Five buttons stand in for the five keyboard shortcuts.** Tour, Reset, Night,
+Could be, The ask. They call the city's own commands by name through a new
+`NWCity.command()`, and the keys now call exactly the same map. Two code paths
+to the same view is how a button and a key end up meaning different things.
+
+**Two fingers pinch.** Pointer events already delivered touches through the
+same handlers as the mouse, so the only new state is how many are down: one
+drags the map, two zoom it. The second finger cancels the drag it interrupted.
+
+### The check that found the bug in my own fix
+
+The suite now opens the page a second time in an emulated iPhone, on the
+browser it has already launched, and taps every button. It found something no
+amount of re-reading would have: I had written mobile styles for `#asksCard`,
+and the element is `#asks`. A rule for an id that does not exist fails in
+complete silence. The closing card would have run off both edges of the screen
+and nothing anywhere would have said so.
+
+It also checks the thing that broke in the first place, which is worth stating
+as a rule rather than a case: **no two panels along the bottom may overlap.**
+That is a geometric fact about the rendered page, and it is the kind of thing
+a person stops noticing after the third look at a screenshot.
+
+**And a lesson about how to ask a running page a question.** The first version
+of the night check called `NWCity.night()` to read the state, which toggles.
+The act of looking changed the answer, and the check passed or failed on its
+own side effect. There is now a `state()` that reads and never writes. Any
+accessor that can change what it reports is not an accessor.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
