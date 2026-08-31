@@ -83,16 +83,83 @@ def _mock(question: str, names: dict) -> str:
 
 
 # ---------------------------------------------------------------- gemini
+GEMINI_ROOT = "https://generativelanguage.googleapis.com/v1beta"
+
+# Preferred in order. Google retires models on its own schedule, and this
+# project found that out the hard way when gemini-2.0-flash started returning
+# 404 to a key that had worked the week before. The list is a preference, not a
+# promise: what is actually available is asked for at the time.
+GEMINI_PREFERENCE = (
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-2.5-flash",
+)
+
+_resolved: dict[str, str] = {}
+
+
+def gemini_models(key: str) -> list[str]:
+    """Every model this key can actually call, newest listing order preserved."""
+    reply = httpx.get(f"{GEMINI_ROOT}/models", headers={"x-goog-api-key": key},
+                      timeout=TIMEOUT)
+    reply.raise_for_status()
+    out = []
+    for entry in reply.json().get("models", []):
+        if "generateContent" not in entry.get("supportedGenerationMethods", []):
+            continue
+        out.append(entry["name"].removeprefix("models/"))
+    return out
+
+
+def _pick_gemini(key: str) -> str:
+    """Choose a model that exists, preferring a fast one.
+
+    Called only when the configured model turns out not to be there. Asking the
+    API what it has beats guessing, and it means a retirement announcement does
+    not become a broken demo.
+    """
+    available = gemini_models(key)
+    for wanted in GEMINI_PREFERENCE:
+        if wanted in available:
+            return wanted
+    flash = [m for m in available if "flash" in m and "preview" not in m]
+    if flash:
+        return flash[0]
+    if available:
+        return available[0]
+    raise ProviderError("this key can see no models that support generateContent")
+
+
 def _gemini(system: str, question: str, key: str, model: str) -> str:
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-    )
     body = {
         "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": question}]}],
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
-    reply = httpx.post(url, json=body, headers={"x-goog-api-key": key}, timeout=TIMEOUT)
+    model = _resolved.get(model, model)
+    reply = httpx.post(f"{GEMINI_ROOT}/models/{model}:generateContent", json=body,
+                       headers={"x-goog-api-key": key}, timeout=TIMEOUT)
+
+    # A 404 here means the model is gone, not that the key is wrong. Ask what
+    # is there, take the best of it, and say so rather than failing 32 times in
+    # a row with the same message.
+    if reply.status_code == 404 and not os.environ.get("NW_MODEL", "").strip():
+        replacement = _pick_gemini(key)
+        print(f"· {model} is not available; using {replacement}", flush=True)
+        _resolved[model] = replacement
+        reply = httpx.post(
+            f"{GEMINI_ROOT}/models/{replacement}:generateContent", json=body,
+            headers={"x-goog-api-key": key}, timeout=TIMEOUT,
+        )
+
+    if reply.status_code == 404:
+        raise ProviderError(
+            f"Gemini has no model called {model!r}. Run `run.cmd models` to see "
+            "what this key can call, then set NW_MODEL in .env, or clear "
+            "NW_MODEL and one will be chosen for you."
+        )
     reply.raise_for_status()
     data = reply.json()
     try:
@@ -165,9 +232,12 @@ def _claude(system: str, question: str, key: str, model: str) -> str:
         raise ProviderError(f"unexpected Claude response: {data}") from exc
 
 
+# Defaults, not commitments. Google retires models; NW_MODEL in .env overrides
+# this, and for Gemini an unset NW_MODEL lets the code pick a live one if the
+# default has gone.
 DEFAULT_MODELS = {
-    "gemini": "gemini-2.0-flash",
-    "vertex": "gemini-2.0-flash",
+    "gemini": "gemini-3.5-flash",
+    "vertex": "gemini-3.5-flash",
     "claude": "claude-opus-5",
 }
 

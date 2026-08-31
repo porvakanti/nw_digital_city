@@ -432,6 +432,33 @@ Page Down, because a clicker sends the page keys, and the difference between
 driving this from the middle of a stage and standing at a laptop is two lines
 of code.
 
+## 8g. Model names go stale
+
+`gemini-2.0-flash` was the default here. Google shut it down, and the first
+symptom was every one of the 32 eval questions returning 404 from a key that
+had worked days earlier. The failure was correct and useless: thirty-two
+identical stack traces, none of which said what to do.
+
+Three changes, and the last one is the point.
+
+**The eval stops after three identical provider errors** and says the endpoint
+is the problem rather than the questions, with the one command that diagnoses
+it. Repeating a failure thirty-two times buries the line that matters.
+
+**`run.cmd models` asks the key what it can call.** Guessing at a model name
+from documentation is how this happened; asking takes ten seconds.
+
+**And with `NW_MODEL` unset, a 404 is recovered from.** The code lists what is
+available, takes the best flash model it finds, says on stdout which one it
+switched to, and retries. Set `NW_MODEL` and it never does this, because
+pinning a model is a decision and the code should not quietly undo it. That
+distinction is the whole design: unset means "keep this working", set means "I
+mean this one".
+
+This matters more than it looks. The all-hands is months away, and by then the
+model in any config file may not exist. A demo that repairs itself is worth
+more than a config file that was right once.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

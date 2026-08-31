@@ -6,6 +6,7 @@
     python3 run.py eval       the agent's question set against whatever .env says
     python3 run.py build      rebuild city.json from the workbook in data/raw/
     python3 run.py package    a zip of just the city, safe to send to anyone
+    python3 run.py models     which models the configured key can actually call
 
 Run it from the repository root on your own machine. It makes a virtual
 environment in .venv the first time, installs into that, and never touches the
@@ -103,6 +104,11 @@ def serve(python: Path) -> int:
         return 0
 
 
+def models(python: Path) -> int:
+    """Ask the provider what it has, rather than trusting a name in a file."""
+    return subprocess.call([str(python), "-m", "app.models"], cwd=ROOT)
+
+
 def package() -> int:
     """Zip up the parts someone needs to open the city, and nothing else.
 
@@ -149,14 +155,17 @@ def check(python: Path) -> int:
     if shutil.which("node") and (ROOT / "node_modules" / "playwright").is_dir():
         failures += subprocess.call(["node", "tests/smoke.js"], cwd=ROOT)
     else:
-        print("· skipping the browser smoke test (npm i playwright to enable it)")
+        print("· skipping the browser smoke test")
+        print("  To enable it: npm install playwright (on Windows, npm.cmd install")
+        print("  playwright, because PowerShell blocks the unsigned npm wrapper)")
     return 1 if failures else 0
 
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "serve"
-    if command not in ("serve", "test", "eval", "build", "package"):
-        print("usage: python3 run.py [serve|test|eval|build|package]", file=sys.stderr)
+    if command not in ("serve", "test", "eval", "build", "package", "models"):
+        print("usage: python3 run.py [serve|test|eval|build|package|models]",
+              file=sys.stderr)
         return 2
 
     # Packaging is pure standard library, so it should not make anyone wait for
@@ -169,6 +178,8 @@ def main() -> int:
         return subprocess.call([str(python), "data/build_city.py"], cwd=ROOT)
     if command == "eval":
         return subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT)
+    if command == "models":
+        return models(python)
     if command == "test":
         return check(python)
     return serve(python)
