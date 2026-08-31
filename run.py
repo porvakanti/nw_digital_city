@@ -149,17 +149,33 @@ def package() -> int:
 
 
 def check(python: Path) -> int:
-    failures = 0
-    failures += subprocess.call([str(python), "-m", "unittest", "discover",
-                                 "-s", "tests"], cwd=ROOT)
-    failures += subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT)
+    """Run everything, and say plainly at the end whether it all passed.
+
+    Each part prints its own summary, and three summaries scrolling past is
+    exactly how a failure in the middle gets missed. So there is one verdict at
+    the bottom naming what failed.
+    """
+    failed = []
+    if subprocess.call([str(python), "-m", "unittest", "discover", "-s", "tests"],
+                       cwd=ROOT):
+        failed.append("python tests")
+    if subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT):
+        failed.append("the agent's question set")
+
     if shutil.which("node") and (ROOT / "node_modules" / "playwright").is_dir():
-        failures += subprocess.call(["node", "tests/smoke.js"], cwd=ROOT)
+        if subprocess.call(["node", "tests/smoke.js"], cwd=ROOT):
+            failed.append("the browser smoke test")
     else:
         print("· skipping the browser smoke test")
         print("  To enable it: npm install playwright (on Windows, npm.cmd install")
         print("  playwright, because PowerShell blocks the unsigned npm wrapper)")
-    return 1 if failures else 0
+
+    print()
+    if failed:
+        print(f"FAILED: {', '.join(failed)}")
+        return 1
+    print("Everything passed.")
+    return 0
 
 
 def main() -> int:
