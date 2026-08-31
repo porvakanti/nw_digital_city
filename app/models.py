@@ -82,6 +82,15 @@ def main() -> int:
     if wanted and wanted not in available:
         print(f"\n{wanted} is NOT in that list. Either clear NW_MODEL in .env and")
         print("one will be chosen for you, or set it to one of the starred names.")
+
+    # The list coming back proves the key and the network. What it cannot show
+    # is how many requests are left today, and that is the limit people
+    # actually hit.
+    print("\nThe key and the network are fine, since this list came back.")
+    print("If questions are still failing, it is the rate limit: a free key")
+    print("allows about 5 requests a minute and 20 a day. Usage is at")
+    print("https://aistudio.google.com/apikey")
+    print("\n`run.cmd eval` uses six questions so it fits inside that.")
     return 0
 
 

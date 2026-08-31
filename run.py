@@ -3,7 +3,8 @@
 
     python3 run.py            start the city and open a browser
     python3 run.py test       every check: python tests, eval set, browser smoke
-    python3 run.py eval       the agent's question set against whatever .env says
+    python3 run.py eval       six questions against whatever .env says
+    python3 run.py eval all   all 32, if the key's limits allow it
     python3 run.py build      rebuild city.json from the workbook in data/raw/
     python3 run.py package    a zip of just the city, safe to send to anyone
     python3 run.py models     which models the configured key can actually call
@@ -177,7 +178,7 @@ def main() -> int:
     if command == "build":
         return subprocess.call([str(python), "data/build_city.py"], cwd=ROOT)
     if command == "eval":
-        return subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT)
+        return subprocess.call([str(python), "-m", "app.eval", *sys.argv[2:]], cwd=ROOT)
     if command == "models":
         return models(python)
     if command == "test":

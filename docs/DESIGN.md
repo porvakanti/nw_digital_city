@@ -475,6 +475,25 @@ the host being blocked. `run.cmd models` makes one small request and separates
 *cannot reach Google* from *key refused* from *model gone*, which is three
 afternoons of guessing collapsed into ten seconds.
 
+**Then it turned out to be neither.** The timeouts became 503s, then 429s, and
+the API console said it plainly: 22 requests against a daily limit of 20. A
+free Gemini key allows about five requests a minute and twenty a day, and the
+question set is thirty-two. It could never have passed, and the failure arrived
+disguised as three different problems on the way.
+
+So the check was made to fit the thing it runs against. `eval` is now six
+questions, one per intent, which is what the check is actually for: catching a
+model that has started routing questions somewhere silly. `eval all` runs the
+full thirty-two for a key with billing, or for Vertex, which is where this
+deploys and which is not subject to the AI Studio free tier at all. Requests
+are paced to the limit rather than fired as fast as the network allows, 429 and
+503 are retried with backoff and the delay the service asks for, and a key that
+is genuinely out for the day is told so in those words rather than through a
+transport error.
+
+The demo was never at risk. One question is one request, and nobody asks twenty
+questions on a stage. It was only ever the test that was too big for the tier.
+
 **And the badge stopped keeping up appearances.** It read `/health` once at
 load and then said "gemini-3.5-flash" forever, including through a run where
 every single call timed out and the city was answering on its own rules. It now

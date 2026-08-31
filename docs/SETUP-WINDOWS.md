@@ -203,7 +203,8 @@ that it starts in a couple of seconds and opens your browser at
 | --- | --- |
 | `run.cmd` | Starts the city with the agent behind it and opens a browser |
 | `run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
-| `run.cmd eval` | Asks the model 32 questions and prints what it decided for each |
+| `run.cmd eval` | Asks the model six questions and prints what it decided for each |
+| `run.cmd eval all` | All 32, which needs more than a free key's daily allowance |
 | `run.cmd models` | Lists the models your key can actually call |
 | `run.cmd package` | Writes `nw-digital-city.zip`, safe to email to anyone |
 
@@ -219,4 +220,5 @@ that it starts in a couple of seconds and opens your browser at
 | Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |
 | `npm.ps1 cannot be loaded ... not digitally signed` | PowerShell's script policy. Use `npm.cmd` instead of `npm`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
 | Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
+| 429, 503, or timeouts after a few good answers | The free tier's rate limit: about 5 requests a minute and 20 a day. `run.cmd eval` fits inside that; `eval all` does not. Usage at <https://aistudio.google.com/apikey>. |
 | Every question times out | The network cannot reach Google. `run.cmd models` says which of the three it is. A corporate proxy needs `setx HTTPS_PROXY http://your-proxy:port`, and a proxy that re-signs certificates also needs `setx SSL_CERT_FILE` pointing at the company root certificate. |
