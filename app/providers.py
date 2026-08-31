@@ -23,6 +23,8 @@ import time
 
 import httpx
 
+from . import plan as planning
+
 # Eight seconds was optimistic. A first call from a corporate laptop goes
 # through a proxy, negotiates TLS, and carries a prompt naming 145 categories,
 # and any one of those can take longer than that on its own. The browser keeps
@@ -104,29 +106,13 @@ def _mock(question: str, names: dict) -> str:
             decision.update(result)
             break
 
-    # Name-match against the vocabulary, longest name first so "Access Radio"
-    # is not beaten by a shorter substring. Categories arrive as "D504 Batteries",
-    # so the code and the title each have to match on their own.
-    for kind, key in (("district", "districts"), ("plot", "plots"),
-                      ("market", "markets"), ("category", "categories")):
-        pool = names.get(key) or []
-        for entry in sorted(pool, key=len, reverse=True):
-            label = entry.lower()
-            code, _, title = entry.partition(" ")
-            hit = label in lowered
-            if kind == "category":
-                hit = hit or bool(re.search(rf"\b{re.escape(code.lower())}\b", lowered))
-                hit = hit or (len(title) > 3 and title.lower() in lowered)
-                # and the other way round, so "Spring 2/R" finds
-                # "Spring 2/R - SW/PS"
-                hit = hit or (len(lowered) >= 5 and lowered.strip() in title.lower())
-            if hit:
-                decision["target"] = {"kind": kind, "value": entry}
-                if decision["intent"] == "focus" and kind == "district":
-                    decision["intent"] = "district"
-                break
-        if decision["target"]["value"]:
-            break
+    # The same name search the real path uses as its net, so the mock and a
+    # live model cannot drift apart on what "batteries" refers to.
+    kind, entry = planning.find_name(question, names)
+    if kind:
+        decision["target"] = {"kind": kind, "value": entry}
+        if decision["intent"] == "focus" and kind == "district":
+            decision["intent"] = "district"
 
     if decision["intent"] == "focus" and not decision["target"]["value"]:
         decision["intent"] = "unknown"
@@ -395,8 +381,23 @@ DEFAULT_MODELS = {
 }
 
 
+def label(provider: str, model: str) -> str:
+    """Name what answered, without saying the same word twice.
+
+    "gemini:gemini-3.5-flash-lite" stutters: the model name already carries
+    the family. Vertex keeps its prefix, because there the provider is the
+    interesting half - the same Gemini model reached a different way, with
+    different credentials and a different quota.
+    """
+    if not model:
+        return provider
+    if provider != "vertex" and model.startswith(provider):
+        return model
+    return f"{provider}:{model}"
+
+
 def complete(system: str, question: str, names: dict) -> tuple[str, str]:
-    """Run the configured provider. Returns (raw reply, provider name)."""
+    """Run the configured provider. Returns (raw reply, what answered)."""
     provider = os.environ.get("NW_PROVIDER", "mock").strip().lower()
     model = os.environ.get("NW_MODEL") or DEFAULT_MODELS.get(provider, "")
 
@@ -404,14 +405,19 @@ def complete(system: str, question: str, names: dict) -> tuple[str, str]:
         return _mock(question, names), "mock"
     if provider == "gemini":
         key = _require("NW_API_KEY", provider)
-        return _gemini(system, question, key, model), f"gemini:{model}"
+        raw = _gemini(system, question, key, model)
+        # The ladder may have moved on from the configured model. Reporting
+        # the one that was asked for rather than the one that replied would
+        # make a run impossible to attribute, which is most of the point of
+        # reporting it at all.
+        return raw, label(provider, _resolved.get(model, model))
     if provider == "vertex":
         project = _require("NW_PROJECT", provider)
         region = os.environ.get("NW_REGION", "global")
-        return _vertex(system, question, project, region, model), f"vertex:{model}"
+        return _vertex(system, question, project, region, model), label(provider, model)
     if provider == "claude":
         key = _require("NW_API_KEY", provider)
-        return _claude(system, question, key, model), f"claude:{model}"
+        return _claude(system, question, key, model), label(provider, model)
     raise ProviderError(f"unknown NW_PROVIDER {provider!r}")
 
 

@@ -17,8 +17,8 @@ NAMES = {
 }
 
 
-def parse(payload):
-    return planning.parse(payload, NAMES, "test")
+def parse(payload, question=""):
+    return planning.parse(payload, NAMES, "test", question)
 
 
 class TestPlanParsing(unittest.TestCase):
@@ -43,6 +43,25 @@ class TestPlanParsing(unittest.TestCase):
         p = parse('{"intent":"gaps","target":{"kind":"category","value":"D504"}}')
         self.assertEqual(("gaps", "none"), (p.intent, p.kind))
 
+    def test_an_area_question_keeps_a_district(self):
+        """Gaps in Energy is a real question, and the city can answer it."""
+        p = parse('{"intent":"gaps","target":{"kind":"district","value":"Energy"}}')
+        self.assertEqual(("district", "Energy"), (p.kind, p.value))
+
+    def test_nothing_scopes_a_view_of_the_whole_city(self):
+        """"What could we build" answered for one market is a caption that
+        does not match its own screen: the view raises every lot in Networks.
+        """
+        for intent in planning.WHOLE_CITY_INTENTS:
+            for kind, value in (("market", "Germany"), ("district", "Energy"),
+                                ("plot", "Packet Switching")):
+                with self.subTest(intent=intent, kind=kind):
+                    p = parse('{"intent":"%s","target":{"kind":"%s","value":"%s"}}'
+                              % (intent, kind, value))
+                    self.assertEqual(intent, p.intent)
+                    self.assertEqual(("none", ""), (p.kind, p.value))
+                    self.assertTrue(any("whole-city" in n for n in p.notes), p.notes)
+
     def test_strips_a_preamble_carrying_figures(self):
         p = parse('{"intent":"gaps","preamble":"There are 89 empty lots"}')
         self.assertEqual("", p.preamble)
@@ -62,6 +81,26 @@ class TestPlanParsing(unittest.TestCase):
     def test_unknown_intent_is_not_passed_through(self):
         p = parse('{"intent":"launch_missiles"}')
         self.assertEqual("unknown", p.intent)
+
+    def test_a_focus_with_no_target_is_rescued_from_the_question(self):
+        """A model can be right about the intent and forget to say where.
+
+        Observed against a live key: "batteries" came back as `{"intent":
+        "focus"}` and nothing else. Refusing that tells a room that batteries
+        is not in the city, when the word is right there in the question.
+        """
+        p = parse('{"intent":"focus"}', "batteries")
+        self.assertEqual(("focus", "category", "D504"), (p.intent, p.kind, p.value))
+        self.assertTrue(any("found D504" in n for n in p.notes), p.notes)
+
+    def test_the_rescue_cannot_invent_anything(self):
+        p = parse('{"intent":"focus"}', "banana bread")
+        self.assertEqual(("none", ""), (p.kind, p.value))
+
+    def test_the_rescue_leaves_a_target_the_model_gave_alone(self):
+        p = parse('{"intent":"focus","target":{"kind":"category","value":"A311"}}',
+                  "batteries")
+        self.assertEqual("A311", p.value)
 
     def test_vocabulary_carries_names_but_no_figures(self):
         text = planning.vocabulary(NAMES)
@@ -157,6 +196,33 @@ class MatchTests(unittest.TestCase):
         )
         self.assertEqual(got.intent, "focus")
         self.assertEqual(got.value, "D504")
+
+
+class FindNameTests(unittest.TestCase):
+    """The name search shared by the mock provider and the rescue above.
+
+    One implementation on purpose: two copies of "what does this question
+    refer to" would drift, and the mock is what the whole suite runs against.
+    """
+
+    def find(self, question):
+        return planning.find_name(question, NAMES)
+
+    def test_finds_a_category_by_title(self):
+        self.assertEqual(("category", "D504 Batteries"), self.find("batteries"))
+
+    def test_finds_a_category_by_code(self):
+        self.assertEqual(("category", "A311 Field Maintenance"),
+                         self.find("show me A311"))
+
+    def test_a_district_wins_over_a_category(self):
+        self.assertEqual(("district", "Energy"), self.find("how is Energy doing"))
+
+    def test_finds_a_market(self):
+        self.assertEqual(("market", "Germany"), self.find("Germany"))
+
+    def test_finds_nothing_in_a_question_about_nothing(self):
+        self.assertEqual(("", ""), self.find("banana bread"))
 
 
 class EmbeddedCodeTests(unittest.TestCase):

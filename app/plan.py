@@ -57,9 +57,13 @@ Intents:
 Rules:
 - Only ever name a target that appears in the lists you are given. Never invent
   a code or a name.
-- A category is never the target for gaps, summary, could_be, night, asks or
-  reset.
-  Those are answered for a district, a plot, a market, or the whole city.
+- focus and district always need a target. If the question names a place, say
+  which; if you cannot find it in the lists, use unknown rather than focus with
+  no target.
+- gaps and summary take a district, a plot or a market, never a single
+  category.
+- could_be, night, asks and reset take no target at all. They redraw the whole
+  city, so there is nothing for a target to scope.
 - You have no figures. Do not state or guess any number, amount or percentage.
   The application fills those in.
 - preamble is optional: at most eight words framing the answer, no numbers.
@@ -106,12 +110,33 @@ def vocabulary(names: dict[str, list[str]]) -> str:
     return "\n".join(lines)
 
 
-def parse(raw: str, names: dict[str, list[str]], source: str) -> Plan:
+# Views that draw the whole city. Every one of them raises, dims or replaces
+# the entire map, so a target on them would scope the sentence to something
+# the screen is not showing. "What could we build" answered for Germany is a
+# number about Germany over a picture of Networks.
+WHOLE_CITY_INTENTS = ("could_be", "night", "asks", "reset")
+
+# These do take a place, but never a single lot: gaps and totals are questions
+# about an area, and an area is a district, a plot or a market.
+AREA_INTENTS = ("gaps", "summary")
+
+# These are questions about one place, and are useless without it.
+PLACE_INTENTS = ("focus", "district")
+
+
+def parse(raw: str, names: dict[str, list[str]], source: str,
+          question: str = "") -> Plan:
     """Turn a model reply into a Plan, refusing anything it made up.
 
     A model that names a category the city does not have would send the camera
     nowhere and print a code that does not exist, so an unknown target is
     dropped rather than passed through.
+
+    `question` is optional and is only used as a net: when the model chooses an
+    intent that needs a place and then does not give one, the words that were
+    typed are searched for a name instead. Asked about batteries, a model that
+    answers `{"intent": "focus"}` and nothing else is right about the intent,
+    and the city can find the lot on its own.
     """
     notes: list[str] = []
     text = (raw or "").strip()
@@ -149,15 +174,25 @@ def parse(raw: str, names: dict[str, list[str]], source: str) -> Plan:
             # Categories are addressed by code; everywhere else keeps its full
             # name, or "Software and Core" would arrive as "Software".
             plan.kind = kind
-            plan.value = match.split(" ", 1)[0] if kind == "category" and " " in match else match
+            plan.value = _address(kind, match)
         else:
             notes.append(f"dropped invented {kind} {value!r}")
 
-    # A single category cannot scope a question about a whole area.
-    area_intents = ("gaps", "summary", "could_be", "night", "asks", "reset")
-    if plan.intent in area_intents and plan.kind == "category":
+    # A single category cannot scope a question about a whole area, and
+    # nothing at all can scope a view of the whole city.
+    if plan.intent in WHOLE_CITY_INTENTS and plan.kind != "none":
+        notes.append(f"{plan.kind} target ignored for a whole-city question")
+        plan.kind, plan.value = "none", ""
+    elif plan.intent in AREA_INTENTS and plan.kind == "category":
         notes.append("category target ignored for an area question")
         plan.kind, plan.value = "none", ""
+
+    # The net: an intent that needs a place, and no place given.
+    if plan.intent in PLACE_INTENTS and plan.kind == "none" and question:
+        kind, entry = find_name(question, names)
+        if kind:
+            plan.kind, plan.value = kind, _address(kind, entry)
+            notes.append(f"no target given, found {plan.value} in the question")
 
     metric = str(data.get("metric") or "").strip().lower()
     if metric in METRICS:
@@ -174,6 +209,43 @@ def parse(raw: str, names: dict[str, list[str]], source: str) -> Plan:
 
     plan.notes = notes
     return plan
+
+
+def _address(kind: str, entry: str) -> str:
+    """How the browser refers to this thing.
+
+    Categories are addressed by code; everywhere else keeps its full name, or
+    "Software and Core" would arrive as "Software".
+    """
+    if kind == "category" and " " in entry:
+        return entry.split(" ", 1)[0]
+    return entry
+
+
+def find_name(question: str, names: dict[str, list[str]]) -> tuple[str, str]:
+    """Look for a name from the city in the words that were typed.
+
+    Districts first, then plots, markets and categories, and longest name first
+    inside each, so "Access Radio" is not beaten by a shorter substring. This
+    is the whole of the mock provider's understanding of a question, and it is
+    also the net under a real model that chooses an intent and forgets to say
+    where. Returns the vocabulary entry, so nothing invented can come out.
+    """
+    lowered = question.lower()
+    for kind, key in (("district", "districts"), ("plot", "plots"),
+                      ("market", "markets"), ("category", "categories")):
+        for entry in sorted(names.get(key) or [], key=len, reverse=True):
+            code, _, title = entry.partition(" ")
+            hit = entry.lower() in lowered
+            if kind == "category":
+                hit = hit or bool(re.search(rf"\b{re.escape(code.lower())}\b", lowered))
+                hit = hit or (len(title) > 3 and title.lower() in lowered)
+                # and the other way round, so "Spring 2/R" finds
+                # "Spring 2/R - SW/PS"
+                hit = hit or (len(lowered) >= 5 and lowered.strip() in title.lower())
+            if hit:
+                return kind, entry
+    return "", ""
 
 
 def _codes(categories: list[str]) -> set[str]:
