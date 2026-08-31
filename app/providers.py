@@ -60,77 +60,25 @@ UNREACHABLE = """no answer from {host} within {seconds:.0f}s.
   Neither stops the demo. Without a model the city answers with its own rules,
   and every question in the script still works."""
 
-THROTTLED = """the free tier's limits have been reached.
+THROTTLED = """out of requests for {model} today.
 
-  A free Gemini key allows roughly 5 requests a minute and 20 a day. The full
-  question set is 32 questions, so on a free key it cannot finish in one day
-  no matter how patiently it is paced.
+  Rate limits are per model, and a free Gemini key allows roughly 5 requests a
+  minute and 20 a day for each one. The quickest thing you can do is use a
+  different model, because it has its own untouched allowance:
 
-  What to do, in order of effort:
+    NW_MODEL=gemini-3.5-flash-lite      in .env, then run it again
 
-    run.cmd eval          the six-question sample, which fits the free tier
-    wait until tomorrow    the daily count resets at midnight Pacific
-    set up billing         https://aistudio.google.com/apikey, still free to
-                           start but with limits that are not in the way
-    use Vertex AI          which is where this deploys anyway, and is not
-                           subject to the AI Studio free tier at all
+  The lite models are faster and cheaper and route these questions perfectly
+  well; this is deciding which lot to fly to, not writing an essay.
+
+  Otherwise: the daily count resets at midnight Pacific, which is mid-morning
+  in Europe. Or turn on billing at https://aistudio.google.com/apikey, which
+  is free to start and lifts the limits out of the way. Or use Vertex AI,
+  which is where this deploys and is not subject to the AI Studio free tier at
+  all.
 
   None of this affects the demo. One question is one request, and nobody is
   going to ask twenty of them on a stage."""
-
-
-# ---------------------------------------------------------------- mock
-# Good enough to develop and test the whole path with no key and no network,
-# and good enough to stand in if the endpoint is unreachable on the day.
-_RULES: list[tuple[str, dict]] = [
-    (r"\b(asks?|asking|takeaways?|actions?|next steps?)\b|what (should|do|are) (we|i|you)", {"intent": "asks"}),
-    (r"\b(night|dark|readiness|autonom|ai.?ready|reactor|rfp)|lights? (off|out)", {"intent": "night"}),
-    (r"\b(could|potential|opportunit|what if|unbuilt|upside)", {"intent": "could_be"}),
-    (r"\b(gap|empty|bare|missing|nothing|unbuilt)|no blueprint|without a blueprint", {"intent": "gaps"}),
-    (r"\b(reset|zoom out|whole city|everything|daylight|back)", {"intent": "reset"}),
-    (r"\b(worst|weakest|behind|lowest|least)", {"intent": "rank", "direction": "asc"}),
-    (r"\b(best|biggest|largest|most|top|highest|lead|leads|leading|ahead)", {"intent": "rank", "direction": "desc"}),
-    (r"\b(how many|summary|overview|overall|status|total)", {"intent": "summary"}),
-]
-
-
-def _mock(question: str, names: dict) -> str:
-    lowered = question.lower()
-    decision = {"intent": "focus", "target": {"kind": "none", "value": ""}}
-    for pattern, result in _RULES:
-        if re.search(pattern, lowered):
-            decision.update(result)
-            break
-
-    # Name-match against the vocabulary, longest name first so "Access Radio"
-    # is not beaten by a shorter substring. Categories arrive as "D504 Batteries",
-    # so the code and the title each have to match on their own.
-    for kind, key in (("district", "districts"), ("plot", "plots"),
-                      ("market", "markets"), ("category", "categories")):
-        pool = names.get(key) or []
-        for entry in sorted(pool, key=len, reverse=True):
-            label = entry.lower()
-            code, _, title = entry.partition(" ")
-            hit = label in lowered
-            if kind == "category":
-                hit = hit or bool(re.search(rf"\b{re.escape(code.lower())}\b", lowered))
-                hit = hit or (len(title) > 3 and title.lower() in lowered)
-                # and the other way round, so "Spring 2/R" finds
-                # "Spring 2/R - SW/PS"
-                hit = hit or (len(lowered) >= 5 and lowered.strip() in title.lower())
-            if hit:
-                decision["target"] = {"kind": kind, "value": entry}
-                if decision["intent"] == "focus" and kind == "district":
-                    decision["intent"] = "district"
-                break
-        if decision["target"]["value"]:
-            break
-
-    if decision["intent"] == "focus" and not decision["target"]["value"]:
-        decision["intent"] = "unknown"
-    if "spend" in lowered or "value" in lowered or "money" in lowered:
-        decision["metric"] = "spend_eur"
-    return json.dumps(decision)
 
 
 # ---------------------------------------------------------------- gemini
@@ -243,7 +191,7 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
                 time.sleep(_retry_after(reply) or _backoff(attempt))
                 continue
             if reply.status_code == 429:
-                raise ProviderError(THROTTLED)
+                raise ProviderError(THROTTLED.format(model=name))
             return reply
         raise ProviderError("gave up after retrying")  # pragma: no cover
 
