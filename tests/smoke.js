@@ -116,6 +116,21 @@ const check = (name, ok, detail) => {
   check("hover names the lot", /[A-D]\d{3}/.test(hovered),
     hovered.replace(/\s+/g, " ") || "nothing under the pointer");
 
+  // The definitions are a net under the names: "lead acid" is nowhere in a
+  // category name, and is the first two words of what D504 actually is.
+  const viaDefinition = await page.evaluate(
+    () => window.NWAgent.tools.find_category("lead acid"));
+  check("definition finds what a name cannot",
+    viaDefinition.label === "D504" && viaDefinition.viaDefinition === true,
+    `${viaDefinition.kind} ${viaDefinition.label}`);
+
+  // ...and never a rival to them. This one has a name match, weak but real.
+  const byName = await page.evaluate(
+    () => window.NWAgent.tools.find_category("radio kit"));
+  check("a weak name still beats a definition",
+    byName.kind === "plot" && byName.label === "Radio Equipment",
+    `${byName.kind} ${byName.label}`);
+
   check("no page errors", errors.length === 0, errors[0] || "");
   await browser.close();
   console.log(failures ? `\n${failures} failed` : "\nall passed");

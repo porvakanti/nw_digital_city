@@ -26,8 +26,14 @@ def main() -> int:
     default = providers.DEFAULT_MODELS.get(provider, "")
 
     print(f"provider: {provider}")
-    print(f"model:    {configured or default or '(none)'}"
-          f"{'' if configured else '   (the default; set NW_MODEL to pin one)'}\n")
+    if provider == "gemini":
+        rungs = providers.ladder_for(provider, configured or default)
+        print("ladder:   " + " -> ".join(rungs[:5]) + ("  ..." if len(rungs) > 5 else ""))
+        print("          tried in that order; one that refuses is skipped for a")
+        print("          while and the next is used. NW_PIN=1 to stop that.")
+    else:
+        print(f"model:    {configured or default or '(none)'}")
+    print()
 
     if provider == "mock":
         print("The mock provider needs no model. Set NW_PROVIDER=gemini in .env")
