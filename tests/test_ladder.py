@@ -8,7 +8,8 @@ call could only be run twenty times a day.
 
 from __future__ import annotations
 
-import json
+import contextlib
+import io
 import os
 import unittest
 from unittest import mock
@@ -59,7 +60,15 @@ class LadderTests(unittest.TestCase):
         return mock.patch.object(providers.httpx, "post", side_effect=post)
 
     def call(self, model: str = ""):
-        return providers._gemini("system", "question", "key", model)
+        """Swallow the "answered by" line, which belongs to a real run.
+
+        The ladder announces a switch on stdout, which is right when somebody
+        is watching a run and wrong in the middle of a row of test dots.
+        """
+        with contextlib.redirect_stdout(io.StringIO()) as noise:
+            result = providers._gemini("system", "question", "key", model)
+        self.announced = noise.getvalue()
+        return result
 
     # ---------------------------------------------------------------- ladder
     def test_the_first_choice_answers_and_nothing_else_is_asked(self):
@@ -74,6 +83,8 @@ class LadderTests(unittest.TestCase):
         }):
             self.call("gemini-3.5-flash")
         self.assertEqual(self.asked[:2], ["gemini-3.5-flash", "gemini-3.6-flash"])
+        self.assertIn("answered by gemini-3.6-flash", self.announced,
+                      "a switch must be visible, not silent")
 
     def test_a_retired_model_hands_over_too(self):
         with self.transport({

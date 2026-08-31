@@ -157,3 +157,24 @@ class MatchTests(unittest.TestCase):
         )
         self.assertEqual(got.intent, "focus")
         self.assertEqual(got.value, "D504")
+
+
+class EmbeddedCodeTests(unittest.TestCase):
+    """A code inside a longer answer is still a code.
+
+    Models format targets in ways a prompt cannot fully pin down: "D504
+    (Batteries)", "category D504", "the D504 lot". Refusing those sends the
+    camera nowhere over punctuation.
+    """
+
+    KNOWN = planning._codes(["D504 Batteries", "A311 Field Maintenance"])
+
+    def test_a_code_wrapped_in_words_or_brackets_resolves(self):
+        for value in ("D504 (Batteries)", "category D504", "the D504 lot",
+                      "Batteries (D504)"):
+            with self.subTest(value=value):
+                self.assertEqual(planning._match(value, self.KNOWN), "D504")
+
+    def test_an_unknown_code_is_still_refused(self):
+        self.assertEqual(planning._match("Z999 Nonsense", self.KNOWN), "")
+        self.assertEqual(planning._match("see Z999 for this", self.KNOWN), "")

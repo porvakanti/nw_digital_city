@@ -214,6 +214,13 @@ def _match(value: str, known: set[str]) -> str:
     if not wanted:
         return ""
 
+    # A code inside a longer answer is still a code: "D504 (Batteries)",
+    # "category D504", "the D504 lot". It only counts if the vocabulary has
+    # it, so this cannot admit an invented one.
+    for token in re.findall(r"\b[A-Za-z]\d{3}\b", value):
+        if token.upper() in known:
+            return token.upper()
+
     whole = [k for k in known if _norm(k) == wanted]
     if len(whole) == 1:
         return whole[0]
