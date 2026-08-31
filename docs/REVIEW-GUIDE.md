@@ -16,14 +16,16 @@ It is one file, so there is nothing to unzip and no folder to hunt through.
 The whole city is inside it: the data, the 3D, and the part that answers
 questions. It works with the wifi off.
 
-**On a phone it works too.** Everything in this guide can be done on a phone:
-open the file from your mail app and it lays itself out for the screen, with
-buttons along the bottom instead of the keyboard shortcuts. Drag one finger to
-move, pinch to zoom, tap a building to open its card.
+**Please use a laptop for this.** Not a preference: an iPhone or iPad cannot
+open the attachment at all. iOS does not let Safari or Chrome open a file
+saved on the device, and the preview in the Files app does not run the code
+the city is built from, so you get a blank page. Nothing is wrong with the
+file. Android is more forgiving but still awkward.
 
-A laptop is better, and if you have one to hand, use it. The city is a wide
-shape and a portrait phone screen is a narrow one, so it starts small. Turning
-the phone sideways helps a lot.
+The city itself works perfectly well on a phone screen, with buttons along the
+bottom instead of the keyboard shortcuts. It is only getting the file into the
+browser that iOS refuses. When there is a proper web address for this, a phone
+will be fine, and I will send it round.
 
 ## The first two minutes
 
@@ -76,10 +78,9 @@ to open its title deed, which is the Monopoly card for that category.
 Keys, if you prefer them: **R** resets, **N** is night, **P** is what we could
 build, **K** is the closing ask, **T** starts the tour again.
 
-**On a phone** those five are buttons along the bottom of the screen instead:
-Tour, Reset, Night, Could be, The ask. The starter questions above them scroll
-sideways. And there is no hovering on a touchscreen, so tap a building rather
-than hovering it: same card, one tap.
+On a touchscreen, once there is a web address to open, those five are buttons
+along the bottom instead: Tour, Reset, Night, Could be, The ask. Drag one
+finger to move, pinch to zoom, and tap a building rather than hovering it.
 
 ## Two calls I have made that I would like you to overturn or confirm
 
@@ -121,8 +122,9 @@ Anything at all, but these especially:
 - **The question box uses simple rules in this version.** The full version
   runs a language model behind it, which handles much looser phrasing. What
   you have is the offline fallback, and it covers everything in this guide.
-- **On a phone the city starts small.** It is a wide shape on a narrow screen.
-  Pinch to zoom in, or turn the phone sideways.
+- **The attachment will not open on an iPhone or iPad.** That is iOS refusing
+  to open a saved file in a browser, not a fault in the file. A laptop, for
+  now.
 
 ## On the data
 

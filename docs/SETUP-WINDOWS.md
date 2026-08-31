@@ -71,7 +71,7 @@ winget install Git.Git
 
 ---
 
-## 3. Node.js — optional
+## 3. Node.js, optional
 
 Only needed to run the browser test (`run.cmd test` runs it if it is there and
 skips it politely if not). Skip this unless you want the full check.
@@ -104,8 +104,8 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
 Either way, this is optional, but it is the check that catches a broken
-renderer: the fourteen browser tests load the real page, drive the agent, and
-confirm the city moved. Nothing else in the suite can see that. Worth the two
+renderer: the browser checks load the real page, drive the agent, confirm the
+city moved, and do it again on an emulated phone. Nothing else in the suite can see that. Worth the two
 minutes if you are going to change anything.
 
 ---
@@ -118,7 +118,7 @@ winget install Microsoft.VisualStudioCode
 
 ### Opening the project
 
-**File → Open Folder**, and pick the folder that contains `run.cmd` — that is
+**File → Open Folder**, and pick the folder that contains `run.cmd`. That is
 `C:\Users\prave\Projects\nw_digital_city`. Open the **folder**, not a file. VS
 Code works on a folder at a time and most of what follows depends on it knowing
 which one.
@@ -142,7 +142,7 @@ project's `.venv`, not the system one.
 1. Run `run.cmd` once first, so `.venv` exists.
 2. In VS Code press **Ctrl+Shift+P**, type `Python: Select Interpreter`, press
    Enter.
-3. Choose the one whose path contains `.venv` — it is usually top of the list
+3. Choose the one whose path contains `.venv`. It is usually top of the list
    and labelled *Recommended*.
 
 The bottom-right of the window then shows the version it is using. If you skip
@@ -154,7 +154,7 @@ this, the code still runs; you just lose the useful red squiggles.
 project folder. That is where you type `run.cmd`. It is the same terminal as
 any other, just conveniently placed.
 
-If it opens PowerShell and `run.cmd` misbehaves, type `.\run.cmd` instead —
+If it opens PowerShell and `run.cmd` misbehaves, type `.\run.cmd` instead:
 PowerShell wants the `.\` for a file in the current folder.
 
 ---
@@ -209,11 +209,12 @@ that it starts in a couple of seconds and opens your browser at
 | Command | What it does |
 | --- | --- |
 | `run.cmd` | Starts the city with the agent behind it and opens a browser |
+| `run.cmd serve lan` | The same, but reachable from a phone on the same wifi |
 | `run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
 | `run.cmd eval` | Asks the model six questions and prints what it decided for each |
 | `run.cmd eval all` | All 32, which needs more than a free key's daily allowance |
 | `run.cmd models` | Lists the models your key can actually call |
-| `run.cmd package` | Writes `nw-digital-city.zip`, safe to email to anyone |
+| `run.cmd package` | Writes `NW Digital City.html`, one file safe to email |
 
 ## When something does not work
 
@@ -225,6 +226,8 @@ that it starts in a couple of seconds and opens your browser at
 | `run.cmd : The term is not recognized` | You are in the wrong folder, or PowerShell wants `.\run.cmd`. |
 | Badge says "local rules, no model" | No key in `.env`, or it was not restarted after you added one. |
 | Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |
+| An HTML file will not open on an iPhone | iOS does not let a browser open a file saved on the device, and the Files preview does not run JavaScript. Use `run.cmd serve lan` and open the address it prints. |
+| The phone cannot reach `run.cmd serve lan` | Windows Firewall. It asks on the first run; allow it on private networks. Both devices must be on the same wifi, and a guest network usually blocks devices from seeing each other. |
 | `npm.ps1 cannot be loaded ... not digitally signed` | PowerShell's script policy. Use `npm.cmd` instead of `npm`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
 | Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
 | 429, 503, or timeouts after a few good answers | The free tier's rate limit: about 5 requests a minute and 20 a day, **per model**. Set `NW_MODEL=gemini-3.5-flash-lite` in `.env` for a fresh allowance, or wait for the reset at midnight Pacific. Usage at <https://aistudio.google.com/apikey>. |
