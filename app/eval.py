@@ -30,15 +30,20 @@ env.load()
 CITY = pathlib.Path(__file__).resolve().parent.parent / "data" / "city.json"
 
 # question, expected intent, expected target ("" means anywhere is acceptable)
+#
+# An intent may list alternatives separated by "|" where two are genuinely
+# both right. "How is Energy doing" is the case in point: `district` flies
+# there and summarises, `summary` flies there and summarises with one more
+# figure. Marking one of those wrong tests my preference, not the agent.
 CASES: list[tuple[str, str, str]] = [
     ("A221", "focus", "A221"),
     ("show me A311", "focus", "A311"),
     ("batteries", "focus", "D504"),
     ("field maintenance", "focus", "A311"),
     ("Spring 2/R", "focus", "A221"),
-    ("how is Energy doing", "district", "Energy"),
-    ("tell me about Software and Core", "district", "Software and Core"),
-    ("what is happening in Leased Lines", "district", "Leased Lines"),
+    ("how is Energy doing", "district|summary", "Energy"),
+    ("tell me about Software and Core", "district|summary", "Software and Core"),
+    ("what is happening in Leased Lines", "district|summary", "Leased Lines"),
     ("packet switching", "focus", ""),
     ("Germany", "focus", "Germany"),
     ("how are we doing in Turkey", "focus", "Turkey"),
@@ -52,7 +57,7 @@ CASES: list[tuple[str, str, str]] = [
     ("which categories are AI ready", "night", ""),
     ("turn the lights off", "night", ""),
     ("how many blueprints do we have", "summary", ""),
-    ("give me an overview of Energy", "summary", "Energy"),
+    ("give me an overview of Energy", "summary|district", "Energy"),
     ("what is the worst category in Software and Core", "rank", "Software and Core"),
     ("which category leads on spend", "rank", ""),
     ("biggest category by value", "rank", ""),
@@ -142,7 +147,7 @@ def main() -> int:
                 return 1
             continue
 
-        intent_ok = got.intent == want_intent
+        intent_ok = got.intent in want_intent.split("|")
         target_ok = not want_target or got.value == want_target
         ok = intent_ok and target_ok
         passed += ok
@@ -151,7 +156,8 @@ def main() -> int:
         if got.value:
             detail += f" -> {got.value}"
         if not ok:
-            detail += f"   (wanted {want_intent}" + (f" -> {want_target}" if want_target else "") + ")"
+            wanted = want_intent.replace("|", " or ")
+            detail += f"   (wanted {wanted}" + (f" -> {want_target}" if want_target else "") + ")"
         print(f"{mark}{question:44s} {detail}")
 
     print(f"\n{passed}/{len(cases)} as expected")
