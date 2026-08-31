@@ -35,7 +35,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 VENV = ROOT / ".venv"
 STAMP = VENV / ".requirements"
-REQUIREMENTS = ROOT / "app" / "requirements.txt"
+# The developer file, which includes the deployed one. The Dockerfile installs
+# app/requirements.txt on its own, so nothing test-only reaches the image.
+REQUIREMENTS = ROOT / "requirements-dev.txt"
 PORT = int(os.environ.get("NW_PORT", "8099"))
 
 
@@ -53,15 +55,21 @@ def ensure_environment() -> Path:
         subprocess.check_call([sys.executable, "-m", "venv", str(VENV)])
         python = venv_python()
 
-    # Reinstall only when the requirements change, so the usual run starts at once.
-    fresh = STAMP.exists() and filecmp.cmp(REQUIREMENTS, STAMP, shallow=False)
+    # Reinstall only when the requirements change, so the usual run starts at
+    # once. Both files count: requirements-dev.txt includes the deployed one,
+    # and comparing only the outer file would miss an edit to the inner one.
+    wanted = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (REQUIREMENTS, ROOT / "app" / "requirements.txt")
+    )
+    fresh = STAMP.exists() and STAMP.read_text(encoding="utf-8") == wanted
     if not fresh:
         print("· installing dependencies")
         subprocess.check_call([str(python), "-m", "pip", "install", "--quiet",
                                "--upgrade", "pip"])
         subprocess.check_call([str(python), "-m", "pip", "install", "--quiet",
                                "-r", str(REQUIREMENTS)])
-        shutil.copyfile(REQUIREMENTS, STAMP)
+        STAMP.write_text(wanted, encoding="utf-8")
 
     settings = ROOT / ".env"
     if not settings.exists():
@@ -166,9 +174,21 @@ def check(python: Path) -> int:
         if subprocess.call(["node", "tests/smoke.js"], cwd=ROOT):
             failed.append("the browser smoke test")
     else:
-        print("· skipping the browser smoke test")
-        print("  To enable it: npm install playwright (on Windows, npm.cmd install")
-        print("  playwright, because PowerShell blocks the unsigned npm wrapper)")
+        print("· skipping the browser smoke test. To enable it, once:")
+        print()
+        if os.name == "nt":
+            print("    npm.cmd install playwright")
+            print("    npx.cmd playwright install chromium")
+            print()
+            print("  The .cmd matters: PowerShell refuses the unsigned npm wrapper.")
+        else:
+            print("    npm install playwright")
+            print("    npx playwright install chromium")
+        print()
+        print("  Two commands because the first installs the library and the")
+        print("  second downloads a browser for it to drive. Worth doing once:")
+        print("  it is the check that catches a broken renderer, which nothing")
+        print("  else here can see.")
 
     print()
     if failed:

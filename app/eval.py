@@ -115,6 +115,11 @@ def main() -> int:
     errors = 0
     advice = ""
     last = 0.0
+    # Which model actually answered each question. With a ladder underneath,
+    # "provider: gemini" is no longer the whole story: a run can start on one
+    # model and finish on another, and a result you cannot attribute to a
+    # model is not much of a result.
+    answered: dict[str, int] = {}
     for question, want_intent, want_target in cases:
         wait = gap - (time.monotonic() - last)
         if last and wait > 0:
@@ -147,6 +152,7 @@ def main() -> int:
                 return 1
             continue
 
+        answered[got.source] = answered.get(got.source, 0) + 1
         intent_ok = got.intent in want_intent.split("|")
         target_ok = not want_target or got.value == want_target
         ok = intent_ok and target_ok
@@ -167,6 +173,9 @@ def main() -> int:
                 print(f"        {note}")
 
     print(f"\n{passed}/{len(cases)} as expected")
+    if answered:
+        by = ", ".join(f"{name} ({count})" for name, count in sorted(answered.items()))
+        print(f"answered by: {by}")
     return 0 if passed == len(cases) else 1
 
 

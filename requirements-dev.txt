@@ -1,0 +1,12 @@
+# What a developer needs on top of what gets deployed.
+#
+# Kept separate on purpose. app/requirements.txt is what goes into the
+# container, and a test-only library has no business being in a production
+# image. run.py installs this file; the Dockerfile installs the other one.
+
+-r app/requirements.txt
+
+# Starlette's TestClient wants httpx2 and warns on every import without it.
+# The warning is real, not noise: starlette will drop httpx support from the
+# test client. It only affects tests, which is why it lives here.
+httpx2>=2.12

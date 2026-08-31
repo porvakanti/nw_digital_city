@@ -606,6 +606,27 @@ one of these failures was the validation being stricter than the thing it was
 validating. Being strict about what a model may *invent* is right. Being
 strict about how it *phrases* something real is just a bug with good manners.
 
+## 8k. Two small things that were quietly costing something
+
+**A run did not say which model answered it.** With a ladder underneath,
+"provider: gemini" stopped being the whole story: a run can start on one model
+and finish on another, and a result you cannot attribute to a model is not much
+of a result. The eval now ends with `answered by: gemini-3.5-flash-lite (6)`,
+or names both when it switched partway.
+
+**And every run opened with a deprecation warning.** Starlette's test client
+wants `httpx2` and warns without it. The temptation is to silence it, and that
+is the wrong instinct twice over: the warning is true, and a suite that trains
+you to skip its first two lines has already lost the argument about whether you
+read the rest.
+
+So `httpx2` is installed, in a `requirements-dev.txt` that includes the
+deployed file rather than replacing it. A test-only library has no business in
+a production image, so `run.py` installs the developer file and the Dockerfile
+installs `app/requirements.txt` on its own. The reinstall check now compares
+both files, because comparing only the outer one would miss an edit to the
+inner one.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
