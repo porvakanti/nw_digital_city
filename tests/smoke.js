@@ -60,6 +60,17 @@ function findChromium() {
   return undefined;
 }
 
+/* Generous, because the wait is not a download.
+ *
+ * In the packaged single file every script is inline, so the load event does
+ * not fire until the whole city has been built: 145 buildings, the roads, the
+ * trees and the trams, synchronously. That is fast on a developer machine
+ * with a warm cache and slow on a laptop doing something else, and a timeout
+ * here reads as "the page is broken" when it means "the page was still
+ * working". A real hang still fails, a minute later, with the same message.
+ */
+const NAVIGATION = 90000;
+
 let failures = 0;
 const check = (name, ok, detail) => {
   if (!ok) failures++;
@@ -121,13 +132,23 @@ async function reachable(page, where) {
 }
 
 async function onAPhone(browser) {
-  const ctx = await browser.newContext({ ...devices["iPhone 13"] });
+  /* The desktop page must be closed before this runs, and it is not a
+     tidiness point. Two live WebGL contexts in one browser contend badly
+     enough to take this pass from 1.4 seconds to 21, which sat just inside
+     the default 30 second navigation timeout on one machine and outside it on
+     another. Same file, same code, one green run and one red. */
+  const ctx = await browser.newContext({
+    ...devices["iPhone 13"],
+    // Layout is in CSS pixels either way, and 3x is nine times the pixels to
+    // rasterise for a check that never looks at one.
+    deviceScaleFactor: 1,
+  });
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   console.log("· and again on a phone");
-  await page.goto(PAGE);
-  await page.waitForSelector('body[data-ready="1"]', { timeout: 30000 });
+  await page.goto(PAGE, { timeout: NAVIGATION });
+  await page.waitForSelector('body[data-ready="1"]', { timeout: NAVIGATION });
 
   check("phone: buttons replace the keyboard shortcuts",
     (await page.isVisible("#touchbar")) && !(await page.isVisible("#hint")));
@@ -234,8 +255,8 @@ async function onAPhone(browser) {
 
   console.log(SERVED ? `· driving the served page at ${SERVED}`
     : `· driving ${TARGET ? "the packaged file" : "the page from a file"}`);
-  await page.goto(PAGE);
-  await page.waitForSelector('body[data-ready="1"]', { timeout: 30000 });
+  await page.goto(PAGE, { timeout: NAVIGATION });
+  await page.waitForSelector('body[data-ready="1"]', { timeout: NAVIGATION });
 
   const counts = await page.evaluate(() => window.NWCity.data.meta.counts);
   check("city loads", counts.categories === 145 && counts.districts === 8,
@@ -337,8 +358,27 @@ async function onAPhone(browser) {
 
   check("no page errors", errors.length === 0, errors[0] || "");
 
+  // Hand the phone pass a browser with nothing else rendering in it.
+  await page.close();
   await onAPhone(browser);
   await browser.close();
+})().then(done, (err) => {
+  /* A thrown error is a failed check, not a crash.
+   *
+   * Playwright throws when it cannot tap or reach something, and left alone
+   * that ends the process with thirty lines of Node internals: the one line
+   * saying which check failed scrolls away, and the packager's "do not send
+   * it" is buried under a stack trace. The stack still prints, underneath,
+   * because when it is a genuine fault rather than a failed expectation it
+   * is the only thing that helps.
+   */
+  check("the browser check ran to the end", false,
+    String(err && err.message || err).split("\n")[0]);
+  console.error("\n" + (err && err.stack || err));
+  done();
+});
+
+function done() {
   console.log(failures ? `\n${failures} failed` : "\nall passed");
   process.exit(failures ? 1 : 0);
-})();
+}

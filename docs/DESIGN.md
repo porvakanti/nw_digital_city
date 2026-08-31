@@ -897,6 +897,69 @@ builder's speech bubble is the fifth and keeps its transform on purpose, since
 it is placed at a point rather than in a layout, but it now has a width cap so
 it cannot hang off a narrow screen either.
 
+## 8r. Twenty-one seconds against a thirty second limit
+
+The second red run on the same laptop, and a different fault: the phone pass
+could not open the page at all. Thirty seconds waiting for a file already
+loaded once, half a second earlier, in the same browser.
+
+Measured rather than guessed at:
+
+| | Time to open |
+| --- | --- |
+| Desktop pass | 1.8s |
+| Phone pass, desktop page still open | **21.4s** |
+| Phone pass, at device scale factor 1 | 20.6s |
+| Phone pass, desktop page closed | **1.4s** |
+
+I never closed the first page. Two live WebGL contexts in one browser contend
+badly enough to cost fifteen times the load, and the pixel density I suspected
+first accounts for almost none of it.
+
+Twenty-one seconds against a thirty second default is the worst kind of
+number: comfortably inside on the machine that wrote it and outside on a
+laptop doing anything else. It had nothing to do with the phone. It was a
+resource leak in the check, which the check then blamed on the page.
+
+Three changes, in order of how much they matter:
+
+1. **The desktop page is closed before the phone pass.** 21.4s to 1.4s, and
+   the whole browser suite went from about 52 seconds to 31.
+2. **The navigation timeout is 90 seconds**, because the wait is not a
+   download. In the packaged single file every script is inline, so the load
+   event does not fire until the entire city has been built synchronously.
+   That is fast here and slow on a laptop compiling something in another
+   window, and a timeout at that moment reads as "the page is broken" when it
+   means "the page was still working". A genuine hang still fails, a minute
+   later, saying the same thing.
+3. **Device scale factor 1 for the phone context.** Layout is in CSS pixels
+   either way and no check looks at a rasterised pixel, so 3x was nine times
+   the work for nothing. Worth almost none of the time, and still right.
+
+### And a failure should read like a failure
+
+Both red runs ended in an uncaught exception: thirty lines of Node internals,
+with the one line naming the failed check somewhere in the middle and the
+packager's "do not send it" pushed off the bottom.
+
+A thrown error is now a failed check like any other. It prints one line saying
+what could not be done, then the summary, then the stack underneath for when
+it is a genuine fault rather than a failed expectation:
+
+```
+FAIL  the browser check ran to the end — page.tap: Timeout 3000ms exceeded.
+1 failed
+```
+
+Verified by pointing a tap at a button that does not exist, in the same way
+the reachability check in 8q was verified: by watching it fail on purpose.
+
+The pattern across 8q and 8r is one thing said twice. Both bugs were in the
+checking, not in the city, and both showed up as one machine passing and
+another failing on an identical file. A check that leaks resources, or that
+borrows its strictness from the version of the tool that happens to be
+installed, is not measuring the thing it claims to measure.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
