@@ -708,7 +708,37 @@
       overflow-y: auto;
     }
     #suggest { max-height: 34vh; }
-    #tour, #welcome { left: 10px; right: 10px; width: auto; max-width: none; }
+    /* transform: none matters as much as the width here.
+       These cards are centred with translateX(-50%), which is right when the
+       card is placed at left:50%. Given left:10 right:10 instead, the same
+       transform drags it half its own width off the left edge: the card
+       measured -175 to 195 on a 390px screen and both its buttons sat
+       entirely outside the viewport. It looked fine, because the visible half
+       was the half with the text in it. */
+    #tour {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      max-width: none;
+      transform: none;
+      bottom: 116px;
+      padding: 14px 16px 12px;
+    }
+    /* A column, so a long step cannot push the buttons off the top: the text
+       scrolls and the row stays where it is. */
+    #tour.on { display: flex; flex-direction: column; }
+    #tour p { overflow-y: auto; min-height: 0; }
+    #tour .row { flex: none; }
+    /* The starter questions sit exactly where the tour card goes. */
+    body.touring #chips { display: none; }
+
+    #welcome .card { width: auto; max-width: none; margin: 0 12px;
+                     padding: 24px 20px 20px; max-height: 84vh; overflow-y: auto; }
+    #welcome h2 { font-size: 20px; }
+
+    /* The builder's bubble is placed at his position on screen, so on a
+       narrow one it can hang off an edge. */
+    #bubble { max-width: min(240px, 62vw); }
     /* The closing card. #asks, not #asksCard: styling an id that does not
        exist fails in complete silence, which is why the check taps it. */
     #asks .card { left: 12px; right: 12px; width: auto; max-width: none;

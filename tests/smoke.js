@@ -77,6 +77,49 @@ const check = (name, ok, detail) => {
  * A second context on the browser already launched, rather than a third full
  * run: only the things that differ on a touchscreen are worth checking twice.
  */
+/* Every control you can see, you can reach.
+ *
+ * The rule a phone breaks and a laptop does not. It caught a card centred
+ * with translateX(-50%) that had been given left:10 right:10 instead of
+ * left:50%: the transform then drags it half its own width off the screen,
+ * and it measured -175 to 195 on a 390px viewport with both its buttons
+ * entirely outside. It looked correct, because the half still on screen was
+ * the half with the words in it.
+ *
+ * Asserted rather than left to a tap to discover, because whether a tap
+ * refuses an off-screen element is a property of the Playwright version and
+ * this is a property of the page. One machine passed and another failed on
+ * exactly the same file.
+ */
+async function reachable(page, where) {
+  const stray = await page.evaluate(() => {
+    const out = [];
+    for (const el of document.querySelectorAll("button, input, a[href]")) {
+      const style = getComputedStyle(el);
+      if (style.display === "none" || style.visibility === "hidden"
+          || style.pointerEvents === "none" || el.disabled) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;         // not rendered
+      if (el.closest("[hidden]")) continue;
+      // Anything scrollable may legitimately hold content out of sight.
+      let inScroller = false;
+      for (let p = el.parentElement; p; p = p.parentElement) {
+        const ps = getComputedStyle(p);
+        if (ps.overflowY === "auto" || ps.overflowY === "scroll"
+            || ps.overflowX === "auto" || ps.overflowX === "scroll") inScroller = true;
+      }
+      if (inScroller) continue;
+      if (r.right < 1 || r.left > innerWidth - 1
+          || r.bottom < 1 || r.top > innerHeight - 1) {
+        out.push(`${el.id || el.textContent.trim().slice(0, 18)} at ${Math.round(r.left)},${Math.round(r.top)}`);
+      }
+    }
+    return out;
+  });
+  check(`phone: every control is on the screen (${where})`, stray.length === 0,
+    stray.join("; "));
+}
+
 async function onAPhone(browser) {
   const ctx = await browser.newContext({ ...devices["iPhone 13"] });
   const page = await ctx.newPage();
@@ -113,6 +156,8 @@ async function onAPhone(browser) {
   check("phone: the page does not scroll sideways",
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
 
+  await reachable(page, "at rest");
+
   // Every button, because they are the only way in without a keyboard.
   const state = () => page.evaluate(() => window.NWCity.state());
   await page.tap("#touchbar button[data-command='night']");
@@ -142,6 +187,7 @@ async function onAPhone(browser) {
   await page.tap("#touchbar button[data-command='tour']");
   await page.waitForTimeout(1200);
   check("phone: Tour", await page.isVisible("#tour"));
+  await reachable(page, "tour open");
   await page.tap("#tourExit");
   await page.waitForTimeout(400);
 
@@ -170,6 +216,7 @@ async function onAPhone(browser) {
   check("phone: pinching zooms", after < before - 0.01,
     `${before.toFixed(1)} to ${after.toFixed(1)}`);
 
+  await reachable(page, "a lot selected");
   check("phone: no page errors", errors.length === 0, errors[0] || "");
   await ctx.close();
 }

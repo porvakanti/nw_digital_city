@@ -847,6 +847,56 @@ The act of looking changed the answer, and the check passed or failed on its
 own side effect. There is now a `state()` that reads and never writes. Any
 accessor that can change what it reports is not an accessor.
 
+## 8q. It passed here and failed there, on the same file
+
+`run.py package` on my machine: all green. The same command on the laptop it
+was built for: the tour's Close button could not be tapped, and the packager
+refused to hand over the file.
+
+The bug was real and had been there since the mobile layout was written. The
+card is centred with `translateX(-50%)`, which is correct when it is placed at
+`left: 50%`. My phone rule gave it `left: 10px; right: 10px` and did not
+cancel the transform, so the same shift now dragged it half its own width off
+the screen. Measured, it spanned -175 to 195 on a 390 pixel viewport, and both
+its buttons sat entirely outside. Start the tour on a phone and you could not
+leave it.
+
+**It looked completely fine**, in a screenshot and to me, because the half
+still on screen was the half with the words in it.
+
+### Why one machine caught it and the other did not
+
+Nothing about the page differed. Playwright's `tap` refuses an element outside
+the viewport, and how strictly it does that changed between versions. The
+newer one on the other laptop refused; the older one here went ahead and the
+check passed.
+
+That is the part worth keeping. My check tapped the button and inferred
+success from the tap not throwing, which made the assertion a property of the
+test runner rather than of the page. A check that depends on how strict your
+tooling happens to be this month is not a check.
+
+So the rule is now asserted directly: **every control you can see, you can
+reach.** It walks every visible button, input and link, skips anything inside
+something scrollable, and fails naming any that lie outside the viewport. On
+the broken version it says `tourNext at -155,498`, which is the bug, its
+identity and its coordinates, before any tap is attempted. Verified by putting
+the bug back and watching it fail, because a regression test nobody has seen
+fail is a regression test nobody has tested.
+
+It runs three times over the phone pass: at rest, with the tour open, and with
+a lot selected. Cards that only exist in one state are exactly where this
+class of mistake hides.
+
+### And the same mistake, found by looking rather than failing
+
+Having seen it once, I searched for the pattern instead of waiting for it:
+five elements are centred with a transform, and four had already been given
+`transform: none` in the phone rules. `#tour` was the one I missed. The
+builder's speech bubble is the fifth and keeps its transform on purpose, since
+it is placed at a point rather than in a layout, but it now has a width cap so
+it cannot hang off a narrow screen either.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
