@@ -846,6 +846,27 @@
     welcomeEl.classList.remove("on");
   });
 
+  /* The touch bar. Tour lives here because it lives here; the other four are
+     the city's own commands, called by name so a button and a key cannot end
+     up meaning different things. */
+  /* On a phone the bar is about 370px wide and holds a text field, a badge
+     and a button. The desktop placeholder is a sentence and gets cut off at
+     "Ask about a ca", which reads like a bug rather than a hint. */
+  const NARROW = window.matchMedia(
+    "(max-width: 760px), (pointer: coarse) and (max-width: 1024px)");
+  if (NARROW.matches) input.placeholder = "Ask about a category\u2026";
+
+  const touchbar = document.getElementById("touchbar");
+  if (touchbar) {
+    touchbar.addEventListener("click", (e) => {
+      const button = e.target.closest("[data-command]");
+      if (!button) return;
+      const name = button.dataset.command;
+      if (name === "tour") return startTour();
+      window.NWCity.command(name);
+    });
+  }
+
   window.addEventListener("keydown", (e) => {
     const el = e.target;
     const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA"

@@ -1590,6 +1590,17 @@
   renderStats();
   renderLegend();
 
+  /* On a phone the legend and the trace start closed. Both are reference
+     rather than the thing itself, and open they cover the city on a screen
+     that has no room to spare. The header stays visible, so it is obvious
+     they are there. */
+  if (window.matchMedia("(max-width: 760px), (pointer: coarse) and (max-width: 1024px)").matches) {
+    for (const id of ["legend", "trace"]) {
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add("collapsed");
+    }
+  }
+
   // ----------------------------------------------------------- the builder
   // A minifigure in a hard hat, deliberately the same object Gorkem is handing
   // out on the day, so the thing in someone's hand is the thing on the screen.
@@ -1929,7 +1940,28 @@
     anim.active = true;
   }
 
+  /* Two fingers on a phone are what a scroll wheel is on a laptop.
+   *
+   * Pointer events give touches and a mouse through the same handlers, so the
+   * only thing that has to be tracked is how many are down: one drags the map,
+   * two pinch it. Without this the city loads on a phone and cannot be zoomed
+   * at all, which on a 390 pixel screen means never seeing a single building
+   * closely enough to read it. */
+  const touches = new Map();
+  let pinchFrom = 0;
+
+  const spread = () => {
+    const [a, b] = [...touches.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+
   renderer.domElement.addEventListener("pointerdown", (e) => {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) {
+      pinchFrom = spread();
+      dragging = false;  // the second finger ends the drag it started
+      return;
+    }
     dragging = true;
     moved = 0;
     lastX = e.clientX;
@@ -1937,6 +1969,18 @@
     renderer.domElement.setPointerCapture(e.pointerId);
   });
   renderer.domElement.addEventListener("pointermove", (e) => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) {
+      const now = spread();
+      if (pinchFrom > 0 && now > 0) {
+        view.size = THREE.MathUtils.clamp(view.size * (pinchFrom / now), 6, span * 1.4);
+        anim.active = false;
+      }
+      pinchFrom = now;
+      // Fingers moving apart is a zoom, not a tap, whatever the distance says.
+      moved = 999;
+      return;
+    }
     if (!dragging) return;
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -1949,7 +1993,11 @@
     view.target.addScaledVector(right, -dx * scale).addScaledVector(fwd, -dy * scale);
     anim.active = false;
   });
-  const endDrag = () => { dragging = false; };
+  const endDrag = (e) => {
+    dragging = false;
+    if (e) touches.delete(e.pointerId);
+    if (touches.size < 2) pinchFrom = 0;
+  };
   renderer.domElement.addEventListener("pointerup", endDrag);
   renderer.domElement.addEventListener("pointercancel", endDrag);
 
@@ -2105,16 +2153,25 @@
       || target.isContentEditable;
   }
 
+  /* One place for the four things a key can ask for, because a phone has no
+   * keys and the buttons that stand in for them must do exactly the same
+   * thing. Two code paths to the same view is how they drift. */
+  const COMMANDS = {
+    night: () => setNight(!isNight),
+    potential: () => window.NWCity.potential(),
+    asks: () => setAsks(!showingAsks),
+    reset: () => {
+      showCategory(null);
+      flyTo(HOME.target, HOME.size);
+    },
+  };
+  const KEYS = { n: "night", p: "potential", k: "asks", r: "reset" };
+
   window.addEventListener("keydown", (e) => {
     if (typingInAField(e.target)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === "n" || e.key === "N") setNight(!isNight);
-    if (e.key === "p" || e.key === "P") window.NWCity.potential();
-    if (e.key === "k" || e.key === "K") setAsks(!showingAsks);
-    if (e.key === "r" || e.key === "R") {
-      showCategory(null);
-      flyTo(HOME.target, HOME.size);
-    }
+    const command = KEYS[e.key.toLowerCase()];
+    if (command) COMMANDS[command]();
   });
 
   window.addEventListener("resize", () => {
@@ -2191,6 +2248,28 @@
       }
     },
     categories: CITY.categories,
+    /* What the on-screen buttons call. The same functions the keys call, by
+       name, so a phone and a laptop cannot end up doing different things. */
+    command(name) {
+      const run = COMMANDS[name];
+      if (!run) return false;
+      run();
+      return true;
+    },
+    /* Read the city without changing it.
+     *
+     * night(), potential() and asks() all toggle when called with nothing,
+     * which makes them useless for asking a question: the act of looking
+     * changes the answer, and a check written with one of them passes or
+     * fails on its own side effect. */
+    state() {
+      return {
+        night: isNight,
+        potential: showingPotential,
+        asks: showingAsks,
+        size: view.size,
+      };
+    },
     // pieces still mid-flight, used by rehearsal checks and tests
     pending() {
       return scheduled.length;

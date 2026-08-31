@@ -591,12 +591,144 @@
     padding: 1px 5px;
   }
   #hint .tip { margin-top: 3px; color: var(--ink-muted); }
+
+  /* ---- the touch bar ----
+     Five buttons standing in for the five keyboard shortcuts. Hidden until a
+     screen turns out to have no keyboard, because on a laptop the keys are
+     better and the screen is worth more than the buttons. */
+  #touchbar { display: none; }
+  #touchbar button {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 4px 8px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 9px;
+    color: var(--ink-2);
+    font: 600 11px system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #touchbar button:active { background: rgba(255,255,255,0.14); color: var(--ink); }
+  #touchbar button.on { background: var(--hotel); border-color: var(--hotel); color: #fff; }
+
+  /* ---- phones ----
+     The layout above is built for a laptop: panels 320px wide, pinned to the
+     corners of a screen that has corners to spare. On a 390px phone the legend
+     alone covered the city, the ask bar, and most of the suggestions, and the
+     hint in the corner said to hover and press keys, neither of which exists
+     on a touchscreen.
+
+     A phone is not the demo and never will be. It is how a reviewer opens a
+     link, so it has to be honest rather than beautiful: show the city, keep
+     the question box, put the panels away until they are asked for. */
+  @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
+    #masthead { top: 10px; left: 12px; right: 12px; }
+    #masthead h1 { font-size: 17px; }
+    #masthead #scope { font-size: 11px; margin-top: 2px; }
+    #stats { gap: 6px; margin-top: 8px; }
+    #stats .stat { padding: 5px 9px; border-radius: 8px; }
+    #stats .n { font-size: 14px; }
+    #stats .k { font-size: 9px; letter-spacing: 0.04em; margin-top: 1px; }
+
+    /* Everything along the bottom is one stack on a phone, in the order it is
+       needed: the question box, the buttons, the starter questions, whatever
+       the agent last said, then the two reference panels. Each is placed off
+       the one below it rather than off the screen, so nothing lands on top of
+       anything else. */
+    #ask { bottom: 14px; }
+    #touchbar { bottom: 70px; }
+    #chips { bottom: 116px; }
+    #caption { bottom: 156px; }
+    #legend { bottom: 202px; }
+    #trace { bottom: 250px; top: auto; }
+
+    /* Both were fixed-width panels in a corner. On a phone they are sheets
+       across the bottom, and both start collapsed: the header stays visible
+       so it is obvious they can be opened. */
+    #legend, #trace {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      max-height: 40vh;
+      overflow-y: auto;
+      padding: 11px 13px;
+    }
+    #legend.collapsed, #trace.collapsed { max-height: none; overflow: visible; }
+
+    /* The starter questions wrapped into a six-line block that covered the
+       city and everything under it. One line that scrolls sideways instead:
+       the same questions, one thumb-swipe away, and the city stays visible. */
+    #chips {
+      left: 0;
+      right: 0;
+      max-width: none;
+      transform: none;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 10px;
+      gap: 7px;
+    }
+    #chips::-webkit-scrollbar { display: none; }
+    #chips button { flex: none; white-space: nowrap; padding: 7px 13px; }
+
+    /* The hint is desktop advice: hover, scroll, keys. None of it applies. */
+    #hint { display: none; }
+
+    #touchbar {
+      display: flex;
+      gap: 6px;
+      left: 10px;
+      right: 10px;
+      bottom: 74px;
+    }
+
+    #ask {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      transform: none;
+      padding: 7px 8px 7px 13px;
+    }
+    /* 16px or iOS zooms the whole page in when the field is focused, and
+       leaves it zoomed. */
+    #ask input { font-size: 16px; }
+    #ask > button { padding: 8px 13px; }
+    /* Still says which model is answering, in the space that leaves. The
+       question box is what the bar is for. */
+    #modelBadge { font-size: 9px; padding: 2px 6px; }
+
+    #inspector {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      max-height: 46vh;
+      overflow-y: auto;
+    }
+    #suggest { max-height: 34vh; }
+    #tour, #welcome { left: 10px; right: 10px; width: auto; max-width: none; }
+    /* The closing card. #asks, not #asksCard: styling an id that does not
+       exist fails in complete silence, which is why the check taps it. */
+    #asks .card { left: 12px; right: 12px; width: auto; max-width: none;
+                  padding: 20px 18px; }
+    #asks h2 { font-size: 20px; }
+    #caption { left: 10px; right: 10px; width: auto; transform: none; font-size: 15px; }
+  }
+
+  /* Landscape on a phone has almost no height. Stack nothing, hide the
+     panels outright, and leave the city and the question box. */
+  @media (pointer: coarse) and (max-height: 460px) {
+    #legend, #trace, #touchbar { display: none; }
+    #masthead #scope, #stats .k { display: none; }
+  }
 </style>
 </head>
 <body>
   <div class="hud" id="masthead">
     <h1>NW Digital City</h1>
-    <p id="scope">Vodafone Networks — category blueprint estate</p>
+    <p id="scope">Vodafone Networks &middot; category blueprint estate</p>
     <div id="stats"></div>
   </div>
 
@@ -675,6 +807,16 @@
       <p class="sign">Blueprints today. Smart procurement tomorrow.</p>
       <p class="close">Press <kbd>K</kbd> or click anywhere to go back to the city.</p>
     </div>
+  </div>
+
+  <!-- Standing in for the keyboard shortcuts on a device that has no
+       keyboard. Same five actions, same functions behind them. -->
+  <div class="hud" id="touchbar">
+    <button data-command="tour">Tour</button>
+    <button data-command="reset">Reset</button>
+    <button data-command="night">Night</button>
+    <button data-command="potential">Could be</button>
+    <button data-command="asks">The ask</button>
   </div>
 
   <div class="hud" id="hint">

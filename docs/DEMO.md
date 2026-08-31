@@ -144,6 +144,17 @@ Press `R`.
 | `which category leads on spend` | Ranking, and it flies to the winner. |
 | `banana bread` | It says it cannot find that, rather than guessing. |
 
+## On a phone
+
+Not the demo, which is a laptop and a projector, but it is how a reviewer
+opens a link, so it works: the panels become a stack along the bottom and
+start collapsed, five buttons stand in for the keyboard shortcuts, the starter
+questions scroll sideways, and two fingers pinch to zoom. Landscape drops the
+panels and leaves the city.
+
+`./run.sh test` drives an emulated phone as well as a desktop window, so this
+stays true.
+
 ## If something looks wrong
 
 - **Nothing renders, black screen.** The browser has no WebGL. Try Chrome.
