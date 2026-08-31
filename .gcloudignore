@@ -27,6 +27,7 @@ tests/
 docs/
 deploy/
 *.zip
+NW Digital City.html
 *.png
 run.cmd
 run.sh

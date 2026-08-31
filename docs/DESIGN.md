@@ -736,6 +736,55 @@ than a folder, `.gcloudignore` names what does not go to the build, and the
 `Dockerfile` copies `app` and `renderer` by name, so an upload carrying more
 than it should still could not put it in the image.
 
+## 8n. The thing you send should be the thing they open
+
+"Can I not just share index.html?" No, and the reason is a fair complaint
+about how it was built rather than a misunderstanding.
+
+`index.html` is a 20KB shell. It pulls in a 3D library, the city data, the
+renderer and the agent as four separate files, so on its own it is a blank
+page. The honest answer had been a zip: unzip it, find the folder, find
+index.html, open that one. Four steps and a decision, for somebody who only
+wanted to look at it, and every one of those steps is somewhere a reviewer
+quietly gives up.
+
+So `run.py package` now also inlines the four scripts and writes one 0.9 MB
+`NW Digital City.html` that opens on a double-click. Same code, same data, no
+network. Larger, because the library is inside it, and worth every byte: the
+thing you send should be the thing they open.
+
+**And it is checked before it can be sent.** Inlining is a text substitution,
+and text substitutions fail quietly: a broken single file looks exactly like a
+working one until somebody opens it, and by then it is in their inbox. So the
+packager drives the file it just built in a real browser, runs the full set of
+checks against it, and refuses to leave it behind if any fail. The smoke test
+takes a `file://` target for this, alongside the served one from 8m.
+
+One guard worth naming: a literal `</script>` anywhere in the inlined
+JavaScript would close the tag early and spill the rest of the file onto the
+page as text. Nothing has one today. A file that grows one later should not
+find out the hard way.
+
+## 8o. Who the reviewers actually are
+
+I had written the reviewer email asking Tomas about container deployment and
+which Vertex models were available internally. Tomas is in Kate's team, on
+customer success and value. He is not the infrastructure route and never was,
+and the question would have read as though I had not bothered to find out who
+he is.
+
+Worth recording because it is the same failure as an invented category, one
+level up: an assumption dressed as a fact, in the one part of the work that
+leaves the building. The code refuses to state a figure it cannot source. The
+email should hold to the same standard about people.
+
+`docs/REVIEW-GUIDE.md` is the other half. A reviewer who has to be told how to
+look at something will tell you it is confusing, and they will be right, and
+you will have learned nothing about the thing itself. The guide gets them to
+the same starting point: how to open it, what the four visual measures mean,
+six things to type, what feedback is useful, and a list of what is already
+known so nobody spends their time reporting the placeholder rooftop lights.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

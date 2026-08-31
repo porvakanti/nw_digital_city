@@ -22,13 +22,15 @@ const fs = require("fs");
  *   node tests/smoke.js                              the file
  *   NW_SMOKE_URL=http://127.0.0.1:8099 node ...      the service
  */
-const SERVED = (process.env.NW_SMOKE_URL || "").replace(/\/+$/, "");
+const TARGET = (process.env.NW_SMOKE_URL || "").replace(/\/+$/, "");
+// A file:// target is the packaged single file, which has no service behind
+// it, so it gets the same checks as the folder rather than the served ones.
+const SERVED = /^https?:/.test(TARGET) ? TARGET : "";
 
 // ?clean skips the first-run welcome card, which would otherwise sit over the
 // city for every check in here.
-const PAGE = (SERVED
-  ? SERVED + "/index.html"
-  : "file://" + path.join(__dirname, "..", "renderer", "index.html")) + "?clean";
+const PAGE = (SERVED ? SERVED + "/index.html"
+  : TARGET || "file://" + path.join(__dirname, "..", "renderer", "index.html")) + "?clean";
 
 // What the room is likely to shout, and what it has to resolve to.
 const RESOLUTIONS = [
@@ -76,7 +78,7 @@ const check = (name, ok, detail) => {
   page.on("pageerror", (e) => errors.push(e.message));
 
   console.log(SERVED ? `· driving the served page at ${SERVED}`
-                     : "· driving the page from a file");
+    : `· driving ${TARGET ? "the packaged file" : "the page from a file"}`);
   await page.goto(PAGE);
   await page.waitForSelector('body[data-ready="1"]', { timeout: 30000 });
 

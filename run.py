@@ -6,7 +6,7 @@
     python3 run.py eval       six questions against whatever .env says
     python3 run.py eval all   all 32, if the key's limits allow it
     python3 run.py build      rebuild city.json from the workbook in data/raw/
-    python3 run.py package    a zip of just the city, safe to send to anyone
+    python3 run.py package    one .html file to send, and a zip, both safe
     python3 run.py models     which models the configured key can actually call
 
 Run it from the repository root on your own machine. It makes a virtual
@@ -118,13 +118,47 @@ def models(python: Path) -> int:
     return subprocess.call([str(python), "-m", "app.models"], cwd=ROOT)
 
 
-def package() -> int:
-    """Zip up the parts someone needs to open the city, and nothing else.
+def single_file() -> Path:
+    """Fold the whole city into one .html file that opens on its own.
 
-    Deliberately narrow. data/raw holds the source workbook with blueprint
-    owner names and email addresses in it, and the surest way that never
-    reaches anyone is for the thing you send to be built from a list of files
-    rather than from a folder.
+    index.html is a shell. It pulls in a 3D library, the city data, the
+    renderer and the agent as four separate files, so on its own it is a blank
+    page, and the honest way to send it has been a zip: unzip, find the folder,
+    find index.html, open that one. Four steps and a decision, for somebody who
+    only wanted to look at it.
+
+    So the scripts get inlined and it becomes one file you double-click. Same
+    code, same data, no network, nothing to install. Larger, because the
+    library is in it, and worth it: the thing you send should be the thing they
+    open.
+    """
+    renderer = ROOT / "renderer"
+    html = (renderer / "index.html").read_text(encoding="utf-8")
+
+    for name in ("vendor/three.min.js", "city-data.js", "city.js", "agent.js"):
+        tag = f'<script src="{name}"></script>'
+        if tag not in html:
+            print(f"cannot inline {name}: {tag} is not in index.html", file=sys.stderr)
+            raise SystemExit(1)
+        code = (renderer / name).read_text(encoding="utf-8")
+        # A literal </script> anywhere inside would close the tag early and
+        # spill the rest of the file onto the page as text. Nothing here has
+        # one today; a file that grows one later should not silently break.
+        code = code.replace("</script>", "<\\/script>")
+        html = html.replace(tag, f"<script>\n{code}\n</script>")
+
+    out = ROOT / "NW Digital City.html"
+    out.write_text(html, encoding="utf-8")
+    return out
+
+
+def package() -> int:
+    """Two things to send: one file to open, and a zip of the folder.
+
+    Both are built from a named list rather than by walking a folder. data/raw
+    holds the source workbook with blueprint owner names and email addresses in
+    it, and the surest way that never reaches anyone is for the thing you send
+    to be assembled from names you can read.
     """
     import zipfile
 
@@ -152,7 +186,28 @@ def package() -> int:
 
     size = out.stat().st_size / 1e6
     print(f"· wrote {out.name} ({size:.1f} MB, {len(files) + 1} files)")
-    print("  It contains the renderer only. The workbook in data/raw is not in it.")
+
+    one = single_file()
+    print(f"· wrote {one.name} ({one.stat().st_size / 1e6:.1f} MB, opens on its own)")
+
+    # Check the thing that is about to be emailed, not the folder it came from.
+    # Inlining is a text substitution and text substitutions go wrong quietly:
+    # a broken single file looks exactly like a working one until somebody
+    # opens it, and by then it is in their inbox.
+    if shutil.which("node") and (ROOT / "node_modules" / "playwright").is_dir():
+        print("· checking it opens and answers a question")
+        if subprocess.call(["node", "tests/smoke.js"], cwd=ROOT,
+                           env=dict(os.environ, NW_SMOKE_URL=one.as_uri())):
+            print("\n  The packaged file did not pass. Do not send it.", file=sys.stderr)
+            return 1
+    else:
+        print("· cannot check it here: node and playwright are not installed.")
+        print("  Open it yourself before sending it.")
+    print()
+    print("  Send the single file. It is the one somebody can double-click.")
+    print("  The zip is the same city as separate files, for anyone who wants")
+    print("  to look at how it works.")
+    print("  Neither contains the workbook in data/raw.")
     return 0
 
 
