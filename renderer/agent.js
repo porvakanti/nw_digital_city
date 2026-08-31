@@ -826,6 +826,8 @@
     document.getElementById("tourNext").textContent =
       index === TOUR.length - 1 ? "Finish" : "Next";
     tourEl.classList.add("on");
+    // The card stands where the starter questions do on a phone.
+    document.body.classList.add("touring");
     step.run();
   }
 
@@ -837,6 +839,7 @@
   function endTour() {
     tourStep = -1;
     tourEl.classList.remove("on");
+    document.body.classList.remove("touring");
   }
 
   document.getElementById("tourNext").addEventListener("click", () => showTourStep(tourStep + 1));
