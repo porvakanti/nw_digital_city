@@ -47,6 +47,10 @@ so it uses the browser's own rules and the badge says so.
 ./run.sh models     # what the configured key can actually call
 ```
 
+If you are presenting this, read `READING-THE-CITY.md` first. It is what every
+part of the picture means and what the picture is saying, with the figures to
+quote and the three places the data is soft.
+
 ## The script
 
 Nine beats. Press `T` for the guided tour and it runs them in order, or type

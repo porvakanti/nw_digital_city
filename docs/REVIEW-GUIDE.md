@@ -54,6 +54,10 @@ Four things about a category are visible at once:
 Bare ground is a category with no blueprint. There are 89 of them, and they
 are meant to be the thing you notice.
 
+`READING-THE-CITY.md` goes through all four in detail, with the thresholds and
+what the numbers actually come to. You do not need it to look at the city, but
+it is there if you want to argue with a figure.
+
 ## Six things to try
 
 Type these into the box at the bottom of the screen and press enter.
