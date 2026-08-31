@@ -111,7 +111,7 @@ def make_plan(ask: Ask) -> dict:
         return planning.Plan(
             intent="unknown", source="error", notes=[f"{type(exc).__name__}: {exc}"]
         ).as_dict()
-    return planning.parse(raw, names, source).as_dict()
+    return planning.parse(raw, names, source, ask.question).as_dict()
 
 
 # Mounted last, because a mount at the root would otherwise swallow /plan and

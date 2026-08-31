@@ -29,12 +29,19 @@ env.load()
 
 CITY = pathlib.Path(__file__).resolve().parent.parent / "data" / "city.json"
 
-# question, expected intent, expected target ("" means anywhere is acceptable)
+# question, expected intent, expected target
+#
+# The target column reads three ways. A name means it has to land exactly
+# there. "" means any target is acceptable, including none. "-" means it must
+# carry no target at all, which is the check that catches "what could we
+# build" answered for Germany: right intent, and a number about one market
+# over a picture of the whole city.
 #
 # An intent may list alternatives separated by "|" where two are genuinely
 # both right. "How is Energy doing" is the case in point: `district` flies
 # there and summarises, `summary` flies there and summarises with one more
 # figure. Marking one of those wrong tests my preference, not the agent.
+NOWHERE = "-"
 CASES: list[tuple[str, str, str]] = [
     ("A221", "focus", "A221"),
     ("show me A311", "focus", "A311"),
@@ -50,24 +57,24 @@ CASES: list[tuple[str, str, str]] = [
     ("where are the biggest gaps", "gaps", ""),
     ("show me the empty lots", "gaps", ""),
     ("which categories have no blueprint", "gaps", ""),
-    ("what could we build", "could_be", ""),
-    ("show me the potential", "could_be", ""),
-    ("what is the upside here", "could_be", ""),
-    ("show me AI readiness", "night", ""),
-    ("which categories are AI ready", "night", ""),
-    ("turn the lights off", "night", ""),
+    ("what could we build", "could_be", NOWHERE),
+    ("show me the potential", "could_be", NOWHERE),
+    ("what is the upside here", "could_be", NOWHERE),
+    ("show me AI readiness", "night", NOWHERE),
+    ("which categories are AI ready", "night", NOWHERE),
+    ("turn the lights off", "night", NOWHERE),
     ("how many blueprints do we have", "summary", ""),
     ("give me an overview of Energy", "summary|district", "Energy"),
     ("what is the worst category in Software and Core", "rank", "Software and Core"),
     ("which category leads on spend", "rank", ""),
     ("biggest category by value", "rank", ""),
-    ("what are we asking people to do", "asks", ""),
-    ("what should we do next", "asks", ""),
-    ("show me the takeaways", "asks", ""),
-    ("back to the whole city", "reset", ""),
-    ("zoom out", "reset", ""),
-    ("banana bread", "unknown", ""),
-    ("what is the weather", "unknown", ""),
+    ("what are we asking people to do", "asks", NOWHERE),
+    ("what should we do next", "asks", NOWHERE),
+    ("show me the takeaways", "asks", NOWHERE),
+    ("back to the whole city", "reset", NOWHERE),
+    ("zoom out", "reset", NOWHERE),
+    ("banana bread", "unknown", NOWHERE),
+    ("what is the weather", "unknown", NOWHERE),
 ]
 
 
@@ -127,7 +134,7 @@ def main() -> int:
         last = time.monotonic()
         try:
             raw, source = providers.complete(system, question, names)
-            got = planning.parse(raw, names, source)
+            got = planning.parse(raw, names, source, question)
         except Exception as exc:  # noqa: BLE001 - report, do not stop the run
             # One line per case. The full explanation is printed once at the
             # end: the same twenty-line message three times over is how you
@@ -154,7 +161,10 @@ def main() -> int:
 
         answered[got.source] = answered.get(got.source, 0) + 1
         intent_ok = got.intent in want_intent.split("|")
-        target_ok = not want_target or got.value == want_target
+        if want_target == NOWHERE:
+            target_ok = not got.value
+        else:
+            target_ok = not want_target or got.value == want_target
         ok = intent_ok and target_ok
         passed += ok
         mark = "  ok  " if ok else "FAIL  "
@@ -163,7 +173,12 @@ def main() -> int:
             detail += f" -> {got.value}"
         if not ok:
             wanted = want_intent.replace("|", " or ")
-            detail += f"   (wanted {wanted}" + (f" -> {want_target}" if want_target else "") + ")"
+            where = ""
+            if want_target == NOWHERE:
+                where = " with no target"
+            elif want_target:
+                where = f" -> {want_target}"
+            detail += f"   (wanted {wanted}{where})"
         print(f"{mark}{question:44s} {detail}")
         # A plan that arrived and was then cut down says so in its notes.
         # Without this, "focus" with no target looks like the model failing

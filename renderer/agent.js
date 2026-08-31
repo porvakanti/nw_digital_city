@@ -368,8 +368,11 @@
     );
   }
 
-  async function runCouldBe(scope) {
-    const gaps = await call("find_gaps", scope);
+  /* No scope, deliberately. This view raises every undeveloped lot in the
+   * city, so a figure counted for one district under a picture of all eight
+   * would be a caption that does not match its own screen. */
+  async function runCouldBe() {
+    const gaps = await call("find_gaps", null);
     await call("render", "potential");
     const drafted = categories.filter((c) => c.blueprint_state === "draft").length;
     const unbuilt = gaps.list.reduce((sum, c) => sum + c.metrics.spend_eur, 0);
@@ -566,11 +569,19 @@
         case "gaps": return runGaps(scope);
         case "summary": return runSummary(scope);
         case "rank": return runRank(scope, plan.metric, plan.direction);
-        case "could_be": return runCouldBe(scope);
+        case "could_be": return runCouldBe();
         case "night": return runNight();
         case "asks": return runAsks();
         case "reset": return runReset();
-        default: return runPlace(scope || { kind: "none" });
+        default: {
+          // A model can be right about the intent and still forget to say
+          // where: asked about batteries it answers focus and nothing else.
+          // The question is still here and the browser has its own resolver,
+          // so use it rather than telling a room that batteries is not in
+          // the city.
+          const place = scope || (await call("find_category", query));
+          return runPlace(place || { kind: "none" });
+        }
       }
     }
     if (plan) logCall("plan", [query], "no decision, using local rules");
@@ -582,7 +593,7 @@
 
     const found = await call("find_category", query);
     const scope = placeScope(found);
-    if (COULD_BE.test(lower)) return runCouldBe(scope);
+    if (COULD_BE.test(lower)) return runCouldBe();
     if (GAPS.test(lower)) return runGaps(scope);
     if (SUMMARY.test(lower)) return runSummary(scope);
     if (WORST.test(lower) || BEST.test(lower)) {

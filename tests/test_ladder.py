@@ -148,5 +148,58 @@ class LadderTests(unittest.TestCase):
         self.assertIn("no answer from", str(caught.exception))
 
 
+class NamingTests(unittest.TestCase):
+    """What answered, said once.
+
+    The eval prints this after every run, and a line reading
+    "gemini:gemini-3.5-flash-lite" is a line nobody reads twice.
+    """
+
+    def test_a_model_that_already_names_its_family_is_not_prefixed(self):
+        self.assertEqual(providers.label("gemini", "gemini-3.5-flash-lite"),
+                         "gemini-3.5-flash-lite")
+        self.assertEqual(providers.label("claude", "claude-opus-5"), "claude-opus-5")
+
+    def test_vertex_keeps_its_prefix(self):
+        """Same model, different credentials and a different quota."""
+        self.assertEqual(providers.label("vertex", "gemini-3.5-flash"),
+                         "vertex:gemini-3.5-flash")
+
+
+class AttributionTests(unittest.TestCase):
+    """A run has to say which model actually answered it, not which was asked.
+
+    With a ladder underneath, reporting the configured model makes a result
+    impossible to attribute, which is most of the reason for reporting it.
+    """
+
+    def setUp(self):
+        self.saved = {k: os.environ.pop(k, None)
+                      for k in ("NW_PROVIDER", "NW_MODEL", "NW_API_KEY", "NW_RETRIES")}
+        os.environ.update({"NW_PROVIDER": "gemini", "NW_API_KEY": "test-key",
+                           "NW_MODEL": "gemini-3.5-flash", "NW_RETRIES": "1"})
+        providers._rested.clear()
+        providers._resolved.clear()
+
+    def tearDown(self):
+        for key, value in self.saved.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        providers._rested.clear()
+        providers._resolved.clear()
+
+    def test_the_model_that_answered_is_the_one_reported(self):
+        def post(url, **kwargs):
+            name = url.split("/models/")[1].split(":")[0]
+            return answer() if name == "gemini-3.6-flash" else refusal(429)
+
+        with mock.patch.object(providers.httpx, "post", side_effect=post):
+            with contextlib.redirect_stdout(io.StringIO()):
+                _, source = providers.complete("system", "question", {})
+        self.assertEqual("gemini-3.6-flash", source)
+
+
 if __name__ == "__main__":
     unittest.main()

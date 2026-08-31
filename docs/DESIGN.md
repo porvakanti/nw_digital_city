@@ -627,6 +627,63 @@ installs `app/requirements.txt` on its own. The reinstall check now compares
 both files, because comparing only the outer one would miss an edit to the
 inner one.
 
+## 8l. The wrong answer that passed, and the right answer that failed
+
+One run produced two lines worth more than the twenty-eight that were fine.
+
+```
+FAIL  batteries                     focus   (wanted focus -> D504)
+  ok  what could we build           could_be -> Germany
+```
+
+**The failure had no notes under it.** 8j added notes so a cut-down plan would
+explain itself, and their absence was the finding: nothing was dropped, because
+nothing arrived. The model returned `{"intent": "focus"}` and stopped. It was
+right about the intent and simply did not say where.
+
+Sharpening the prompt is worth doing and is not a fix, because a prompt is a
+request and a model can decline it. So the answer is a net: **when an intent
+that needs a place arrives without one, the question is searched for a name.**
+The word "batteries" is still sitting in the text that was typed. Nothing
+invented can come out, because the search only ever returns an entry from the
+vocabulary, which is the same rule everything else here obeys.
+
+That search already existed, inside the mock provider, and is now one function
+that both use. Two copies of "what does this question refer to" would have
+drifted, and the mock is what the entire suite runs against.
+
+**The pass was the more interesting of the two.** `could_be -> Germany` is the
+right intent scoped to a market, and the eval accepted it because the expected
+target was blank, which meant "anywhere is fine". It is not fine. That view
+raises every undeveloped lot in Networks and the caption counts drafts across
+all 145, so a target on it produces a sentence about Germany underneath a
+picture of the whole city. The number and the screen would disagree, on stage,
+in front of four hundred people.
+
+So the rule got more precise rather than just wider. There are now three kinds
+of intent, not two:
+
+| Kind | Takes | Because |
+| --- | --- | --- |
+| `focus`, `district` | one place, always | they are questions about that place |
+| `gaps`, `summary`, `rank` | a district, plot or market | an area has gaps and totals; a single lot does not |
+| `could_be`, `night`, `asks`, `reset` | nothing at all | they redraw the whole city, so there is nothing to scope |
+
+`runCouldBe` in the browser lost its scope parameter for the same reason, on
+both paths. It was accepting one and rendering city-wide regardless, which is
+the same disagreement arrived at from the other direction.
+
+**And the eval learned to say "nowhere".** A blank expectation meant "any
+target, including none", which cannot catch a target that should not be there.
+The target column now reads three ways: a name, `""` for anywhere, and `"-"`
+for nowhere. Thirteen cases moved to `"-"`, and `could_be -> Germany` now
+fails, which it should have been doing all along.
+
+The smaller thing in the same output: `answered by: gemini:gemini-3.5-flash-lite`
+said the same word twice, and worse, it named the model that was *asked* rather
+than the one that *replied*. With a ladder underneath those are different
+models, and the whole reason for printing the line was attribution.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
