@@ -1960,23 +1960,66 @@
   }, { passive: false });
 
   const raycaster = new THREE.Raycaster();
-  renderer.domElement.addEventListener("click", (e) => {
-    if (moved > 6) return;
-    const pointer = new THREE.Vector2(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1
+
+  /* What is under the pointer, without having to click it.
+   *
+   * Clicking a building is a commitment: it opens the deed, moves the camera
+   * and pins the builder. Hovering costs nothing, which is what people
+   * actually do when they are finding their way round a map for the first
+   * time. It answers the only question a newcomer has of any one square:
+   * what is this, and is anything built on it. */
+  const hoverEl = document.getElementById("hover");
+  const pointer = new THREE.Vector2();
+
+  function categoryUnder(clientX, clientY) {
+    pointer.set(
+      (clientX / window.innerWidth) * 2 - 1,
+      -(clientY / window.innerHeight) * 2 + 1
     );
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(pickTargets, false)[0];
-    if (hit) {
-      const clicked = hit.object.userData.category;
+    return hit ? hit.object.userData.category : null;
+  }
+
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (dragging) {
+      hoverEl.classList.remove("on");
+      return;
+    }
+    const category = categoryUnder(e.clientX, e.clientY);
+    if (!category) {
+      hoverEl.classList.remove("on");
+      return;
+    }
+    const state = tierOf("blueprint_state", category.blueprint_state).label;
+    const spend = category.metrics.spend_eur;
+    hoverEl.innerHTML =
+      `<b>${category.code}</b> ${category.name}<br>` +
+      `<span>${category.district} &middot; ${state}` +
+      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>`;
+    hoverEl.classList.add("on");
+    // Nudged clear of the cursor, and kept on screen near the edges.
+    const box = hoverEl.getBoundingClientRect();
+    const x = Math.min(e.clientX + 16, window.innerWidth - box.width - 12);
+    const y = Math.min(e.clientY + 16, window.innerHeight - box.height - 12);
+    hoverEl.style.left = `${Math.max(12, x)}px`;
+    hoverEl.style.top = `${Math.max(12, y)}px`;
+  });
+
+  renderer.domElement.addEventListener("pointerleave", () => {
+    hoverEl.classList.remove("on");
+  });
+
+  renderer.domElement.addEventListener("click", (e) => {
+    if (moved > 6) return;
+    const clicked = categoryUnder(e.clientX, e.clientY);
+    if (clicked) {
+      const spot = positionOf.get(clicked.code);
       showCategory(clicked);
       say(clicked);
-      flyTo(hit.object.position.clone().setY(0), FOCUS_SIZE);
+      flyTo(new THREE.Vector3(spot.x, 0, spot.z), FOCUS_SIZE);
       sendFigure(
-        new THREE.Vector3(hit.object.position.x, 0, hit.object.position.z + CELL * 0.6),
-        "fly",
-        FLIGHT
+        new THREE.Vector3(spot.x + CELL * 0.5, 0, spot.z + CELL * 0.5), "fly", FLIGHT
       );
       walker.pinned = true;
     } else {
@@ -2093,7 +2136,9 @@
       showCategory(category);
       const ground = new THREE.Vector3(spot.x, 0, spot.z);
       flyTo(ground, FOCUS_SIZE);
-      sendFigure(new THREE.Vector3(spot.x, 0, spot.z + CELL * 0.6), "fly", FLIGHT);
+      sendFigure(
+        new THREE.Vector3(spot.x + CELL * 0.5, 0, spot.z + CELL * 0.5), "fly", FLIGHT
+      );
       walker.pinned = true;
       say(category);
       // Fly first, then tear the building down and reassemble it, so the

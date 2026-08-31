@@ -44,6 +44,9 @@ so it uses the browser's own rules and the badge says so.
 Nine beats. Press `T` for the guided tour and it runs them in order, or type
 the questions yourself. **What should happen** is what to check.
 
+On stage: the tour steps forward on space, right arrow **or Page Down**, so a
+presenter clicker drives it and nobody has to stand at the laptop.
+
 ### 0. Open it
 
 *What should happen.* The city assembles itself, district by district. Eight
@@ -57,9 +60,9 @@ press `T`.
 ### 1. The ground
 
 *What should happen.* Every district sits inside a kerb in its own colour.
-Access Radio/Fixed at the back is the biggest block because it holds 37
-categories; Transmission Infrastructure holds 10 and is among the smallest.
-Everything green is parkland and means nothing.
+Access Radio/Fixed is the biggest block, holding 37 categories; Transmission
+Infrastructure holds 10 and is among the smallest. Everything green is parkland
+and means nothing.
 
 ### 2. Ask for a category
 
@@ -78,7 +81,12 @@ tower, four green houses and a lit roof. On a lot with over €50m, one long red
 hotel instead of the houses. On an empty lot, a faint outline of the building
 that could stand there and nothing else.
 
-Click any building to inspect it. Click empty ground to clear.
+**Hover** any building and it says what it is without you clicking. Click it to
+open its title deed, fly there and pin the builder. Click empty ground to
+clear.
+
+Start typing a name in the ask box and it offers what those letters already
+match, with the lot code beside each one. Arrow down and Enter, or click.
 
 ### 4. Where the gaps are
 

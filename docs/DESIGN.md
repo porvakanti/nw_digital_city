@@ -414,6 +414,24 @@ for someone seeing this for the first time, the run of show on stage, and the
 end-to-end test in `docs/DEMO.md`. It advances on a click, never on a timer,
 because nobody wants a demo running ahead of them while a room asks a question.
 
+## 8f. Three things for the people watching
+
+**Hovering.** Clicking a building is a commitment: it opens the deed, moves the
+camera and pins the builder. Hovering costs nothing, and costing nothing is
+what people want while they are still working out what they are looking at. A
+hover names the lot, its district and whether anything is built on it.
+
+**Type-ahead.** The resolver is forgiving, but the failure that matters on a
+stage is typing four letters of a name nobody can quite remember and getting
+nothing back. The ask bar now offers what those letters already match, with the
+lot code beside each, which turns a guess into a choice and teaches the city's
+vocabulary while you use it.
+
+**A presenter clicker.** The tour steps forward on space, the right arrow and
+Page Down, because a clicker sends the page keys, and the difference between
+driving this from the middle of a stage and standing at a laptop is two lines
+of code.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

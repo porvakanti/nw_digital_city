@@ -91,6 +91,31 @@ const check = (name, ok, detail) => {
   check("agent calls tools", /find_gaps/.test(after.trace) && /render/.test(after.trace));
   check("agent renders a finding", /A311/.test(after.caption), after.caption);
 
+  // Type-ahead: four letters of a name should already offer the right lot.
+  await page.fill("#askInput", "");
+  await page.click("#askInput");
+  await page.type("#askInput", "batt", { delay: 40 });
+  await page.waitForTimeout(400);
+  const offered = await page.$$eval("#suggest button",
+    (bs) => bs.map((b) => b.textContent));
+  check("type-ahead offers the lot", offered.some((t) => /D504/.test(t)),
+    offered[0] || "nothing offered");
+
+  // Hovering a lot should say what it is without having to click it.
+  await page.keyboard.press("Escape");
+  await page.evaluate(() => window.NWCity.reset());
+  await page.waitForTimeout(1500);
+  let hovered = "";
+  for (let x = 700; x < 1300 && !hovered; x += 25) {
+    for (let y = 250; y < 700 && !hovered; y += 25) {
+      await page.mouse.move(x, y);
+      hovered = await page.$eval("#hover",
+        (el) => (el.classList.contains("on") ? el.innerText : ""));
+    }
+  }
+  check("hover names the lot", /[A-D]\d{3}/.test(hovered),
+    hovered.replace(/\s+/g, " ") || "nothing under the pointer");
+
   check("no page errors", errors.length === 0, errors[0] || "");
   await browser.close();
   console.log(failures ? `\n${failures} failed` : "\nall passed");
