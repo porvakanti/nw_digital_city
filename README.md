@@ -117,6 +117,7 @@ answers with its own rules.
 ./run.sh eval       # just the question set, against whatever .env says
 ./run.sh build      # rebuild city.json from the workbook in data/raw/
 ./run.sh package    # a zip of just the city, safe to send to anyone
+./run.sh models     # which models the configured key can actually call
 ```
 
 On Windows the same four are `run.cmd test`, `run.cmd eval`, and so on.

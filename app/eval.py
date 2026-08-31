@@ -77,12 +77,25 @@ def main() -> int:
     print(f"provider: {provider}   cases: {len(CASES)}\n")
 
     passed = 0
+    errors = 0
     for question, want_intent, want_target in CASES:
         try:
             raw, source = providers.complete(system, question, names)
             got = planning.parse(raw, names, source)
         except Exception as exc:  # noqa: BLE001 - report, do not stop the run
             print(f"  ERROR  {question!r}: {type(exc).__name__}: {exc}")
+            errors += 1
+            # Three of these in a row is the endpoint, not the questions.
+            # Printing the same failure thirty-two times buries the one line
+            # that says what to do about it.
+            if errors == 3:
+                print("\n  Three in a row, so this is the provider rather than")
+                print("  the questions. Stopping here.\n")
+                if os.environ.get("NW_PROVIDER", "").strip().lower() == "gemini":
+                    print("  Run `run.cmd models` to see what this key can call.")
+                    print("  A 404 means the model name has been retired: clear")
+                    print("  NW_MODEL in .env and one will be chosen for you.")
+                return 1
             continue
 
         intent_ok = got.intent == want_intent

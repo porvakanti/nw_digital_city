@@ -37,6 +37,7 @@ so it uses the browser's own rules and the badge says so.
 ```bash
 ./run.sh test       # everything: unit tests, the agent's question set, the browser
 ./run.sh eval       # just the 32 questions, against whatever .env says
+./run.sh models     # what the configured key can actually call
 ```
 
 ## The script
@@ -149,5 +150,11 @@ Press `R`.
   Store".** That is the Windows stub, not Python. `winget install
   Python.Python.3.12`, or python.org with "Add python.exe to PATH" ticked.
   Without it, open `renderer/index.html` directly; only the model is missing.
+- **Every eval question fails with `404 Not Found`.** The model name has been
+  retired. `run.cmd models` lists what your key can call; clearing `NW_MODEL`
+  in `.env` lets one be chosen for you automatically.
+- **`npm.ps1 cannot be loaded ... not digitally signed`.** PowerShell's script
+  policy. Use `npm.cmd install playwright`. Optional either way; it only
+  enables the browser test.
 - **A question resolves to the wrong lot.** Note the question. `./run.sh eval`
   is where a new case gets added so it stays fixed.

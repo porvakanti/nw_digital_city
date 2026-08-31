@@ -80,7 +80,26 @@ skips it politely if not). Skip this unless you want the full check.
 winget install OpenJS.NodeJS.LTS
 ```
 
-Then, once, in the project folder: `npm install playwright`.
+Then, once, in the project folder:
+
+```powershell
+npm.cmd install playwright
+```
+
+**Note the `.cmd`.** PowerShell refuses to run `npm` on its own, with a long
+message about `npm.ps1` not being digitally signed. That is PowerShell's script
+policy, not a problem with your Node install: `npm` on Windows is really three
+files, and PowerShell picks the PowerShell one, which is unsigned. `npm.cmd`
+picks the batch one, which the policy does not apply to.
+
+If you would rather fix it once and for all, this allows locally-created and
+signed-remote scripts for your account only, and does not need an administrator:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+Either way, this is optional. It only enables the browser test.
 
 ---
 
@@ -147,6 +166,16 @@ NW_API_KEY=paste-your-key-here
 Save, then run `run.cmd` again. The badge on the ask bar will name the model
 instead of saying "local rules, no model".
 
+**Leave `NW_MODEL` alone unless you have a reason.** Model names get retired:
+`gemini-2.0-flash` was the default here until Google shut it down, and the only
+symptom was every question returning 404. With `NW_MODEL` unset the code asks
+your key what it can actually call and picks a live one. To see that list
+yourself:
+
+```powershell
+run.cmd models
+```
+
 **`.env` is git-ignored on purpose**, so the key stays on your laptop and never
 reaches GitHub. Do not move the key into any other file.
 
@@ -168,13 +197,14 @@ that it starts in a couple of seconds and opens your browser at
 
 `Ctrl+C` in the terminal stops it.
 
-## Four commands, and what they do
+## The commands, and what they do
 
 | Command | What it does |
 | --- | --- |
 | `run.cmd` | Starts the city with the agent behind it and opens a browser |
 | `run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
 | `run.cmd eval` | Asks the model 32 questions and prints what it decided for each |
+| `run.cmd models` | Lists the models your key can actually call |
 | `run.cmd package` | Writes `nw-digital-city.zip`, safe to email to anyone |
 
 ## When something does not work
@@ -187,3 +217,5 @@ that it starts in a couple of seconds and opens your browser at
 | `run.cmd : The term is not recognized` | You are in the wrong folder, or PowerShell wants `.\run.cmd`. |
 | Badge says "local rules, no model" | No key in `.env`, or it was not restarted after you added one. |
 | Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |
+| `npm.ps1 cannot be loaded ... not digitally signed` | PowerShell's script policy. Use `npm.cmd` instead of `npm`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
+| Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
