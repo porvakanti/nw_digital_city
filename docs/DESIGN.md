@@ -684,6 +684,58 @@ said the same word twice, and worse, it named the model that was *asked* rather
 than the one that *replied*. With a ladder underneath those are different
 models, and the whole reason for printing the line was attribution.
 
+## 8m. The configuration nothing was testing
+
+Everything green, on a real model, on the laptop. Which raised the question of
+what "everything" had actually covered, and the answer was: not the thing we
+are going to deploy.
+
+The browser suite opened `renderer/index.html` from a file. A page opened that
+way has no service to ask, so the agent falls straight through to its own
+rules. Every one of those sixteen checks was exercising the fallback. The
+served configuration, where the page asks the service for a plan and acts on
+what comes back, had never been driven in a browser once.
+
+That is not a small gap. It is a different branch of the agent, it is the only
+branch that runs on Cloud Run, and the rescue added in 8l lives inside it.
+
+So the smoke test takes a URL now, and `run.py test` runs it twice: once from
+the file, once against a service it starts itself. The second run is forced to
+`NW_PROVIDER=mock`, because what is being checked is that the page finds its
+own endpoint, gets a plan and acts on it, and none of that should depend on a
+key or on a model's mood. It adds three checks the file can never make, and
+about twenty seconds.
+
+Before that could run, the container's exact contents had to be exercised on
+their own: a clean environment with only `app/requirements.txt` in it, the
+`uvicorn` line from the `Dockerfile`, and the page, the city data, `/health`
+and `/plan` all requested over HTTP. The risk being checked was a real one:
+`requirements-dev.txt` had just been split out, and anything that quietly
+migrated into it would break the image and nowhere else.
+
+### Two things wrong in the deploy script, found by reading it
+
+Neither would have shown up until the deploy itself.
+
+**It defaulted to `gemini-2.0-flash`.** That is the model Google retired, the
+one that produced a day of 404s. A deploy carrying that name would have stood
+up a service where every question failed, and the person who found out would
+have been whoever was on the stage.
+
+**And it uploaded the whole folder to Cloud Build.** With no `.gcloudignore`,
+gcloud infers one from `.gitignore`, which today would in fact have excluded
+`data/raw`. It would have been fine. But the workbook in there carries
+blueprint owner names and email addresses, and "fine by side effect of another
+file" is not the standard for that. There is now a committed `.gcloudignore`
+naming what stays behind, and the script refuses to upload anything if it is
+missing.
+
+That makes three layers under the same rule, which is the amount this
+particular thing is worth: `run.py package` builds its zip from a list rather
+than a folder, `.gcloudignore` names what does not go to the build, and the
+`Dockerfile` copies `app` and `renderer` by name, so an upload carrying more
+than it should still could not put it in the image.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.

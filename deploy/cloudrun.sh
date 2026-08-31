@@ -14,7 +14,11 @@ PROJECT="${PROJECT:-$(gcloud config get-value project 2>/dev/null || true)}"
 REGION="${REGION:-europe-west1}"
 SERVICE="${SERVICE:-nw-digital-city}"
 PROVIDER="${PROVIDER:-vertex}"
-MODEL="${MODEL:-gemini-2.0-flash}"
+# Kept in step with DEFAULT_MODELS in app/providers.py. This was
+# gemini-2.0-flash, which Google retired: a deploy with that name in it would
+# have produced a service where every single question came back 404, and the
+# first person to find out would have been whoever was standing on the stage.
+MODEL="${MODEL:-gemini-3.5-flash}"
 FRAME_ANCESTORS="${FRAME_ANCESTORS:-}"
 
 if [ -z "$PROJECT" ]; then
@@ -42,6 +46,15 @@ gcloud iam service-accounts describe "$SA" --project "$PROJECT" >/dev/null 2>&1 
 gcloud projects add-iam-policy-binding "$PROJECT" \
   --member "serviceAccount:${SA}" --role roles/aiplatform.user --condition=None >/dev/null
 
+# Uploads this folder to Cloud Build. What it does NOT upload is decided by
+# .gcloudignore, which is written out explicitly rather than left to gcloud to
+# infer from .gitignore: data/raw holds the source workbook with blueprint
+# owner names and email addresses in it, and "it was probably excluded" is not
+# good enough for that.
+if [ ! -f .gcloudignore ]; then
+  echo "· no .gcloudignore, refusing to upload the folder blind" >&2
+  exit 2
+fi
 gcloud builds submit --tag "$IMAGE" --project "$PROJECT" .
 
 ENV="NW_PROVIDER=${PROVIDER},NW_MODEL=${MODEL},NW_PROJECT=${PROJECT},NW_REGION=${REGION}"
