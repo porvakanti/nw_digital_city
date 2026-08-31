@@ -91,10 +91,11 @@ def main() -> int:
             if errors == 3:
                 print("\n  Three in a row, so this is the provider rather than")
                 print("  the questions. Stopping here.\n")
-                if os.environ.get("NW_PROVIDER", "").strip().lower() == "gemini":
-                    print("  Run `run.cmd models` to see what this key can call.")
-                    print("  A 404 means the model name has been retired: clear")
-                    print("  NW_MODEL in .env and one will be chosen for you.")
+                print("  Run `run.cmd models`. It makes one small request and")
+                print("  tells you which of the three things this is:")
+                print("    a network that cannot reach Google,")
+                print("    a key that is not accepted,")
+                print("    or a model name that no longer exists.")
                 return 1
             continue
 

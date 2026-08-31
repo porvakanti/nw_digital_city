@@ -150,9 +150,16 @@ Press `R`.
   Store".** That is the Windows stub, not Python. `winget install
   Python.Python.3.12`, or python.org with "Add python.exe to PATH" ticked.
   Without it, open `renderer/index.html` directly; only the model is missing.
-- **Every eval question fails with `404 Not Found`.** The model name has been
-  retired. `run.cmd models` lists what your key can call; clearing `NW_MODEL`
-  in `.env` lets one be chosen for you automatically.
+- **Every eval question fails.** Run `run.cmd models`. It makes one small
+  request and tells you which of three things it is: a network that cannot
+  reach Google, a key that is refused, or a model name that no longer exists.
+  A timeout is the network: on a corporate laptop that usually means a proxy
+  (`setx HTTPS_PROXY http://your-proxy:port`) or TLS interception
+  (`setx SSL_CERT_FILE` pointing at the company root certificate).
+- **The badge changes to "model did not answer" after a question.** The service
+  is reachable but the model did not reply inside six seconds, so the city used
+  its own rules. Everything still works; the badge is telling the truth rather
+  than keeping up appearances.
 - **`npm.ps1 cannot be loaded ... not digitally signed`.** PowerShell's script
   policy. Use `npm.cmd install playwright`. Optional either way; it only
   enables the browser test.

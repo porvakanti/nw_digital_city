@@ -21,11 +21,42 @@ import re
 
 import httpx
 
-TIMEOUT = float(os.environ.get("NW_TIMEOUT", "8"))
+# Eight seconds was optimistic. A first call from a corporate laptop goes
+# through a proxy, negotiates TLS, and carries a prompt naming 145 categories,
+# and any one of those can take longer than that on its own. The browser keeps
+# its own much shorter deadline, because on stage a slow answer is worse than
+# no answer; this one is for the command line, where waiting is fine and a
+# false timeout costs an afternoon.
+TIMEOUT = float(os.environ.get("NW_TIMEOUT", "30"))
+
+
+def _timeout() -> "httpx.Timeout":
+    """Connect fast, read slowly. They fail for completely different reasons."""
+    return httpx.Timeout(TIMEOUT, connect=min(10.0, TIMEOUT))
 
 
 class ProviderError(RuntimeError):
     pass
+
+
+UNREACHABLE = """could not reach {host} within {seconds:.0f}s.
+
+  This is the network rather than the key or the model. On a corporate laptop
+  the usual causes are, in order:
+
+    1. A proxy. If your browser needs one, so does this:
+         setx HTTPS_PROXY http://your-proxy:port
+       and open a new terminal.
+    2. TLS interception. If the proxy re-signs certificates, point Python at
+       the company root certificate:
+         setx SSL_CERT_FILE C:\\path\\to\\corporate-root.pem
+    3. The host being blocked outright, which is a question for IT.
+
+  To rule out the deadline itself, try it with a longer one:
+    setx NW_TIMEOUT 60
+
+  None of this stops the demo. Without a model the city answers with its own
+  rules, and every question in the script still works."""
 
 
 # ---------------------------------------------------------------- mock
@@ -102,8 +133,14 @@ _resolved: dict[str, str] = {}
 
 def gemini_models(key: str) -> list[str]:
     """Every model this key can actually call, newest listing order preserved."""
-    reply = httpx.get(f"{GEMINI_ROOT}/models", headers={"x-goog-api-key": key},
-                      timeout=TIMEOUT)
+    try:
+        reply = httpx.get(f"{GEMINI_ROOT}/models", headers={"x-goog-api-key": key},
+                          timeout=_timeout())
+    except httpx.TransportError as exc:
+        raise ProviderError(
+            UNREACHABLE.format(host="generativelanguage.googleapis.com",
+                               seconds=TIMEOUT)
+        ) from exc
     reply.raise_for_status()
     out = []
     for entry in reply.json().get("models", []):
@@ -139,8 +176,16 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
     model = _resolved.get(model, model)
-    reply = httpx.post(f"{GEMINI_ROOT}/models/{model}:generateContent", json=body,
-                       headers={"x-goog-api-key": key}, timeout=TIMEOUT)
+    try:
+        reply = httpx.post(f"{GEMINI_ROOT}/models/{model}:generateContent", json=body,
+                           headers={"x-goog-api-key": key}, timeout=_timeout())
+    except httpx.TransportError as exc:
+        # A timeout or a refused connection is the network, not the model, and
+        # saying so saves an hour of looking at model names.
+        raise ProviderError(
+            UNREACHABLE.format(host="generativelanguage.googleapis.com",
+                               seconds=TIMEOUT)
+        ) from exc
 
     # A 404 here means the model is gone, not that the key is wrong. Ask what
     # is there, take the best of it, and say so rather than failing 32 times in
@@ -151,7 +196,7 @@ def _gemini(system: str, question: str, key: str, model: str) -> str:
         _resolved[model] = replacement
         reply = httpx.post(
             f"{GEMINI_ROOT}/models/{replacement}:generateContent", json=body,
-            headers={"x-goog-api-key": key}, timeout=TIMEOUT,
+            headers={"x-goog-api-key": key}, timeout=_timeout(),
         )
 
     if reply.status_code == 404:
@@ -195,10 +240,13 @@ def _vertex(system: str, question: str, project: str, region: str, model: str) -
         "contents": [{"role": "user", "parts": [{"text": question}]}],
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
-    reply = httpx.post(
-        url, json=body, timeout=TIMEOUT,
-        headers={"Authorization": f"Bearer {credentials.token}"},
-    )
+    try:
+        reply = httpx.post(
+            url, json=body, timeout=_timeout(),
+            headers={"Authorization": f"Bearer {credentials.token}"},
+        )
+    except httpx.TransportError as exc:
+        raise ProviderError(UNREACHABLE.format(host=host, seconds=TIMEOUT)) from exc
     reply.raise_for_status()
     data = reply.json()
     try:
@@ -222,7 +270,7 @@ def _claude(system: str, question: str, key: str, model: str) -> str:
             "system": system,
             "messages": [{"role": "user", "content": question}],
         },
-        timeout=TIMEOUT,
+        timeout=_timeout(),
     )
     reply.raise_for_status()
     data = reply.json()
