@@ -1,0 +1,189 @@
+# Setting up a Windows laptop for this project
+
+Written for someone who has done this before and not recently. Nothing here is
+specific to being a developer; it is four installs and two settings.
+
+**Before you start, know what you actually need.** Opening
+`renderer\index.html` in Chrome gives you the entire city, the animations, the
+builder, the guided tour and the agent's own rules, with **nothing installed at
+all**. Everything below is only needed to run the agent with a real model
+behind it, and to change the code. If you are only showing the thing to people,
+you can stop reading.
+
+---
+
+## 1. Python
+
+Python is the language the small service behind the agent is written in. It is
+not installed on Windows by default. What Windows ships instead is a stub: type
+`python` and it says *"Python was not found; run without arguments to install
+from the Microsoft Store"*. That message is the stub talking, not Python.
+
+**Install it.** Open **Terminal** or **PowerShell** and run:
+
+```powershell
+winget install Python.Python.3.12
+```
+
+`winget` is Windows' own package installer and is on Windows 10 and 11. If your
+laptop blocks it, download the installer from
+<https://www.python.org/downloads/> instead, and on the **first screen of the
+installer tick "Add python.exe to PATH"** before clicking Install. That tick box
+is the single most common reason Python appears not to work afterwards.
+
+**Close and reopen your terminal**, then check:
+
+```powershell
+py --version
+```
+
+You want something like `Python 3.12.x`. `py` is the Python launcher: it is the
+reliable way to run Python on Windows, because it does not collide with the
+Store stub.
+
+**If it still says Python was not found:** the App Execution Alias is
+intercepting. Settings → Apps → Advanced app settings → App execution aliases,
+and turn off the two entries called `python.exe` and `python3.exe`.
+
+### What a virtual environment is, and why you will not have to think about it
+
+A virtual environment is a private folder of libraries for one project, so
+installing something for this project cannot break another one. `run.cmd`
+creates one in `.venv` the first time and uses it every time after. You do not
+have to create, activate or remember anything.
+
+---
+
+## 2. Git
+
+Git is how the code moves between your laptop and GitHub. You already cloned
+the repository, so you probably have it. Check:
+
+```powershell
+git --version
+```
+
+If not:
+
+```powershell
+winget install Git.Git
+```
+
+---
+
+## 3. Node.js — optional
+
+Only needed to run the browser test (`run.cmd test` runs it if it is there and
+skips it politely if not). Skip this unless you want the full check.
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+
+Then, once, in the project folder: `npm install playwright`.
+
+---
+
+## 4. VS Code
+
+```powershell
+winget install Microsoft.VisualStudioCode
+```
+
+### Opening the project
+
+**File → Open Folder**, and pick the folder that contains `run.cmd` — that is
+`C:\Users\prave\Projects\nw_digital_city`. Open the **folder**, not a file. VS
+Code works on a folder at a time and most of what follows depends on it knowing
+which one.
+
+### The two extensions worth having
+
+Click the Extensions icon in the left bar (four squares) and install:
+
+- **Python** (publisher: Microsoft). Brings syntax highlighting, the
+  interpreter picker and the debugger.
+- **Pylance** comes with it automatically.
+
+That is enough. You do not need a JavaScript extension; VS Code handles
+JavaScript and HTML out of the box.
+
+### Pointing VS Code at the right Python
+
+VS Code needs to know which Python to use, and you want the one in the
+project's `.venv`, not the system one.
+
+1. Run `run.cmd` once first, so `.venv` exists.
+2. In VS Code press **Ctrl+Shift+P**, type `Python: Select Interpreter`, press
+   Enter.
+3. Choose the one whose path contains `.venv` — it is usually top of the list
+   and labelled *Recommended*.
+
+The bottom-right of the window then shows the version it is using. If you skip
+this, the code still runs; you just lose the useful red squiggles.
+
+### The terminal inside VS Code
+
+**Ctrl+`** (the backtick, above Tab) opens a terminal already sitting in the
+project folder. That is where you type `run.cmd`. It is the same terminal as
+any other, just conveniently placed.
+
+If it opens PowerShell and `run.cmd` misbehaves, type `.\run.cmd` instead —
+PowerShell wants the `.\` for a file in the current folder.
+
+---
+
+## 5. The API key
+
+The Google AI Studio key goes in a file called `.env` in the project folder.
+`run.cmd` creates it from `.env.example` the first time it runs. Open it in VS
+Code and change two lines:
+
+```ini
+NW_PROVIDER=gemini
+NW_API_KEY=paste-your-key-here
+```
+
+Save, then run `run.cmd` again. The badge on the ask bar will name the model
+instead of saying "local rules, no model".
+
+**`.env` is git-ignored on purpose**, so the key stays on your laptop and never
+reaches GitHub. Do not move the key into any other file.
+
+---
+
+## The whole thing, start to finish
+
+```powershell
+winget install Python.Python.3.12
+winget install Microsoft.VisualStudioCode
+# close and reopen the terminal
+cd C:\Users\prave\Projects\nw_digital_city
+run.cmd
+```
+
+First run takes a minute or two while it builds the virtual environment. After
+that it starts in a couple of seconds and opens your browser at
+<http://127.0.0.1:8099/>.
+
+`Ctrl+C` in the terminal stops it.
+
+## Four commands, and what they do
+
+| Command | What it does |
+| --- | --- |
+| `run.cmd` | Starts the city with the agent behind it and opens a browser |
+| `run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
+| `run.cmd eval` | Asks the model 32 questions and prints what it decided for each |
+| `run.cmd package` | Writes `nw-digital-city.zip`, safe to email to anyone |
+
+## When something does not work
+
+| What you see | What it means |
+| --- | --- |
+| `run.sh` opens in Notepad or Chrome | Windows does not know what a `.sh` file is. Use `run.cmd`. |
+| "Python was not found... Microsoft Store" | Python is not installed, or the Store alias is intercepting. See section 1. |
+| The window flashes and disappears | Double-clicked, failed, closed. Run it from a terminal to read the error. |
+| `run.cmd : The term is not recognized` | You are in the wrong folder, or PowerShell wants `.\run.cmd`. |
+| Badge says "local rules, no model" | No key in `.env`, or it was not restarted after you added one. |
+| Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |

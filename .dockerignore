@@ -1,0 +1,13 @@
+# The source workbook must never end up in an image.
+data/raw/
+*.xlsx
+*.xlsm
+
+.git/
+.venv/
+node_modules/
+__pycache__/
+.env
+nw-digital-city.zip
+tests/
+docs/

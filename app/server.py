@@ -59,6 +59,25 @@ class Ask(BaseModel):
     names: Names
 
 
+@app.middleware("http")
+async def framing(request, call_next):
+    """Let the marketplace put the city in a frame, and nobody else.
+
+    Foundry embeds an agent's surface in an iframe on its detail page, so the
+    default of refusing to be framed would show reviewers an empty box. This
+    names who may do it rather than turning the protection off: set
+    NW_FRAME_ANCESTORS to the marketplace origins, and everything else is still
+    refused. Unset means nothing may frame it, which is the safe default for a
+    service nobody has embedded yet.
+    """
+    response = await call_next(request)
+    ancestors = os.environ.get("NW_FRAME_ANCESTORS", "").strip()
+    response.headers["Content-Security-Policy"] = (
+        f"frame-ancestors {ancestors}" if ancestors else "frame-ancestors 'none'"
+    )
+    return response
+
+
 @app.get("/health")
 def health() -> dict:
     """What is actually wired up, so the page can say so instead of guessing."""

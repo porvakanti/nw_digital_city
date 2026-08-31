@@ -12,9 +12,15 @@ This is the safety net: if the venue wifi dies on the day, this still runs.
 
 **With the model.** From the repository root:
 
-```bash
-./run.sh            # or: python3 run.py  (Windows: py run.py)
-```
+| Your machine | Run this |
+| --- | --- |
+| Windows | double-click **`run.cmd`** |
+| macOS, Linux | `./run.sh` |
+
+`run.sh` is a shell script. Double-clicking it on Windows opens it in a text
+editor or a browser, because Windows does not know what a `.sh` file is. If
+`run.cmd` reports there is no Python, it tells you how to install one; the
+model is the only part that needs it.
 
 It makes a virtual environment, installs into it, writes `.env` if there is
 none, starts the service and opens a browser. To use a model, edit `.env`:
@@ -38,6 +44,9 @@ so it uses the browser's own rules and the badge says so.
 Nine beats. Press `T` for the guided tour and it runs them in order, or type
 the questions yourself. **What should happen** is what to check.
 
+On stage: the tour steps forward on space, right arrow **or Page Down**, so a
+presenter clicker drives it and nobody has to stand at the laptop.
+
 ### 0. Open it
 
 *What should happen.* The city assembles itself, district by district. Eight
@@ -51,9 +60,9 @@ press `T`.
 ### 1. The ground
 
 *What should happen.* Every district sits inside a kerb in its own colour.
-Access Radio/Fixed at the back is the biggest block because it holds 37
-categories; Transmission Infrastructure holds 10 and is among the smallest.
-Everything green is parkland and means nothing.
+Access Radio/Fixed is the biggest block, holding 37 categories; Transmission
+Infrastructure holds 10 and is among the smallest. Everything green is parkland
+and means nothing.
 
 ### 2. Ask for a category
 
@@ -72,7 +81,12 @@ tower, four green houses and a lit roof. On a lot with over €50m, one long red
 hotel instead of the houses. On an empty lot, a faint outline of the building
 that could stand there and nothing else.
 
-Click any building to inspect it. Click empty ground to clear.
+**Hover** any building and it says what it is without you clicking. Click it to
+open its title deed, fly there and pin the builder. Click empty ground to
+clear.
+
+Start typing a name in the ask box and it offers what those letters already
+match, with the lot code beside each one. Arrow down and Enter, or click.
 
 ### 4. Where the gaps are
 
@@ -129,5 +143,11 @@ Press `R`.
   from a file, or when `.env` has no key. Everything still works.
 - **The badge says "gemini: NW_API_KEY is not set".** The key is missing from
   `.env`, or `./run.sh` was not restarted after it was added.
+- **`run.sh` opened in Notepad or a browser.** You are on Windows. Use
+  `run.cmd`.
+- **"Python was not found; run without arguments to install from the Microsoft
+  Store".** That is the Windows stub, not Python. `winget install
+  Python.Python.3.12`, or python.org with "Add python.exe to PATH" ticked.
+  Without it, open `renderer/index.html` directly; only the model is missing.
 - **A question resolves to the wrong lot.** Note the question. `./run.sh eval`
   is where a new case gets added so it stays fixed.

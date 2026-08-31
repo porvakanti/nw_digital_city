@@ -433,6 +433,25 @@
         KERB, 0.42, district.d, palette.band
       );
     }
+    // Studs along the top of it. A coloured strip is a painted line; a
+    // coloured strip with studs on it is a Lego brick, and the difference is
+    // the whole aesthetic.
+    const STUD_STEP = 1.6;
+    const inset = KERB / 2;
+    for (const side of [-1, 1]) {
+      const z = district.cz + district.d / 2 + side * (district.d / 2 - inset);
+      const acrossX = Math.floor(district.w / STUD_STEP);
+      for (let i = 0; i < acrossX; i++) {
+        const x = district.cx + inset + (i + 0.5) * (district.w - KERB) / acrossX;
+        studs.add(x, 0.56, z, 0.46, 0.18, 0.46, palette.stud);
+      }
+      const x = district.cx + district.w / 2 + side * (district.w / 2 - inset);
+      const acrossZ = Math.floor(district.d / STUD_STEP);
+      for (let i = 0; i < acrossZ; i++) {
+        const z2 = district.cz + inset + (i + 0.5) * (district.d - KERB) / acrossZ;
+        studs.add(x, 0.56, z2, 0.46, 0.18, 0.46, palette.stud);
+      }
+    }
     for (const plot of district.plots) {
       studdedPlate(
         plot.cx + plot.w / 2, 0.22, plot.cz + plot.d / 2,
@@ -1549,11 +1568,19 @@
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
+    // Laid out as a Monopoly title deed, because that is what it is: one
+    // property, its colour group across the top, what it is worth, and what
+    // has been built on it. The board game does the explaining for us.
+    const index = layout.districts.findIndex((d) => d.name === category.district);
+    const band = DISTRICT_BANDS[(index < 0 ? 0 : index) % DISTRICT_BANDS.length];
     inspector.innerHTML = `
-      <button class="panel-toggle" data-collapse data-drag>${category.code}<span class="caret">&#9662;</span></button>
+      <div class="deed-band" style="background:${band}">
+        <span>${category.district}</span>
+      </div>
+      <button class="panel-toggle" data-collapse data-drag>Title deed &middot; ${category.code}<span class="caret">&#9662;</span></button>
       <h3>${category.name}</h3>
       <div class="panel-body">
-        <div class="where">${category.district} &middot; ${category.plot}</div>
+        <div class="where">${category.plot}</div>
         <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
         ${category.definition ? `<div class="def">${category.definition}</div>` : ""}
       </div>`;
@@ -1607,6 +1634,16 @@
     part(group, dark, 0, 1.16, 0, 1.46, 0.2, 0.82);   // tool belt
     part(group, steel, 0.6, 1.14, 0.3, 0.16, 0.34, 0.16); // and something on it
 
+    // A brick on his back. He is the one who builds the city, so he carries
+    // the material: a 2x2 in the district red, studs and all.
+    part(group, overalls, 0, 1.72, -0.56, 0.86, 0.72, 0.34);
+    for (const dx of [-0.2, 0.2]) {
+      for (const dy of [-0.16, 0.16]) {
+        part(group, overalls, dx, 1.72 + dy, -0.76, 0.3, 0.3, 0.12, cyl)
+          .rotation.x = Math.PI / 2;
+      }
+    }
+
     // Arms pivot at the shoulder, so the swing reads as a swing rather than a
     // part spinning about its own middle.
     const arms = [];
@@ -1619,24 +1656,38 @@
       group.add(shoulder);
       arms.push(shoulder);
     }
-    // The blueprint itself, carried in the left hand. It is the thing the whole
-    // city is about, so the character who builds it should be holding one.
+    // The blueprint in the left hand, because it is the thing the whole city is
+    // about, and a trowel in the right, because he is a builder and a builder
+    // holding nothing is just a man standing about.
     part(arms[0], paper, 0.02, -1.16, 0.16, 0.62, 0.06, 0.78);
     part(arms[0], steel, 0.02, -1.13, 0.42, 0.5, 0.05, 0.12);
+    part(arms[1], dark, 0, -1.2, 0.12, 0.1, 0.1, 0.44);
+    part(arms[1], steel, 0, -1.22, 0.44, 0.34, 0.06, 0.44);
 
-    // Neck, head and a face. A blank cylinder read as a peg; two eyes and a
-    // mouth are what make it the minifigure in Gorkem's hand.
+    // Neck, then the head as its own pivot so he can look around. A blank
+    // cylinder read as a peg; eyes, brows and a mouth are what make it the
+    // minifigure in Gorkem's hand rather than a game piece.
     part(group, skin, 0, 2.16, 0, 0.5, 0.2, 0.5, cyl);
-    part(group, skin, 0, 2.46, 0, 0.86, 0.66, 0.86, cyl);
-    part(group, dark, -0.17, 2.52, 0.42, 0.13, 0.16, 0.06);
-    part(group, dark, 0.17, 2.52, 0.42, 0.13, 0.16, 0.06);
-    part(group, dark, 0, 2.32, 0.42, 0.3, 0.07, 0.06);
+    const head = new THREE.Group();
+    head.position.set(0, 2.16, 0);
+    group.add(head);
 
-    // Hard hat: brim, crown and the ridge down the middle.
-    part(group, hat, 0, 2.66, 0, 1.34, 0.12, 1.34, cyl);
-    part(group, hat, 0, 2.86, 0, 0.94, 0.36, 0.94, cyl);
-    part(group, hat, 0, 3.02, 0, 0.22, 0.12, 0.9);
-    part(group, hat, 0, 2.72, 0.56, 0.62, 0.1, 0.3);
+    part(head, skin, 0, 0.3, 0, 0.86, 0.66, 0.86, cyl);
+    part(head, dark, -0.17, 0.36, 0.42, 0.13, 0.16, 0.06);
+    part(head, dark, 0.17, 0.36, 0.42, 0.13, 0.16, 0.06);
+    part(head, dark, -0.18, 0.5, 0.42, 0.2, 0.06, 0.06).rotation.z = 0.18;
+    part(head, dark, 0.18, 0.5, 0.42, 0.2, 0.06, 0.06).rotation.z = -0.18;
+    part(head, dark, 0, 0.16, 0.42, 0.3, 0.07, 0.06);
+
+    // Hard hat: brim, crown, the ridge down the middle, and a red band, which
+    // is the difference between a hard hat and a yellow bowl.
+    part(head, hat, 0, 0.5, 0, 1.34, 0.12, 1.34, cyl);
+    part(head, hat, 0, 0.7, 0, 0.94, 0.36, 0.94, cyl);
+    part(head, overalls, 0, 0.62, 0, 0.98, 0.1, 0.98, cyl);
+    part(head, hat, 0, 0.86, 0, 0.22, 0.12, 0.9);
+    part(head, hat, 0, 0.56, 0.56, 0.62, 0.1, 0.3);
+
+    group.userData.head = head;
 
     group.userData.arms = arms;
     group.scale.setScalar(FIGURE_SCALE);
@@ -1718,7 +1769,7 @@
     return now;
   }
 
-  function updateFigure(now) {
+  function updateFigure(now, delta) {
     const t = walker.duration > 0
       ? THREE.MathUtils.clamp((now - walker.start) / walker.duration, 0, 1)
       : 1;
@@ -1734,10 +1785,21 @@
       figure.position.y = 0;
     }
 
+    // Facing. He walks the way he is going, and once he arrives he turns to
+    // face the room, because a character who lands and then stands with his
+    // back to 400 people is not a character.
     const heading = walker.to.clone().sub(walker.from);
-    if (heading.lengthSq() > 0.02) figure.rotation.y = Math.atan2(heading.x, heading.z);
+    const toCamera = Math.atan2(CAM_DIR.x, CAM_DIR.z);
+    if (t < 1 && heading.lengthSq() > 0.02) {
+      figure.rotation.y = Math.atan2(heading.x, heading.z);
+    } else {
+      let turn = toCamera - figure.rotation.y;
+      while (turn > Math.PI) turn -= Math.PI * 2;
+      while (turn < -Math.PI) turn += Math.PI * 2;
+      figure.rotation.y += turn * Math.min(1, delta * 3);
+    }
 
-    const lift = 3.4 * figure.scale.y / FIGURE_SCALE;
+    const lift = 4.1 * figure.scale.y / FIGURE_SCALE;
     marker.position.set(
       figure.position.x,
       figure.position.y + lift + Math.sin(now * 2.4) * 0.16,
@@ -1753,6 +1815,15 @@
     figure.userData.arms.forEach((arm, i) => {
       arm.rotation.x = cheering ? -2.2 : swing * (i ? -1 : 1);
     });
+
+    // He looks around while he waits, and up at the building while it goes up.
+    // Standing perfectly still is what made him read as a prop rather than a
+    // character, and it costs two lines to fix.
+    const head = figure.userData.head;
+    if (head) {
+      head.rotation.y = moving ? 0 : Math.sin(now * 0.6) * 0.55;
+      head.rotation.x = cheering ? -0.4 : Math.sin(now * 0.9) * 0.06;
+    }
 
     if (t >= 1) {
       if (walker.mode === "fly") {
@@ -1889,23 +1960,66 @@
   }, { passive: false });
 
   const raycaster = new THREE.Raycaster();
-  renderer.domElement.addEventListener("click", (e) => {
-    if (moved > 6) return;
-    const pointer = new THREE.Vector2(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1
+
+  /* What is under the pointer, without having to click it.
+   *
+   * Clicking a building is a commitment: it opens the deed, moves the camera
+   * and pins the builder. Hovering costs nothing, which is what people
+   * actually do when they are finding their way round a map for the first
+   * time. It answers the only question a newcomer has of any one square:
+   * what is this, and is anything built on it. */
+  const hoverEl = document.getElementById("hover");
+  const pointer = new THREE.Vector2();
+
+  function categoryUnder(clientX, clientY) {
+    pointer.set(
+      (clientX / window.innerWidth) * 2 - 1,
+      -(clientY / window.innerHeight) * 2 + 1
     );
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(pickTargets, false)[0];
-    if (hit) {
-      const clicked = hit.object.userData.category;
+    return hit ? hit.object.userData.category : null;
+  }
+
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    if (dragging) {
+      hoverEl.classList.remove("on");
+      return;
+    }
+    const category = categoryUnder(e.clientX, e.clientY);
+    if (!category) {
+      hoverEl.classList.remove("on");
+      return;
+    }
+    const state = tierOf("blueprint_state", category.blueprint_state).label;
+    const spend = category.metrics.spend_eur;
+    hoverEl.innerHTML =
+      `<b>${category.code}</b> ${category.name}<br>` +
+      `<span>${category.district} &middot; ${state}` +
+      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>`;
+    hoverEl.classList.add("on");
+    // Nudged clear of the cursor, and kept on screen near the edges.
+    const box = hoverEl.getBoundingClientRect();
+    const x = Math.min(e.clientX + 16, window.innerWidth - box.width - 12);
+    const y = Math.min(e.clientY + 16, window.innerHeight - box.height - 12);
+    hoverEl.style.left = `${Math.max(12, x)}px`;
+    hoverEl.style.top = `${Math.max(12, y)}px`;
+  });
+
+  renderer.domElement.addEventListener("pointerleave", () => {
+    hoverEl.classList.remove("on");
+  });
+
+  renderer.domElement.addEventListener("click", (e) => {
+    if (moved > 6) return;
+    const clicked = categoryUnder(e.clientX, e.clientY);
+    if (clicked) {
+      const spot = positionOf.get(clicked.code);
       showCategory(clicked);
       say(clicked);
-      flyTo(hit.object.position.clone().setY(0), FOCUS_SIZE);
+      flyTo(new THREE.Vector3(spot.x, 0, spot.z), FOCUS_SIZE);
       sendFigure(
-        new THREE.Vector3(hit.object.position.x, 0, hit.object.position.z + CELL * 0.6),
-        "fly",
-        FLIGHT
+        new THREE.Vector3(spot.x + CELL * 0.5, 0, spot.z + CELL * 0.5), "fly", FLIGHT
       );
       walker.pinned = true;
     } else {
@@ -2022,7 +2136,9 @@
       showCategory(category);
       const ground = new THREE.Vector3(spot.x, 0, spot.z);
       flyTo(ground, FOCUS_SIZE);
-      sendFigure(new THREE.Vector3(spot.x, 0, spot.z + CELL * 0.6), "fly", FLIGHT);
+      sendFigure(
+        new THREE.Vector3(spot.x + CELL * 0.5, 0, spot.z + CELL * 0.5), "fly", FLIGHT
+      );
       walker.pinned = true;
       say(category);
       // Fly first, then tear the building down and reassemble it, so the
@@ -2111,7 +2227,7 @@
     stepBuild();
     updateWalkers(nowSec, delta);
     updateTraffic(delta);
-    updateFigure(nowSec);
+    updateFigure(nowSec, delta);
     applyCamera();
     placeBubble();
     const zoom = view.size / HOME.size;

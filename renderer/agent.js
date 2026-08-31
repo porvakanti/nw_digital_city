@@ -534,9 +534,117 @@
     }
   }
 
-  go.addEventListener("click", () => submit(input.value));
+  /* ------------------------------------------------- what you can ask for
+   *
+   * The resolver is forgiving, but on a stage the failure mode that matters is
+   * typing four letters of a name nobody can quite remember and getting
+   * nothing. Showing what those letters already match turns a guess into a
+   * choice, and it teaches the vocabulary of the city while you use it.
+   */
+  const suggestEl = document.getElementById("suggest");
+  // The preset chips sit exactly where the suggestions appear, so one gets out
+  // of the way of the other.
+  const showChips = (on) => {
+    const el = document.getElementById("chips");
+    if (el) el.style.visibility = on ? "" : "hidden";
+  };
+  let suggestions = [];
+  let picked = -1;
+
+  const POOLS = [
+    { kind: "category", label: "lot", items: () => categories },
+    { kind: "district", label: "district", items: () => districts },
+    { kind: "plot", label: "plot", items: () => plots },
+    { kind: "market", label: "market", items: () => markets },
+  ];
+
+  function suggestFor(text) {
+    const query = String(text || "").trim();
+    if (query.length < 2) return [];
+    const found = [];
+    for (const pool of POOLS) {
+      for (const item of pool.items()) {
+        const name = pool.kind === "category" ? `${item.code} ${item.name}` : item;
+        const score = similarity(query, name);
+        if (score > 0.24) {
+          found.push({ kind: pool.kind, label: pool.label, score, item, name });
+        }
+      }
+    }
+    found.sort((a, b) => b.score - a.score);
+    return found.slice(0, 5);
+  }
+
+  function renderSuggestions(text) {
+    suggestions = suggestFor(text);
+    picked = -1;
+    if (!suggestions.length) {
+      closeSuggestions();
+      suggestEl.innerHTML = "";
+      return;
+    }
+    suggestEl.innerHTML = suggestions.map((s, i) => {
+      const code = s.kind === "category"
+        ? `<span class="code">${s.item.code}</span>` : "";
+      const name = s.kind === "category" ? s.item.name : s.item;
+      return `<button data-i="${i}">${code}<span>${name}</span>` +
+        `<span class="kind">${s.label}</span></button>`;
+    }).join("");
+    suggestEl.classList.add("on");
+    showChips(false);
+  }
+
+  function closeSuggestions() {
+    suggestEl.classList.remove("on");
+    showChips(true);
+    picked = -1;
+  }
+
+  function highlight() {
+    suggestEl.querySelectorAll("button").forEach((button, i) => {
+      button.classList.toggle("pick", i === picked);
+    });
+  }
+
+  function take(index) {
+    const choice = suggestions[index];
+    if (!choice) return false;
+    const text = choice.kind === "category" ? choice.item.code : choice.item;
+    input.value = text;
+    closeSuggestions();
+    submit(text);
+    return true;
+  }
+
+  suggestEl.addEventListener("click", (e) => {
+    const button = e.target.closest("button");
+    if (button) take(Number(button.dataset.i));
+  });
+
+  input.addEventListener("input", () => renderSuggestions(input.value));
+  input.addEventListener("blur", () => setTimeout(closeSuggestions, 150));
+
+  go.addEventListener("click", () => {
+    closeSuggestions();
+    submit(input.value);
+  });
+
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") submit(input.value);
+    const open = suggestEl.classList.contains("on");
+    if (open && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      picked = (picked + step + suggestions.length + 1) % (suggestions.length + 1) - 1;
+      if (picked < -1) picked = suggestions.length - 1;
+      highlight();
+      return;
+    }
+    if (e.key === "Escape") return closeSuggestions();
+    if (e.key === "Enter") {
+      if (open && picked >= 0 && take(picked)) return;
+      closeSuggestions();
+      submit(input.value);
+    }
   });
 
   // Preset chips for the beats that have to land. Typing on stage is dead air;
@@ -659,11 +767,16 @@
     if (e.key === "t" || e.key === "T") return startTour();
     if (tourStep < 0) return;
     if (e.key === "Escape") endTour();
-    if (e.key === " " || e.key === "ArrowRight") {
+    // Space, the arrow keys and Page Up / Page Down, because a presenter
+    // clicker sends the page keys and nobody wants to be at the laptop.
+    if (e.key === " " || e.key === "ArrowRight" || e.key === "PageDown") {
       e.preventDefault();
       showTourStep(tourStep + 1);
     }
-    if (e.key === "ArrowLeft") showTourStep(Math.max(0, tourStep - 1));
+    if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault();
+      showTourStep(Math.max(0, tourStep - 1));
+    }
   });
 
   /* Offered once. Somebody rehearsing does not want to dismiss a welcome card
