@@ -14,6 +14,7 @@ while we are building against a temporary endpoint.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -186,9 +187,37 @@ def _codes(categories: list[str]) -> set[str]:
     return out
 
 
+def _norm(value: str) -> str:
+    """Case, punctuation and spacing removed, so only the words are compared."""
+    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+
+
 def _match(value: str, known: set[str]) -> str:
-    """Return the vocabulary entry this value refers to, or nothing."""
+    """Return the vocabulary entry this value refers to, or nothing.
+
+    Only ever returns something already in the vocabulary, so this cannot let
+    an invented category through. What it does allow is the near miss: asked
+    about batteries, a model answers "Batteries" where the list said "D504
+    Batteries", and refusing that drops a correct answer on a technicality.
+
+    A title shared by two categories is refused rather than guessed at, because
+    flying to the wrong one of two is worse than admitting the question was
+    ambiguous.
+    """
     if value in known:
         return value
     lowered = {k.lower(): k for k in known}
-    return lowered.get(value.lower(), "")
+    if value.lower() in lowered:
+        return lowered[value.lower()]
+
+    wanted = _norm(value)
+    if not wanted:
+        return ""
+
+    whole = [k for k in known if _norm(k) == wanted]
+    if len(whole) == 1:
+        return whole[0]
+
+    # "Batteries" for "D504 Batteries", but only when exactly one fits.
+    titles = [k for k in known if " " in k and _norm(k.split(" ", 1)[1]) == wanted]
+    return titles[0] if len(titles) == 1 else ""

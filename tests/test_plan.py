@@ -112,3 +112,48 @@ class ProviderDispatchTests(unittest.TestCase):
 
         self.assertEqual(source, "mock")
         self.assertIn("D504", raw)
+
+
+class MatchTests(unittest.TestCase):
+    """Near misses resolve; inventions and ambiguity do not."""
+
+    KNOWN = planning._codes([
+        "D504 Batteries",
+        "A221 Spring 2/R - SW/PS",
+        "A311 Field Maintenance",
+        "X001 Operations Support System (OSS) Services",
+        "X002 Operations Support System (OSS) Services",
+    ])
+
+    def resolve(self, value):
+        return planning._match(value, self.KNOWN)
+
+    def test_a_title_on_its_own_resolves_to_the_whole_entry(self):
+        """A model answering "Batteries" is right, and used to be discarded."""
+        self.assertEqual(self.resolve("Batteries"), "D504 Batteries")
+        self.assertEqual(self.resolve("field maintenance"), "A311 Field Maintenance")
+
+    def test_punctuation_and_case_do_not_matter(self):
+        self.assertEqual(self.resolve("spring 2 r sw ps"), "A221 Spring 2/R - SW/PS")
+
+    def test_a_code_on_its_own_still_resolves(self):
+        self.assertEqual(self.resolve("d504"), "D504")
+
+    def test_a_title_shared_by_two_categories_is_refused(self):
+        """Flying to the wrong one of two is worse than saying it is ambiguous."""
+        self.assertEqual(self.resolve("Operations Support System (OSS) Services"), "")
+
+    def test_an_invented_name_is_still_refused(self):
+        self.assertEqual(self.resolve("Quantum Teapots"), "")
+        self.assertEqual(self.resolve("Z999"), "")
+
+    def test_a_plan_naming_a_category_by_title_keeps_the_code(self):
+        """End to end: the browser is handed a code it can fly to."""
+        names = {"categories": ["D504 Batteries"], "districts": [], "plots": [],
+                 "markets": []}
+        got = planning.parse(
+            '{"intent": "focus", "target": {"kind": "category", "value": "Batteries"}}',
+            names, "test",
+        )
+        self.assertEqual(got.intent, "focus")
+        self.assertEqual(got.value, "D504")

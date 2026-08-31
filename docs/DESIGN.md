@@ -512,6 +512,33 @@ every single call timed out and the city was answering on its own rules. It now
 changes to "model did not answer" the moment one does. A badge that claims a
 model which is silent is worse than no badge.
 
+## 8h. What the first real model run found
+
+Six questions, a live model, no rate limit. Two failures, and neither was the
+model's.
+
+**A near miss was being discarded.** Asked about batteries, the model answered
+`"Batteries"` where the vocabulary had said `"D504 Batteries"`, and the
+validation refused it because it only accepted an exact or case-insensitive
+match. That is a correct answer thrown away on a technicality. The matcher now
+also resolves a category by its title alone, ignoring case and punctuation,
+while still only ever returning something already in the vocabulary, so an
+invented category is refused exactly as before. Where two categories share a
+title, which happens once in this extract, it is refused rather than guessed
+at: flying to the wrong one of two is worse than admitting the question was
+ambiguous.
+
+**And the other failure was the test being over-specified.** "How is Energy
+doing" was marked wrong for choosing `summary` over `district`. But `district`
+flies to Energy and summarises it, and `summary` flies to Energy and summarises
+it with one more figure. Both are right, and the second is arguably better.
+Marking one of them wrong tested my preference rather than the agent, so the
+eval now accepts either where two intents are genuinely both correct, written
+as `district|summary`, with a note saying why.
+
+That distinction is worth keeping in mind for the rest of this: an eval that
+fails on a correct answer trains you to ignore it.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
