@@ -47,6 +47,29 @@
    * perfect. Weighing how much of the *target* was covered lets the district
    * actually called Energy win, which is what the question meant.
    */
+  /** How much of the query appears in a longer piece of prose, 0..1.
+   *
+   * similarity() is the wrong tool for a definition. It measures both
+   * directions, so a two-word question against a twenty-word sentence scores
+   * badly however well those two words match: "lead acid" covers a tenth of
+   * what D504's definition says, and gets marked as a poor answer for it.
+   *
+   * Against prose the only question worth asking is whether the words someone
+   * typed are in there.
+   */
+  function mentions(query, text) {
+    const asked = meaningful(query);
+    if (!asked.length) return 0;
+    const t = norm(text);
+    if (t.includes(norm(query))) return 1;
+    // Whole words only. Allowing a substring match let "kit" find any
+    // definition containing those three letters inside a longer word, which
+    // is how "radio kit" stopped finding the plot called Radio Equipment.
+    const have = new Set(words(text));
+    const found = asked.filter((w) => have.has(w)).length;
+    return found / asked.length;
+  }
+
   function similarity(query, text) {
     const q = norm(query);
     const t = norm(text);
@@ -101,7 +124,8 @@
         scored.push({
           kind: "category",
           hit: c,
-          score: Math.max(similarity(query, c.name), similarity(query, `${c.code} ${c.name}`)),
+          score: Math.max(similarity(query, c.name),
+                          similarity(query, `${c.code} ${c.name}`)),
         });
       }
       for (const d of districts) scored.push({ kind: "district", hit: d, score: similarity(query, d) });
@@ -109,6 +133,38 @@
       for (const m of markets) scored.push({ kind: "market", hit: m, score: similarity(query, m) });
 
       scored.sort((a, b) => b.score - a.score);
+
+      /* Definitions are a net under the names, never a rival to them.
+       *
+       * Nobody types "Batteries" when they mean the thing that keeps a radio
+       * site up in a power cut. They type "lead acid", which is the first two
+       * words of what the workbook says D504 actually is. Every category has a
+       * definition and we were not reading any of them.
+       *
+       * But only when the names have already failed. Consulted alongside them,
+       * "fibre optic" stops finding the plot called Fibre Optic Network and
+       * starts finding whichever category's definition mentions fibre, which
+       * is a worse answer arrived at more cleverly. So this runs only when
+       * nothing was recognised by name, and it requires every word you typed
+       * to appear: one word in common is a coincidence, all of them is a
+       * reason.
+       */
+      const NAMED_ENOUGH = 0.55;
+      if (!scored[0] || scored[0].score < NAMED_ENOUGH) {
+        for (const c of categories) {
+          if (!c.definition || mentions(query, c.definition) < 1) continue;
+          // Below any name match that got close, and above the floor where
+          // the agent gives up. A weak recognition of a real name still beats
+          // a definition: "radio kit" should find the Radio Equipment plot,
+          // not the cable category whose description happens to say both
+          // words somewhere in a numbered list.
+          scored.push({
+            kind: "category", hit: c, score: 0.45, viaDefinition: true,
+          });
+        }
+        scored.sort((a, b) => b.score - a.score);
+      }
+
       const best = scored[0];
       if (!best || best.score < 0.34) return { kind: "none", confidence: 0, label: "no match" };
 
@@ -119,6 +175,7 @@
         hit: best.hit,
         alternative: ambiguous ? rival : null,
         confidence: best.score,
+        viaDefinition: !!best.viaDefinition,
         label: best.kind === "category" ? best.hit.code : best.hit,
       };
     },

@@ -83,6 +83,7 @@ def health() -> dict:
     """What is actually wired up, so the page can say so instead of guessing."""
     provider = os.environ.get("NW_PROVIDER", "mock").strip().lower()
     model = os.environ.get("NW_MODEL") or providers.DEFAULT_MODELS.get(provider, "")
+    ladder = providers.ladder_for(provider, model)
     ready = True
     detail = ""
     if provider in ("gemini", "claude") and not os.environ.get("NW_API_KEY", "").strip():
@@ -90,7 +91,7 @@ def health() -> dict:
     if provider == "vertex" and not os.environ.get("NW_PROJECT", "").strip():
         ready, detail = False, "NW_PROJECT is not set"
     return {"ok": True, "provider": provider, "model": model,
-            "ready": ready, "detail": detail}
+            "ladder": ladder, "ready": ready, "detail": detail}
 
 
 @app.post("/plan")

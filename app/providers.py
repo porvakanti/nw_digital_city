@@ -150,7 +150,53 @@ GEMINI_PREFERENCE = (
     "gemini-2.5-flash",
 )
 
+# A model that has just refused us, and when it is worth asking again. There
+# is no API that reports how many requests are left, so the only way to know a
+# model is spent is to be told so, and the only sensible thing to do with that
+# is remember it and move down the list.
+_rested: dict[str, float] = {}
 _resolved: dict[str, str] = {}
+
+
+def _ladder(configured: str) -> list[str]:
+    """The models to try, best first.
+
+    NW_MODEL is a first choice rather than a hard pin, because a first choice
+    that is out of requests should not take the agent down with it. NW_PIN=1
+    for the old behaviour, which is what an experiment comparing two models
+    wants.
+    """
+    named = [m.strip() for m in os.environ.get("NW_MODELS", "").split(",") if m.strip()]
+    order = [configured] + named + list(GEMINI_PREFERENCE) if configured else \
+        named + list(GEMINI_PREFERENCE)
+    if os.environ.get("NW_PIN", "").strip() in ("1", "true", "yes"):
+        return [configured] if configured else order[:1]
+
+    seen, out = set(), []
+    for name in order:
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return out
+
+
+def ladder_for(provider: str, model: str) -> list[str]:
+    """What /health and `run.cmd models` should say will be tried, in order."""
+    if provider != "gemini":
+        return [model] if model else []
+    return [m for m in _ladder(model) if not _resting(m)]
+
+
+def _resting(model: str) -> bool:
+    until = _rested.get(model, 0.0)
+    if until and time.time() < until:
+        return True
+    _rested.pop(model, None)
+    return False
+
+
+def _rest(model: str, seconds: float) -> None:
+    _rested[model] = time.time() + seconds
 
 
 def gemini_models(key: str) -> list[str]:
@@ -192,86 +238,84 @@ def _retry_after(reply: httpx.Response) -> float:
     return 0.0
 
 
-def _pick_gemini(key: str) -> str:
-    """Choose a model that exists, preferring a fast one.
-
-    Called only when the configured model turns out not to be there. Asking the
-    API what it has beats guessing, and it means a retirement announcement does
-    not become a broken demo.
-    """
-    available = gemini_models(key)
-    for wanted in GEMINI_PREFERENCE:
-        if wanted in available:
-            return wanted
-    flash = [m for m in available if "flash" in m and "preview" not in m]
-    if flash:
-        return flash[0]
-    if available:
-        return available[0]
-    raise ProviderError("this key can see no models that support generateContent")
-
-
 def _gemini(system: str, question: str, key: str, model: str) -> str:
+    """Ask the first model on the ladder that is willing to answer.
+
+    Three things can take a model away: it is retired (404), it is out of
+    requests (429), or the service is busy (503). The first is permanent, the
+    second lasts until a quota window rolls over, the third passes in seconds.
+    Retries cover the third; the ladder covers the other two.
+
+    There is no endpoint that reports remaining quota, so this cannot check in
+    advance which model has requests left. It finds out the only way available,
+    by asking, and then remembers the answer so it does not ask twice.
+    """
     body = {
         "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": question}]}],
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
-    model = _resolved.get(model, model)
+    attempts = int(os.environ.get("NW_RETRIES", "3"))
 
-    def call(name: str) -> httpx.Response:
-        """One request, retried through the failures that are worth retrying.
-
-        429 is the free tier's rate limit and 503 is the service being busy.
-        Both pass on their own, so a short wait beats an error message; a key
-        that is out of requests for the day does not pass, and gets told so.
-        """
-        attempts = int(os.environ.get("NW_RETRIES", "3"))
+    def once(name: str) -> httpx.Response:
+        """One model, retried through the failures that pass on their own."""
         for attempt in range(attempts):
             try:
                 reply = httpx.post(
                     f"{GEMINI_ROOT}/models/{name}:generateContent", json=body,
                     headers={"x-goog-api-key": key}, timeout=_timeout(),
                 )
-            except httpx.TransportError as exc:
+            except httpx.TransportError:
                 if attempt == attempts - 1:
-                    raise ProviderError(UNREACHABLE.format(
-                        host="generativelanguage.googleapis.com", seconds=TIMEOUT
-                    )) from exc
+                    raise
                 time.sleep(_backoff(attempt))
                 continue
-
             if reply.status_code in (429, 503) and attempt < attempts - 1:
                 time.sleep(_retry_after(reply) or _backoff(attempt))
                 continue
-            if reply.status_code == 429:
-                raise ProviderError(THROTTLED.format(model=name))
             return reply
         raise ProviderError("gave up after retrying")  # pragma: no cover
 
-    reply = call(model)
+    ladder = _ladder(model)
+    live = [m for m in ladder if not _resting(m)]
+    if not live:
+        raise ProviderError(THROTTLED.format(model=", ".join(ladder)))
 
-    # A 404 here means the model is gone, not that the key is wrong. Ask what
-    # is there, take the best of it, and say so rather than failing 32 times in
-    # a row with the same message.
-    if reply.status_code == 404 and not os.environ.get("NW_MODEL", "").strip():
-        replacement = _pick_gemini(key)
-        print(f"· {model} is not available; using {replacement}", flush=True)
-        _resolved[model] = replacement
-        reply = call(replacement)
+    transport: Exception | None = None
+    for index, name in enumerate(live):
+        try:
+            reply = once(name)
+        except httpx.TransportError as exc:
+            transport = exc
+            break
 
-    if reply.status_code == 404:
-        raise ProviderError(
-            f"Gemini has no model called {model!r}. Run `run.cmd models` to see "
-            "what this key can call, then set NW_MODEL in .env, or clear "
-            "NW_MODEL and one will be chosen for you."
-        )
-    reply.raise_for_status()
-    data = reply.json()
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError) as exc:
-        raise ProviderError(f"unexpected Gemini response: {data}") from exc
+        if reply.status_code == 200:
+            if index:
+                print(f"· {live[0]} was unavailable; answered by {name}", flush=True)
+            _resolved[model] = name
+            try:
+                return reply.json()["candidates"][0]["content"]["parts"][0]["text"]
+            except (KeyError, IndexError) as exc:
+                raise ProviderError(f"unexpected Gemini response: {reply.json()}") from exc
+
+        if reply.status_code == 404:
+            # Retired. It is not coming back, so rest it for the session.
+            _rest(name, 86400)
+            continue
+        if reply.status_code in (429, 503):
+            # Out of requests, or busy. The service sometimes says for how
+            # long; when it does not, an hour is long enough to stop asking
+            # and short enough that a per-minute limit recovers on its own.
+            _rest(name, _retry_after(reply) or 3600)
+            continue
+
+        reply.raise_for_status()
+
+    if transport is not None:
+        raise ProviderError(UNREACHABLE.format(
+            host="generativelanguage.googleapis.com", seconds=TIMEOUT
+        )) from transport
+    raise ProviderError(THROTTLED.format(model=", ".join(live)))
 
 
 # ---------------------------------------------------------------- vertex

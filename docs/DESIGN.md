@@ -539,6 +539,50 @@ as `district|summary`, with a note saying why.
 That distinction is worth keeping in mind for the rest of this: an eval that
 fails on a correct answer trains you to ignore it.
 
+## 8i. A ladder of models, and a net under the search
+
+Two enhancements after the first real run, both of them the same shape: stop
+depending on one thing being available.
+
+**The models are a ladder now.** Three things take a model away: it is retired
+(404), it is out of requests (429), or the service is busy (503). Retries cover
+the third. The ladder covers the other two: the first model that answers is
+used, one that refuses is skipped and remembered, and a line on stdout says
+which one actually answered when it was not the first choice.
+
+There is no endpoint that reports remaining quota, so nothing can check in
+advance which model has requests left. It finds out the only way available, by
+asking, and then remembers, so one refusal costs one request rather than one
+per question. A 404 rests a model for the session because retirement is
+permanent; a 429 or 503 rests it for whatever delay the service asks for, or an
+hour, which is long enough to stop asking and short enough that a per-minute
+limit recovers on its own.
+
+`NW_MODEL` became a first choice rather than a hard pin, because a first choice
+that is out of requests should not take the agent down with it. `NW_PIN=1`
+restores the old behaviour, which is what an experiment comparing two models
+wants. `/health` and `run.cmd models` both report the ladder, so what will be
+tried is visible rather than assumed.
+
+**And the search reads the definitions.** It is not semantic search: there are
+no embeddings, because embedding a query needs a network call and the whole
+point of the renderer is that it works from a file with none. What it is, is
+lexical matching that is forgiving about spelling, plus a model that
+understands paraphrase when one is available.
+
+That already handled "battery" for Batteries and "fiber optic" for Fibre Optic
+Network, through bigram overlap. What it could not do was "lead acid", which is
+the first two words of what the workbook says D504 actually is. Every category
+carries a definition and none of them were being read.
+
+They are read now, but only as a net under the names, never as a rival to them.
+Consulted alongside names, "fibre optic" stopped finding the plot called Fibre
+Optic Network and started finding whichever category's definition mentioned
+fibre, which is a worse answer arrived at more cleverly. So the definitions are
+consulted only when nothing was recognised by name, they require *every* word
+of the question to appear as a whole word, and they score below any name match
+that got close. One word in common is a coincidence; all of them is a reason.
+
 ## 9. Checked against the brief
 
 Re-read of the deck, the narrative and the workbook, against what is built.
