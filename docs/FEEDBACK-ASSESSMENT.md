@@ -8,6 +8,13 @@ best idea in it is not the one that got the most words, and about two thirds
 of the visual suggestions need data that does not exist in any system we
 currently read.
 
+> **Updated 9 September.** Tomas has since sent a refreshed extract that
+> changes two verdicts below: the AI-generated RFP column is now real, so the
+> rooftop placeholder must go, and a new `CBP used` column reveals that only 4
+> of 44 active blueprints have ever been used. See `ITERATION-PLAN.md`, which
+> supersedes the ordering in section 6 here. Everything about the data that is
+> still missing, dates above all, remains missing.
+
 ---
 
 ## 1. The distinction that decides everything
