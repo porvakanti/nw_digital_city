@@ -393,7 +393,7 @@
 
   async function runNight() {
     await call("render", "night");
-    const lit = categories.filter((c) => c.metrics.ai_rfps_sample > 0).length;
+    const lit = categories.filter((c) => c.metrics.ai_rfps > 0).length;
     CITYVIEW.speak(
       `${lit} of ${categories.length} categories have started any AI-generated RFPs. The lit rooftops are where the rules are structured enough to try.`,
       "The dark roofs are the work still to do."
