@@ -53,14 +53,36 @@
 
   // A Lego brick reads as a light face over a saturated body, so each district
   // hue is mixed toward white for the wall and left darker for the banding.
-  function brickSet(index) {
+  /* Bricks in the district's colour.
+   *
+   * `occupied` is whether anybody has actually run a sourcing event through
+   * this category's blueprint. An unoccupied building keeps its shape and
+   * loses its colour: the estate is built, and nobody is in it. Forty of the
+   * forty-four built lots are in this state, which is the single most
+   * important thing on the map and had no way of being seen before. */
+  /* How far an empty building drifts towards grey.
+   *
+   * Tuned down from 0.72, which drained the whole skyline: with 40 of the 44
+   * built lots empty, a strong wash turns the city into one grey mass and the
+   * district colours stop telling you where you are. At 0.45 a building still
+   * belongs to its district and still reads as drained, and the four that are
+   * occupied keep their full colour and stand out against the rest. */
+  const VACANT_WASH = 0.45;
+
+  function brickSet(index, occupied = true) {
     const base = new THREE.Color(DISTRICT_BANDS[index % DISTRICT_BANDS.length]);
-    const wall = base.clone().lerp(new THREE.Color(0xffffff), 0.1);
+    let wall = base.clone().lerp(new THREE.Color(0xffffff), 0.1);
+    if (!occupied) {
+      // Towards a cold neutral rather than plain white, so it reads as
+      // abandoned rather than as a lighter shade of the same colour.
+      wall = wall.lerp(new THREE.Color(0x9aa0aa), VACANT_WASH);
+    }
     return {
       main: wall.getHex(),
       alt: wall.clone().lerp(new THREE.Color(0x000000), 0.16).getHex(),
       stud: wall.clone().lerp(new THREE.Color(0xffffff), 0.22).getHex(),
       band: base.getHex(),
+      occupied,
     };
   }
 
@@ -1090,7 +1112,10 @@
       : tierIndex(layerMetric("value"), valueFor(category, "value"));
     const reactorTier = tierIndex(layerMetric("reactor"), valueFor(category, "reactor"));
 
-    const palette = brickSet(building.district.index);
+    // Built is not the same as used. 44 categories have an active blueprint;
+    // four have one anybody has ever run a sourcing event through.
+    const occupied = (category.metrics.cbp_used || 0) > 0;
+    const palette = brickSet(building.district.index, occupied);
     const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null };
     building.pieces = pieces;
     const x = building.x, z = building.z;
@@ -1106,9 +1131,13 @@
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
-        // Window strips on the two faces the isometric camera can see. Some
-        // are left dark so the skyline is not uniformly lit at night.
-        const lit = (f * 7 + x * 3 + z) % 10 < 7;
+        /* Window strips on the two faces the isometric camera can see.
+         *
+         * Lights only come on in a building somebody uses. At night that
+         * makes the point without a word of commentary: four lit buildings
+         * in the whole of Networks. Within an occupied building a few panes
+         * are still left dark, so it reads as a building rather than a slab. */
+        const lit = occupied && (f * 7 + x * 3 + z) % 10 < 7;
         const glass = lit ? 0xffd98a : 0x2a2f38;
         windows.add(x + FOOT / 2, y, z, 0.06, 0.42, FOOT * 0.62, glass);
         windows.add(x, y, z + FOOT / 2, FOOT * 0.62, 0.42, 0.06, glass);
@@ -1434,7 +1463,13 @@
     sun.intensity = isNight ? 0.16 : DAY.sun;
     sun.color.setHex(isNight ? 0x8fa8d8 : DAY.sunColour);
 
-    if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = isNight;
+    /* Windows stay on in daylight too.
+     *
+     * They used to appear only at night, which meant the four occupied
+     * buildings were invisible in the view people spend all their time in.
+     * Lit panes are warm enough to read against a drained facade by day, and
+     * the unlit ones are dark recesses rather than an absence. */
+    if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = true;
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
 
@@ -1457,14 +1492,17 @@
 
   function renderStats() {
     const t = CITY.totals;
+    /* "in use" sits next to "developed" on purpose. 56 against 4 is the whole
+     * argument, and the two numbers only land when they are side by side. */
     const stats = [
       [t.with_blueprint, "developed"],
+      [t.in_use, "in use", true],
       [t.empty_lots, "empty lots"],
-      [CITY.meta.counts.markets, "markets"],
       [euro(t.spend_eur), "spend"],
     ];
     document.getElementById("stats").innerHTML = stats
-      .map(([n, k]) => `<div class="stat"><span class="n">${n}</span><span class="k">${k}</span></div>`)
+      .map(([n, k, flag]) =>
+        `<div class="stat${flag ? " sharp" : ""}"><span class="n">${n}</span><span class="k">${k}</span></div>`)
       .join("");
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
@@ -1552,6 +1590,7 @@
 
   const inspector = document.getElementById("inspector");
   function showCategory(category) {
+    showOnArc(category);
     if (!category) {
       inspector.classList.remove("on");
       return;
@@ -1560,14 +1599,24 @@
     const heightTier = tierOf(layerMetric("height"), valueFor(category, "height"));
     const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
     const stateTier = tierOf("blueprint_state", category.blueprint_state);
+    const used = category.metrics.cbp_used || 0;
     const rows = [
       ["Blueprint", stateTier.label],
+      ["In use", used
+        ? `Yes, ${used} sourcing event${used === 1 ? "" : "s"}`
+        : category.blueprint_state === "active" ? "Never used" : "Not yet"],
       [metricDef(layerMetric("height")).label, `${heightTier.label} (${valueFor(category, "height")})`],
       ["Spend FY26/27", euro(m.spend_eur)],
       ["Property", valueTier.label],
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
+    if (category.owners && category.owners.length) {
+      rows.push([category.owners.length > 1 ? "Owners" : "Owner", category.owners.join(", ")]);
+    }
+    if (category.landmark) {
+      rows.push(["Landmark", `${category.landmark.name}, ${category.landmark.market}`]);
+    }
     // Laid out as a Monopoly title deed, because that is what it is: one
     // property, its colour group across the top, what it is worth, and what
     // has been built on it. The board game does the explaining for us.
@@ -1587,8 +1636,140 @@
     inspector.classList.add("on");
   }
 
+  /* ------------------------------------------------------ the arc and the score
+   *
+   * Traditional, Connected, Smart, Autonomous. Hilmi's arc, and the reason it
+   * is worth adopting is that it needs no new data: the measures already on
+   * screen are that journey. The stage boundaries and every weight live in
+   * config/metrics.yaml, so this draws whatever the score is defined to be.
+   */
+  const WEIGHTS = (CONFIG.score && CONFIG.score.weights) || { blueprint: 40, usage: 35, ai: 25 };
+  const ARC_MAX = WEIGHTS.blueprint + WEIGHTS.usage + WEIGHTS.ai;
+
+  /** Where a score sits along the rail, as a percentage of its width.
+   *  Autonomous occupies the last quarter and nothing reaches it, which is
+   *  the point rather than an oversight. */
+  function arcPosition(score) {
+    return Math.max(2, Math.min(74, (score / ARC_MAX) * 74));
+  }
+
+  function renderArc() {
+    const j = CITY.totals.journey;
+    if (!j) return;
+    document.getElementById("arcYou").style.left = `${arcPosition(j.total)}%`;
+    document.getElementById("arcScore").textContent = `Networks ${Math.round(j.total)} / ${ARC_MAX}`;
+    document.getElementById("arcNote").textContent =
+      `· ${Math.round(j.blueprint / WEIGHTS.blueprint * 100)}% written, `
+      + `${Math.round(j.usage / WEIGHTS.usage * 100)}% used, `
+      + `${Math.round(j.ai / WEIGHTS.ai * 100)}% with AI`;
+    markStage(stageOf(j.total));
+  }
+
+  function stageOf(score) {
+    if (score >= ARC_MAX * 0.75) return "autonomous";
+    if (score >= WEIGHTS.blueprint + WEIGHTS.usage * 0.4) return "smart";
+    if (score >= WEIGHTS.blueprint) return "connected";
+    return "traditional";
+  }
+
+  function markStage(stage) {
+    for (const el of document.querySelectorAll("#arc .stage")) {
+      el.classList.toggle("here", el.dataset.stage === stage);
+    }
+  }
+
+  /** Put a single category's own marker on the rail, so the arc answers
+   *  "where is this one" as well as "where are we". */
+  function showOnArc(category) {
+    const pick = document.getElementById("arcPick");
+    if (!category || !category.journey) { pick.hidden = true; return; }
+    pick.hidden = false;
+    pick.style.left = `${arcPosition(category.journey.total)}%`;
+  }
+
+  /* The journey panel. Three views of one score, because the same number
+   * answers different questions depending on who is asking. */
+  const journeyRows = document.getElementById("jRows");
+  let journeyView = "districts";
+
+  function scoreBar(j) {
+    const seg = (key, value) =>
+      `<i class="${key}" style="width:${(value / ARC_MAX) * 100}%"></i>`;
+    return `<span class="bar">${seg("bp", j.blueprint)}${seg("use", j.usage)}${seg("ai", j.ai)}</span>`;
+  }
+
+  function rollUp(list) {
+    // Same weighting as the build: the square root of spend, floored, so one
+    // large category cannot carry a group that has done nothing else.
+    const w = (c) => Math.sqrt(Math.max(c.metrics.spend_eur || 0, 1e6));
+    const total = list.reduce((s, c) => s + w(c), 0) || 1;
+    const part = (k) => list.reduce((s, c) => s + c.journey[k] * w(c), 0) / total;
+    return { total: part("total"), blueprint: part("blueprint"), usage: part("usage"), ai: part("ai") };
+  }
+
+  function journeyData() {
+    if (journeyView === "categories") {
+      return CITY.categories
+        .map((c) => ({ label: `${c.code} ${c.name}`, sub: c.district,
+                       j: c.journey, go: () => window.NWCity.focus(c.code) }))
+        .sort((a, b) => b.j.total - a.j.total);
+    }
+    if (journeyView === "people") {
+      const by = new Map();
+      for (const c of CITY.categories) {
+        for (const person of c.owners || []) {
+          if (!by.has(person)) by.set(person, []);
+          by.get(person).push(c);
+        }
+      }
+      const floor = (CONFIG.score && CONFIG.score.minimum_categories) || 3;
+      return [...by.entries()]
+        // Below the floor a score is a coin toss rather than a track record:
+        // one category with one blueprint would sit at the top on merit it
+        // did not earn.
+        .filter(([, list]) => list.length >= floor)
+        .map(([person, list]) => ({
+          label: person,
+          sub: `${list.length} categories`,
+          j: rollUp(list),
+          go: () => window.NWCity.focus(list.slice().sort((a, b) => b.journey.total - a.journey.total)[0].code),
+        }))
+        .sort((a, b) => b.j.total - a.j.total);
+    }
+    return CITY.districts
+      .map((d) => ({ label: d.name, sub: `${d.totals.empty_lots} of ${d.totals.categories} empty`,
+                     j: d.totals.journey, go: () => window.NWCity.focusDistrict(d.name) }))
+      .sort((a, b) => b.j.total - a.j.total);
+  }
+
+  function renderJourney() {
+    const rows = journeyData();
+    journeyRows.innerHTML = rows.map((r, i) => `
+      <div class="jRow" data-i="${i}">
+        <span class="who">${r.label}</span>
+        <span class="num">${Math.round(r.j.total)}</span>
+        ${scoreBar(r.j)}
+        <span class="sub">${r.sub}</span>
+      </div>`).join("");
+    journeyRows.querySelectorAll(".jRow").forEach((el) => {
+      el.addEventListener("click", () => rows[Number(el.dataset.i)].go());
+    });
+  }
+
+  document.getElementById("jSwitch").addEventListener("click", (e) => {
+    const button = e.target.closest("[data-view]");
+    if (!button) return;
+    journeyView = button.dataset.view;
+    for (const b of document.querySelectorAll("#jSwitch button")) {
+      b.classList.toggle("on", b === button);
+    }
+    renderJourney();
+  });
+
   renderStats();
   renderLegend();
+  renderArc();
+  renderJourney();
 
   /* On a phone the legend and the trace start closed. Both are reference
      rather than the thing itself, and open they cover the city on a screen
