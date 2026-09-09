@@ -23,3 +23,6 @@ nw-digital-city.zip
 # The single file to send. Built by `run.py package`, never committed:
 # a 0.9 MB generated file in every diff would bury the changes that matter.
 NW Digital City.html
+
+# Generated for sharing, rebuilt from docs/FEEDBACK-CLASSIFICATION.md.
+NW Digital City - Feedback Review.xlsx
