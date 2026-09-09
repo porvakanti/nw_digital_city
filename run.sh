@@ -3,4 +3,4 @@
 # lives in run.py, which also runs on Windows where there is no bash.
 set -euo pipefail
 cd "$(dirname "$0")"
-exec python3 run.py "$@"
+exec py run.py "$@"

@@ -156,11 +156,11 @@ Say these before someone finds them.
 all 145 categories in the September extract as well, so building height is
 market reach and is badged provisional on screen. This is the last placeholder
 left: the rooftop lights became real data in the same refresh.
+**Two of the four measures are not yet what they claim to be.** Height stands
+in for adoption. The rooftop lights are invented.
 
 **20 categories have an active blueprint and no recorded spend.** So the map
-holds empty lots with money on them and built lots with none. Whether that is
-a data gap or genuinely nothing is an open question with Kate, and anyone in
-the room who owns one of those categories will notice.
+holds empty lots with money on them and built lots with none. 
 
 **Blueprint reach counts markets, not depth.** A category live in one market
 looks the same whether that market is Germany or Albania.
