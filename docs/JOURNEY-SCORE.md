@@ -1,170 +1,194 @@
 # The journey score
 
-A single number for how far a category, a manager, a district or the whole of
-Networks has got. Designed to be explained in one sentence and to survive
-someone arguing with it.
+One number per category, manager, district or the whole of Networks. Built to
+be explained in a sentence and to survive being argued with.
 
-Every number below is computed from Tomas's 9 September extract joined to the
-category manager column in the original workbook.
-
----
-
-## The one sentence
-
-> Every category is on a five-step journey from nothing to in use. Your score
-> is how far along that journey your categories are, counting the ones with
-> more money on them for more.
-
-That is the whole thing. If somebody cannot repeat it back after hearing it
-once, it is the wrong score.
+Computed from Tomas's 9 September extract joined to the category manager
+column in the original workbook.
 
 ---
 
-## Step 1: the five stages
+## Why the first version was wrong
 
-Each category sits at exactly one stage. Nothing is a judgement call, every
-one comes straight from a column.
+The first draft folded "blueprint has been used" and "AI RFP started" into a
+single top rung. Two things were wrong with that.
 
-| Stage | Means | From | Categories | Spend |
-| --- | --- | --- | --- | --- |
-| **0. Nothing** | No blueprint at all | Total CBP = 0 | 89 | €175.6m |
-| **1. Written** | Drafted, not live | Draft CBP > 0, Active = 0 | 12 | €72.9m |
-| **2. Live** | Active in one market | Active > 0, Total = 1 | 20 | €178.2m |
-| **3. Connected** | Active in several markets | Active > 0, Total ≥ 2 | 15 | €202.4m |
-| **4. In use** | Used, or an AI RFP started | CBP used > 0 or AI RFPs > 0 | 9 | €131.4m |
+**They are not sequential.** Checked against the data:
 
-The stages score 0, 25, 50, 75, 100.
+| | Categories |
+| --- | --- |
+| Blueprint used | A213, A251, D408, D506 |
+| AI RFP started | A212, A213, A251, A314, D303, D333, D506, D513 |
+| Both | A213, A251, D506 |
+| Used but no AI | D408 |
+| AI but never used | A212, A314, D303, D333, D513 |
 
-**This is not a new invention.** It is Hilmi's Traditional to Connected to
-Smart to Autonomous arc, written down precisely enough to compute. Stage 2 is
-traditional: it exists and it works in one place. Stage 3 is connected. Stage 4
-is smart. Autonomous is the stage above 4 that nobody has reached yet, which
-is honest and worth saying out loud.
+Five categories have started an AI RFP without ever using their blueprint. A
+single ladder cannot represent that, because it assumes one comes after the
+other.
 
-One definition now serves three things: the narrative on stage, the visuals in
-the city, and the leaderboard. That is worth more than any of them separately.
+**And it threw away the magnitude.** `CBP used` runs 0 to 3. A blueprint used
+three times scored exactly the same as one used once. Since getting blueprints
+used is the entire point of writing them, that was the wrong thing to discard.
 
 ---
 
-## Step 2: the weighting, and why it is a square root
+## The score
 
-The obvious choices both fail, and it is worth showing why because someone
-will ask.
+> **A base score for how far the blueprint itself has got, plus a bonus for
+> actually using it, plus a smaller bonus for doing it with AI.**
 
-**Count every category equally?** Then the score punishes anyone with a big
-portfolio. Measured: correlation of **−0.46** with portfolio size. The manager
-holding 14 categories cannot beat the one holding 3, however well they do.
+### Base: has the blueprint been written and made live (0 to 60)
 
-**Weight by spend directly?** Then one large category drowns everything else.
-Concretely, from the real data:
+| | Points | Categories |
+| --- | --- | --- |
+| Nothing | 0 | 89 |
+| Drafted, not live | 20 | 12 |
+| Active in one market | 40 | 20 |
+| Active in two or more markets | 60 | 24 |
 
-> **Fixed** has 12 categories. **Eleven of them are at stage 0.** One category,
-> D408 Self-Build Fibre at €62.5m, is at stage 4. Weighted by raw spend, Fixed
-> scores **69% and comes top of all eight districts.**
+### Usage bonus: has anybody actually used it (0 to 25)
 
-A district that has done nothing on 92% of its categories should not win. That
-is not a rounding error, it is the measure being wrong.
+| `CBP used` | Points | Categories |
+| --- | --- | --- |
+| 0 | 0 | 141 |
+| 1 | 15 | 2 |
+| 2 or more | 25 | 2 |
 
-**So: weight by the square root of spend.** A €75m category counts more than a
-€1m one, but about 9 times more rather than 75 times more. Every category also
-carries a floor of €1m of weight, so the 89 with no recorded spend still
-count.
+Worth a quarter of the total on its own, because a blueprint nobody uses is
+paperwork. This is the behaviour the whole exercise exists to produce.
 
-The evidence that this is the right call:
+### AI bonus: has it been done with AI help (0 to 15)
 
-| District | At stage 0 | Equal | **Square root** | Raw spend |
-| --- | --- | --- | --- | --- |
-| Transmission Infrastructure | 4 of 10 | 40% | **46%** | 48% |
-| Access Radio/Fixed | 20 of 37 | 29% | **44%** | 66% |
-| Energy | 11 of 18 | 26% | **42%** | 64% |
-| Managed Services and Outsourcing | 4 of 10 | 32% | **36%** | 38% |
-| Fixed | **11 of 12** | 8% | **32%** | **69%** |
-| Leased Lines | 12 of 16 | 14% | **24%** | 36% |
-| Software and Core | 18 of 25 | 18% | **24%** | 32% |
-| Network Revenue Platforms | 9 of 17 | 16% | **19%** | 23% |
+| AI RFPs | Points | Categories |
+| --- | --- | --- |
+| 0 | 0 | 137 |
+| 1 | 8 | 4 |
+| 2 or more | 15 | 4 |
 
-Square root puts Fixed fifth, where 11 of 12 at nothing belongs. Raw spend puts
-it first. Equal weighting puts it last and ignores that it did land the €62m
-one.
+Smaller than usage, deliberately. Starting an AI RFP is promising. Getting a
+blueprint reused is the result.
+
+**Maximum 100.** One category reaches it: A251 Network Professional Services,
+active in eight markets, used twice, two AI RFPs.
+
+### The arc, made countable
+
+Base 20 to 40 is Hilmi's **Traditional**: it exists, it works in one place.
+Base 60 is **Connected**: one blueprint, several markets. The AI bonus is
+**Smart**. **Autonomous** is above 100 and nobody is there, which is honest and
+worth saying out loud.
+
+One definition now drives the narrative, the visuals and the leaderboard.
+
+---
+
+## Rolling it up: weight by the square root of spend
+
+Two obvious choices both fail, and the failures are worth keeping because
+somebody will ask.
+
+**Count every category equally?** Correlation of **−0.46** with portfolio size.
+It punishes whoever holds fourteen categories.
+
+**Weight by spend directly?** One big category drowns the rest. Concretely:
+
+> **Fixed** has 12 categories. **Eleven are at zero.** One, D408 at €62.5m, has
+> a used blueprint. Weighted by raw spend, Fixed comes **top of all eight
+> districts**.
+
+A district that has done nothing on 92% of its estate cannot be the winner.
+
+**So: the square root of spend**, with a floor of €1m so the 89 zero-spend
+categories still count. A €75m category weighs about nine times a €1m one, not
+seventy-five times. Fixed lands fifth, where eleven of twelve at zero belongs.
 
 | | Equal | **Square root** | Raw spend |
 | --- | --- | --- | --- |
 | Correlation with portfolio size | −0.46 | **−0.36** | −0.25 |
-| Correlation with portfolio spend | +0.04 | **+0.17** | +0.22 |
+| Correlation with portfolio spend | +0.04 | **+0.18** | +0.22 |
 
-Nothing is perfect here. Square root is the one where neither size nor spend
-decides the answer.
-
----
-
-## Step 3: what it produces
-
-**Networks overall scores 35%.** Or in plain terms, roughly a third of the way
-from nothing to a working, reused, AI-assisted category estate. That is a good
-headline number for the all-hands: it is honest, it is not zero, and it leaves
-obvious room.
-
-**By district** it needs no caveats at all. No minimum, nobody named, and the
-ranking passes the smell test: Transmission Infrastructure top with only 4 of
-10 at nothing, Network Revenue Platforms bottom where 7 of its 17 are drafts
-that never went live.
-
-**By manager**, with a minimum of 3 categories, 23 of the 35 qualify:
-
-| | Categories | Score | Stage mix 0/1/2/3/4 | Spend |
-| --- | --- | --- | --- | --- |
-| Top | 3 | 94% | 0/0/1/0/2 | €31.2m |
-| 2nd | 3 | 69% | 0/1/1/0/1 | €38.3m |
-| 3rd | 4 | 69% | 0/0/1/3/0 | €0.0m |
-| ... | | | | |
-| 7th | 7 | 56% | 2/1/2/1/1 | €153.3m |
-
-Median 31%, top 94%, six managers at zero.
+Neither size nor spend decides the answer. That is the whole requirement.
 
 ---
 
-## Where to use it, and where not
+## What it says
 
-**Use it publicly by district.** It names nobody, needs no minimum, and the
-result is defensible. This is the version for the all-hands.
+**Networks scores 27 out of 100.** The decomposition is the story:
 
-**Use it privately by manager.** It is a good conversation with a team and a
-good way to spot who to learn from. It is not a slide.
+| | Score | Out of |
+| --- | --- | --- |
+| Base, writing and activating blueprints | **25** | 60 |
+| Usage, anyone actually using them | **1** | 25 |
+| AI | **1** | 15 |
 
-**If it must be public by manager**, three conditions:
+> We are 42% of the way through writing the blueprints and 4% of the way
+> through using them.
 
-1. **Minimum three categories.** One category and one blueprint is not a track
-   record, it is a coin toss.
-2. **Show the stage mix beside the score**, so 0/0/1/0/2 is visible next to
-   94%. A score without its workings invites an argument that the score cannot
-   answer.
-3. **Call it journey progress, not performance.** The difference is not
-   cosmetic: nobody chose their own portfolio.
+That single line is worth more than any picture in this project.
 
-## What the score still cannot fix
+### By district
 
-Being straight about this is what makes the rest credible.
+| District | Score | At zero |
+| --- | --- | --- |
+| Transmission Infrastructure | 35 | 4 of 10 |
+| Access Radio/Fixed | 35 | 20 of 37 |
+| Energy | 32 | 11 of 18 |
+| Managed Services and Outsourcing | 29 | 4 of 10 |
+| Fixed | 24 | 11 of 12 |
+| Leased Lines | 19 | 12 of 16 |
+| Software and Core | 19 | 18 of 25 |
+| Network Revenue Platforms | 15 | 9 of 17 |
 
-**It still tilts against large portfolios**, at −0.36. Better than −0.46, not
-zero. Somebody holding 14 categories is playing a harder game.
+No minimum needed, nobody named, defensible in public.
 
-**Nobody picked their categories.** A manager handed twelve categories with no
-spend and no history is starting at nothing through no decision of their own.
+### By manager
 
-**Six managers score zero**, and would appear at zero on any public ranking.
+23 of 35 qualify at a three-category minimum. Median 25, top 66.
+
+| | Categories | Score | Base | Usage | AI |
+| --- | --- | --- | --- | --- | --- |
+| 1st | 3 | 66 | 44 | 14 | 8 |
+| 2nd | 3 | 60 | 49 | 0 | 10 |
+| 3rd | 4 | 55 | 55 | 0 | 0 |
+| 7th | 7 | 45 | 43 | 1 | 1 |
+| 10th | 14 | 32 | 31 | 0 | 1 |
+
+**Always show the three components, never just the total.** The top scorer is
+top because they are the only one with real usage. That is visible in the
+breakdown and invisible in the number.
+
+---
+
+## How to use it
+
+**Public, by district.** No minimum, no names, defensible. This is the
+all-hands version.
+
+**Private, by manager.** A good conversation with a team and a good way to find
+who to learn from. Not a slide.
+
+**If it goes public by manager**, three conditions:
+
+1. **Minimum three categories.** One category and one blueprint is a coin toss,
+   not a track record.
+2. **Show base, usage and AI separately.** A total with no workings invites an
+   argument the total cannot answer.
+3. **Call it journey progress, not performance.** Nobody chose their portfolio.
+
+## What it still cannot do
+
+**It tilts against big portfolios at −0.36.** Better than −0.46, not zero.
+
+**Nobody picked their own categories.** Twelve inherited categories with no
+history is not a decision anyone made.
+
+**Six of the 23 qualifying managers score zero** and would appear at zero on
+any public board.
 
 **It measures the record, not the effort.** A blueprint that took six months of
-negotiation and one that took an afternoon score identically.
+negotiation scores the same as one that took an afternoon.
 
-**It has no time in it.** There are no dates in any source we have, so the
-score cannot tell progress from a standing start. That is the same missing
-column that blocks the sleeping builders, and it is the single most valuable
-thing anyone could send us.
-
----
-
-## The recommended shape
-
-Report **one number and one picture**: the journey score, and the stage mix
-that produced it. By district on stage. By manager in private. And name the
-nine categories at stage 4 as pioneers rather than ranking the 145.
+**It has no time in it.** No source we hold has a date, so it cannot tell a
+standing start from a slow decline. That is the same missing column that blocks
+the sleeping builders, and it is the most valuable thing anyone could send us.
