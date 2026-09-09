@@ -132,64 +132,152 @@ That is not a reason to drop it. It is a reason not to build it in a week.
 
 ## 3. The plan
 
-Three horizons. The first is the only one with a date on it.
+Three tracks, not three phases. They are separated by **what is stopping
+them**, which is the only thing that matters when you have two weeks.
 
-### Horizon 1: before the all-hands
+- **Track A** is stopped by nothing. I can do all of it alone, today, with
+  data already on disk.
+- **Track B** is stopped by one person each. Every item is one email. None of
+  it is a code problem.
+- **Track C** is a different project with a different owner and a different
+  budget. Not a version of this one.
 
-Everything here uses data we already hold. Nothing needs another person.
+---
 
-| # | Change | Why | Size |
-| --- | --- | --- | --- |
-| 1 | Point the reactor at the real `ai_rfps` column | We are showing 28 lit roofs where the truth is 8 | One line |
-| 2 | Add `cbp_used` to the build and the title deed | The strongest number anyone has given us is currently invisible | Small |
-| 3 | An empty-building state: built, unlit, no traffic | Makes "44 built, 4 used" a thing you see rather than a thing you are told | Medium |
-| 4 | Traditional, Connected, Smart, Autonomous as the narrative | The best idea in Hilmi's notes, needs no new data, and two frames of it are already built | Copy and tour order |
-| 5 | Remove the parkland, size plots by spend, lots uniform inside | Hilmi's call and he is right. Geometry starts meaning money | Medium |
-| 6 | Bind traffic to spend, or delete it | "Everything that moves must mean something", adopted as a rule | Small |
-| 7 | Landmark tier for the three blueprints live in 7+ markets | A221 at 16 markets should look like it | One line |
-| 8 | Name the four pioneers on screen | Recognition without ranking | Small |
+### Track A: nothing is stopping this
 
-Do 1 and 2 first and independently of everything else. They are accuracy, not
-enhancement.
+Eight changes. All use data we already hold. No approvals, no dependencies.
+Ordered so that if we run out of time, we stop at a sensible place.
 
-If time runs short, cut 5 before 3. The sized plots are the more impressive
-change; the empty-building state is the more important one.
+**A1. Show the real AI figures.** *One line. Do first.*
+Point the reactor layer at `ai_rfps` rather than `ai_rfps_sample` in
+`config/metrics.yaml`. On screen the lit rooftops drop from 28 to 8, and the
+"sample data" badge comes off because the number is real.
+*Why first:* the file in Hilmi's inbox overstates this more than three to one.
+This is a correction, not an improvement, and it should not wait behind
+anything.
 
-### Horizon 2: after the all-hands, if the mandate lands
+**A2. Bring in `CBP used`.** *Half a day.*
+Add the column to the build so every category carries it, and put it on the
+title deed alongside the blueprint counts.
+*What you see:* click any lot and the card says whether that blueprint has
+ever actually been used.
+*Why:* it is the number that changes the argument, and right now it is
+invisible.
 
-Each of these is blocked on one thing from one person, so they are asks, not
-tasks.
+**A3. The empty building.** *A day or two.*
+A new visual state: a finished building with its lights off and no traffic at
+the door. 40 of the 44 built lots become empty buildings.
+*What you see:* a skyline that is built but dark.
+*What you say on stage:* "We have written 44 blueprints. Four of them have
+ever been used. This is what that looks like."
+*Why:* this is the strongest thing in the whole project and it currently
+cannot be seen at all.
 
-| Ask | From | Unlocks |
-| --- | --- | --- |
-| A created or last-modified date on each blueprint record | Tomas | Sleeping builders, active worksites, engagement lighting, "what changed this month". Four of the copilot's sections from one column |
-| Realised savings per category, not target | Kate or finance | Value earning a building instead of being asserted |
-| Whether the flat 100% AVA figure is real | Kate | Height going back to its intended measure and the provisional badge coming off |
-| Agent counts per category, if the marketplace can emit them | Foundry | The robots idea, honestly |
+**A4. The journey, as the spine of the story.** *A day, mostly words.*
+Adopt Hilmi's Traditional, Connected, Smart, Autonomous as the organising
+narrative, using the five stages defined in `JOURNEY-SCORE.md`. Rewrite the
+legend, reorder the guided tour to walk the arc, and put the Networks score
+(35%) in the top bar.
+*What you see:* the same city, explaining itself as a journey rather than a
+set of four unrelated measures.
+*Why:* it is the best idea in Hilmi's three notes, it needs no new data, and
+two frames of it are already built.
 
-None of these are code problems. All of them are somebody-else problems, which
-is why they should be asked for in writing this week rather than after.
+**A5. Journey score by district.** *A day.*
+Show the score per district, with the stage mix beside it. No individuals, no
+minimum, no caveats needed.
+*What you see:* Transmission Infrastructure at 46%, Network Revenue Platforms
+at 19%, and why.
+*Why:* it answers Hilmi's leaderboard question in the form the data can
+actually support.
 
-### Horizon 3: the points economy
+**A6. Name the pioneers.** *Half a day.*
+Nine categories are at stage 4. Mark them on the map and list them.
+*What you see:* nine lots that stand out as the ones that got there.
+*Why:* recognition without ranking. Nobody is bottom of a list of pioneers.
 
-A separate initiative with an owner, a budget and a governance workstream. Not
-a feature of this. The sequence that would make it real:
+**A7. Plots sized by spend, parkland removed.** *Two to three days.*
+Hilmi's ask. Plot area becomes proportional to spend; lots stay uniform inside
+a plot so the 89 empty ones stay countable.
+*What you see:* Managed Services and Outsourcing becomes the biggest thing on
+the map, correctly, at 37.7% of spend from 10 categories.
+*Why:* geometry starts carrying meaning instead of just counting rows.
+*Risk:* the biggest change here and the one most likely to look wrong on the
+first attempt. Cut this before A3 if time runs short.
 
-1. **Governance first.** Works council and DPO engagement in Germany and the
-   other co-determination markets, before a single point is scored.
-2. **Instrumentation second.** Every point needs an event, and every event
-   needs a system to emit it: AVA, Ariba, SAC, the training platform, the
-   marketplace. Five integrations with five owners. This is the real cost.
-3. **Rules third**, and with an appeals process. 500 points for "measurable
-   business value" against 10 for training is an adjudication problem waiting
-   to happen, and it lands on whoever runs the board.
-4. **Visuals last**, because they are the week of work, not the quarter.
+**A8. Traffic means something, or goes.** *A day.*
+Bind vehicle density per district to that district's share of spend, or delete
+the vehicles.
+*Why:* Hilmi's rule, and he is right. Right now they are decoration.
 
-**Stock and flow.** Hilmi's two notes answer each other and the answer is
-better than either. Points accumulate and never decay, so a team that did
-everything in Q1 keeps its skyscraper forever. His sleeping-builders idea is
-the fix: height from what you have built, worksite activity from what you are
-doing now. Build it that way from the start.
+**If time runs out**, the order to stop at is A1, A2, A3, A4. Those four are
+the argument. A5 to A8 make it better looking and better evidenced.
+
+---
+
+### Track B: each of these is one email
+
+Nothing here is work. Each is a request, and until it is answered the feature
+behind it cannot exist. **Send all four this week**, because the lead time is
+theirs, not ours.
+
+**B1. A date on each blueprint record.** *Ask Tomas.*
+Created or last-modified, either will do.
+*Unlocks:* sleeping builders, active worksites, engagement lighting, and "what
+changed this month". Four of the copilot's sections from one column.
+*This is the highest-value ask on the list by a distance.*
+
+**B2. Is the flat 100% AVA figure real?** *Ask Kate.*
+Still 100% for all 145 in the new extract.
+*Unlocks:* building height going back to its intended measure and the
+provisional badge coming off. If it is genuinely 100% everywhere, we need to
+say so rather than quietly substituting.
+
+**B3. Realised savings per category.** *Ask Kate or finance.*
+The workbook has target savings as a percentage on 63 records. Not the same
+thing.
+*Unlocks:* value earning a building rather than being asserted, which is the
+strongest item on the copilot's list.
+
+**B4. Agent counts per category.** *Ask whoever owns Foundry.*
+*Unlocks:* the robots idea, honestly rather than decoratively. Lowest priority
+of the four.
+
+---
+
+### Track C: the points game
+
+This is Hilmi's SimCity idea and it is a different product, not a later
+version of this one. It has a live event stream instead of an extract, an
+owner instead of a file, and a governance problem instead of none.
+
+The order matters, and it is not the order people expect:
+
+**C1. Governance, first and now.** Works council engagement in Germany and the
+other co-determination markets, plus the DPO. Scoring individual behaviour and
+displaying it comparatively is a consultation matter. This has the longest
+lead time of anything in the whole plan, and it must start before the first
+point is scored, not after the first screenshot circulates.
+
+**C2. Instrumentation, second.** Every point needs an event and every event
+needs a system to emit it: AVA, Ariba, SAC, the training platform, the agent
+marketplace. Five integrations with five owners. **This is the real cost of
+the idea**, and it is invisible in the description.
+
+**C3. Rules, third, with an appeals process.** 500 points for "measurable
+business value" against 10 for training is an adjudication problem waiting to
+happen, and the argument lands on whoever runs the board.
+
+**C4. Visuals, last.** The city part is the week of work on top of the
+quarter. It is the fun bit and it is not the hard bit.
+
+**One design note worth carrying in.** Hilmi's two emails answer each other.
+Points accumulate and never decay, so a team that did everything in Q1 and
+nothing since keeps its skyscraper forever. His own sleeping-builders idea is
+the fix: **height from what you have built, activity from what you are doing
+now.** Stock and flow, both visible. Build it that way from the start rather
+than discovering it in month four.
 
 ---
 
