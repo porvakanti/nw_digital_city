@@ -293,6 +293,12 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
         self.assertEqual(16, top["metrics"]["market_reach"])
         self.assertEqual("Big Ben", top["landmark"]["name"])
 
+    def test_ai_rooftops_are_no_longer_a_placeholder(self):
+        """Eight, and the guide and the screen must agree on which eight."""
+        lit = [c for c in self.cats if c["metrics"]["ai_rfps"] > 0]
+        self.assertEqual(8, len(lit))
+        self.assertEqual(2, max(c["metrics"]["ai_rfps"] for c in lit))
+
     def test_every_category_scores_within_its_weights(self):
         weights = load_config()["score"]["weights"]
         for category in self.cats:

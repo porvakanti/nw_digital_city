@@ -27,7 +27,12 @@
   // apart on a projector.
   const C = {
     sky: 0x080b12,
-    ground: 0x24422c, // Lego grass baseplate
+    /* Was a Lego grass baseplate. Hilmi's note: the green land is dead
+     * pixels, and he is right, because none of it encoded anything. It is
+     * now undeveloped ground in the same family as the district plates, so
+     * the eye stops reading it as parkland worth looking at and the built
+     * area carries the picture. */
+    ground: 0x2f343d,
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
     bare: 0x7c8794, // muted: absence rather than a status
@@ -88,7 +93,7 @@
 
   // ------------------------------------------------------------ dimensions
   const CELL = 4.0;        // one building lot
-  const FOOT = 2.4;        // building footprint
+  const FOOT = 2.4;        // building footprint on a standard lot
   const FLOOR_H = 1.15;
   const PER_ROW = 4;       // buildings per row within a plot
   const PLOT_PAD = 1.8;
@@ -150,6 +155,38 @@
     return { w: width, d: z + rowDepth };
   }
 
+  /* Land is worth what is spent on it.
+   *
+   * Hilmi asked for each L3 to be proportional to spend, and taken literally
+   * that cannot be drawn from this data. Fourteen of the thirty-one plots
+   * have no recorded spend at all and hold 58 categories between them, so
+   * strict proportionality erases 40% of the estate. The largest plot is 400
+   * times the smallest non-zero one, so the small end would be a pixel.
+   *
+   * So the same compression the journey score uses, for the same reason: the
+   * square root, clamped, with a floor. A lot's size follows the average
+   * spend per category in its plot, which means a plot grows both with how
+   * many categories it holds and with how much money is on them. Both are
+   * real facts about it, and the order is preserved: FLM & Field Operations
+   * at €283m is unmistakably the biggest place in the city, and the plots
+   * with nothing recorded are visibly small without disappearing.
+   *
+   * Lots stay uniform inside a plot, so they are still countable and the 89
+   * empty ones still read as 89 empty ones. */
+  const LOT_MIN = 0.78, LOT_MAX = 1.75;
+
+  function lotScale(codes, byCode) {
+    if (!codes.length) return 1;
+    const spend = codes.reduce(
+      (sum, code) => sum + ((byCode.get(code) || { metrics: {} }).metrics.spend_eur || 0), 0);
+    const perLot = spend / codes.length;
+    // €5m per category is about the point where a plot looks average, so it
+    // anchors the middle of the range rather than the mean, which one €283m
+    // plot would otherwise drag upwards.
+    const scale = Math.sqrt(perLot / 5e6);
+    return Math.max(LOT_MIN, Math.min(LOT_MAX, scale || LOT_MIN));
+  }
+
   function buildLayout() {
     const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
 
@@ -157,13 +194,17 @@
       const plots = district.plots.map((plot) => {
         const cols = Math.min(plot.codes.length, PER_ROW);
         const rows = Math.ceil(plot.codes.length / PER_ROW);
+        const scale = lotScale(plot.codes, byCode);
+        const cell = CELL * scale;
         return {
           name: plot.name,
           codes: plot.codes,
           cols,
           rows,
-          w: cols * CELL + PLOT_PAD,
-          d: rows * CELL + PLOT_PAD,
+          scale,
+          cell,
+          w: cols * cell + PLOT_PAD,
+          d: rows * cell + PLOT_PAD,
         };
       });
       const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
@@ -192,11 +233,13 @@
           const col = i % PER_ROW;
           const row = Math.floor(i / PER_ROW);
           buildings.push({
+            scale: plot.scale,
+            cell: plot.cell,
             category: byCode.get(code),
             district,
             plot,
-            x: plot.cx + PLOT_PAD / 2 + col * CELL + CELL / 2,
-            z: plot.cz + PLOT_PAD / 2 + row * CELL + CELL / 2,
+            x: plot.cx + PLOT_PAD / 2 + col * plot.cell + plot.cell / 2,
+            z: plot.cz + PLOT_PAD / 2 + row * plot.cell + plot.cell / 2,
           });
         });
       }
@@ -396,7 +439,7 @@
   // world baseplate
   const baseW = layout.size.w + 10;
   const baseD = layout.size.d + 10;
-  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x2c5136);
+  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
   const labels = [];
   function makeLabel(text, accent, scale) {
@@ -702,7 +745,13 @@
       for (let z = -baseD / 2 + 3; z < baseD / 2 - 3; z += 4.6) {
         const jx = x + (rnd() - 0.5) * 2;
         const jz = z + (rnd() - 0.5) * 2;
-        if (blocked(jx, jz) || rnd() > 0.34) continue;
+        /* Street trees, not parkland.
+         *
+         * At 0.34 these filled every gap between districts with woodland,
+         * which is the green Hilmi wanted rid of. At 0.06 they line the
+         * streets and soften the edges without becoming a landscape that
+         * competes with the thing the map is about. */
+        if (blocked(jx, jz) || rnd() > 0.06) continue;
         const scale = 0.8 + rnd() * 0.6;
         trunkBucket.add(jx, 0.45 * scale, jz, 0.22, 0.9 * scale, 0.22, 0x5b4632);
         canopyBucket.add(jx, (0.9 + 0.6) * scale, jz, 1.5 * scale, 1.7 * scale, 1.5 * scale, 0x2f7d46);
@@ -1240,6 +1289,10 @@
     // four have one anybody has ever run a sourcing event through.
     const occupied = (category.metrics.cbp_used || 0) > 0;
     const palette = brickSet(building.district.index, occupied);
+    // Footprint follows the lot it stands on, or a building overflows a small
+    // plot and rattles around inside an expensive one.
+    const LOT = building.cell || CELL;
+    const FOOT = (LOT / CELL) * 2.4;
     const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null };
     building.pieces = pieces;
     const x = building.x, z = building.z;
@@ -2589,6 +2642,7 @@
      * which makes them useless for asking a question: the act of looking
      * changes the answer, and a check written with one of them passes or
      * fails on its own side effect. */
+    layout,
     state() {
       return {
         night: isNight,
