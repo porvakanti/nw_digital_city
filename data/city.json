@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-08-29T10:16:10+00:00",
+    "generated_at": "2026-09-09T19:36:19+00:00",
     "source": "Category_Blueprint_Allhands.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network (Level 1)",
@@ -8,6 +8,7 @@
     "sample_metrics": [
       "ai_rfps_sample"
     ],
+    "people": "names",
     "markets": [
       "Albania",
       "Czech Republic",
@@ -45,7 +46,15 @@
     "draft_only": 12,
     "empty_lots": 89,
     "blueprints": 112,
-    "spend_eur": 760489502.28
+    "in_use": 4,
+    "ai_started": 8,
+    "spend_eur": 760489502.28,
+    "journey": {
+      "blueprint": 16.1,
+      "usage": 1.6,
+      "ai": 1.7,
+      "total": 19.4
+    }
   },
   "districts": [
     {
@@ -121,7 +130,15 @@
         "draft_only": 2,
         "empty_lots": 20,
         "blueprints": 32,
-        "spend_eur": 86151697.9
+        "in_use": 2,
+        "ai_started": 4,
+        "spend_eur": 86151697.9,
+        "journey": {
+          "blueprint": 18.4,
+          "usage": 3.9,
+          "ai": 5.8,
+          "total": 28.0
+        }
       }
     },
     {
@@ -173,7 +190,15 @@
         "draft_only": 0,
         "empty_lots": 11,
         "blueprints": 15,
-        "spend_eur": 47041336.1
+        "in_use": 0,
+        "ai_started": 1,
+        "spend_eur": 47041336.1,
+        "journey": {
+          "blueprint": 20.6,
+          "usage": 0.0,
+          "ai": 1.6,
+          "total": 22.2
+        }
       }
     },
     {
@@ -214,7 +239,15 @@
         "draft_only": 0,
         "empty_lots": 11,
         "blueprints": 2,
-        "spend_eur": 87739230
+        "in_use": 1,
+        "ai_started": 0,
+        "spend_eur": 87739230,
+        "journey": {
+          "blueprint": 13.0,
+          "usage": 6.5,
+          "ai": 0.0,
+          "total": 19.5
+        }
       }
     },
     {
@@ -274,7 +307,15 @@
         "draft_only": 1,
         "empty_lots": 12,
         "blueprints": 9,
-        "spend_eur": 116824354.57
+        "in_use": 0,
+        "ai_started": 0,
+        "spend_eur": 116824354.57,
+        "journey": {
+          "blueprint": 12.8,
+          "usage": 0.0,
+          "ai": 0.0,
+          "total": 12.8
+        }
       }
     },
     {
@@ -308,7 +349,15 @@
         "draft_only": 2,
         "empty_lots": 4,
         "blueprints": 7,
-        "spend_eur": 286347825.51
+        "in_use": 1,
+        "ai_started": 1,
+        "spend_eur": 286347825.51,
+        "journey": {
+          "blueprint": 17.5,
+          "usage": 0.9,
+          "ai": 0.6,
+          "total": 19.0
+        }
       }
     },
     {
@@ -359,7 +408,15 @@
         "draft_only": 7,
         "empty_lots": 9,
         "blueprints": 9,
-        "spend_eur": 12574661.32
+        "in_use": 0,
+        "ai_started": 1,
+        "spend_eur": 12574661.32,
+        "journey": {
+          "blueprint": 7.7,
+          "usage": 0.0,
+          "ai": 1.2,
+          "total": 9.0
+        }
       }
     },
     {
@@ -423,7 +480,15 @@
         "draft_only": 0,
         "empty_lots": 18,
         "blueprints": 30,
-        "spend_eur": 18600010.01
+        "in_use": 0,
+        "ai_started": 0,
+        "spend_eur": 18600010.01,
+        "journey": {
+          "blueprint": 12.3,
+          "usage": 0.0,
+          "ai": 0.0,
+          "total": 12.3
+        }
       }
     },
     {
@@ -457,7 +522,15 @@
         "draft_only": 0,
         "empty_lots": 4,
         "blueprints": 8,
-        "spend_eur": 105210386.87
+        "in_use": 0,
+        "ai_started": 1,
+        "spend_eur": 105210386.87,
+        "journey": {
+          "blueprint": 22.4,
+          "usage": 0.0,
+          "ai": 0.9,
+          "total": 23.3
+        }
       }
     }
   ],
@@ -476,6 +549,24 @@
         "South Africa",
         "UK"
       ],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 5,
@@ -485,8 +576,15 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 351566.36,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 0,
+        "ai_rfps_sample": 2,
+        "cbp_used": 0
+      },
+      "landmark": {
+        "name": "The Pyramids",
+        "shape": "pyramid",
+        "market": "Egypt",
+        "because": "5 markets have adopted this blueprint, Egypt among them"
       }
     },
     {
@@ -499,6 +597,24 @@
       "markets": [
         "Italy"
       ],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -508,8 +624,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 32142.86,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -520,6 +637,24 @@
       "definition": "Includes design, planning, dimensioning and testing of Radio Access network, e.g. frequencies, carriers and coverage parameters for new areas or extra capacity.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -529,8 +664,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 79892.86,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -544,6 +680,24 @@
         "Egypt",
         "Germany"
       ],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 20,
+        "ai": 15,
+        "total": 75,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Used once",
+          "ai": "First AI-generated RFP"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -553,8 +707,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 92566.36,
-        "ai_rfps": null,
-        "ai_rfps_sample": 12
+        "ai_rfps": 1,
+        "ai_rfps_sample": 12,
+        "cbp_used": 1
       }
     },
     {
@@ -565,6 +720,24 @@
       "definition": "Works required to gain rights to Access Sites including obtaining visiting permits, landlord permissions, inspection permits.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -574,8 +747,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 58142.86,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -586,6 +760,24 @@
       "definition": "Planning & Design:\n• Site Surveys\n• General Acceptance Drawings\n• Structural & Detailed Designs\n• Build Permits\n• Radio Permits\n• Civil Work Programme Management & Planning",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -595,8 +787,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 92392.86,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -609,6 +802,24 @@
       "markets": [
         "Egypt"
       ],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -618,8 +829,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 3
+        "ai_rfps": 0,
+        "ai_rfps_sample": 3,
+        "cbp_used": 0
       }
     },
     {
@@ -630,6 +842,24 @@
       "definition": "The cable category is basically divided into followings:\n1. Feeder Cable – It is used to connect the radio with the antennas and is the long run of cable that is attached to the tower to transmit power.\n2. Jumper Cable – It is used to connect the feeder cable to radio kit at one end and the antennas at the other end\n3. Connectors – Connectors are used to connect the Jumpers to the feeders.\n4. Accessories – These are the products which are used to connect feeder cable to the tower and to protect against lightning.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Eliud Rivas",
+        "Taoufik Samaka",
+        "Eun Kyu Han",
+        "Chaitra"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -639,8 +869,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -651,6 +882,21 @@
       "definition": "Optics and Small Form Factor Pluggable Transceivers & SFP",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Anukriti Gupta"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -660,8 +906,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -675,6 +922,21 @@
         "Germany",
         "VGS"
       ],
+      "owners": [
+        "Marcel Venter"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 25,
+        "total": 65,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "Several AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -684,8 +946,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 16935942.83,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 2,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -698,6 +961,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Praveen Singh"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -707,8 +985,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -721,6 +1000,21 @@
       "markets": [
         "UK"
       ],
+      "owners": [
+        "Praveen Singh"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -730,8 +1024,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 3098333.33,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -751,6 +1046,21 @@
         "UK",
         "VGS"
       ],
+      "owners": [
+        "Mohamed Bachar"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 35,
+        "ai": 25,
+        "total": 100,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Used more than once",
+          "ai": "Several AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 8,
@@ -760,8 +1070,15 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 27775000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 2,
+        "ai_rfps_sample": 0,
+        "cbp_used": 2
+      },
+      "landmark": {
+        "name": "The Colosseum",
+        "shape": "colosseum",
+        "market": "Italy",
+        "because": "8 markets have adopted this blueprint, Italy among them"
       }
     },
     {
@@ -772,6 +1089,21 @@
       "definition": "Spend associated activities outsourced to suppliers to provide Spare Parts Management Services",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Sylwia Grova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -781,8 +1113,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 539273.18,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -795,6 +1128,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Mohamed Bachar"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -804,8 +1152,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -818,6 +1167,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Mohamed Bachar"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -827,8 +1191,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 10500000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -841,6 +1206,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Sylwia Grova"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -850,8 +1230,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 233064,
-        "ai_rfps": null,
-        "ai_rfps_sample": 7
+        "ai_rfps": 0,
+        "ai_rfps_sample": 7,
+        "cbp_used": 0
       }
     },
     {
@@ -864,6 +1245,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Sylwia Grova"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -873,8 +1269,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 8065042.58,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -887,6 +1284,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Sylwia Grova"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -896,8 +1308,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -911,6 +1324,21 @@
         "Germany",
         "VPC"
       ],
+      "owners": [
+        "Praveen Singh"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -920,8 +1348,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2218333.33,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 0,
+        "ai_rfps_sample": 2,
+        "cbp_used": 0
       }
     },
     {
@@ -935,6 +1364,21 @@
         "Germany",
         "VPC"
       ],
+      "owners": [
+        "Praveen Singh"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -944,8 +1388,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 1833333.33,
-        "ai_rfps": null,
-        "ai_rfps_sample": 5
+        "ai_rfps": 0,
+        "ai_rfps_sample": 5,
+        "cbp_used": 0
       }
     },
     {
@@ -958,6 +1403,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Marcel Venter"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 15,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "First AI-generated RFP"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -967,8 +1427,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 14193337.83,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 1,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -981,6 +1442,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Marcel Venter"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -990,8 +1466,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 53333.33,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -1002,6 +1479,21 @@
       "definition": "A device used on communications circuits that decreases distortion by amplifying or regenerating a signal so that it can be transmitted onward in its original strength and form. On a network, a repeater connects two networks or two network segments at the physical layer of the ISO/OSI model and regenerates the signal.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Denis Maslov"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1011,8 +1503,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1023,6 +1516,21 @@
       "definition": "Part of a base station that sends and receives electromagnetic fields.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Denis Maslov"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1032,8 +1540,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1044,6 +1553,21 @@
       "definition": "Tower Mounted Amplifier – Part of a BTS/Node B",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Denis Maslov"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1053,8 +1577,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1065,6 +1590,23 @@
       "definition": "Radio Spare parts for Node B, BTS, RNCs, BSC, Repeaters",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1074,8 +1616,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1086,6 +1629,21 @@
       "definition": "WiFi Access Points, WLAN Controllers and related accessories for WiFi Networks owned by Vodafone. This category does not include WiFi Managed Services or resale channels.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Denis Maslov"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1095,8 +1653,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1107,6 +1666,21 @@
       "definition": "Femto Network infrastructure (eg: GW/Concentrator, NMS and SecGW), including Outdoor Femto Access Points, but excluding Residential and Enterprise femtocells.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Denis Maslov"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1116,8 +1690,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1128,6 +1703,23 @@
       "definition": "Radio access product. Single RAN (SRAN) Node is considered with part or all existing and future options: Macro/ Micro, Outdoor/Indoor, Remote Radio Head (RRH), different frequencies, different technologies (2G, 3G, LTE)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1137,8 +1729,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1149,6 +1742,23 @@
       "definition": "BSC/RNC Multi-Controller. A network element in 2G and/or 3G RAN Network in charge of controlling the use and the integrity of the radio resources",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1158,8 +1768,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1170,6 +1781,23 @@
       "definition": "Radio Smallcells based on SRAN technology, aka micro and metro cells (when deployed outdoor), pico smallcells (indoor BTS) and lampsites or DOT (in-building). This category does NOT include non-SRAN smallcells technologies, such as Femto/Spidercloud, DAS or WiFi stand-alone nodes.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1179,8 +1807,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1191,6 +1820,23 @@
       "definition": "2G / 3G / LTE Hardware licenses (e.g. TRX / UL&DL / Carrier / Power Activation / Bandwidth licenses, etc.)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1200,8 +1846,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1212,6 +1859,21 @@
       "definition": "Network Testers and Meters, Oscilloscopes, Spectrum analysers, Drive Test Tools",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1221,8 +1883,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1233,6 +1896,23 @@
       "definition": "Professional Services required to design, engineering, integrate, implement and execute activities testing and verifications activities in a lab or lib-like environment specifically excluding commercial services.   Includes provision of testing strategy, test list design and execution, HLD, LDD of node or node functions or tools integration or adaptation in lab/non-production enviironment to execute any verification activities",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1242,8 +1922,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1254,6 +1935,23 @@
       "definition": "Radio Software (All Technologies - 2G, 4G, 5G)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1263,8 +1961,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1275,6 +1974,23 @@
       "definition": "EWL Support & Maintenance",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Parikshit Kapila",
+        "Daniel Barta",
+        "Chirag Kapoor"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1284,8 +2000,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1298,6 +2015,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -1307,8 +2039,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -1321,6 +2054,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -1330,8 +2078,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 4
+        "ai_rfps": 0,
+        "ai_rfps_sample": 4,
+        "cbp_used": 0
       }
     },
     {
@@ -1345,6 +2094,22 @@
         "Germany",
         "Turkey"
       ],
+      "owners": [
+        "Chirag Kapoor",
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -1354,8 +2119,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1372,6 +2138,21 @@
         "South Africa",
         "Turkey"
       ],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 5,
@@ -1381,8 +2162,15 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 39092336.1,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
+      },
+      "landmark": {
+        "name": "Brandenburg Gate",
+        "shape": "gate",
+        "market": "Germany",
+        "because": "5 markets have adopted this blueprint, Germany among them"
       }
     },
     {
@@ -1393,6 +2181,21 @@
       "definition": "A pre quipped box is a shelter that has been equipped necessary passive equipment such as power systems, batteries, rectifiers cables etc.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1402,8 +2205,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1416,6 +2220,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -1425,8 +2244,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 557448,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1437,6 +2257,21 @@
       "definition": "Wind and Solar energy solutions to provide back up as an energy source for radio and transmission equipment.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1446,8 +2281,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1461,6 +2297,21 @@
         "Albania",
         "Turkey"
       ],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 15,
+        "total": 55,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "First AI-generated RFP"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -1470,8 +2321,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 7391552,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 1,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1482,6 +2334,21 @@
       "definition": "Operation and maintenance of Power Network Infrastructure Equipments",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1491,8 +2358,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1507,6 +2375,21 @@
         "Greece",
         "Turkey"
       ],
+      "owners": [
+        "Andreas Bauer"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 3,
@@ -1516,8 +2399,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 11
+        "ai_rfps": 0,
+        "ai_rfps_sample": 11,
+        "cbp_used": 0
       }
     },
     {
@@ -1528,6 +2412,21 @@
       "definition": "RENEWABLE ENERGY CERTIFICATES to comply with Sustainability requirements",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Annie Sherbul"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1537,8 +2436,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1549,6 +2449,21 @@
       "definition": "OTHER ENERGY SUPPLY to cover e.g. demand for landlord energy, fuel, gas etc",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Andreas Bauer"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1558,8 +2473,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1570,6 +2486,21 @@
       "definition": "All Services related to Smart Metering & Data Mgmt",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1579,8 +2510,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1591,6 +2523,21 @@
       "definition": "All HW related to Energy Smart metering & Data Mgmt",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1600,8 +2547,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1612,6 +2560,21 @@
       "definition": "Software related to Energy Smart metering",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1621,8 +2584,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1633,6 +2597,21 @@
       "definition": "All Services related to green technology & energy efficiency",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1642,8 +2621,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1654,6 +2634,21 @@
       "definition": "All HW related to Green Technology & Energy Efficiency products",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1663,8 +2658,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1675,6 +2671,21 @@
       "definition": "All SW Spend related to Green Technology & Energy Efficiency products",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Graeme Brownlie"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1684,8 +2695,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1699,6 +2711,22 @@
         "Greece",
         "Turkey"
       ],
+      "owners": [
+        "Maximilian Zimmer",
+        "Loredana Apostolache"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 20,
+        "ai": 0,
+        "total": 60,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Used once",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -1708,8 +2736,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 62464272,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 1
       }
     },
     {
@@ -1720,6 +2749,22 @@
       "definition": "Fixed Fibre Network support and maintenance (NO leased lines, NO Dark Fibres, NO Wavelenghts). Including maintenance and inspection, fault management, performance management, support services, vendor management, documentation and reporting",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Maximilian Zimmer",
+        "Loredana Apostolache"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1729,8 +2774,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 437500,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1741,6 +2787,21 @@
       "definition": "Non copper related cabling and accessories associated with Fibre products used as materials for self build (NO services)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Anukriti Gupta"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1750,8 +2811,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 350000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1762,6 +2824,21 @@
       "definition": "Licenses & Software related to Fixed Access equipments BNG/BRAS, FTTH OLT, DSL, DOCSIS CMTS and HFC. This will include HW Licenses (eg. Throughput, users, etc) and Software licenses for Fixed Access networks",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1771,8 +2848,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 1521000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1783,6 +2861,21 @@
       "definition": "Fixed Access Services related to BNG/BRAS, FTTH OLT, DSL, DOCSIS CMTS and HFC equipment and software in a cloud or physical environment (Professional services, installation services or maintenance services)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1792,8 +2885,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 3621000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1804,6 +2898,21 @@
       "definition": "BNG (Broadband Network Gateway)/BRAS (Broadband Remote Access Server) and Ethernet equipment. This equipment is used to aggregate Fibre/Cable/DSL Traffic at backbone level",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1813,8 +2922,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1825,6 +2935,21 @@
       "definition": "Fixed  Access Network - Support and maintenance",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1834,8 +2959,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2100000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1846,6 +2972,21 @@
       "definition": "XGS-PON, GPON (Gigabit Passive Optical Network), DSL (Digital Subscriber Line), and next Generation PON (Passive Optical Network) Active Equipment  (OLT and related HW). This equipment provides the DSL or FTTHome internet access to our fixed broadband end customers. Also includes FTTH RF Overlay equipment.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1855,8 +2996,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2500000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1867,6 +3009,21 @@
       "definition": "Fixed Access Data Over Cable Service Interface Specification (DOCSIS) active equipment and software, in particular Cable Modem Termination System (CMTS) products and remote nodes in centralized and distributed architecture. This equipment provides internet access to our fixed broadband cable end customers.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1876,8 +3033,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2500000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1888,6 +3046,21 @@
       "definition": "HFC network equipment. Consists of optical transmitters and receivers, long haul optical transmitters, optical amplifiers, RF amplifiers, optical HFC nodes, fibre nodes, outside plant amplifiers and other miscellaneous equipment for the HFC network. HFC equipment allows Broadcast TV signal, video on demand and Internet access, voice services to our fixed broadband cable end customer, in centralized and distributed architecture.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ashik Shetty"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1897,8 +3070,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 9912458,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1909,6 +3083,22 @@
       "definition": "New customer installations on HFC network",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Iveta Mihova",
+        "Jun Li"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1918,8 +3108,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1930,6 +3121,22 @@
       "definition": "Maintenance and upgrades of HFC network both inside and outside plant",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Iveta Mihova",
+        "Jun Li"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1939,8 +3146,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2333000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1951,6 +3159,21 @@
       "definition": "Other Carrier Related Charges",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -1960,8 +3183,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -1975,6 +3199,21 @@
         "Turkey",
         "VGS"
       ],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -1984,8 +3223,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 58554533,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 0,
+        "ai_rfps_sample": 2,
+        "cbp_used": 0
       }
     },
     {
@@ -1996,6 +3236,21 @@
       "definition": "Regulated Fixed Access",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2005,8 +3260,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2017,6 +3273,21 @@
       "definition": "Housing regulated spend used to complement fixed access services.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2026,8 +3297,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2038,6 +3310,21 @@
       "definition": "Data centres services where Vodafone uses the space to provide services to customers or for Vodafone own use. Suppliers like e-shelter, NTT Data Centres, IBM",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2047,8 +3334,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2063,6 +3351,21 @@
         "Ireland",
         "VGS"
       ],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 3,
@@ -2072,8 +3375,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 1579528.97,
-        "ai_rfps": null,
-        "ai_rfps_sample": 5
+        "ai_rfps": 0,
+        "ai_rfps_sample": 5,
+        "cbp_used": 0
       }
     },
     {
@@ -2084,6 +3388,21 @@
       "definition": "Infrastructure - Ducts (Rental or Maintenance",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2093,8 +3412,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2105,6 +3425,21 @@
       "definition": "Overhead fibre and Poles (Rental or Maintenance)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2114,8 +3449,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2126,6 +3462,21 @@
       "definition": "Satellite and Submarine",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2135,8 +3486,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 49430292.6,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2150,6 +3502,21 @@
         "VGE",
         "VGS"
       ],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 2,
@@ -2159,8 +3526,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2171,6 +3539,21 @@
       "definition": "Fibre (IRU and Maintenance)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2180,8 +3563,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2192,6 +3576,21 @@
       "definition": "Dark Fiber - Rental (Fixed & Mobile)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2201,8 +3600,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 7200000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2213,6 +3613,21 @@
       "definition": "Capacity (Fixed & Mobile)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Roger Dashwood"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2222,8 +3637,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2236,6 +3652,21 @@
       "markets": [
         "VPC"
       ],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -2245,8 +3676,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 60000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 5
+        "ai_rfps": 0,
+        "ai_rfps_sample": 5,
+        "cbp_used": 0
       }
     },
     {
@@ -2257,6 +3689,21 @@
       "definition": "Vodafone Business Capacity",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2266,8 +3713,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2278,6 +3726,21 @@
       "definition": "Vodafone Business Dark Fiber",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Carolina Danova"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2287,8 +3750,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2302,6 +3766,21 @@
         "Mozambique",
         "Vodacom Lesotho"
       ],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -2311,8 +3790,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 75000000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 0,
+        "ai_rfps_sample": 2,
+        "cbp_used": 0
       }
     },
     {
@@ -2323,6 +3803,21 @@
       "definition": "Activities required to maintain and support the customer",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2332,8 +3827,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2346,6 +3842,21 @@
       "markets": [
         "UK"
       ],
+      "owners": [
+        "Mario Sitges Verona Matinez"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2355,8 +3866,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 54704605.17,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2367,6 +3879,21 @@
       "definition": "Spend associated to activity we outsource to suppliers for building the NW",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mario Sitges Verona Matinez"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2376,8 +3903,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2390,6 +3918,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -2399,8 +3942,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 75000000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2411,6 +3955,21 @@
       "definition": "Spend related to activities outsourced to Suppliers for Preventive and Corrective Maintenance of the Network",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mario Sitges Verona Matinez"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2420,8 +3979,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 75000000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2432,6 +3992,21 @@
       "definition": "The system which protects workers and technician if they were to fall from heights. The system contains in some cases a ladder, in others the ladder is part of the tower steel structure. There are systems with rails or cables in the market.\nAdditionally there is the Personal Equipment (PPE) with each climber that belongs as well to the Fall Protection System. It usually contains a Device/Fall Arrester, a Full Body Harness, a Rescue/Descender Device, a Safety Lanyard with integrated Shock Absorber and a Work positioning Lanyard with Rope Shortener.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2441,8 +4016,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2455,6 +4031,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2464,8 +4055,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2478,6 +4070,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 35,
+        "ai": 25,
+        "total": 85,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Used more than once",
+          "ai": "Several AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -2487,8 +4094,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 2,
+        "ai_rfps_sample": 2,
+        "cbp_used": 3
       }
     },
     {
@@ -2501,6 +4109,21 @@
       "markets": [
         "Turkey"
       ],
+      "owners": [
+        "Alessandro Squeo"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -2510,8 +4133,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
-        "ai_rfps": null,
-        "ai_rfps_sample": 2
+        "ai_rfps": 0,
+        "ai_rfps_sample": 2,
+        "cbp_used": 0
       }
     },
     {
@@ -2524,6 +4148,21 @@
       "markets": [
         "Tanzania"
       ],
+      "owners": [
+        "Jefferson Omari"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2533,8 +4172,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2547,6 +4187,21 @@
       "markets": [
         "Tanzania"
       ],
+      "owners": [
+        "Jefferson Omari"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2556,8 +4211,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2570,6 +4226,21 @@
       "markets": [
         "Tanzania"
       ],
+      "owners": [
+        "Jefferson Omari"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2579,8 +4250,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2591,6 +4263,21 @@
       "definition": "Support and Maintenance related to M-Pesa",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Jefferson Omari"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2600,8 +4287,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2614,6 +4302,21 @@
       "markets": [
         "Hungary"
       ],
+      "owners": [
+        "David Allard De Grandmaison"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2623,8 +4326,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2635,6 +4339,21 @@
       "definition": "All the CORE Network SW for Mobile Private Network customers",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "David Allard De Grandmaison"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2644,8 +4363,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2656,6 +4376,21 @@
       "definition": "All the CORE Network HW for Mobile Private Network customers",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "David Allard De Grandmaison"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2665,8 +4400,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2677,6 +4413,21 @@
       "definition": "All the CORE Network Support and Maintenance for Mobile Private Network customers",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "David Allard De Grandmaison"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2686,8 +4437,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2698,6 +4450,21 @@
       "definition": "Professional services: Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Marina Braojosmolina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2707,8 +4474,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2719,6 +4487,21 @@
       "definition": "Goods: Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Marina Braojosmolina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2728,8 +4511,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2740,6 +4524,21 @@
       "definition": "Software : Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Marina Braojosmolina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2749,8 +4548,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2761,6 +4561,21 @@
       "definition": "Cost of Sales : Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Marina Braojosmolina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2770,8 +4585,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2782,6 +4598,21 @@
       "definition": "Support and Maintenance : Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Marina Braojosmolina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2791,8 +4622,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2805,6 +4637,21 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Maria Rocio Ortega Gago"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2814,8 +4661,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2538000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2828,6 +4676,21 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Maria Rocio Ortega Gago"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2837,8 +4700,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2538000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2852,6 +4716,21 @@
         "Albania",
         "VGS"
       ],
+      "owners": [
+        "Maria Rocio Ortega Gago"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 15,
+        "total": 55,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "First AI-generated RFP"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -2861,8 +4740,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2538000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 7
+        "ai_rfps": 1,
+        "ai_rfps_sample": 7,
+        "cbp_used": 0
       }
     },
     {
@@ -2875,6 +4755,21 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Maria Rocio Ortega Gago"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 10,
+        "usage": 0,
+        "ai": 0,
+        "total": 10,
+        "labels": {
+          "blueprint": "Drafted",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "draft",
         "market_reach": 1,
@@ -2884,8 +4779,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 2538000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2896,6 +4792,21 @@
       "definition": "All professional services related to charging solutions (Real-Time Charging, Pre-pay, Post-pay, Convergent, Smartpricing) and Policy Charging & Rules Function (PCRF)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2905,8 +4816,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2917,6 +4829,21 @@
       "definition": "All software products related to charging solutions and Policy Charging & Rules Function (PCRF)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2926,8 +4853,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2938,6 +4866,21 @@
       "definition": "Professional Services related to messaging services, including SMSC, IP&SMS&GW, MMSC, USSD, RCS, VMS, VVM, CMS and other messaging services.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2947,8 +4890,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2959,6 +4903,21 @@
       "definition": "Software related to messaging services, including SMSC, IP&SMS&GW, MMSC, USSD, RCS, VMS, VVM, CMS and other messaging services.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2968,8 +4927,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -2980,6 +4940,21 @@
       "definition": "SW contains the platform and/or management system licences",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -2989,8 +4964,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3001,6 +4977,21 @@
       "definition": "Support contains the annual support and maintenance after the warranty expires and professional services are mainly man-day basis local services",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3010,8 +5001,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3022,6 +5014,21 @@
       "definition": "All goods related to charging solutions (Real-Time Charging, Pre-pay, Post-pay, Convergent, Smartpricing) and Policy Charging & Rules Function (PCRF)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Mihaela Gornoviceanu"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3031,8 +5038,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3043,6 +5051,21 @@
       "definition": "Professional services works related to installation and commissioning of Virtualised (non-traditional) Software solutions only",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3052,8 +5075,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3067,6 +5091,22 @@
         "Albania",
         "Germany"
       ],
+      "owners": [
+        "Venkatesh Komarvolu",
+        "Hemant Gupta"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -3076,8 +5116,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 4
+        "ai_rfps": 0,
+        "ai_rfps_sample": 4,
+        "cbp_used": 0
       }
     },
     {
@@ -3090,6 +5131,22 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Venkatesh Komarvolu",
+        "Hemant Gupta"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3099,8 +5156,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3111,6 +5169,21 @@
       "definition": "Network Function Virtualisation (NFV) Related Software. With many new software components expected in the Virtualised environment (outside of the application, infrastructure and hypervisor) this code should be utilised for those areas",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3120,8 +5193,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3132,6 +5206,21 @@
       "definition": "Software licenses and annual upgrade for Orchestrator (Core, Transport, Radio, Fixed, SD-WAN orchestrators),",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3141,8 +5230,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3153,6 +5243,21 @@
       "definition": "Software support and maintenance and SaaS for Orchestrator (Core, Transport, Radio, Fixed, SD-WAN orchestrators),",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3162,8 +5267,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3174,6 +5280,21 @@
       "definition": "Software licenses and annual upgrade for SDN Controllers (IP, Optical, Microwave, Hierarchical Controllers),",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3183,8 +5304,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3195,6 +5317,21 @@
       "definition": "Software support and maintenance for SDN Controllers (IP, Optical, Microwave, Hierarchical Controllers),",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3204,8 +5341,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3216,6 +5354,21 @@
       "definition": "Software licenses and annual upgrade for VIM (Hypervisor, Containers), in the networks category",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3225,8 +5378,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3237,6 +5391,21 @@
       "definition": "Software support and maintenance for VIM (Hypervisor, Containers), in the networks category",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3246,8 +5415,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3258,6 +5428,21 @@
       "definition": "Orchestration costs for managing end customers ( per customer, CPE, nodes etc.)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3267,8 +5452,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3279,6 +5465,21 @@
       "definition": "VIM (Hypervisor, Container) costs for managing end customers (per customer, CPE, nodes etc.)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3288,8 +5489,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3300,6 +5502,21 @@
       "definition": "Hypervisor or virtual machine monitor (VMM) is a piece of computer software that creates and runs virtual machines",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Metin Aydogan"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3309,8 +5526,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3323,6 +5541,21 @@
       "markets": [
         "Greece"
       ],
+      "owners": [
+        "Nuray Kaya Okumus"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3332,8 +5565,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 8616671.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -3346,6 +5580,21 @@
       "markets": [
         "Vodacom Congo"
       ],
+      "owners": [
+        "Nuray Kaya Okumus"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3355,8 +5604,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 5566666.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3384,6 +5634,22 @@
         "Vodacom Congo",
         "Vodacom Lesotho"
       ],
+      "owners": [
+        "Venkatesh Komarvolu",
+        "Hemant Gupta"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 16,
@@ -3393,8 +5659,15 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 8
+        "ai_rfps": 0,
+        "ai_rfps_sample": 8,
+        "cbp_used": 0
+      },
+      "landmark": {
+        "name": "Big Ben",
+        "shape": "clocktower",
+        "market": "UK",
+        "because": "16 markets have adopted this blueprint, UK among them"
       }
     },
     {
@@ -3409,6 +5682,21 @@
         "Turkey",
         "Vodacom Congo"
       ],
+      "owners": [
+        "Nuray Kaya Okumus"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 3,
@@ -3418,8 +5706,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 4416671.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3438,6 +5727,22 @@
         "Ireland",
         "Mozambique"
       ],
+      "owners": [
+        "Venkatesh Komarvolu",
+        "Hemant Gupta"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 7,
@@ -3447,8 +5752,15 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
+      },
+      "landmark": {
+        "name": "The Parthenon",
+        "shape": "parthenon",
+        "market": "Greece",
+        "because": "7 markets have adopted this blueprint, Greece among them"
       }
     },
     {
@@ -3459,6 +5771,21 @@
       "definition": "The scope of this material category is the support and maintenance of Transmission Microwave equipment. It includes:\n• Emergency Support\n• Fault Management (Fault report handling, general product improvements, updates, implementation of correction packages etc.)\n• Helpdesk",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Iryna Samokhina"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3468,8 +5795,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3482,6 +5810,21 @@
       "markets": [
         "Romania"
       ],
+      "owners": [
+        "Iryna Samokhina"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 25,
+        "total": 50,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "Several AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3491,8 +5834,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 19642.86,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 2,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -3506,6 +5850,21 @@
         "Romania",
         "Turkey"
       ],
+      "owners": [
+        "Iryna Samokhina"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -3515,8 +5874,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 7230657,
-        "ai_rfps": null,
-        "ai_rfps_sample": 7
+        "ai_rfps": 0,
+        "ai_rfps_sample": 7,
+        "cbp_used": 0
       }
     },
     {
@@ -3530,6 +5890,21 @@
         "Albania",
         "Ireland"
       ],
+      "owners": [
+        "Desire Velascodrexler"
+      ],
+      "journey": {
+        "stage": "connected",
+        "blueprint": 40,
+        "usage": 0,
+        "ai": 0,
+        "total": 40,
+        "labels": {
+          "blueprint": "Live in several markets",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 2,
@@ -3539,8 +5914,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -3551,6 +5927,23 @@
       "definition": "Backhaul, Optical, CPN IP Core, Security Gateway and Network Firewall activities provided by Optical, Backhaul, IP Core, Security Gateway and Network Firewall supplier in order to plan, design, install, commission, maintain and optimise the backbone transmission network. Excluded all NON OEM professional services.",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Ignazio Binanti",
+        "Andrei Sofica",
+        "Desire Velascodrexler"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3560,8 +5953,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3572,6 +5966,21 @@
       "definition": "SDH nodes (such as ADM and SDH mux)",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Andrei Sofica"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3581,8 +5990,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3595,6 +6005,21 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Desire Velascodrexler"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3604,8 +6029,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 29600000,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     },
     {
@@ -3618,6 +6044,21 @@
       "markets": [
         "Albania"
       ],
+      "owners": [
+        "Andrei Sofica"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3627,8 +6068,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 44045407.67,
-        "ai_rfps": null,
-        "ai_rfps_sample": 4
+        "ai_rfps": 0,
+        "ai_rfps_sample": 4,
+        "cbp_used": 0
       }
     },
     {
@@ -3641,6 +6083,21 @@
       "markets": [
         "Germany"
       ],
+      "owners": [
+        "Ignazio Binanti"
+      ],
+      "journey": {
+        "stage": "traditional",
+        "blueprint": 25,
+        "usage": 0,
+        "ai": 0,
+        "total": 25,
+        "labels": {
+          "blueprint": "Live in one market",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "active",
         "market_reach": 1,
@@ -3650,8 +6107,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 1
+        "ai_rfps": 0,
+        "ai_rfps_sample": 1,
+        "cbp_used": 0
       }
     },
     {
@@ -3662,6 +6120,21 @@
       "definition": "Security Gateways (Node responsible for performing IPsec termination for Mobile IP BTS/Nodes B) and Network Firewalls",
       "blueprint_state": "none",
       "markets": [],
+      "owners": [
+        "Desire Velascodrexler"
+      ],
+      "journey": {
+        "stage": "none",
+        "blueprint": 0,
+        "usage": 0,
+        "ai": 0,
+        "total": 0,
+        "labels": {
+          "blueprint": "Nothing",
+          "usage": "Never used",
+          "ai": "No AI-generated RFPs"
+        }
+      },
       "metrics": {
         "blueprint_state": "none",
         "market_reach": 0,
@@ -3671,8 +6144,9 @@
         "ava_adoption": 1,
         "ariba_adoption": 0,
         "spend_eur": 0,
-        "ai_rfps": null,
-        "ai_rfps_sample": 0
+        "ai_rfps": 0,
+        "ai_rfps_sample": 0,
+        "cbp_used": 0
       }
     }
   ]

@@ -356,6 +356,56 @@ async function onAPhone(browser) {
       planned.deed.split("\n")[1] || "no title deed open");
   }
 
+  /* Land is worth what is spent on it, and no lot may sit on another.
+   *
+   * A treemap looks wrong long before it is wrong, and the failure that
+   * matters is silent: two buildings occupying the same square, or a plot
+   * whose size says the opposite of its spend. Neither is visible in a
+   * screenshot, so both are measured from the packed geometry. */
+  const land = await page.evaluate(() => {
+    const city = window.NWCity.data;
+    const layout = window.NWCity.layout;
+    const byCode = new Map(city.categories.map((c) => [c.code, c]));
+    const plots = [];
+    for (const district of layout.districts) {
+      for (const plot of district.plots) {
+        plots.push({
+          name: plot.name,
+          spend: plot.codes.reduce(
+            (sum, code) => sum + (byCode.get(code).metrics.spend_eur || 0), 0),
+          perLot: plot.codes.reduce(
+            (sum, code) => sum + (byCode.get(code).metrics.spend_eur || 0), 0) / plot.codes.length,
+          area: plot.w * plot.d,
+          cell: plot.cell,
+        });
+      }
+    }
+    const lots = layout.buildings.map((b) => ({ x: b.x, z: b.z, half: (b.cell || 4) / 2 }));
+    let overlaps = 0;
+    for (let i = 0; i < lots.length; i++) {
+      for (let j = i + 1; j < lots.length; j++) {
+        if (Math.abs(lots[i].x - lots[j].x) < lots[i].half + lots[j].half - 0.01
+         && Math.abs(lots[i].z - lots[j].z) < lots[i].half + lots[j].half - 0.01) overlaps++;
+      }
+    }
+    return { plots, overlaps, lots: lots.length };
+  });
+
+  check("no two lots occupy the same ground", land.overlaps === 0,
+    `${land.overlaps} overlaps across ${land.lots} lots`);
+
+  const richest = land.plots.slice().sort((a, b) => b.spend - a.spend)[0];
+  const biggest = land.plots.slice().sort((a, b) => b.area - a.area)[0];
+  check("the most expensive plot is the biggest place in the city",
+    richest.name === biggest.name, `${richest.name} vs ${biggest.name}`);
+
+  // Lot size must never contradict spend per category: a cheaper plot with
+  // bigger lots would be the map telling a lie about where the money is.
+  const wrongWay = land.plots.filter((a) =>
+    land.plots.some((b) => a.perLot > b.perLot + 1e6 && a.cell < b.cell - 0.01));
+  check("lot size never contradicts spend", wrongWay.length === 0,
+    wrongWay.map((p) => p.name).join(", "));
+
   check("no page errors", errors.length === 0, errors[0] || "");
 
   // Hand the phone pass a browser with nothing else rendering in it.

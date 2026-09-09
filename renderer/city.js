@@ -27,7 +27,12 @@
   // apart on a projector.
   const C = {
     sky: 0x080b12,
-    ground: 0x24422c, // Lego grass baseplate
+    /* Was a Lego grass baseplate. Hilmi's note: the green land is dead
+     * pixels, and he is right, because none of it encoded anything. It is
+     * now undeveloped ground in the same family as the district plates, so
+     * the eye stops reading it as parkland worth looking at and the built
+     * area carries the picture. */
+    ground: 0x2f343d,
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
     bare: 0x7c8794, // muted: absence rather than a status
@@ -53,20 +58,42 @@
 
   // A Lego brick reads as a light face over a saturated body, so each district
   // hue is mixed toward white for the wall and left darker for the banding.
-  function brickSet(index) {
+  /* Bricks in the district's colour.
+   *
+   * `occupied` is whether anybody has actually run a sourcing event through
+   * this category's blueprint. An unoccupied building keeps its shape and
+   * loses its colour: the estate is built, and nobody is in it. Forty of the
+   * forty-four built lots are in this state, which is the single most
+   * important thing on the map and had no way of being seen before. */
+  /* How far an empty building drifts towards grey.
+   *
+   * Tuned down from 0.72, which drained the whole skyline: with 40 of the 44
+   * built lots empty, a strong wash turns the city into one grey mass and the
+   * district colours stop telling you where you are. At 0.45 a building still
+   * belongs to its district and still reads as drained, and the four that are
+   * occupied keep their full colour and stand out against the rest. */
+  const VACANT_WASH = 0.45;
+
+  function brickSet(index, occupied = true) {
     const base = new THREE.Color(DISTRICT_BANDS[index % DISTRICT_BANDS.length]);
-    const wall = base.clone().lerp(new THREE.Color(0xffffff), 0.1);
+    let wall = base.clone().lerp(new THREE.Color(0xffffff), 0.1);
+    if (!occupied) {
+      // Towards a cold neutral rather than plain white, so it reads as
+      // abandoned rather than as a lighter shade of the same colour.
+      wall = wall.lerp(new THREE.Color(0x9aa0aa), VACANT_WASH);
+    }
     return {
       main: wall.getHex(),
       alt: wall.clone().lerp(new THREE.Color(0x000000), 0.16).getHex(),
       stud: wall.clone().lerp(new THREE.Color(0xffffff), 0.22).getHex(),
       band: base.getHex(),
+      occupied,
     };
   }
 
   // ------------------------------------------------------------ dimensions
   const CELL = 4.0;        // one building lot
-  const FOOT = 2.4;        // building footprint
+  const FOOT = 2.4;        // building footprint on a standard lot
   const FLOOR_H = 1.15;
   const PER_ROW = 4;       // buildings per row within a plot
   const PLOT_PAD = 1.8;
@@ -128,6 +155,38 @@
     return { w: width, d: z + rowDepth };
   }
 
+  /* Land is worth what is spent on it.
+   *
+   * Hilmi asked for each L3 to be proportional to spend, and taken literally
+   * that cannot be drawn from this data. Fourteen of the thirty-one plots
+   * have no recorded spend at all and hold 58 categories between them, so
+   * strict proportionality erases 40% of the estate. The largest plot is 400
+   * times the smallest non-zero one, so the small end would be a pixel.
+   *
+   * So the same compression the journey score uses, for the same reason: the
+   * square root, clamped, with a floor. A lot's size follows the average
+   * spend per category in its plot, which means a plot grows both with how
+   * many categories it holds and with how much money is on them. Both are
+   * real facts about it, and the order is preserved: FLM & Field Operations
+   * at €283m is unmistakably the biggest place in the city, and the plots
+   * with nothing recorded are visibly small without disappearing.
+   *
+   * Lots stay uniform inside a plot, so they are still countable and the 89
+   * empty ones still read as 89 empty ones. */
+  const LOT_MIN = 0.78, LOT_MAX = 1.75;
+
+  function lotScale(codes, byCode) {
+    if (!codes.length) return 1;
+    const spend = codes.reduce(
+      (sum, code) => sum + ((byCode.get(code) || { metrics: {} }).metrics.spend_eur || 0), 0);
+    const perLot = spend / codes.length;
+    // €5m per category is about the point where a plot looks average, so it
+    // anchors the middle of the range rather than the mean, which one €283m
+    // plot would otherwise drag upwards.
+    const scale = Math.sqrt(perLot / 5e6);
+    return Math.max(LOT_MIN, Math.min(LOT_MAX, scale || LOT_MIN));
+  }
+
   function buildLayout() {
     const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
 
@@ -135,13 +194,17 @@
       const plots = district.plots.map((plot) => {
         const cols = Math.min(plot.codes.length, PER_ROW);
         const rows = Math.ceil(plot.codes.length / PER_ROW);
+        const scale = lotScale(plot.codes, byCode);
+        const cell = CELL * scale;
         return {
           name: plot.name,
           codes: plot.codes,
           cols,
           rows,
-          w: cols * CELL + PLOT_PAD,
-          d: rows * CELL + PLOT_PAD,
+          scale,
+          cell,
+          w: cols * cell + PLOT_PAD,
+          d: rows * cell + PLOT_PAD,
         };
       });
       const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
@@ -170,11 +233,13 @@
           const col = i % PER_ROW;
           const row = Math.floor(i / PER_ROW);
           buildings.push({
+            scale: plot.scale,
+            cell: plot.cell,
             category: byCode.get(code),
             district,
             plot,
-            x: plot.cx + PLOT_PAD / 2 + col * CELL + CELL / 2,
-            z: plot.cz + PLOT_PAD / 2 + row * CELL + CELL / 2,
+            x: plot.cx + PLOT_PAD / 2 + col * plot.cell + plot.cell / 2,
+            z: plot.cz + PLOT_PAD / 2 + row * plot.cell + plot.cell / 2,
           });
         });
       }
@@ -374,7 +439,7 @@
   // world baseplate
   const baseW = layout.size.w + 10;
   const baseD = layout.size.d + 10;
-  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x2c5136);
+  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
   const labels = [];
   function makeLabel(text, accent, scale) {
@@ -680,7 +745,13 @@
       for (let z = -baseD / 2 + 3; z < baseD / 2 - 3; z += 4.6) {
         const jx = x + (rnd() - 0.5) * 2;
         const jz = z + (rnd() - 0.5) * 2;
-        if (blocked(jx, jz) || rnd() > 0.34) continue;
+        /* Street trees, not parkland.
+         *
+         * At 0.34 these filled every gap between districts with woodland,
+         * which is the green Hilmi wanted rid of. At 0.06 they line the
+         * streets and soften the edges without becoming a landscape that
+         * competes with the thing the map is about. */
+        if (blocked(jx, jz) || rnd() > 0.06) continue;
         const scale = 0.8 + rnd() * 0.6;
         trunkBucket.add(jx, 0.45 * scale, jz, 0.22, 0.9 * scale, 0.22, 0x5b4632);
         canopyBucket.add(jx, (0.9 + 0.6) * scale, jz, 1.5 * scale, 1.7 * scale, 1.5 * scale, 0x2f7d46);
@@ -913,12 +984,47 @@
     const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
     const group = new THREE.Group();
     const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
-    // Weight by length so long avenues carry more traffic than short links.
-    // Zooming into any part of the city should find something moving.
+
+    /* Traffic follows money.
+     *
+     * "Anything that moves has to mean something" is the right rule, and
+     * until now these were ambience: weighted by road length, which is a fact
+     * about the drawing rather than about Networks. Each road is now assigned
+     * to the district it runs closest to, and a district's share of the €760m
+     * decides how busy its streets are. Managed Services and Outsourcing
+     * carries 37.7% of the spend from ten categories, so its roads are the
+     * busiest on the map, and Network Revenue Platforms at 1.7% is quiet.
+     *
+     * Length still counts for something, so a long avenue does not end up
+     * emptier than the short link beside it. */
+    const spendShare = new Map();
+    let citySpend = 0;
+    for (const district of layout.districts) {
+      const spend = district.totals ? district.totals.spend_eur : 0;
+      spendShare.set(district, spend);
+      citySpend += spend;
+    }
+    const nearestDistrict = (road) => {
+      let best = null, bestDistance = Infinity;
+      for (const district of layout.districts) {
+        const dx = road.x - (district.cx + district.w / 2);
+        const dz = road.z - (district.cz + district.d / 2);
+        const distance = dx * dx + dz * dz;
+        if (distance < bestDistance) { bestDistance = distance; best = district; }
+      }
+      return best;
+    };
+
     const weighted = [];
     for (const r of usable) {
-      const share = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
-      for (let n = 0; n < share; n++) weighted.push(r);
+      const length = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
+      const district = nearestDistrict(r);
+      const share = citySpend && district
+        ? (spendShare.get(district) || 0) / citySpend : 0;
+      // A floor of one keeps every street alive: an empty district should
+      // look quiet, not abandoned, and zooming anywhere should find movement.
+      const busy = Math.max(1, Math.round(length * (0.35 + share * 5.2)));
+      for (let n = 0; n < busy; n++) weighted.push(r);
     }
     const pickRoad = () => weighted[Math.floor(rnd() * weighted.length)] || roads[0];
 
@@ -1080,6 +1186,95 @@
     transparent: true, opacity: 0, depthWrite: false,
   });
 
+  /* ------------------------------------------------------------- landmarks
+   *
+   * Five categories are live in five or more markets, and each gets a world
+   * landmark drawn from a market that actually adopted that blueprint. The
+   * rule is the point: a landmark that came from nowhere would be decoration,
+   * one from an adopting market says this blueprint travelled. The pairing is
+   * decided in the build, in config/metrics.yaml; this only draws it.
+   *
+   * Ordinary lots are instanced, one draw call per shape. There are only five
+   * of these, so each is a plain group. Five extra draw calls buys geometry
+   * that no instancing scheme would have given us.
+   */
+  /* Warm sandstone against a city of cool blues and greys. The first pass
+   * used a pale stone that vanished into the pale district buildings behind
+   * it, which is the opposite of what a landmark is for. */
+  const STONE = 0xe0cfa4, STONE_DARK = 0xb9a274, GOLD = 0xf0c74e, LEAD = 0x6f7a86;
+
+  function landmarkGroup(shape) {
+    const group = new THREE.Group();
+    const put = (hex, x, y, z, sx, sy, sz, geometry) => {
+      const mesh = new THREE.Mesh(geometry || box, new THREE.MeshLambertMaterial({ color: hex }));
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+    const ring = (hex, count, radius, y, sx, sy, sz, geometry) => {
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2;
+        put(hex, Math.cos(a) * radius, y, Math.sin(a) * radius, sx, sy, sz, geometry);
+      }
+    };
+
+    if (shape === "clocktower") {
+      // Big Ben: a square shaft, four clock faces, a spire.
+      put(STONE, 0, 2.1, 0, 0.78, 4.2, 0.78);
+      put(STONE_DARK, 0, 4.35, 0, 0.94, 0.28, 0.94);
+      for (const [dx, dz] of [[0.42, 0], [-0.42, 0], [0, 0.42], [0, -0.42]]) {
+        put(GOLD, dx, 3.75, dz, dx ? 0.06 : 0.44, 0.44, dz ? 0.06 : 0.44);
+      }
+      put(STONE, 0, 5.1, 0, 0.66, 1.2, 0.66, pyramid);
+      put(GOLD, 0, 5.85, 0, 0.14, 0.4, 0.14);
+    } else if (shape === "colosseum") {
+      // Two tiers of arches, and the missing third that everyone pictures.
+      ring(STONE, 16, 1.15, 0.55, 0.3, 1.1, 0.3);
+      ring(STONE_DARK, 16, 1.15, 1.2, 0.34, 0.2, 0.34);
+      ring(STONE, 14, 1.12, 1.75, 0.28, 0.9, 0.28);
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        put(STONE_DARK, Math.cos(a) * 1.1, 2.35, Math.sin(a) * 1.1, 0.3, 0.7, 0.3);
+      }
+      put(STONE_DARK, 0, 0.16, 0, 2.7, 0.3, 2.7, cyl);
+    } else if (shape === "parthenon") {
+      // A stepped base, a colonnade, a pediment.
+      put(STONE_DARK, 0, 0.16, 0, 2.5, 0.32, 1.7);
+      put(STONE_DARK, 0, 0.42, 0, 2.2, 0.24, 1.45);
+      for (let i = 0; i < 6; i++) {
+        const x = -0.9 + i * 0.36;
+        put(STONE, x, 1.15, 0.6, 0.13, 1.4, 0.13, cyl);
+        put(STONE, x, 1.15, -0.6, 0.13, 1.4, 0.13, cyl);
+      }
+      put(STONE, 0, 1.95, 0, 2.1, 0.22, 1.4);
+      put(STONE, 0, 2.2, 0, 1.9, 0.34, 1.2, pyramid);
+    } else if (shape === "pyramid") {
+      // Three of them, largest at the back, as the postcard has it.
+      put(STONE, 0, 1.35, 0, 2.5, 2.7, 2.5, pyramid);
+      put(STONE_DARK, 1.5, 0.75, 0.9, 1.4, 1.5, 1.4, pyramid);
+      put(STONE_DARK, -1.4, 0.55, 1.1, 1.05, 1.1, 1.05, pyramid);
+    } else if (shape === "gate") {
+      // Brandenburg Gate: twelve columns, an entablature, a quadriga.
+      for (let i = 0; i < 6; i++) {
+        const x = -1.05 + (i % 3) * 1.05;
+        const z = i < 3 ? 0.4 : -0.4;
+        put(STONE, x, 0.95, z, 0.19, 1.9, 0.19, cyl);
+      }
+      put(STONE, 0, 2.05, 0, 2.6, 0.34, 1.15);
+      put(STONE_DARK, 0, 2.32, 0, 2.2, 0.22, 0.95);
+      put(LEAD, 0, 2.62, 0, 0.7, 0.36, 0.3);
+      put(LEAD, -0.3, 2.55, 0, 0.22, 0.3, 0.22);
+      put(LEAD, 0.3, 2.55, 0, 0.22, 0.3, 0.22);
+    } else {
+      return null;
+    }
+    return group;
+  }
+
+  const landmarks = [];
+
   for (const building of layout.buildings) {
     const category = building.category;
     const state = category.blueprint_state;
@@ -1090,7 +1285,14 @@
       : tierIndex(layerMetric("value"), valueFor(category, "value"));
     const reactorTier = tierIndex(layerMetric("reactor"), valueFor(category, "reactor"));
 
-    const palette = brickSet(building.district.index);
+    // Built is not the same as used. 44 categories have an active blueprint;
+    // four have one anybody has ever run a sourcing event through.
+    const occupied = (category.metrics.cbp_used || 0) > 0;
+    const palette = brickSet(building.district.index, occupied);
+    // Footprint follows the lot it stands on, or a building overflows a small
+    // plot and rattles around inside an expensive one.
+    const LOT = building.cell || CELL;
+    const FOOT = (LOT / CELL) * 2.4;
     const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null };
     building.pieces = pieces;
     const x = building.x, z = building.z;
@@ -1102,13 +1304,36 @@
     pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
 
     let top = 0.62;
-    if (floors > 0) {
+    /* A landmark replaces the tower rather than sitting on top of it.
+     *
+     * Perched on a sixteen-storey block Big Ben was off the top of the frame
+     * and looked like an aerial. These five are the most-reused blueprints in
+     * Networks and are already at the top of the height ladder, so the
+     * monument IS the top rung: the lot stops being a building and becomes
+     * the thing everyone recognises. */
+    const monument = floors > 0 && category.landmark
+      ? landmarkGroup(category.landmark.shape) : null;
+
+    if (monument) {
+      /* Deliberately larger than the tower it replaced. A monument that is
+       * the same size as its neighbours is just another building, and these
+       * five are the most reused blueprints in the estate. */
+      monument.position.set(x, 0.62, z);
+      monument.scale.setScalar(1.45);
+      scene.add(monument);
+      landmarks.push({ group: monument, code: category.code });
+      top = 0.62 + 6.4;
+    } else if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
-        // Window strips on the two faces the isometric camera can see. Some
-        // are left dark so the skyline is not uniformly lit at night.
-        const lit = (f * 7 + x * 3 + z) % 10 < 7;
+        /* Window strips on the two faces the isometric camera can see.
+         *
+         * Lights only come on in a building somebody uses. At night that
+         * makes the point without a word of commentary: four lit buildings
+         * in the whole of Networks. Within an occupied building a few panes
+         * are still left dark, so it reads as a building rather than a slab. */
+        const lit = occupied && (f * 7 + x * 3 + z) % 10 < 7;
         const glass = lit ? 0xffd98a : 0x2a2f38;
         windows.add(x + FOOT / 2, y, z, 0.06, 0.42, FOOT * 0.62, glass);
         windows.add(x, y, z + FOOT / 2, FOOT * 0.62, 0.42, 0.06, glass);
@@ -1120,6 +1345,9 @@
           pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
         }
       }
+    }
+
+    if (floors > 0) {
       if (reactorTier > 0) {
         const glow = 0.3 + reactorTier * 0.12;
         pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.3, z, glow * 1.15, 0.26, glow * 1.15) };
@@ -1434,7 +1662,13 @@
     sun.intensity = isNight ? 0.16 : DAY.sun;
     sun.color.setHex(isNight ? 0x8fa8d8 : DAY.sunColour);
 
-    if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = isNight;
+    /* Windows stay on in daylight too.
+     *
+     * They used to appear only at night, which meant the four occupied
+     * buildings were invisible in the view people spend all their time in.
+     * Lit panes are warm enough to read against a drained facade by day, and
+     * the unlit ones are dark recesses rather than an absence. */
+    if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = true;
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
 
@@ -1457,14 +1691,17 @@
 
   function renderStats() {
     const t = CITY.totals;
+    /* "in use" sits next to "developed" on purpose. 56 against 4 is the whole
+     * argument, and the two numbers only land when they are side by side. */
     const stats = [
       [t.with_blueprint, "developed"],
+      [t.in_use, "in use", true],
       [t.empty_lots, "empty lots"],
-      [CITY.meta.counts.markets, "markets"],
       [euro(t.spend_eur), "spend"],
     ];
     document.getElementById("stats").innerHTML = stats
-      .map(([n, k]) => `<div class="stat"><span class="n">${n}</span><span class="k">${k}</span></div>`)
+      .map(([n, k, flag]) =>
+        `<div class="stat${flag ? " sharp" : ""}"><span class="n">${n}</span><span class="k">${k}</span></div>`)
       .join("");
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
@@ -1552,6 +1789,7 @@
 
   const inspector = document.getElementById("inspector");
   function showCategory(category) {
+    showOnArc(category);
     if (!category) {
       inspector.classList.remove("on");
       return;
@@ -1560,14 +1798,24 @@
     const heightTier = tierOf(layerMetric("height"), valueFor(category, "height"));
     const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
     const stateTier = tierOf("blueprint_state", category.blueprint_state);
+    const used = category.metrics.cbp_used || 0;
     const rows = [
       ["Blueprint", stateTier.label],
+      ["In use", used
+        ? `Yes, ${used} sourcing event${used === 1 ? "" : "s"}`
+        : category.blueprint_state === "active" ? "Never used" : "Not yet"],
       [metricDef(layerMetric("height")).label, `${heightTier.label} (${valueFor(category, "height")})`],
       ["Spend FY26/27", euro(m.spend_eur)],
       ["Property", valueTier.label],
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
+    if (category.owners && category.owners.length) {
+      rows.push([category.owners.length > 1 ? "Owners" : "Owner", category.owners.join(", ")]);
+    }
+    if (category.landmark) {
+      rows.push(["Landmark", `${category.landmark.name}, ${category.landmark.market}`]);
+    }
     // Laid out as a Monopoly title deed, because that is what it is: one
     // property, its colour group across the top, what it is worth, and what
     // has been built on it. The board game does the explaining for us.
@@ -1587,8 +1835,140 @@
     inspector.classList.add("on");
   }
 
+  /* ------------------------------------------------------ the arc and the score
+   *
+   * Traditional, Connected, Smart, Autonomous. Hilmi's arc, and the reason it
+   * is worth adopting is that it needs no new data: the measures already on
+   * screen are that journey. The stage boundaries and every weight live in
+   * config/metrics.yaml, so this draws whatever the score is defined to be.
+   */
+  const WEIGHTS = (CONFIG.score && CONFIG.score.weights) || { blueprint: 40, usage: 35, ai: 25 };
+  const ARC_MAX = WEIGHTS.blueprint + WEIGHTS.usage + WEIGHTS.ai;
+
+  /** Where a score sits along the rail, as a percentage of its width.
+   *  Autonomous occupies the last quarter and nothing reaches it, which is
+   *  the point rather than an oversight. */
+  function arcPosition(score) {
+    return Math.max(2, Math.min(74, (score / ARC_MAX) * 74));
+  }
+
+  function renderArc() {
+    const j = CITY.totals.journey;
+    if (!j) return;
+    document.getElementById("arcYou").style.left = `${arcPosition(j.total)}%`;
+    document.getElementById("arcScore").textContent = `Networks ${Math.round(j.total)} / ${ARC_MAX}`;
+    document.getElementById("arcNote").textContent =
+      `· ${Math.round(j.blueprint / WEIGHTS.blueprint * 100)}% written, `
+      + `${Math.round(j.usage / WEIGHTS.usage * 100)}% used, `
+      + `${Math.round(j.ai / WEIGHTS.ai * 100)}% with AI`;
+    markStage(stageOf(j.total));
+  }
+
+  function stageOf(score) {
+    if (score >= ARC_MAX * 0.75) return "autonomous";
+    if (score >= WEIGHTS.blueprint + WEIGHTS.usage * 0.4) return "smart";
+    if (score >= WEIGHTS.blueprint) return "connected";
+    return "traditional";
+  }
+
+  function markStage(stage) {
+    for (const el of document.querySelectorAll("#arc .stage")) {
+      el.classList.toggle("here", el.dataset.stage === stage);
+    }
+  }
+
+  /** Put a single category's own marker on the rail, so the arc answers
+   *  "where is this one" as well as "where are we". */
+  function showOnArc(category) {
+    const pick = document.getElementById("arcPick");
+    if (!category || !category.journey) { pick.hidden = true; return; }
+    pick.hidden = false;
+    pick.style.left = `${arcPosition(category.journey.total)}%`;
+  }
+
+  /* The journey panel. Three views of one score, because the same number
+   * answers different questions depending on who is asking. */
+  const journeyRows = document.getElementById("jRows");
+  let journeyView = "districts";
+
+  function scoreBar(j) {
+    const seg = (key, value) =>
+      `<i class="${key}" style="width:${(value / ARC_MAX) * 100}%"></i>`;
+    return `<span class="bar">${seg("bp", j.blueprint)}${seg("use", j.usage)}${seg("ai", j.ai)}</span>`;
+  }
+
+  function rollUp(list) {
+    // Same weighting as the build: the square root of spend, floored, so one
+    // large category cannot carry a group that has done nothing else.
+    const w = (c) => Math.sqrt(Math.max(c.metrics.spend_eur || 0, 1e6));
+    const total = list.reduce((s, c) => s + w(c), 0) || 1;
+    const part = (k) => list.reduce((s, c) => s + c.journey[k] * w(c), 0) / total;
+    return { total: part("total"), blueprint: part("blueprint"), usage: part("usage"), ai: part("ai") };
+  }
+
+  function journeyData() {
+    if (journeyView === "categories") {
+      return CITY.categories
+        .map((c) => ({ label: `${c.code} ${c.name}`, sub: c.district,
+                       j: c.journey, go: () => window.NWCity.focus(c.code) }))
+        .sort((a, b) => b.j.total - a.j.total);
+    }
+    if (journeyView === "people") {
+      const by = new Map();
+      for (const c of CITY.categories) {
+        for (const person of c.owners || []) {
+          if (!by.has(person)) by.set(person, []);
+          by.get(person).push(c);
+        }
+      }
+      const floor = (CONFIG.score && CONFIG.score.minimum_categories) || 3;
+      return [...by.entries()]
+        // Below the floor a score is a coin toss rather than a track record:
+        // one category with one blueprint would sit at the top on merit it
+        // did not earn.
+        .filter(([, list]) => list.length >= floor)
+        .map(([person, list]) => ({
+          label: person,
+          sub: `${list.length} categories`,
+          j: rollUp(list),
+          go: () => window.NWCity.focus(list.slice().sort((a, b) => b.journey.total - a.journey.total)[0].code),
+        }))
+        .sort((a, b) => b.j.total - a.j.total);
+    }
+    return CITY.districts
+      .map((d) => ({ label: d.name, sub: `${d.totals.empty_lots} of ${d.totals.categories} empty`,
+                     j: d.totals.journey, go: () => window.NWCity.focusDistrict(d.name) }))
+      .sort((a, b) => b.j.total - a.j.total);
+  }
+
+  function renderJourney() {
+    const rows = journeyData();
+    journeyRows.innerHTML = rows.map((r, i) => `
+      <div class="jRow" data-i="${i}">
+        <span class="who">${r.label}</span>
+        <span class="num">${Math.round(r.j.total)}</span>
+        ${scoreBar(r.j)}
+        <span class="sub">${r.sub}</span>
+      </div>`).join("");
+    journeyRows.querySelectorAll(".jRow").forEach((el) => {
+      el.addEventListener("click", () => rows[Number(el.dataset.i)].go());
+    });
+  }
+
+  document.getElementById("jSwitch").addEventListener("click", (e) => {
+    const button = e.target.closest("[data-view]");
+    if (!button) return;
+    journeyView = button.dataset.view;
+    for (const b of document.querySelectorAll("#jSwitch button")) {
+      b.classList.toggle("on", b === button);
+    }
+    renderJourney();
+  });
+
   renderStats();
   renderLegend();
+  renderArc();
+  renderJourney();
 
   /* On a phone the legend and the trace start closed. Both are reference
      rather than the thing itself, and open they cover the city on a screen
@@ -2262,6 +2642,7 @@
      * which makes them useless for asking a question: the act of looking
      * changes the answer, and a check written with one of them passes or
      * fails on its own side effect. */
+    layout,
     state() {
       return {
         night: isNight,

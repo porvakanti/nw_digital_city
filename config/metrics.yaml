@@ -35,8 +35,89 @@ layers:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
   reactor:
-    metric: ai_rfps_sample   # ← flip to ai_rfps the day real figures land
+    metric: ai_rfps          # real since Tomas's 9 Sep extract; was ai_rfps_sample
     caption: Structured rules and future autonomy readiness
+  occupancy:
+    metric: cbp_used
+    caption: >-
+      Whether anybody has actually run a sourcing event through the blueprint.
+      A built lot with dark windows is a blueprint nobody uses.
+
+# ---------------------------------------------------------------------------
+# THE JOURNEY SCORE
+#
+# One number for a category, a district, a manager or all of Networks, and the
+# definition behind Traditional -> Connected -> Smart -> Autonomous.
+#
+# Weights must total 100. Usage is the heaviest single component on purpose: a
+# blueprint nobody uses is paperwork, and the score should say so.
+# ---------------------------------------------------------------------------
+score:
+  weights:
+    blueprint: 40
+    usage: 35
+    ai: 25
+
+  blueprint:                 # how far the blueprint itself has got
+    - {id: none,      points: 0,  label: Nothing,        stage: none}
+    - {id: drafted,   points: 10, label: Drafted,        stage: traditional}
+    - {id: live,      points: 25, label: Live in one market,   stage: traditional}
+    - {id: connected, points: 40, label: Live in several markets, stage: connected}
+
+  usage:                     # has anybody actually run one
+    - {id: unused,    max: 0,    points: 0,  label: Never used}
+    - {id: once,      max: 1,    points: 20, label: Used once}
+    - {id: repeated,  max: null, points: 35, label: Used more than once}
+
+  ai:                        # done with AI help
+    - {id: none,      max: 0,    points: 0,  label: No AI-generated RFPs}
+    - {id: started,   max: 1,    points: 15, label: First AI-generated RFP}
+    - {id: several,   max: null, points: 25, label: Several AI-generated RFPs}
+
+  # Rolling many categories into one number. Raw spend lets a single large
+  # category carry a district that has done nothing on everything else; equal
+  # weighting punishes anyone holding a big portfolio. The square root sits
+  # between the two. The floor keeps zero-spend categories counting.
+  rollup:
+    weight_by: spend_eur
+    transform: sqrt
+    floor_eur: 1000000
+  # Below this many categories a manager is not ranked. One category and one
+  # blueprint is a coin toss, not a track record.
+  minimum_categories: 3
+
+# ---------------------------------------------------------------------------
+# PEOPLE
+#
+# names | initials | none. One word, and it changes what leaves the build.
+# Email addresses are refused at every setting, without exception.
+# ---------------------------------------------------------------------------
+people:
+  show: names
+  source_column: VPC Category Manager
+
+# ---------------------------------------------------------------------------
+# LANDMARKS
+#
+# The most reused blueprints get a world landmark, and the rule is that the
+# landmark comes from a market that actually adopted that blueprint. So it
+# says something rather than just decorating.
+# ---------------------------------------------------------------------------
+landmarks:
+  min_markets: 5
+  # Preference order. The first market in this list that adopted the category
+  # wins, and each landmark is used once.
+  by_market:
+    UK: {name: Big Ben, shape: clocktower}
+    Egypt: {name: The Pyramids, shape: pyramid}
+    Italy: {name: The Colosseum, shape: colosseum}
+    Greece: {name: The Parthenon, shape: parthenon}
+    Germany: {name: Brandenburg Gate, shape: gate}
+    Spain: {name: Sagrada Familia, shape: spires}
+    Turkey: {name: Hagia Sophia, shape: dome}
+    Portugal: {name: Belem Tower, shape: tower}
+    Ireland: {name: Ha'penny Bridge, shape: bridge}
+    South Africa: {name: Table Mountain, shape: mesa}
 
 # ---------------------------------------------------------------------------
 # METRIC REGISTRY
@@ -100,6 +181,19 @@ metrics:
       - {id: tower,      max: 7,    label: Tower}
       - {id: skyscraper, max: null, label: Skyscraper}
 
+  cbp_used:
+    label: Blueprints used
+    description: >
+      How many times a sourcing event has actually been run through this
+      category's blueprint. Arrived in the 9 September extract. 44 categories
+      have an active blueprint; 4 have one that has ever been used.
+    unit: uses
+    kind: numeric
+    tiers:
+      - {id: dark,     max: 0,    label: Nobody has used it, detail: Built, and empty.}
+      - {id: occupied, max: 1,    label: Used once,          detail: Somebody has run one.}
+      - {id: busy,     max: null, label: Used repeatedly,    detail: In real service.}
+
   spend_eur:
     label: Spend FY26/27
     description: >
@@ -123,12 +217,12 @@ metrics:
       Sourcing events started as AI-generated RFPs. Drives the rooftop reactor.
       A readiness signal only. This is not a claim that autonomous procurement
       is live.
+
+      Real since Tomas's 9 September extract. It was empty before that, which
+      is why ai_rfps_sample existed; 8 of 145 categories have any, and the
+      placeholder had been showing 28.
     unit: rfps
     kind: numeric
-    sample: true
-    sample_note: >
-      Placeholder data, seeded deterministically so rehearsal and stage show
-      identical results. Replace when the real figures land.
     tiers:
       - {id: dark,      max: 0,    label: Dark,           detail: Not yet measured.}
       - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory. First AI-generated RFPs.}

@@ -17,9 +17,20 @@ that square is how that category is doing.
 | Plot, the paler slab inside a district | L3 group | 31 |
 | Lot, one square of land | L4 category | 145 |
 
-The green space between districts is parkland and means nothing. District size
-roughly follows how many categories sit in it, so Access Radio/Fixed is the
-big one at 37 lots and Transmission Infrastructure is small at 10.
+**Land is worth what is spent on it.** A lot is larger where the money is, so
+a plot grows both with how many categories it holds and with how much sits on
+them. Lots stay the same size inside any one plot, so an empty lot is still
+countable as an empty lot.
+
+Strict proportionality was not possible: 14 of the 31 plots have no recorded
+spend at all and hold 58 categories between them, and the largest plot is 400
+times the smallest non-zero one. So the scale is compressed with a square root
+and clamped, the same treatment and the same reason as the journey score. The
+order survives, nothing disappears, and FLM & Field Operations at €283m is
+unmistakably the largest place in the city.
+
+The ground between districts is undeveloped land and means nothing. It used to
+be green, which made it look like something worth reading.
 
 A big district is not the same as an important one. Managed Services and
 Outsourcing has 10 lots and carries €286m, more than a third of the €760m in
@@ -88,11 +99,23 @@ these hold until they are.
 ### 4. The rooftop light: AI readiness
 
 Dark, flicker, steady glow, full reactor, from the count of AI-generated RFPs.
-28 of 145 rooftops are lit.
+**8 of 145 rooftops are lit**: A212, A213, A251 and A314 with two each, and
+D303, D333, D506 and D513 with one.
 
-**This is placeholder data**, seeded so that rehearsal and the live run agree.
-The real column is empty. It is badged as sample data on screen, and it is
-worth saying out loud rather than letting anyone assume it is measured.
+**This became real on 9 September.** The column used to be empty, so the
+rooftops ran on placeholder data that showed 28. Eight is a weaker picture and
+a much better position to argue from, because it is true.
+
+### 5. The windows: is anybody using it
+
+| What you see | What it means | Count |
+| --- | --- | --- |
+| Full district colour, lit windows | The blueprint has been used | **4** |
+| Drained towards grey, dark windows | Built, and nobody has used it | 40 |
+
+The newest column in the extract and the most important one. Turn the lights
+off with **N** and the whole city goes dark except four buildings. That single
+frame is the argument.
 
 ## Reading one lot in three seconds
 
@@ -107,14 +130,20 @@ category nobody has written down that spends real money.
 
 Sharper than "89 lots are empty":
 
-Of the 89 categories with no blueprint, **69 have no recorded spend either**.
-Those are arguably not urgent. The other **20 carry €176m between them**, and
-the largest is A311 Field Maintenance at €75m, which is tied for the biggest
-single category in Networks and has no blueprint at all.
+**We have written 44 blueprints. Four of them have ever been used.**
 
-That is the argument. Not that there are gaps, but that twenty of the gaps
-have nine figures of spend sitting in them and one of them is the biggest
-category we have.
+That is the sharpest thing in the data and the reason the buildings now drain
+to grey when nobody uses them. It moves the argument from a coverage gap,
+which sounds like paperwork, to an adoption gap, which is about behaviour.
+
+Underneath it, the coverage story still holds. Of the 89 categories with no
+blueprint, **69 have no recorded spend either**, so they are arguably not
+urgent. The other **20 carry €176m between them**, and the largest is A311
+Field Maintenance at €75m, which is tied for the biggest single category in
+Networks and has no blueprint at all.
+
+And Networks scores **19 out of 100** on the journey: 40% of the way through
+writing the blueprints, 5% of the way through using them.
 
 The second thing to know: **Fixed has 12 categories, €88m of spend, and one
 built.** It is the most exposed district on the map.
@@ -123,6 +152,10 @@ built.** It is the most exposed district on the map.
 
 Say these before someone finds them.
 
+**Height still stands in for adoption.** The AVA column reads a flat 100% for
+all 145 categories in the September extract as well, so building height is
+market reach and is badged provisional on screen. This is the last placeholder
+left: the rooftop lights became real data in the same refresh.
 **Two of the four measures are not yet what they claim to be.** Height stands
 in for adoption. The rooftop lights are invented.
 
