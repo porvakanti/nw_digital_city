@@ -270,6 +270,29 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
                 f"{code} has a landmark from a market that never adopted it",
             )
 
+    def test_landmarks_are_earned_and_unique(self):
+        """A landmark says a blueprint travelled. It has to be from somewhere
+        that actually adopted it, or it is decoration wearing a rule."""
+        config = load_config()
+        floor = config["landmarks"]["min_markets"]
+        marked = [c for c in self.cats if c.get("landmark")]
+        eligible = [c for c in self.cats if c["metrics"]["market_reach"] >= floor]
+        self.assertEqual(len(eligible), len(marked),
+                         "every category above the threshold should have one")
+        for category in marked:
+            self.assertGreaterEqual(category["metrics"]["market_reach"], floor)
+            self.assertIn(category["landmark"]["market"], category["markets"])
+            self.assertIn(category["landmark"]["shape"],
+                          {v["shape"] for v in config["landmarks"]["by_market"].values()})
+
+    def test_the_most_reused_blueprint_gets_big_ben(self):
+        """A221 is live in sixteen markets, double the next. Vodafone is a UK
+        company, so the most-copied blueprint in the estate takes the UK."""
+        top = max(self.cats, key=lambda c: c["metrics"]["market_reach"])
+        self.assertEqual("A221", top["code"])
+        self.assertEqual(16, top["metrics"]["market_reach"])
+        self.assertEqual("Big Ben", top["landmark"]["name"])
+
     def test_every_category_scores_within_its_weights(self):
         weights = load_config()["score"]["weights"]
         for category in self.cats:

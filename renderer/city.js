@@ -935,12 +935,47 @@
     const PAINT = [0xd94f4f, 0x3f7fd0, 0xe8e4d8, 0x46a06a, 0x2b3038, 0xdd8a3a];
     const group = new THREE.Group();
     const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
-    // Weight by length so long avenues carry more traffic than short links.
-    // Zooming into any part of the city should find something moving.
+
+    /* Traffic follows money.
+     *
+     * "Anything that moves has to mean something" is the right rule, and
+     * until now these were ambience: weighted by road length, which is a fact
+     * about the drawing rather than about Networks. Each road is now assigned
+     * to the district it runs closest to, and a district's share of the €760m
+     * decides how busy its streets are. Managed Services and Outsourcing
+     * carries 37.7% of the spend from ten categories, so its roads are the
+     * busiest on the map, and Network Revenue Platforms at 1.7% is quiet.
+     *
+     * Length still counts for something, so a long avenue does not end up
+     * emptier than the short link beside it. */
+    const spendShare = new Map();
+    let citySpend = 0;
+    for (const district of layout.districts) {
+      const spend = district.totals ? district.totals.spend_eur : 0;
+      spendShare.set(district, spend);
+      citySpend += spend;
+    }
+    const nearestDistrict = (road) => {
+      let best = null, bestDistance = Infinity;
+      for (const district of layout.districts) {
+        const dx = road.x - (district.cx + district.w / 2);
+        const dz = road.z - (district.cz + district.d / 2);
+        const distance = dx * dx + dz * dz;
+        if (distance < bestDistance) { bestDistance = distance; best = district; }
+      }
+      return best;
+    };
+
     const weighted = [];
     for (const r of usable) {
-      const share = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
-      for (let n = 0; n < share; n++) weighted.push(r);
+      const length = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
+      const district = nearestDistrict(r);
+      const share = citySpend && district
+        ? (spendShare.get(district) || 0) / citySpend : 0;
+      // A floor of one keeps every street alive: an empty district should
+      // look quiet, not abandoned, and zooming anywhere should find movement.
+      const busy = Math.max(1, Math.round(length * (0.35 + share * 5.2)));
+      for (let n = 0; n < busy; n++) weighted.push(r);
     }
     const pickRoad = () => weighted[Math.floor(rnd() * weighted.length)] || roads[0];
 
@@ -1102,6 +1137,95 @@
     transparent: true, opacity: 0, depthWrite: false,
   });
 
+  /* ------------------------------------------------------------- landmarks
+   *
+   * Five categories are live in five or more markets, and each gets a world
+   * landmark drawn from a market that actually adopted that blueprint. The
+   * rule is the point: a landmark that came from nowhere would be decoration,
+   * one from an adopting market says this blueprint travelled. The pairing is
+   * decided in the build, in config/metrics.yaml; this only draws it.
+   *
+   * Ordinary lots are instanced, one draw call per shape. There are only five
+   * of these, so each is a plain group. Five extra draw calls buys geometry
+   * that no instancing scheme would have given us.
+   */
+  /* Warm sandstone against a city of cool blues and greys. The first pass
+   * used a pale stone that vanished into the pale district buildings behind
+   * it, which is the opposite of what a landmark is for. */
+  const STONE = 0xe0cfa4, STONE_DARK = 0xb9a274, GOLD = 0xf0c74e, LEAD = 0x6f7a86;
+
+  function landmarkGroup(shape) {
+    const group = new THREE.Group();
+    const put = (hex, x, y, z, sx, sy, sz, geometry) => {
+      const mesh = new THREE.Mesh(geometry || box, new THREE.MeshLambertMaterial({ color: hex }));
+      mesh.position.set(x, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+    const ring = (hex, count, radius, y, sx, sy, sz, geometry) => {
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2;
+        put(hex, Math.cos(a) * radius, y, Math.sin(a) * radius, sx, sy, sz, geometry);
+      }
+    };
+
+    if (shape === "clocktower") {
+      // Big Ben: a square shaft, four clock faces, a spire.
+      put(STONE, 0, 2.1, 0, 0.78, 4.2, 0.78);
+      put(STONE_DARK, 0, 4.35, 0, 0.94, 0.28, 0.94);
+      for (const [dx, dz] of [[0.42, 0], [-0.42, 0], [0, 0.42], [0, -0.42]]) {
+        put(GOLD, dx, 3.75, dz, dx ? 0.06 : 0.44, 0.44, dz ? 0.06 : 0.44);
+      }
+      put(STONE, 0, 5.1, 0, 0.66, 1.2, 0.66, pyramid);
+      put(GOLD, 0, 5.85, 0, 0.14, 0.4, 0.14);
+    } else if (shape === "colosseum") {
+      // Two tiers of arches, and the missing third that everyone pictures.
+      ring(STONE, 16, 1.15, 0.55, 0.3, 1.1, 0.3);
+      ring(STONE_DARK, 16, 1.15, 1.2, 0.34, 0.2, 0.34);
+      ring(STONE, 14, 1.12, 1.75, 0.28, 0.9, 0.28);
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        put(STONE_DARK, Math.cos(a) * 1.1, 2.35, Math.sin(a) * 1.1, 0.3, 0.7, 0.3);
+      }
+      put(STONE_DARK, 0, 0.16, 0, 2.7, 0.3, 2.7, cyl);
+    } else if (shape === "parthenon") {
+      // A stepped base, a colonnade, a pediment.
+      put(STONE_DARK, 0, 0.16, 0, 2.5, 0.32, 1.7);
+      put(STONE_DARK, 0, 0.42, 0, 2.2, 0.24, 1.45);
+      for (let i = 0; i < 6; i++) {
+        const x = -0.9 + i * 0.36;
+        put(STONE, x, 1.15, 0.6, 0.13, 1.4, 0.13, cyl);
+        put(STONE, x, 1.15, -0.6, 0.13, 1.4, 0.13, cyl);
+      }
+      put(STONE, 0, 1.95, 0, 2.1, 0.22, 1.4);
+      put(STONE, 0, 2.2, 0, 1.9, 0.34, 1.2, pyramid);
+    } else if (shape === "pyramid") {
+      // Three of them, largest at the back, as the postcard has it.
+      put(STONE, 0, 1.35, 0, 2.5, 2.7, 2.5, pyramid);
+      put(STONE_DARK, 1.5, 0.75, 0.9, 1.4, 1.5, 1.4, pyramid);
+      put(STONE_DARK, -1.4, 0.55, 1.1, 1.05, 1.1, 1.05, pyramid);
+    } else if (shape === "gate") {
+      // Brandenburg Gate: twelve columns, an entablature, a quadriga.
+      for (let i = 0; i < 6; i++) {
+        const x = -1.05 + (i % 3) * 1.05;
+        const z = i < 3 ? 0.4 : -0.4;
+        put(STONE, x, 0.95, z, 0.19, 1.9, 0.19, cyl);
+      }
+      put(STONE, 0, 2.05, 0, 2.6, 0.34, 1.15);
+      put(STONE_DARK, 0, 2.32, 0, 2.2, 0.22, 0.95);
+      put(LEAD, 0, 2.62, 0, 0.7, 0.36, 0.3);
+      put(LEAD, -0.3, 2.55, 0, 0.22, 0.3, 0.22);
+      put(LEAD, 0.3, 2.55, 0, 0.22, 0.3, 0.22);
+    } else {
+      return null;
+    }
+    return group;
+  }
+
+  const landmarks = [];
+
   for (const building of layout.buildings) {
     const category = building.category;
     const state = category.blueprint_state;
@@ -1127,7 +1251,26 @@
     pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
 
     let top = 0.62;
-    if (floors > 0) {
+    /* A landmark replaces the tower rather than sitting on top of it.
+     *
+     * Perched on a sixteen-storey block Big Ben was off the top of the frame
+     * and looked like an aerial. These five are the most-reused blueprints in
+     * Networks and are already at the top of the height ladder, so the
+     * monument IS the top rung: the lot stops being a building and becomes
+     * the thing everyone recognises. */
+    const monument = floors > 0 && category.landmark
+      ? landmarkGroup(category.landmark.shape) : null;
+
+    if (monument) {
+      /* Deliberately larger than the tower it replaced. A monument that is
+       * the same size as its neighbours is just another building, and these
+       * five are the most reused blueprints in the estate. */
+      monument.position.set(x, 0.62, z);
+      monument.scale.setScalar(1.45);
+      scene.add(monument);
+      landmarks.push({ group: monument, code: category.code });
+      top = 0.62 + 6.4;
+    } else if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
@@ -1149,6 +1292,9 @@
           pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
         }
       }
+    }
+
+    if (floors > 0) {
       if (reactorTier > 0) {
         const glow = 0.3 + reactorTier * 0.12;
         pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.3, z, glow * 1.15, 0.26, glow * 1.15) };
