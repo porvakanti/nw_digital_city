@@ -97,11 +97,41 @@
   const FLOOR_H = 1.15;
   const PER_ROW = 4;       // buildings per row within a plot
   const PLOT_PAD = 1.8;
-  const DISTRICT_PAD = 3.2;
+  /* Clearance between a district's kerb and its first plot.
+   *
+   * At 3.2 against a kerb 0.9 wide, every district carried roughly 2.3 units
+   * of empty base plate on all four sides, and between 51% and 62% of the area
+   * inside a district encoded nothing. The largest visual element on the map
+   * was the one carrying no information, which is the opposite of the rule the
+   * rest of the encoding follows. */
+  const DISTRICT_PAD = 1.6;
+  // Depth of the strip the district name plate sits on, at the front edge.
+  const PLATE_STRIP = 2.0;
   const DISTRICT_MAX_W = 32;
   const WORLD_MAX_W = 132;
   // Floors per height tier. Six entries so any registered metric can drive it.
-  const FLOORS = [0, 2, 4, 7, 10, 14];
+  /* Floors per rung of the height ladder.
+   *
+   * Rescaled when height moved from blueprint reach to the composite score.
+   * Reach put 48 of the 56 buildings on one or two floors, because 48 of them
+   * are live in one or two markets; the score spreads them over five rungs.
+   * The lowest is three rather than one deliberately: a live blueprint should
+   * read as a building rather than as a stub. */
+  const FLOORS = [0, 3, 5, 8, 12, 16];
+
+  /* A monument's own size, and the clearance it needs above its plinth.
+   *
+   * MONUMENT_HEIGHT is the tallest of the shapes in landmarkGroup() measured
+   * in its own units; scaled it is what the reactor and the roofline sit
+   * above. Read by the browser check that asserts no monument is shorter than
+   * the tallest plain tower. */
+  const MONUMENT_SCALE = 1.85;
+  const MONUMENT_HEIGHT = 6.4;
+
+  // The tallest assembly the city can produce: the top height rung with a
+  // monument standing on it. Used to size the ground margin.
+  const TALLEST = 0.62 + FLOORS[FLOORS.length - 1] * FLOOR_H
+                       + MONUMENT_HEIGHT * MONUMENT_SCALE;
 
   // ------------------------------------------------------------------ tiers
   function metricDef(name) {
@@ -207,6 +237,13 @@
           d: rows * cell + PLOT_PAD,
         };
       });
+      /* Data order, deliberately.
+       *
+       * Packing the widest plot first was tried to reduce the ragged last row
+       * and made it worse: taller rows cost more than the ragged edge saved,
+       * and the total kerb area went up. The remaining gap is inherent to
+       * shelf packing a handful of plots of very different sizes, and closing
+       * it would need a real two-dimensional packer for a few per cent. */
       const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
       return {
         index,
@@ -214,7 +251,7 @@
         plots,
         totals: district.totals,
         w: inner.w + DISTRICT_PAD * 2,
-        d: inner.d + DISTRICT_PAD * 2 + 2.4, // extra depth for the name plate
+        d: inner.d + DISTRICT_PAD * 2 + PLATE_STRIP,
       };
     });
 
@@ -228,7 +265,7 @@
       district.cz = district.z - world.d / 2;
       for (const plot of district.plots) {
         plot.cx = district.cx + DISTRICT_PAD + plot.x;
-        plot.cz = district.cz + DISTRICT_PAD + 2.4 + plot.z;
+        plot.cz = district.cz + DISTRICT_PAD + PLATE_STRIP + plot.z;
         plot.codes.forEach((code, i) => {
           const col = i % PER_ROW;
           const row = Math.floor(i / PER_ROW);
@@ -358,6 +395,9 @@
   const cone = new THREE.ConeGeometry(0.5, 1, 7);
   const disc = new THREE.CircleGeometry(0.5, 18).rotateX(-Math.PI / 2);
   const pyramid = new THREE.ConeGeometry(0.72, 1, 4).rotateY(Math.PI / 4);
+  // Low segment counts: these appear on at most a handful of monuments, and a
+  // sphere is the one shape the brick vocabulary cannot fake.
+  const sphere = new THREE.SphereGeometry(0.5, 14, 10);
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
@@ -437,8 +477,32 @@
   }
 
   // world baseplate
-  const baseW = layout.size.w + 10;
-  const baseD = layout.size.d + 10;
+  /* Ground margin around the districts.
+   *
+   * At +10 a monument standing near the western edge rose above the plate's
+   * horizon with nothing behind it, so it read as floating rather than as
+   * standing on a lot. The margin is now sized to the tallest thing that can
+   * stand in the city: an isometric camera at this elevation shifts a point
+   * of height h up and back by roughly h, so the plate needs that much ground
+   * behind the outermost lot for the object to have something to stand
+   * against. */
+  /* Ground margin around the districts.
+   *
+   * At a flat +10 a monument standing near the western edge rose past the
+   * plate's horizon with nothing behind it, so it read as floating rather
+   * than as standing on a lot.
+   *
+   * The margin is derived from the camera rather than chosen. Under this
+   * orthographic projection a point at height h lands where the ground point
+   * h * hypot(dx,dz) / dy behind it would, so that much ground has to exist
+   * behind the outermost lot for the tallest thing in the city to have
+   * something to stand against. Split evenly between the two ground axes.
+   */
+  const CLEARANCE = Math.ceil(
+    TALLEST * Math.hypot(CAM_DIR.x, CAM_DIR.z) / CAM_DIR.y / Math.SQRT2
+  );
+  const baseW = layout.size.w + 10 + CLEARANCE * 2;
+  const baseD = layout.size.d + 10 + CLEARANCE * 2;
   studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
   const labels = [];
@@ -523,8 +587,15 @@
         plot.w, 0.34, plot.d, C.plotPlate, 0x4a5563
       );
     }
+    /* On its plate, not floating over the district.
+     *
+     * At y=6.5 the label sat between the three-storey and five-storey
+     * rooflines and covered whatever stood behind it, which is how a monument
+     * ended up hidden by the words "Managed Services and Outsourcing". It now
+     * sits just above the strip reserved for it at the front edge, below every
+     * roofline in the district. */
     const label = makeLabel(district.name, DISTRICT_BANDS[i % DISTRICT_BANDS.length], 2.9);
-    label.position.set(district.cx + district.w / 2, 6.5, district.cz + 1.4);
+    label.position.set(district.cx + district.w / 2, 1.45, district.cz + PLATE_STRIP / 2);
     scene.add(label);
     labels.push(label);
   });
@@ -1266,6 +1337,48 @@
       put(LEAD, 0, 2.62, 0, 0.7, 0.36, 0.3);
       put(LEAD, -0.3, 2.55, 0, 0.22, 0.3, 0.22);
       put(LEAD, 0.3, 2.55, 0, 0.22, 0.3, 0.22);
+    } else if (shape === "dome") {
+      // Hagia Sophia: a broad central dome, half domes either side, minarets.
+      put(STONE, 0, 0.55, 0, 2.3, 1.1, 1.9);
+      put(STONE_DARK, 0, 1.28, 0, 1.5, 0.42, 1.4, cyl);
+      put(LEAD, 0, 1.85, 0, 1.55, 1.0, 1.55, sphere);
+      put(GOLD, 0, 2.45, 0, 0.1, 0.34, 0.1);
+      for (const dx of [-0.86, 0.86]) {
+        put(LEAD, dx, 1.34, 0, 0.82, 0.5, 0.82, sphere);
+      }
+      for (const [dx, dz] of [[-1.3, 0.85], [1.3, 0.85], [-1.3, -0.85], [1.3, -0.85]]) {
+        put(STONE, dx, 1.5, dz, 0.17, 3.0, 0.17, cyl);
+        put(STONE_DARK, dx, 3.12, dz, 0.22, 0.5, 0.22, pyramid);
+      }
+    } else if (shape === "castle") {
+      // Rozafa Castle: a walled keep on a rise, one round tower, battlements.
+      put(STONE_DARK, 0, 0.3, 0, 2.7, 0.6, 2.1);
+      put(STONE, 0, 1.05, 0, 2.2, 0.9, 1.7);
+      ring(STONE_DARK, 10, 1.05, 1.62, 0.24, 0.34, 0.24);
+      put(STONE, -0.72, 1.75, 0, 0.72, 2.3, 0.72, cyl);
+      ring(STONE_DARK, 7, 0.42, 3.0, 0.2, 0.3, 0.2);
+      put(STONE, 0.62, 1.5, 0, 0.86, 1.8, 0.86);
+      put(LEAD, 0.62, 2.55, 0, 0.28, 0.4, 0.06);
+    } else if (shape === "palace") {
+      // Palace of the Parliament: a wide tiered block behind a colonnade.
+      put(STONE_DARK, 0, 0.18, 0, 3.0, 0.36, 2.0);
+      put(STONE, 0, 0.85, 0, 2.6, 1.0, 1.7);
+      for (let i = 0; i < 8; i++) {
+        put(STONE_DARK, -1.05 + i * 0.3, 0.95, 0.88, 0.12, 1.2, 0.12, cyl);
+      }
+      put(STONE, 0, 1.52, 0, 2.7, 0.26, 1.8);
+      put(STONE, 0, 1.95, 0, 1.9, 0.7, 1.3);
+      put(STONE_DARK, 0, 2.4, 0, 2.0, 0.2, 1.4);
+      put(STONE, 0, 2.72, 0, 1.1, 0.5, 0.9);
+      put(STONE_DARK, 0, 3.05, 0, 1.2, 0.16, 1.0);
+    } else if (shape === "spire_sphere") {
+      // Berlin TV Tower: a tapered shaft, a sphere, an antenna.
+      put(STONE_DARK, 0, 0.2, 0, 1.5, 0.4, 1.5, cyl);
+      put(STONE, 0, 1.9, 0, 0.5, 3.4, 0.5, cyl);
+      put(LEAD, 0, 3.9, 0, 1.25, 1.25, 1.25, sphere);
+      put(GOLD, 0, 4.02, 0, 1.3, 0.16, 1.3, cyl);
+      put(STONE, 0, 5.1, 0, 0.2, 1.2, 0.2, cyl);
+      put(STONE_DARK, 0, 5.9, 0, 0.08, 0.7, 0.08, cyl);
     } else {
       return null;
     }
@@ -1304,26 +1417,23 @@
     pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
 
     let top = 0.62;
-    /* A landmark replaces the tower rather than sitting on top of it.
+    /* A monument stands on the building, not instead of it.
      *
-     * Perched on a sixteen-storey block Big Ben was off the top of the frame
-     * and looked like an aerial. These five are the most-reused blueprints in
-     * Networks and are already at the top of the height ladder, so the
-     * monument IS the top rung: the lot stops being a building and becomes
-     * the thing everyone recognises. */
+     * It used to replace the tower. That was necessary while height meant
+     * blueprint reach, because every category that earned a monument was also
+     * at the top of the height ladder and Big Ben on a fourteen-storey block
+     * left the frame. It also destroyed information: the monument was drawn at
+     * a fixed 7.0 units while the tallest plain tower reached 8.67, so the
+     * five most-reused blueprints in the estate rendered shorter than their
+     * neighbours and carried no height at all.
+     *
+     * Height now means the composite score, and a monument is earned by that
+     * same score, so the two agree: the plinth is the score and the monument
+     * says which market it travelled to. Both signals survive. */
     const monument = floors > 0 && category.landmark
       ? landmarkGroup(category.landmark.shape) : null;
 
-    if (monument) {
-      /* Deliberately larger than the tower it replaced. A monument that is
-       * the same size as its neighbours is just another building, and these
-       * five are the most reused blueprints in the estate. */
-      monument.position.set(x, 0.62, z);
-      monument.scale.setScalar(1.45);
-      scene.add(monument);
-      landmarks.push({ group: monument, code: category.code });
-      top = 0.62 + 6.4;
-    } else if (floors > 0) {
+    if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
@@ -1339,12 +1449,29 @@
         windows.add(x, y, z + FOOT / 2, FOOT * 0.62, 0.42, 0.06, glass);
       }
       top = 0.62 + floors * FLOOR_H;
-      // studs only on the roof: enough to read as brick, cheap to draw
-      for (const dx of [-0.58, 0.58]) {
-        for (const dz of [-0.58, 0.58]) {
-          pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
+      // studs only on the roof: enough to read as brick, cheap to draw. Not
+      // under a monument, which needs the roof clear to sit on.
+      if (!monument) {
+        for (const dx of [-0.58, 0.58]) {
+          for (const dz of [-0.58, 0.58]) {
+            pieces.studs.push({ bucket: "studs", i: studs.add(x + dx, top + 0.11, z + dz, 0.62, 0.22, 0.62, palette.stud) });
+          }
         }
       }
+    }
+
+    if (monument) {
+      /* Scaled up, and above every plain tower.
+       *
+       * A monument the size of its neighbours is another building. These are
+       * the eight highest-scoring categories in the estate and have to read as
+       * different from across the city, so the monument is enlarged and the
+       * whole assembly clears the tallest tower without a monument on it. */
+      monument.position.set(x, top + 0.12, z);
+      monument.scale.setScalar(MONUMENT_SCALE);
+      scene.add(monument);
+      landmarks.push({ group: monument, code: category.code });
+      top += MONUMENT_HEIGHT * MONUMENT_SCALE;
     }
 
     if (floors > 0) {
@@ -1452,6 +1579,11 @@
         }
       }
     }
+
+    // What the camera needs to frame this lot. A monument category reaches
+    // roughly twice the height of the tallest plain tower, and a fixed frame
+    // size cut the monument off the top the moment you focused on one.
+    building.top = top;
 
     const pick = new THREE.Mesh(box, pickMaterial);
     pick.scale.set(CELL - 0.6, Math.max(top + 1.5, 3), CELL - 0.6);
@@ -1870,7 +2002,8 @@
     document.getElementById("arcNote").textContent =
       `· ${Math.round(j.blueprint / WEIGHTS.blueprint * 100)}% written, `
       + `${Math.round(j.usage / WEIGHTS.usage * 100)}% used, `
-      + `${Math.round(j.ai / WEIGHTS.ai * 100)}% with AI`;
+      + `${Math.round(j.ai / WEIGHTS.ai * 100)}% with AI`
+      + ` · ${STAGE_LABEL_ORG[stageOf(j.total)]}`;
     markStage(stageOf(j.total));
   }
 
@@ -1881,8 +2014,15 @@
     traditional: "Traditional: a blueprint exists",
     connected: "Connected: one blueprint, several markets",
     smart: "Smart: in use, and with AI",
-    autonomous: "Autonomous: nobody is here yet",
+    autonomous: "Autonomous: the whole journey",
   };
+
+  /* The organisation reading needs one extra word the per-category reading
+   * must not use. "Autonomous: nobody is here yet" is true of Networks and a
+   * flat contradiction on a category sitting at 100. */
+  const STAGE_LABEL_ORG = Object.assign({}, STAGE_LABEL, {
+    autonomous: "Autonomous: nobody is here yet",
+  });
 
   function stageOf(score) {
     if (score >= ARC_MAX * 0.75) return "autonomous";
@@ -2293,14 +2433,26 @@
         bubble: `Someone has claimed this lot. The blueprint is still in draft.`,
       };
     }
+    /* Say what the building is actually showing.
+     *
+     * This read "Skyscraper. Adopted across 8 markets", which named the
+     * height tier and then explained it with a measure height no longer
+     * encodes. Height is the composite score, so the sentence leads with how
+     * far the category has got and what is carrying it. */
     const reach = m.market_reach;
     const markets = `${reach} market${reach === 1 ? "" : "s"}`;
-    const tier = tierOf(layerMetric("height"), valueFor(category, "height"));
+    const score = Math.round((category.journey || {}).total || 0);
+    const used = m.cbp_used || 0;
+    const strongest = used > 0
+      ? `used ${used} time${used === 1 ? "" : "s"}`
+      : reach > 1 ? `live in ${markets}` : "live in one market";
     return {
       caption: m.spend_eur > 0
         ? `${markets} building on this blueprint. ${spend} of spend.`
         : `${markets} building on this blueprint.`,
-      bubble: `${tier.label}. Adopted across ${markets}.`,
+      bubble: category.landmark
+        ? `${score} out of 100, and ${strongest}. ${category.landmark.name} stands here.`
+        : `${score} out of 100 on the journey, and ${strongest}.`,
     };
   }
 
@@ -2619,8 +2771,17 @@
       if (!category) return false;
       const spot = positionOf.get(category.code);
       showCategory(category);
-      const ground = new THREE.Vector3(spot.x, 0, spot.z);
-      flyTo(ground, FOCUS_SIZE);
+      /* Frame what is actually standing there.
+       *
+       * FOCUS_SIZE frames the plot, which was right when nothing rose much
+       * above five floors. A monument on a sixteen-floor plinth reaches about
+       * 31 units and went straight off the top. The frame grows to hold the
+       * building, and the look-at point lifts to its middle so it is centred
+       * rather than pinned to the ground. */
+      const standing = spot.top || 0;
+      const size = Math.max(FOCUS_SIZE, standing * 0.62);
+      const ground = new THREE.Vector3(spot.x, Math.min(standing * 0.4, size * 0.5), spot.z);
+      flyTo(ground, size);
       sendFigure(
         new THREE.Vector3(spot.x + CELL * 0.5, 0, spot.z + CELL * 0.5), "fly", FLIGHT
       );
@@ -2702,6 +2863,10 @@
     // Pieces still mid-flight. Read by the test suite to wait for settle.
     pending() {
       return scheduled.length;
+    },
+    /* The ground plate, so a check can confirm nothing stands off the edge. */
+    plate() {
+      return { w: baseW, d: baseD, tallest: TALLEST, clearance: CLEARANCE };
     },
     /* Roll the journey score up over a named set of categories.
 

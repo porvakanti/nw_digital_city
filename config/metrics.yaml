@@ -27,10 +27,11 @@ layers:
       Whether the category rules have been captured. An empty lot carries a
       faint outline of the building that could stand there.
   height:
-    metric: market_reach      # ← swap to ava_adoption / cbp_total / spend_eur
+    metric: journey_score     # alternatives: market_reach, cbp_total, ava_adoption
     caption: >-
-      How widely the blueprint has been adopted. Height rises only once a
-      foundation is laid; a drafted lot shows an outline instead.
+      How far the category has got: 40 for the blueprint, 35 for anyone using
+      it, 25 for doing it with AI. Height rises only once a foundation is
+      laid; a drafted lot shows an outline instead.
   value:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
@@ -104,20 +105,40 @@ people:
 # says something rather than just decorating.
 # ---------------------------------------------------------------------------
 landmarks:
-  min_markets: 5
-  # Preference order. The first market in this list that adopted the category
-  # wins, and each landmark is used once.
+  # Earned by the composite score, not by spread. A blueprint live in many
+  # markets and used by none of them is not an achievement, and until this
+  # threshold moved it was the thing a monument marked.
+  min_score: 50
+
+  # Ordered by preference. The highest-scoring category picks first, and takes
+  # the first unused monument from the first of its markets that appears here.
+  #
+  # A market may list several monuments. Germany carries 23 of the 112
+  # blueprint records, more than any other market, so it carries more than one
+  # high scorer; with a single monument per market the second of them would
+  # have been left with nothing.
+  #
+  # Every shape listed here must be implemented in renderer/city.js. Five were
+  # declared and never built, which went unnoticed only because the old
+  # threshold happened to need exactly the five that existed.
   by_market:
-    UK: {name: Big Ben, shape: clocktower}
-    Egypt: {name: The Pyramids, shape: pyramid}
-    Italy: {name: The Colosseum, shape: colosseum}
-    Greece: {name: The Parthenon, shape: parthenon}
-    Germany: {name: Brandenburg Gate, shape: gate}
-    Spain: {name: Sagrada Familia, shape: spires}
-    Turkey: {name: Hagia Sophia, shape: dome}
-    Portugal: {name: Belem Tower, shape: tower}
-    Ireland: {name: Ha'penny Bridge, shape: bridge}
-    South Africa: {name: Table Mountain, shape: mesa}
+    UK:
+      - {name: Big Ben, shape: clocktower}
+    Egypt:
+      - {name: The Pyramids, shape: pyramid}
+    Italy:
+      - {name: The Colosseum, shape: colosseum}
+    Greece:
+      - {name: The Parthenon, shape: parthenon}
+    Germany:
+      - {name: Brandenburg Gate, shape: gate}
+      - {name: Berlin TV Tower, shape: spire_sphere}
+    Turkey:
+      - {name: Hagia Sophia, shape: dome}
+    Albania:
+      - {name: Rozafa Castle, shape: castle}
+    Romania:
+      - {name: Palace of the Parliament, shape: palace}
 
 # ---------------------------------------------------------------------------
 # METRIC REGISTRY
@@ -138,6 +159,31 @@ metrics:
       - {id: draft,  value: draft,  label: Lot marked out,   detail: Blueprint drafted. The lot is claimed but has no foundations.}
       - {id: active, value: active, label: Foundation laid,  detail: Blueprint active. The lot can be built on.}
 
+  journey_score:
+    label: Journey progress
+    description: >
+      The composite score, 0 to 100: 40 for how far the blueprint itself has
+      got, 35 for anyone actually using it, 25 for doing it with AI. Drives
+      building height.
+
+      Chosen over blueprint reach because reach is a count with no denominator.
+      A category live in two of the two markets where it applies scores worse
+      on reach than one live in five of twenty, and nothing in any source says
+      which markets a category applies to. The score counts stages rather than
+      markets, so a category can reach the top rung wherever it operates.
+    unit: points
+    kind: numeric
+    # Five rungs over the range the buildable categories actually occupy, which
+    # is 25 to 100. The lowest is deliberately three floors rather than one: a
+    # live blueprint should read as a building, not as a stub.
+    tiers:
+      - {id: dormant,      max: 0,    label: Lot prepared,   detail: No blueprint yet.}
+      - {id: established,  max: 25,   label: Small building, detail: Live in one market, and no further.}
+      - {id: multi_market, max: 40,   label: Office block,   detail: Live in several markets.}
+      - {id: in_use,       max: 64,   label: Tower,          detail: Somebody has run a sourcing event through it.}
+      - {id: advanced,     max: 84,   label: High tower,     detail: In repeated use, and with AI.}
+      - {id: complete,     max: null, label: Skyscraper,     detail: At or near the whole journey.}
+
   market_reach:
     label: Blueprint reach
     description: >
@@ -146,10 +192,11 @@ metrics:
       how widely the category has actually been taken up.
     unit: markets
     kind: numeric
-    provisional: true
-    provisional_note: >
-      Standing in for AVA Sourcing adoption, which reads a flat 100% for every
-      category in the current extract and so cannot differentiate the skyline.
+    # No longer flagged provisional. The flag meant "standing in for AVA
+    # Sourcing adoption", which it did while it drove building height. It
+    # drives nothing visual now, and a measured column that substitutes for
+    # nothing is not provisional. It remains on the title deed and is what a
+    # monument is drawn from.
     tiers:
       - {id: plot,       max: 0,    label: Lot prepared,  detail: No market has adopted this blueprint.}
       - {id: small,      max: 1,    label: Small building, detail: Adopted in a single market.}

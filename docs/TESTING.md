@@ -104,8 +104,10 @@ open a browser. Chrome or Edge. Give it a couple of seconds to draw.
 6. **Bare ground.** Most of the city. 89 lots with nothing on them.
 7. **Yellow outlines, no foundation.** 12 lots. Drafted, not live.
 8. **Green foundations.** 44 lots. Live somewhere.
-9. **Height.** Find **A221** (type it in the box). 16 storeys, the tallest thing
-   in the city. Most buildings are one or two.
+9. **Height.** Type **A251**. It is **A251**, the tallest thing in the city at
+    100 out of 100, and the only category that has done the whole journey. Then
+    type **A221**: live in 16 markets, never used, and a five-floor block.
+    Height is progress now, not spread.
 10. **Houses and hotels.** Six red hotels only: A206, A310, A311, D408, D403,
     A308. If you can find a seventh, that is a bug.
 11. **Rooftop lights.** Eight, and only eight: A212, A213, A251, A314, D303,
@@ -153,38 +155,45 @@ anything about it feels wrong to show, that is the finding worth reporting.
 
 ### F. The landmarks
 
-26. Five monuments, one per category whose blueprint reached five or more
-    markets:
+26. 8 monuments, one per category scoring 50 or more on the journey. The
+    monument marks progress; the shape says which market it travelled to:
 
 | Code | Category | Monument | From |
 | --- | --- | --- | --- |
-| A221 | Spring 2/R - SW/PS | Big Ben | UK, 16 markets |
-| A251 | Network Professional Services | The Colosseum | Italy, 8 markets |
-| D406 | Spring 2/R - HW | The Parthenon | Greece, 7 markets |
-| A201 | Installation/Commissioning | The Pyramids | Egypt, 5 markets |
-| D504 | Batteries | Brandenburg Gate | Germany, 5 markets |
+| A251 | Network Professional Services | Big Ben | UK, score 100 |
+| A213 | Global Testing | Brandenburg Gate | Germany, score 85 |
+| D506 | Construction Services/Civil Works | The Pyramids | Egypt, score 75 |
+| A212 | Operations Support System (OSS) Services | Berlin TV Tower | Germany, score 65 |
+| D408 | Self-Build Fibre & installation services | The Parthenon | Greece, score 60 |
+| D513 | Power Supply | Hagia Sophia | Turkey, score 55 |
+| D333 | TV Software | Rozafa Castle | Albania, score 55 |
+| A314 | Access Transmission Services | Palace of the Parliament | Romania, score 50 |
 
-27. Each replaces the tower rather than sitting on top of it, so it is visible
-    from a normal camera angle.
+27. Each stands **on top of** its building, at the height the score earned, so
+    A251 at 100 is visibly higher than A314 at 50. Every monument clears every
+    plain tower.
 28. Each monument comes from a market that actually adopted that blueprint.
     Click one and the card says which.
-29. Are they readable at a glance from across the city, or do they just look
-    like odd buildings? Worth an opinion.
+29. Germany supplies two, because it carries two high scorers and 23 of the
+    112 blueprint records, more than any other market.
+30. A221 has **no** monument, though it is live in 16 markets. It has never
+    been used, and the threshold is progress now. That is the intended
+    consequence, not a fault.
 
 ### G. Land follows money
 
-30. The largest place in the city is **FLM & Field Operations**, at €283m.
-31. Compare **Managed Services and Outsourcing** (10 lots, €286m) against
+31. The largest place in the city is **FLM & Field Operations**, at €283m.
+32. Compare **Managed Services and Outsourcing** (10 lots, €286m) against
     **Access Radio/Fixed** (37 lots, €86m). The small district with the money
     should be obviously dense with large lots.
-32. No lot should ever overlap another. The suite checks all 145, but trust
+33. No lot should ever overlap another. The suite checks all 145, but trust
     your eyes too.
-33. Roads are busier near expensive districts. Subtle by design. Check it is
+34. Roads are busier near expensive districts. Subtle by design. Check it is
     not so subtle as to be invisible.
 
 ### H. The agent
 
-34. Type each of these into the box and check where it lands:
+35. Type each of these into the box and check where it lands:
 
 | Type this | Should go to |
 | --- | --- |
@@ -197,7 +206,7 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `Germany` | every lot Germany has adopted |
 | `banana bread` | nothing, gracefully |
 
-35. Leaderboard questions. The journey panel should open on the named board,
+36. Leaderboard questions. The journey panel should open on the named board,
     and the spoken answer should name whoever is at the top of it:
 
 | Type this | Should open | And say |
@@ -211,42 +220,42 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `the category leaderboard` | Categories | A251 on 100 |
 | `which category is doing best` | flies to a lot | A251, 100 out of 100 |
 
-36. Two things to watch on those. The sentence must name the same thing that
+37. Two things to watch on those. The sentence must name the same thing that
     is top of the board it opened, and a ranking must quote the measure it
     actually sorted on. Both used to be wrong: every one of these answered
     with A221, which leads on blueprint reach and has never been used, and
     asking for a category *manager* named a category.
-37. `which category leads on spend` and `biggest category by value` should
+38. `which category leads on spend` and `biggest category by value` should
     still rank by money, not by the score.
-38. Start typing a category name. Suggestions should appear.
-39. Hover any lot. A label names it with its status and spend.
-40. Ask something awkward on purpose. It should decline rather than invent.
+39. Start typing a category name. Suggestions should appear.
+40. Hover any lot. A label names it with its status and spend.
+41. Ask something awkward on purpose. It should decline rather than invent.
 
 ### I. The keys
 
-41. **T** guided tour. Watch it end to end. The Close button must be reachable.
-42. **N** night. **P** what we could build. **K** the ask. **R** resets.
-43. Every one of these should also work as a button, because not everybody
+42. **T** guided tour. Watch it end to end. The Close button must be reachable.
+43. **N** night. **P** what we could build. **K** the ask. **R** resets.
+44. Every one of these should also work as a button, because not everybody
     knows the keys.
 
 ### J. On a phone
 
-44. `py run.py serve lan`, then open the address it prints on a phone on the
+45. `py run.py serve lan`, then open the address it prints on a phone on the
     same wifi. **You cannot do this by sending the HTML file: iOS will not open
     a downloaded HTML file in a browser.** The URL is the only way in.
-45. Buttons replace the keyboard shortcuts.
-46. Nothing is laid over anything else, and the page does not scroll sideways.
-47. Pinch to zoom, drag to rotate.
-48. Open the tour. The Close button must be on the screen.
-49. Type a question. It should still work.
+46. Buttons replace the keyboard shortcuts.
+47. Nothing is laid over anything else, and the page does not scroll sideways.
+48. Pinch to zoom, drag to rotate.
+49. Open the tour. The Close button must be on the screen.
+50. Type a question. It should still work.
 
 ### K. Try to break it
 
-50. Resize the window to something narrow and tall, then very wide.
-51. Zoom all the way in, then all the way out.
-52. Click a lot, then another, then the same one twice.
-53. Press every key during the tour.
-54. Open the browser console (F12) and look for red. There should be none.
+51. Resize the window to something narrow and tall, then very wide.
+52. Zoom all the way in, then all the way out.
+53. Click a lot, then another, then the same one twice.
+54. Press every key during the tour.
+55. Open the browser console (F12) and look for red. There should be none.
 
 ---
 

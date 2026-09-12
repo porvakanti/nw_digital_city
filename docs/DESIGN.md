@@ -54,19 +54,37 @@ Two sources, both held only in the git-ignored `data/raw/` directory.
 The build prefers the refreshed model and falls back to the older workbook's
 `Sheet4` if it is absent, so a superseded extract still produces a city.
 
-### 3.1 Height is blueprint reach rather than AVA adoption
+### 3.1 Height is the composite score, not an adoption figure
 
 `% AVA Sourcing` reads **100% for all 145 categories** and `% Ariba Sourcing`
-reads **0% for all 145**. Driving height from that makes every building a
-maxed-out skyscraper and the skyline says nothing at all.
+reads **0% for all 145**. Driving height from either makes every building
+identical and the skyline says nothing.
 
-Adoption is defined in the source brief as one blueprint per L4 category per
-local market, so the build counts **distinct markets with a blueprint**
-instead. That is measured data, it spreads from 1 to 16, and it differentiates. A221 Spring 2/R is
-adopted in 16 markets and towers over everything.
+Height was blueprint reach for a time, counting distinct markets with a
+blueprint, which is how the source brief defines adoption. That was the weaker
+choice for two reasons.
 
-It is **badged provisional in the UI**, and swaps back to `ava_adoption` with a
-one-line config change the moment real figures exist.
+**It is a count with no denominator.** Nothing in any source states which
+markets a category applies to, so a category live in both of the two markets
+where it is relevant scores worse than one live in five of twenty. Every
+candidate column was checked: `MarketsList` and `OrgCodesCSV` carry one market
+per blueprint record, `Entity Type` is Global for 111 of the 112 records, and
+`TST Scope` is a different programme's scope, its "Excluded" set holding 19
+blueprints and €483m of the €760m. There is no applicability denominator to be
+had.
+
+**And it barely varied.** 48 of the 56 buildings sat at reach 1 or 2, so the
+skyline was 48 near-identical low blocks and four outliers, which is the same
+failure mode as the flat AVA column arrived at less obviously.
+
+The composite score scores stages rather than counting markets, so it has a
+ceiling of 100 and cannot penalise a category for markets it was never going
+to serve. It spreads the same 56 buildings over five bands. It also makes the
+encoding coherent: a tall building, a marker far along the arc and a high
+place on the scoreboard now mean the same thing.
+
+Blueprint reach remains on the title deed, and is still the market a monument
+is drawn from. It stopped standing in for progress.
 
 ### 3.2 Spend thresholds are rescaled for Networks
 
@@ -339,7 +357,7 @@ reactor from AI-generated RFPs. A fifth was added later, described below.
 
 | The brief | What is built | Why |
 | --- | --- | --- |
-| Height from % AVA adoption | Blueprint reach, badged provisional | The column reads a flat 100% for all 145 categories, so it cannot differentiate. See 3.1. |
+| Height from % AVA adoption | The composite score | The column reads a flat 100% for all 145 categories, so it cannot differentiate, and blueprint reach is a count with no denominator. See 3.1. |
 | Value bands <5m / 5-20 / 20-50 / 50-100 / >100m | <1m / 1-5 / 5-20 / 20-50 / >50m | Thresholds are stated as undecided in the brief. On the original bands Networks has no hotels at all. See 3.2. |
 | "Plot of land" for an L4 | District, plot, lot | The sources use "plot" for both L3 and L4. See 2. |
 | Glow or an electric car for AI readiness | Rooftop reactor and beam | Representation is left open in the brief. A roof fitting scales with the building; a vehicle does not. |
@@ -379,10 +397,13 @@ visualisation and belongs to a separate initiative with its own governance.
 
 Stated plainly, because each is visible to anyone who looks closely.
 
-**AVA adoption is unusable.** Flat 100% across all 145 categories in every
-extract received so far, and Ariba adoption is flat 0%. Building height uses
-market reach as a substitute and is badged provisional on screen. This is the
-only remaining substituted measure.
+**Adoption depth is not measured anywhere.** AVA adoption is flat 100% across
+all 145 categories in every extract received, and Ariba adoption is flat 0%.
+Blueprint reach counts markets without knowing how many a category could
+serve. Height is the composite score instead, so no visual layer now rests on
+a substituted measure, but the gap remains: nothing states how deeply a
+blueprint is used within a market. Spend broken down by market would close it
+and would also give blueprint reach the denominator it lacks.
 
 **No temporal data exists.** No source contains a created, modified or
 last-activity date for any record. The application therefore cannot show
