@@ -81,7 +81,7 @@ class ServerTests(unittest.TestCase):
         self.assertIn("NW_API_KEY", body["detail"])
 
     def test_plan_never_returns_an_error_to_the_browser(self):
-        """A 500 here on the day would take the demo down with it."""
+        """A 500 here would take the interface with it."""
         client = self.client(NW_PROVIDER="nonsense-provider")
         reply = client.post(
             "/plan",

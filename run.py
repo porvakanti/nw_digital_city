@@ -106,7 +106,7 @@ def lan_address() -> str:
 
     Asked by opening a UDP socket towards a public address and reading back
     which interface the routing table chose. Nothing is sent and nothing needs
-    to be reachable; it is the only way to get the right answer on a laptop
+    to be reachable; it is the only way to get the right answer on a host
     with a VPN, a docking station and two wifi adapters, where the hostname
     resolves to something no phone can reach.
     """
@@ -167,8 +167,8 @@ def single_file() -> Path:
 
     So the scripts get inlined and it becomes one file you double-click. Same
     code, same data, no network, nothing to install. Larger, because the
-    library is in it, and worth it: the thing you send should be the thing they
-    open.
+    library is in it, and a necessary trade: the distributed artefact should be
+    the artefact that opens.
     """
     renderer = ROOT / "renderer"
     html = (renderer / "index.html").read_text(encoding="utf-8")
@@ -263,7 +263,7 @@ def browser_against_service(python: Path) -> int:
 
     Deliberately NW_PROVIDER=mock: this is checking that the served page finds
     its own endpoint, gets a plan back and acts on it, and none of that should
-    depend on a key, a network or a model's mood on the day.
+    depend on a credential, a network or a model's availability.
     """
     port = free_port()
     url = f"http://127.0.0.1:{port}"
@@ -319,7 +319,7 @@ def how_to_install_playwright() -> None:
         print("    npx playwright install chromium")
     print()
     print("  Two commands because the first installs the library and the second")
-    print("  downloads a browser for it to drive. Worth doing once: these are")
+    print("  downloads a browser for it to drive. Required once: these are")
     print("  the stages that catch a broken renderer, which nothing else sees.")
 
 

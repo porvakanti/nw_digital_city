@@ -2,7 +2,7 @@
 
 The documents are read by people who then say these numbers out loud, so a
 stale figure in one of them is worse than a stale figure in the code: nothing
-breaks, nobody notices, and it gets repeated.
+breaks, the error is not surfaced, and the figure is repeated.
 
 This module holds the check that catches that. Each assertion builds the exact
 string the document has to contain out of `city.json`, so a refreshed extract
@@ -299,6 +299,19 @@ class TestTheDiagrams(DocumentFigures):
                 self.assertTrue(
                     (doc.parent / target).is_file(),
                     f"docs/{doc.name} shows {target}, which is not there",
+                )
+
+    def test_every_internal_link_resolves(self):
+        """A reference to a document that was moved or renamed is a dead end."""
+        import re
+        for doc in sorted(DOCS.glob("*.md")) + [REPO / "README.md"]:
+            body = doc.read_text(encoding="utf-8")
+            for target in re.findall(r"(?<!!)\[[^\]]+\]\(([^)#]+)[^)]*\)", body):
+                if target.startswith(("http://", "https://", "mailto:")):
+                    continue
+                self.assertTrue(
+                    (doc.parent / target).exists(),
+                    f"{doc.name} links to {target}, which is not there",
                 )
 
     def test_every_committed_diagram_is_shown_somewhere(self):

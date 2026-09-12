@@ -1,4 +1,4 @@
-# Setting up a Windows laptop for this project
+# Setting up a Windows host for this project
 
 Written for someone who has done this before and not recently. Nothing here is
 specific to being a developer; it is four installs and two settings.
@@ -26,7 +26,7 @@ winget install Python.Python.3.12
 ```
 
 `winget` is Windows' own package installer and is on Windows 10 and 11. If your
-laptop blocks it, download the installer from
+host blocks it, download the installer from
 <https://www.python.org/downloads/> instead, and on the **first screen of the
 installer tick "Add python.exe to PATH"** before clicking Install. That tick box
 is the single most common reason Python appears not to work afterwards.
@@ -56,7 +56,7 @@ have to create, activate or remember anything.
 
 ## 2. Git
 
-Git is how the code moves between your laptop and GitHub. You already cloned
+Git is how the code moves between this host and GitHub. You already cloned
 the repository, so you probably have it. Check:
 
 ```powershell
@@ -183,7 +183,7 @@ yourself:
 run.cmd models
 ```
 
-**`.env` is git-ignored on purpose**, so the key stays on your laptop and never
+**`.env` is git-ignored on purpose**, so the credential stays on this host and never
 reaches GitHub. Do not move the key into any other file.
 
 ---

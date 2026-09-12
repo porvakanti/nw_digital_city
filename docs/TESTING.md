@@ -29,7 +29,7 @@ than five summaries to interpret.
 | **5. The file we send** | the inlined single file does all of the above on its own | inlining broke something, and the file in somebody's inbox is a blank page |
 
 Stages 3 to 5 need a browser. If they are skipped, the command says so and
-prints the two commands that enable them. It is worth doing once: those stages
+prints the two commands that enable them. Enabling them is required once: those stages
 are the only thing that can see a broken renderer.
 
 ### The security suite, specifically
@@ -64,7 +64,7 @@ at the time could not see it.
 
 18 of those assertions read the documents and rebuild each figure they quote
 out of `city.json`. A stale number in a document is worse than a stale number
-in code: nothing breaks, nobody notices, and somebody says it out loud. Six
+in code: nothing fails, the error is not surfaced, and the figure gets repeated. Six
 were wrong when the check was written, left over from before the category
 manager cells were parsed properly, and the failure names the document and the
 exact string to change.
@@ -117,7 +117,7 @@ open a browser. Chrome or Edge. Give it a couple of seconds to draw.
 13. Four do not: **A213**, **A251**, **D408**, **D506**. Full district colour,
     lit windows.
 14. Press **N** for night. The city goes dark and those four stay lit. That
-    single frame is the argument, so it has to land: if the difference is hard
+    contrast is the point of the layer, so it has to read clearly: if it is hard
     to see, say so.
 15. Press **N** again to come back.
 

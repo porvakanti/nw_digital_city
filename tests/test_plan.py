@@ -2,7 +2,7 @@
 
 These cover the ways a reply can be wrong: invented names, the wrong scope for
 the question, invented figures, and malformed output. Each of those would fail
-visibly on stage, so each is turned into something harmless here.
+visibly in the interface, so each is turned into something harmless here.
 """
 
 import unittest

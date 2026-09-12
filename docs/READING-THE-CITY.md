@@ -1,7 +1,7 @@
 # Reading the city
 
 What every part of the picture means, and what the picture is actually saying.
-Written for the presenter, so the numbers here are the ones to quote. All of
+Every figure quoted here is generated from the dataset. All of
 them come from `data/city.json` and change when the extract does.
 
 ## The idea
@@ -115,7 +115,7 @@ a much better position to argue from, because it is true.
 
 The newest column in the extract and the most important one. Turn the lights
 off with **N** and the whole city goes dark except four buildings. That single
-frame is the argument.
+state is the clearest expression of the coverage gap.
 
 ## Reading one lot in three seconds
 
@@ -133,7 +133,7 @@ Sharper than "89 lots are empty":
 **We have written 44 blueprints. Four of them have ever been used.**
 
 That is the sharpest thing in the data and the reason the buildings now drain
-to grey when nobody uses them. It moves the argument from a coverage gap,
+to grey when unused. It reframes the finding from a coverage gap,
 which sounds like paperwork, to an adoption gap, which is about behaviour.
 
 Underneath it, the coverage story still holds. Of the 89 categories with no
@@ -161,7 +161,7 @@ left: the rooftop lights became real data in the same refresh.
 6 drafted. So the map
 holds empty lots with money on them and built lots with none. Whether that is
 a data gap or genuinely nothing is an open question with the data owners, and
-anyone in the room who owns one of those categories will notice.
+any category owner reviewing this will notice it.
 
 **Blueprint reach counts markets, not depth.** A category live in one market
 looks the same whether that market is Germany or Albania.

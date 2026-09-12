@@ -42,7 +42,7 @@ CONFIG = REPO / "config" / "metrics.yaml"
 # by CORS. So the data ships as a plain script that assigns globals.
 RENDERER_DATA = REPO / "renderer" / "city-data.js"
 
-# The workbook covers all of VPC; the all-hands is the Networks org only.
+# The extract covers all of VPC; this model is scoped to the Networks org.
 SCOPE_L1 = "Network"
 
 # Sheet holding the per-L4 model in the older workbook, kept as a fallback.
@@ -347,7 +347,7 @@ def sample_metrics(config: dict) -> list[str]:
     Published so the renderer can badge them and nobody can present a
     placeholder as fact. Derived from the config rather than listed here: a
     hand-kept list is one edit away from declaring a fabricated column real,
-    and that edit is invisible until it is on a screen in front of 400 people.
+    and that edit is invisible until the figure is already being presented.
     """
     bound = {(layer or {}).get("metric") for layer in (config.get("layers") or {}).values()}
     return sorted(
@@ -513,7 +513,7 @@ def summarise(categories, config=None) -> dict:
         "draft_only": sum(1 for c in categories if c["blueprint_state"] == "draft"),
         "empty_lots": len(categories) - len(built),
         "blueprints": sum(c["metrics"]["cbp_total"] for c in categories),
-        # The number that changes the argument: built, against built and used.
+        # Coverage against adoption: blueprints written, against blueprints used.
         "in_use": sum(1 for c in categories if c["metrics"]["cbp_used"] > 0),
         "ai_started": sum(1 for c in categories if (c["metrics"]["ai_rfps"] or 0) > 0),
         "spend_eur": round(sum(c["metrics"]["spend_eur"] for c in categories), 2),

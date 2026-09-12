@@ -23,8 +23,8 @@
   // ---------------------------------------------------------------- palette
   // Colour carries meaning in exactly one place: blueprint state, using the
   // reserved status roles. District identity is carried by position and a name
-  // plate, never by hue, so nothing here depends on telling eight colours
-  // apart on a projector.
+  // plate, never by hue, so nothing depends on distinguishing eight colours
+  // under poor colour reproduction.
   const C = {
     sky: 0x080b12,
     /* Undeveloped ground, in the same family as the district plates.
@@ -662,8 +662,8 @@
       }
 
       // A painted cycle lane inside each kerb. The cyclists were already
-      // riding there; the paint is what tells the room that is a cycle lane
-      // and not a rider in the gutter.
+      // riding there; the paint distinguishes a lane from a rider in the
+      // gutter.
       const laneOffset = short / 2 - 1.55;
       for (const side of [-1, 1]) {
         paintBucket.add(
@@ -863,8 +863,8 @@
     return decks;
   }
 
-  // People, and a few dogs. Small, slow and never in the way. They exist so
-  // the streets are not empty while the room looks at the skyline.
+  // People, and a few dogs. Small, slow and never in the way. They keep the
+  // streets from reading as deserted.
   function buildPedestrians(roads, rnd) {
     const COATS = [0xd94f4f, 0x3f7fd0, 0xe0b53c, 0x46a06a, 0xb35fb0, 0xdd8a3a];
     const group = new THREE.Group();
@@ -1404,7 +1404,7 @@
       // Houses and a hotel have to be told apart at a glance, so they differ in
       // silhouette rather than only in colour: a house is a small cube under a
       // pitched roof, a hotel is a long two-storey block. Colour alone was not
-      // enough at the distance the room will be watching from.
+      // enough at typical viewing distance.
       const hotel = valueTier.id === "hotel";
       // Kept inside the lot. Pushed further forward the hotel overhung the
       // kerb and clipped whatever stood on the next lot along.
@@ -1627,7 +1627,7 @@
     setBlueprintMood(true);
 
     // Raise them as a wave across the map rather than all at once, so the eye
-    // has something to follow and the room can see how far it spreads.
+    // has something to follow and the extent is legible.
     const t0 = clockNow();
     const reach = Math.max(1, layout.size.w + layout.size.d);
     let spend = 0;
@@ -1981,8 +1981,8 @@
   }
 
   // ----------------------------------------------------------- the builder
-  // A minifigure in a hard hat, matching the physical giveaway handed out at
-  // the session, so the object in someone's hand is the object on screen.
+  // A minifigure in a hard hat. The figure is the only animate element, and
+  // carries the construction metaphor the rest of the model is built on.
   const FIGURE_SCALE = 0.82;
 
   function buildFigure() {
@@ -2101,9 +2101,9 @@
    *
    * A minifigure standing among five-storey towers is behind one of them from
    * this camera more often than not, and the one thing that must never happen
-   * is the hero of the piece disappearing at the moment the room is watching
-   * him. Moving where he stands helped and did not solve it, because on a full
-   * plot there is no clear line at all.
+   * is the focal element becoming invisible at the moment attention is on it.
+   * Moving where it stands helped and did not solve it, because on a full plot
+   * there is no clear line at all.
    *
    * So he and his marker go on their own layer. The city is drawn, the depth
    * buffer is cleared, and he is drawn on top of it, which keeps his own parts
@@ -2119,9 +2119,9 @@
 
   /* Where the builder can stand.
    *
-   * Straight in front of the lot put him behind whatever stands in the next
-   * row, which from this camera is nearer than he is, so on a dense plot the
-   * hero of the whole thing was a yellow pixel between two towers.
+   * Straight in front of the lot places it behind whatever stands in the next
+   * row, which from this camera is nearer, so on a dense plot the figure was a
+   * few pixels between two towers.
    *
    * The gaps between lots run diagonally, and the camera looks straight down
    * one of those diagonals, so the crossing point between four lots is the one
@@ -2175,9 +2175,8 @@
       figure.position.y = 0;
     }
 
-    // Facing. He walks the way he is going, and once he arrives he turns to
-    // face the room, because a character who lands and then stands with his
-    // back to 400 people is not a character.
+    // Facing. It walks the way it is going, and on arrival turns towards the
+    // camera, so the figure reads as a character rather than an object.
     const heading = walker.to.clone().sub(walker.from);
     const toCamera = Math.atan2(CAM_DIR.x, CAM_DIR.z);
     if (t < 1 && heading.lengthSq() > 0.02) {
@@ -2319,7 +2318,7 @@
     anim.active = true;
   }
 
-  /* Two fingers on a phone are what a scroll wheel is on a laptop.
+  /* Pinch is the touch equivalent of a scroll wheel.
    *
    * Pointer events give touches and a mouse through the same handlers, so the
    * only thing that has to be tracked is how many are down: one drags the map,
@@ -2627,8 +2626,8 @@
       }
     },
     categories: CITY.categories,
-    /* What the on-screen buttons call. The same functions the keys call, by
-       name, so a phone and a laptop cannot end up doing different things. */
+    /* What the on-screen buttons call. The same functions the keyboard
+       shortcuts call, by name, so touch and pointer input cannot diverge. */
     command(name) {
       const run = COMMANDS[name];
       if (!run) return false;
@@ -2650,7 +2649,7 @@
         size: view.size,
       };
     },
-    // pieces still mid-flight, used by rehearsal checks and tests
+    // Pieces still mid-flight. Read by the test suite to wait for settle.
     pending() {
       return scheduled.length;
     },
@@ -2737,9 +2736,9 @@
     applyCamera();
     placeBubble();
     const zoom = view.size / HOME.size;
-    // The builder is the hero of this thing, and at the wide view a figure
-    // scaled to the street was a speck nobody could find. It grows as the
-    // camera pulls back, capped, so it stays a character rather than becoming
+    // The figure is the focal element, and at the wide view one scaled to the
+    // street was too small to locate. It grows as the camera pulls back,
+    // capped, so it stays a character rather than becoming
     // a monument standing over the city.
     figure.scale.setScalar(FIGURE_SCALE * THREE.MathUtils.clamp(zoom * 1.9, 1, 2.6));
     for (const label of labels) {

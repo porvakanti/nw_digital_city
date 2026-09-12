@@ -7,7 +7,7 @@ That split is deliberate. The prompt carries only names: category codes and
 titles, districts, plots, markets. Spend and adoption stay in the browser,
 where the tools run against city.json. So the model decides *which* lot to fly
 to and the code works out what is on it, which means no figure on screen can
-have been invented, and no commercially sensitive number leaves the laptop
+have been invented, and no commercially sensitive value leaves the service
 while we are building against a temporary endpoint.
 """
 
@@ -27,7 +27,7 @@ INTENTS = [
     "leaders",    # the leaderboard, by person, district or category
     "could_be",   # raise every undeveloped lot
     "night",      # after dark, the readiness view
-    "asks",       # the four things the room is being asked to do
+    "asks",       # the four actions requested of category owners
     "reset",      # back to the whole city, daylight
     "unknown",    # nothing in the city matches
 ]

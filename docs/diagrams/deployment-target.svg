@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 486" width="900" height="486" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="486" fill="#fcfcfb"/>
+  <defs>
+    <marker id="t1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b1e24"/>
+    </marker>
+  </defs>
+  <text x="28" y="38" font-size="18" font-weight="bold" fill="#1b1e24">Deployment: target state</text>
+  <text x="28" y="58" font-size="12.5" fill="#55606b">Managed runtime. The API key is replaced by a workload identity calling a regional model endpoint.</text>
+
+  <!-- entry -->
+  <rect x="28" y="84" width="196" height="70" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="126" y="108" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Agent Marketplace</text>
+  <text x="126" y="126" font-size="11" fill="#55606b" text-anchor="middle">agent catalogue entry</text>
+  <text x="126" y="142" font-size="11" fill="#55606b" text-anchor="middle">links to the service URL</text>
+
+  <rect x="28" y="184" width="196" height="58" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="126" y="206" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Browser</text>
+  <text x="126" y="223" font-size="11" fill="#55606b" text-anchor="middle">opened in a new tab</text>
+
+  <line x1="126" y1="154" x2="126" y2="180" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#t1)"/>
+  <text x="136" y="172" font-size="10.5" fill="#55606b">HTTPS</text>
+
+  <!-- GCP project -->
+  <rect x="272" y="84" width="600" height="240" rx="3" fill="#f2f4f2" stroke="#1b1e24" stroke-width="1.4"/>
+  <text x="288" y="104" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">GOOGLE CLOUD PROJECT</text>
+
+  <rect x="290" y="118" width="212" height="76" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="396" y="142" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Cloud Run service</text>
+  <text x="396" y="160" font-size="11" fill="#55606b" text-anchor="middle">container revision</text>
+  <text x="396" y="176" font-size="11" fill="#55606b" text-anchor="middle">renderer + /plan + /health</text>
+
+  <rect x="290" y="216" width="212" height="66" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="396" y="239" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Runtime service account</text>
+  <text x="396" y="257" font-size="11" fill="#55606b" text-anchor="middle">roles/aiplatform.user</text>
+  <text x="396" y="273" font-size="11" fill="#55606b" text-anchor="middle">no key material at rest</text>
+
+  <rect x="560" y="118" width="294" height="76" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="707" y="142" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Vertex AI model endpoint</text>
+  <text x="707" y="160" font-size="11" fill="#55606b" text-anchor="middle">{region}-aiplatform.googleapis.com</text>
+  <text x="707" y="176" font-size="11" fill="#55606b" text-anchor="middle">publishers/google/models/{model}</text>
+
+  <rect x="560" y="216" width="294" height="66" rx="2" fill="#ffffff" stroke="#55606b" stroke-width="1.3"/>
+  <text x="707" y="239" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Cloud Build, Artifact Registry</text>
+  <text x="707" y="257" font-size="11" fill="#55606b" text-anchor="middle">build context filtered by .gcloudignore</text>
+  <text x="707" y="273" font-size="11" fill="#55606b" text-anchor="middle">source extract excluded</text>
+
+  <line x1="224" y1="212" x2="284" y2="180" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#t1)" marker-start="url(#t1)"/>
+  <line x1="502" y1="150" x2="554" y2="150" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#t1)" marker-start="url(#t1)"/>
+  <text x="528" y="142" font-size="10.5" fill="#55606b" text-anchor="middle">HTTPS</text>
+  <line x1="396" y1="216" x2="396" y2="198" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#t1)"/>
+  <path d="M502 232 L528 232 L528 186" fill="none" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#t1)"/>
+  <text x="534" y="216" font-size="10.5" fill="#55606b">access token</text>
+  <path d="M707 216 L707 206 L620 206 L620 198" fill="none" stroke="#55606b" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#t1)"/>
+  <text x="630" y="216" font-size="10.5" fill="#55606b">deploys revision</text>
+
+  <rect x="28" y="344" width="844" height="126" rx="2" fill="#f2f4f2" stroke="#55606b" stroke-width="1.2"/>
+  <text x="44" y="364" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">WHAT CHANGES FROM THE CURRENT STATE</text>
+  <text x="44" y="384" font-size="11.5" fill="#55606b">Credential: an API key in a local file is replaced by the Cloud Run revision's service account. No secret is</text>
+  <text x="44" y="400" font-size="11.5" fill="#55606b">stored in the image, the environment or the repository.</text>
+  <text x="44" y="420" font-size="11.5" fill="#55606b">Configuration: NW_PROVIDER=vertex with NW_PROJECT and NW_REGION. These are non-sensitive values.</text>
+  <text x="44" y="440" font-size="11.5" fill="#55606b">Addressability: the service has a URL, which is what the catalogue entry requires. Quota moves from a</text>
+  <text x="44" y="456" font-size="11.5" fill="#55606b">personal key to project quota. No application code changes: the provider adapter already supports both.</text>
+</svg>

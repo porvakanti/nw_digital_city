@@ -1,7 +1,7 @@
 """Model providers behind one interface.
 
 Which one runs is a setting, not a code change. That is the whole point: we are
-building against a free key today, the all-hands may run on Vertex AI, and the
+building against a free key today, production may run on Vertex AI, and the
 internal Vodafone environment will be a third address for the same code.
 
     NW_PROVIDER=mock     no network, no key, deterministic. The default.
@@ -25,10 +25,10 @@ import httpx
 
 from . import plan as planning
 
-# Eight seconds was optimistic. A first call from a corporate laptop goes
+# Eight seconds was optimistic. A first call from a managed network goes
 # through a proxy, negotiates TLS, and carries a prompt naming 145 categories,
 # and any one of those can take longer than that on its own. The browser keeps
-# its own much shorter deadline, because on stage a slow answer is worse than
+# its own much shorter deadline, because an answer that arrives late is worse than
 # no answer; this one is for the command line, where waiting is fine and a
 # false timeout costs an afternoon.
 TIMEOUT = float(os.environ.get("NW_TIMEOUT", "30"))
@@ -53,7 +53,7 @@ UNREACHABLE = """no answer from {host} within {seconds:.0f}s.
      https://aistudio.google.com/apikey for your current usage. This is by far
      the most likely cause if some questions worked and then they stopped.
 
-  2. The network cannot reach Google. On a managed laptop that is usually a
+  2. The network cannot reach Google. On a managed network that is usually a
      proxy, `setx HTTPS_PROXY http://your-proxy:port`, or a proxy that
      re-signs certificates, `setx SSL_CERT_FILE C:\\path\\to\\root.pem`.
 
@@ -85,7 +85,7 @@ THROTTLED = """out of requests for {model} today.
 
 # ---------------------------------------------------------------- mock
 # Good enough to develop and test the whole path with no key and no network,
-# and good enough to stand in if the endpoint is unreachable on the day.
+# and good enough to stand in where the endpoint is unreachable.
 _RULES: list[tuple[str, dict]] = [
     (r"\b(asks?|asking|takeaways?|actions?|next steps?)\b|what (should|do|are) (we|i|you)", {"intent": "asks"}),
     (r"\b(night|dark|readiness|autonom|ai.?ready|reactor|rfp)|lights? (off|out)", {"intent": "night"}),

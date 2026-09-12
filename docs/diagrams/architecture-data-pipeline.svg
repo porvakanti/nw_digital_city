@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" width="900" height="360" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="360" fill="#fcfcfb"/>
+  <defs>
+    <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b1e24"/>
+    </marker>
+    <marker id="pr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#b3261e"/>
+    </marker>
+  </defs>
+  <text x="28" y="38" font-size="18" font-weight="bold" fill="#1b1e24">Data pipeline</text>
+  <text x="28" y="58" font-size="12.5" fill="#55606b">Offline and ahead of deployment. No source data is read at runtime.</text>
+
+  <rect x="28" y="84" width="176" height="76" rx="2" fill="#f2f4f2" stroke="#b3261e" stroke-width="1.6"/>
+  <text x="116" y="106" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Source extract</text>
+  <text x="116" y="124" font-size="11" fill="#b3261e" text-anchor="middle">RESTRICTED</text>
+  <text x="116" y="140" font-size="11" fill="#55606b" text-anchor="middle">owner names, contact</text>
+  <text x="116" y="154" font-size="11" fill="#55606b" text-anchor="middle">details, commercial values</text>
+
+  <rect x="28" y="180" width="176" height="50" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="116" y="201" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">config/metrics.yaml</text>
+  <text x="116" y="218" font-size="11" fill="#55606b" text-anchor="middle">measure bindings, weights</text>
+
+  <rect x="256" y="112" width="152" height="76" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="332" y="140" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">build_city.py</text>
+  <text x="332" y="158" font-size="11" fill="#55606b" text-anchor="middle">derive, aggregate,</text>
+  <text x="332" y="172" font-size="11" fill="#55606b" text-anchor="middle">score, anonymise</text>
+
+  <rect x="460" y="112" width="164" height="76" rx="2" fill="#fdeeee" stroke="#b3261e" stroke-width="1.8"/>
+  <text x="542" y="136" font-size="13" fill="#b3261e" text-anchor="middle" font-weight="bold">Disclosure control</text>
+  <text x="542" y="154" font-size="11" fill="#55606b" text-anchor="middle">asserts the derived output</text>
+  <text x="542" y="168" font-size="11" fill="#55606b" text-anchor="middle">against the policy in config</text>
+
+  <rect x="676" y="112" width="196" height="76" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="774" y="136" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">Derived dataset</text>
+  <text x="774" y="154" font-size="11" fill="#55606b" text-anchor="middle">city.json, city-data.js</text>
+  <text x="774" y="168" font-size="11" fill="#55606b" text-anchor="middle">version controlled</text>
+
+  <line x1="204" y1="122" x2="250" y2="140" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#p)"/>
+  <line x1="204" y1="200" x2="250" y2="170" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#p)"/>
+  <line x1="408" y1="150" x2="454" y2="150" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#p)"/>
+  <line x1="624" y1="150" x2="670" y2="150" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#p)"/>
+  <text x="647" y="142" font-size="10.5" fill="#55606b" text-anchor="middle">pass</text>
+
+  <line x1="542" y1="188" x2="542" y2="232" stroke="#b3261e" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#pr)"/>
+  <text x="542" y="252" font-size="12" fill="#b3261e" text-anchor="middle" font-weight="bold">fail: build aborts, no output written</text>
+
+  <rect x="28" y="272" width="844" height="64" rx="2" fill="#f2f4f2" stroke="#55606b" stroke-width="1.2"/>
+  <text x="44" y="292" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">CONTROLS ON THE SOURCE EXTRACT</text>
+  <text x="44" y="311" font-size="11.5" fill="#55606b">Excluded from version control (.gitignore) and from the container build context (.gcloudignore). Absent</text>
+  <text x="44" y="327" font-size="11.5" fill="#55606b">from every distributable, which is assembled from an explicit file manifest rather than a directory traversal.</text>
+</svg>

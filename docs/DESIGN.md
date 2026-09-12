@@ -169,9 +169,9 @@ drawn, and a test fails if a layer points at a metric the data lacks.
 
 `file://` blocks ES modules **and** `fetch()` under CORS. So three.js is
 vendored and the data is emitted as a plain script assigning globals rather
-than loaded. That is deliberate: the entire city opens from a local file with
-**no server and no network**. If the venue wifi dies mid-demo, the city still
-runs. It also means the whole thing can be emailed to someone on a beach.
+than loaded. That is deliberate: the entire model opens from a local file with
+**no server and no network**, which also makes it distributable as a single
+attachment.
 
 ### 5.3 Instancing
 
@@ -188,7 +188,7 @@ and reassembled without its neighbours flickering.
 
 The first version eased the camera by a fixed amount per frame. On a slow
 machine that runs in slow motion. Everything is now timed in seconds, so the
-choreography holds on whatever hardware the venue provides.
+sequencing holds regardless of frame rate.
 
 ## 6. Visual language
 
@@ -200,7 +200,8 @@ two read as one object.
 **Colour carries meaning in exactly one place: blueprint status**, using
 reserved status roles (muted / warning / good). District hue is *reinforcement
 only*. Every district also has a printed name plate and its own ground, so
-identity never rests on separating eight hues on a projector. The measures that
+identity never rests on distinguishing eight hues under poor colour
+reproduction. The measures that
 must be read exactly (status, height, houses, reactor) stay on shape, height
 and count.
 
@@ -276,19 +277,18 @@ summarise(scope)        built / empty / spend for a scope
 render(action, arg)     drive the camera and the build
 ```
 
-**The tool calls are shown on screen as they run.** "Trust me, it's thinking"
-is not an argument a room of 400 people has to accept. Calls over 145 rows are
-near-instant and would flash past unread, so each is held briefly. The calls
-themselves are real; only the pacing is presentation, and real model latency
-will replace it.
+**The tool calls are shown on screen as they run**, so the resolution path for
+any query is observable rather than asserted. Calls over 145 rows complete in
+under a millisecond and would be unreadable, so each is held briefly. The calls
+are real; only the pacing is added, and model latency replaces it when the
+service tier is in use.
 
 ### 7.1 Resolution scores both directions
 
 Scoring only how much of the *query* matched sent *"how is energy doing"* to a
 category whose name happens to contain the word, because one matched token out
 of one looks perfect. Weighing how much of the *target* was covered lets the
-district actually called Energy win. That is the difference between surviving
-an open floor and dying on it.
+district actually called Energy win.
 
 ### 7.2 The fallback ladder
 
@@ -297,7 +297,7 @@ model  →  deterministic parser  →  preset chips  →  local HTML file
 ```
 
 Every rung works on its own. The deterministic layer is not scaffolding to be
-deleted; it is what runs if the endpoint is unreachable on the day.
+deleted. It is the router whenever the endpoint is absent or unreachable.
 
 ### 7.3 The model will never see the numbers
 
@@ -305,31 +305,24 @@ Planned split: the model receives the **question and the list of names** and
 decides which tool to call. The tools then execute **locally** against
 `city.json`. Spend figures never leave the browser.
 
-This is better engineering as well as safer. The model does intent, the code
-does arithmetic, and commercially sensitive figures are not sent to a third
-party while we are still building against a temporary endpoint.
+The separation is both a control and a design constraint. The model resolves
+intent, the application computes values, and no commercially sensitive figure
+is sent to an external service.
 
-## 8. On-stage design
+## 8. Interaction design
 
-Speech recognition was considered and **cut**. The venue mic feeds the PA, not
-the laptop; ASR would mangle "A221" across accents and crowd noise; and a
-failed transcription is dead air in front of 400 people. It buys nothing
-either, because speech does not read as "AI" any more. The intent layer takes a string, so it
-can be added later for the desktop version where mic conditions are fine.
+**Findings are written, not spoken.** Results appear in the figure's speech
+bubble and in a caption at the foot of the viewport, so a result is readable
+without audio and can be disagreed with rather than only heard.
 
-**The agent writes; the presenter speaks.** Findings appear in the builder's
-speech bubble and in a lower-third caption sized to be read from the back of a
-room. The presenter can read it out, disagree with it, or leave it.
+The build sequence is: wide establishing view, transition, teardown of the
+selected lot, rebuild **in the order of the four measures**, settle. The order
+carries the encoding: after two or three categories the visual grammar is
+legible without reference to the legend.
 
-The choreography: establish wide → fly → tear down that one
-building → rebuild it **in the order of the four measures** → settle. The build
-order is the point: after two or three categories the room can read the city
-without the legend.
-
-**The strongest moment is a failure.** Fly to a bare lot and the builder cannot
-build. A311 Field Maintenance: €75m of spend, no blueprint, nothing to build
-with. That is the argument for blueprints delivered by the demo instead of by a
-slide.
+**An empty lot is the most informative state.** Selecting a category with no
+blueprint produces nothing to build. A311 Field Maintenance carries €75m of
+spend with no blueprint, and the absence of a building is the finding.
 
 ## 9. Conformance to the brief
 
@@ -370,11 +363,10 @@ Traditional → Connected → Smart → Autonomous progression shown on screen.
 
 ### Not built, deliberately
 
-**Speech input.** Venue microphones feed the PA rather than the laptop,
-speech recognition mangles category codes such as "A221" across accents and
-crowd noise, and a failed transcription is dead air. The intent layer accepts
-a string, so it can be added for desktop use where microphone conditions are
-controlled.
+**Speech input.** Speech recognition transcribes category identifiers such as
+"A221" unreliably across accents and in ambient noise, and a failed
+transcription has no graceful fallback. The intent layer accepts a string, so
+it can be added where microphone conditions are controlled.
 
 **A separate L3 street view.** The plot is already the camera's focus frame.
 
