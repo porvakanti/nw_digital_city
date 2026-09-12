@@ -49,7 +49,7 @@ and [TESTING.md](TESTING.md).
 
 | Interface | Protocol | Contract |
 | --- | --- | --- |
-| `window.NWCity` | In-process JavaScript | 11 operations: `focus`, `focusDistrict`, `showJourney`, `score`, `monuments`, `command`, `state`, `layout`, `pending`, `reset`, `setLayerMetric` |
+| `window.NWCity` | In-process JavaScript | 20 operations. Acting on the city: `focus`, `focusDistrict`, `showJourney`, `command`, `night`, `potential`, `asks`, `rise`, `reset`, `setLayerMetric`. Reading it without changing it: `data`, `config`, `layout`, `state`, `pending`, `score`, `monuments`, `monumentLight`, `monumentShapes`, `plate` |
 | `POST /plan` | HTTP, JSON | Request: query text and controlled vocabulary. Response: a validated decision object. Always HTTP 200. |
 | `GET /health` | HTTP, JSON | Configured provider, readiness, and diagnostic detail. |
 | Inference call | HTTPS, JSON | `generateContent` with a system instruction, the query and a JSON response schema. |
@@ -161,9 +161,10 @@ to be changed by configuration alone.
 | --- | --- |
 | `layers` | Which measure drives each visual encoding |
 | `metrics` | The measure registry: units, tier thresholds, provenance flags |
-| `score` | Composite score weights, component thresholds, roll-up method, eligibility floor |
+| `score` | Composite score weights, component thresholds, stage boundaries, roll-up method, eligibility floor |
 | `people` | Whether category owners are identified by name, by initials, or not at all |
-| `landmarks` | Journey-score threshold and per-market assignment |
+| `landmarks` | Journey-score threshold, legend copy, and per-market assignment |
+| `explainer` | The framing and the caveats behind the in-app explanation. Everything else on that page is generated from the blocks above it |
 | `disclosure` | Whether provisional and placeholder measures are annotated in the interface. No layer currently rests on either, and a test asserts that a layer cannot rest on one with its badge switched off |
 
 Changing a visual binding is a one-line edit:

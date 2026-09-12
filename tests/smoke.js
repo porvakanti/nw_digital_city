@@ -323,6 +323,94 @@ async function onAPhone(browser) {
       `${got.view}, top ${got.top}: ${got.caption.slice(0, 60)}`);
   }
 
+  /* Market questions answer about markets.
+   *
+   * "Which market is doing best" used to answer with one category ranked by
+   * how many markets it reached: the word "market" steered the metric and
+   * nothing steered the shape of the answer, so the reply named a lot that
+   * nobody has ever used. A named market used to get a count and its largest
+   * category by spend, which said the same thing about a market with 23
+   * blueprints and 3 in use as about one with 2 blueprints and 1.
+   *
+   * The thin-base guard is the part worth pinning. Italy holds two
+   * blueprints, one of them the only category in Networks at 100, and rolls
+   * up above Germany's twenty-three. Quoting that as a rank would be a league
+   * table nobody could defend.
+   */
+  const MARKET_ASKS = [
+    ["which markets are doing best", /Furthest along of the \d+ markets/],
+    ["which market is furthest behind", /Furthest behind of the \d+ markets/],
+    ["Germany", /Germany has adopted 23 blueprints and scores \d+ out of 100, \d+\w+ of the/],
+    ["Germany", /supplies two of the city's monuments/],
+    ["Italy", /too few to rank/],
+    ["UK", /supplies the city's Big Ben/],
+  ];
+  for (const [question, shape] of MARKET_ASKS) {
+    await page.fill("#askInput", question);
+    await page.click("#askGo");
+    await page.waitForTimeout(2200);
+    const said = await page.evaluate(() =>
+      document.querySelector("#caption b").innerText.replace(/\s+/g, " "));
+    check(`"${question}" answers about the market`, shape.test(said),
+      said.slice(0, 110));
+  }
+
+  /* The explanation opens, and says what the city is actually drawing.
+   *
+   * Generated from the config, so the assertion is that the generated page
+   * agrees with the bindings rather than that some prose exists: every layer
+   * named with the metric behind it, every stage bounded, every monument
+   * listed, and the caveats present. A sheet of confident text that has
+   * drifted from what is on screen is worse than no sheet at all.
+   */
+  const sheet = await page.evaluate(async () => {
+    document.getElementById("legendMore").click();
+    await new Promise((done) => setTimeout(done, 250));
+    const el = document.getElementById("explainer");
+    const body = document.getElementById("explainerBody");
+    const config = window.NW_CONFIG;
+    const open = !el.hidden && el.getBoundingClientRect().height > 100;
+    const text = body.innerText;
+    const bindings = Object.entries(config.layers)
+      .map(([layer, spec]) => `${layer} \u2190 ${spec.metric}`)
+      .filter((line) => !text.includes(line));
+    const stages = (config.score.stages || [])
+      .filter((stage) => !text.includes(stage.detail));
+    const monuments = window.NWCity.monuments()
+      .filter((code) => !text.includes(code));
+    const caveats = (config.explainer.caveats || [])
+      .filter((item) => !text.includes(item.title));
+    document.getElementById("explainerClose").click();
+    return {
+      open,
+      closed: document.getElementById("explainer").hidden,
+      missingBindings: bindings,
+      missingStages: stages.map((s) => s.id),
+      missingMonuments: monuments,
+      missingCaveats: caveats.map((c) => c.title),
+      length: text.length,
+    };
+  });
+  check("the explanation opens and closes", sheet.open && sheet.closed,
+    `open ${sheet.open}, closed after ${sheet.closed}`);
+  check("the explanation names every layer and the measure behind it",
+    sheet.missingBindings.length === 0, sheet.missingBindings.join("; "));
+  check("the explanation carries every stage, monument and caveat",
+    sheet.missingStages.length === 0 && sheet.missingMonuments.length === 0
+      && sheet.missingCaveats.length === 0,
+    [...sheet.missingStages, ...sheet.missingMonuments, ...sheet.missingCaveats].join(", ")
+      || `${sheet.length} characters`);
+
+  // A district answer says where the district sits, not just how big it is.
+  await page.fill("#askInput", "how is Energy doing");
+  await page.click("#askGo");
+  await page.waitForTimeout(2200);
+  const districtSaid = await page.evaluate(() =>
+    document.querySelector("#caption b").innerText.replace(/\s+/g, " "));
+  check("a district answer carries its score and its place",
+    /Energy scores \d+ out of 100, \w+ of the eight districts/.test(districtSaid),
+    districtSaid.slice(0, 110));
+
   // And a ranking question still takes you to a lot, scored on the journey
   // rather than on reach. A251 is the only category in Networks at 100.
   await page.fill("#askInput", "which category is doing best");
@@ -763,6 +851,42 @@ async function onAPhone(browser) {
   check("every landmark in the data is standing in the city",
     monuments.drawn.join(",") === monuments.earned.join(","),
     `${monuments.drawn.length} built: ${monuments.named.join(", ")}`);
+  /* Occupancy reaches the monuments.
+   *
+   * Every one of the four categories anybody has run a sourcing event through
+   * earned a monument, so when the monument replaced the building the
+   * lit-window layer stopped encoding anything: the only four lots carrying
+   * the signal were the only four with no windows to put it in. This asserts
+   * the replacement, on the materials rather than on the data, in both
+   * lighting states.
+   */
+  const stone = await page.evaluate(async () => {
+    const used = new Set(window.NWCity.data.categories
+      .filter((c) => (c.metrics.cbp_used || 0) > 0).map((c) => c.code));
+    window.NWCity.night(false);
+    const day = window.NWCity.monumentLight();
+    window.NWCity.night(true);
+    const night = window.NWCity.monumentLight();
+    window.NWCity.night(false);
+    return { used: [...used], day, night };
+  });
+  const usedSet = new Set(stone.used);
+  const flagged = stone.day.filter((m) => m.occupied !== usedSet.has(m.code));
+  const inUse = stone.day.filter((m) => usedSet.has(m.code));
+  const idle = stone.day.filter((m) => !usedSet.has(m.code));
+  const dullest = Math.min(...inUse.map((m) => m.saturation));
+  const brightest = Math.max(...idle.map((m) => m.saturation));
+  const wrongGlow = stone.night.filter((m) => usedSet.has(m.code) !== (m.glow > 0));
+  check("the city agrees with the data about which monuments are in use",
+    flagged.length === 0, flagged.map((m) => m.code).join(", "));
+  check("a monument in use keeps its colour and an unused one is washed out",
+    inUse.length > 0 && idle.length > 0 && dullest > brightest,
+    `in use ${dullest.toFixed(2)} saturation, unused ${brightest.toFixed(2)}`);
+  check("only the monuments in use are floodlit after dark",
+    wrongGlow.length === 0 && stone.night.every((m) => m.parts > 0),
+    wrongGlow.length ? wrongGlow.map((m) => m.code).join(", ")
+      : stone.night.filter((m) => m.glow > 0).map((m) => m.code).join(", "));
+
   check("no monument was awarded without the score to earn it",
     monuments.unearned.length === 0 && monuments.offMap.length === 0,
     [...monuments.unearned, ...monuments.offMap].join(", "));

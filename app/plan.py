@@ -25,6 +25,7 @@ INTENTS = [
     "summary",    # built / empty / spend for a scope
     "rank",       # best or worst in a scope
     "leaders",    # the leaderboard, by person, district or category
+    "markets",    # every market, ranked against each other
     "could_be",   # raise every undeveloped lot
     "night",      # after dark, the readiness view
     "asks",       # the four actions requested of category owners
@@ -57,6 +58,10 @@ Intents:
   "who", or asking for leaders, a ranking or a league table. Set view to
   "people" for who, "districts" for which district, "categories" for a list
   of categories.
+- markets: asks which markets are ahead or behind, or for markets ranked
+  against each other. A question about one named market is focus-like and
+  goes to the market as a target instead. Set direction to "asc" for the
+  weakest and "desc" for the strongest.
 - could_be: asks what could be built, the potential or the upside
 - night: asks about AI readiness, autonomy, reactors or AI-generated RFPs
 - asks: asks what people should do, what is being asked of them, or the
@@ -72,7 +77,9 @@ Rules:
   no target.
 - gaps and summary take a district, a plot or a market, never a single
   category.
-- leaders takes no target. The board covers the whole organisation.
+- leaders and markets take no target. Both cover the whole organisation.
+- A question naming a market and asking how it is doing is that market's own
+  answer, not a ranking: use the market as the target and do not use rank.
 - could_be, night, asks and reset take no target at all. They redraw the whole
   city, so there is nothing for a target to scope.
 - You have no figures. Do not state or guess any number, amount or percentage.
@@ -132,7 +139,7 @@ def vocabulary(names: dict[str, list[str]]) -> str:
 # the entire map, so a target on them would scope the sentence to something
 # the screen is not showing. "What could we build" answered for Germany is a
 # number about Germany over a picture of Networks.
-WHOLE_CITY_INTENTS = ("could_be", "night", "asks", "reset", "leaders")
+WHOLE_CITY_INTENTS = ("could_be", "night", "asks", "reset", "leaders", "markets")
 
 # These do take a place, but never a single lot: gaps and totals are questions
 # about an area, and an area is a district, a plot or a market.
