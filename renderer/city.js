@@ -27,11 +27,11 @@
   // apart on a projector.
   const C = {
     sky: 0x080b12,
-    /* Was a Lego grass baseplate. Hilmi's note: the green land is dead
-     * pixels, and he is right, because none of it encoded anything. It is
-     * now undeveloped ground in the same family as the district plates, so
-     * the eye stops reading it as parkland worth looking at and the built
-     * area carries the picture. */
+    /* Undeveloped ground, in the same family as the district plates.
+     *
+     * This was a green baseplate, which encoded nothing and read as parkland
+     * worth looking at. Neutral ground keeps the eye on the built area, which
+     * is where the data is. */
     ground: 0x2f343d,
     districtPlate: 0x232a34,
     plotPlate: 0x2f3742,
@@ -157,8 +157,8 @@
 
   /* Land is worth what is spent on it.
    *
-   * Hilmi asked for each L3 to be proportional to spend, and taken literally
-   * that cannot be drawn from this data. Fourteen of the thirty-one plots
+   * Plot area proportional to spend cannot be drawn literally from this
+   * data. Fourteen of the thirty-one plots
    * have no recorded spend at all and hold 58 categories between them, so
    * strict proportionality erases 40% of the estate. The largest plot is 400
    * times the smallest non-zero one, so the small end would be a pixel.
@@ -748,9 +748,8 @@
         /* Street trees, not parkland.
          *
          * At 0.34 these filled every gap between districts with woodland,
-         * which is the green Hilmi wanted rid of. At 0.06 they line the
-         * streets and soften the edges without becoming a landscape that
-         * competes with the thing the map is about. */
+         * which reads as parkland worth inspecting. At 0.06 they line the
+         * streets and soften the edges without competing with the data. */
         if (blocked(jx, jz) || rnd() > 0.06) continue;
         const scale = 0.8 + rnd() * 0.6;
         trunkBucket.add(jx, 0.45 * scale, jz, 0.22, 0.9 * scale, 0.22, 0x5b4632);
@@ -1299,7 +1298,8 @@
     const active = state === "active";
     const floors = active ? FLOORS[Math.min(heightTier, FLOORS.length - 1)] : 0;
 
-    // Foundation. Kate's rule: draft claims the plot, active lays foundations.
+    // Foundation. A draft blueprint claims the plot; an active one lays
+    // foundations that can be built on.
     const foundationColor = state === "active" ? C.active : state === "draft" ? C.draft : C.bare;
     pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
 
@@ -1837,9 +1837,8 @@
 
   /* ------------------------------------------------------ the arc and the score
    *
-   * Traditional, Connected, Smart, Autonomous. Hilmi's arc, and the reason it
-   * is worth adopting is that it needs no new data: the measures already on
-   * screen are that journey. The stage boundaries and every weight live in
+   * Traditional, Connected, Smart, Autonomous. The arc needs no new data:
+   * the measures already on screen are that journey. The stage boundaries and every weight live in
    * config/metrics.yaml, so this draws whatever the score is defined to be.
    */
   const WEIGHTS = (CONFIG.score && CONFIG.score.weights) || { blueprint: 40, usage: 35, ai: 25 };
@@ -1982,8 +1981,8 @@
   }
 
   // ----------------------------------------------------------- the builder
-  // A minifigure in a hard hat, deliberately the same object Gorkem is handing
-  // out on the day, so the thing in someone's hand is the thing on the screen.
+  // A minifigure in a hard hat, matching the physical giveaway handed out at
+  // the session, so the object in someone's hand is the object on screen.
   const FIGURE_SCALE = 0.82;
 
   function buildFigure() {
@@ -2057,7 +2056,7 @@
 
     // Neck, then the head as its own pivot so he can look around. A blank
     // cylinder read as a peg; eyes, brows and a mouth are what make it the
-    // minifigure in Gorkem's hand rather than a game piece.
+    // minifigure in someone's hand rather than a game piece.
     part(group, skin, 0, 2.16, 0, 0.5, 0.2, 0.5, cyl);
     const head = new THREE.Group();
     head.position.set(0, 2.16, 0);
@@ -2654,6 +2653,14 @@
     // pieces still mid-flight, used by rehearsal checks and tests
     pending() {
       return scheduled.length;
+    },
+    /* Which categories actually got a monument built on them.
+     *
+     * The assignment happens in the build and the geometry happens here, and
+     * a check that only read the data would pass while the city drew nothing.
+     * So this reports what is standing, not what was intended. */
+    monuments() {
+      return landmarks.map((l) => l.code).sort();
     },
     reset() {
       showCategory(null);

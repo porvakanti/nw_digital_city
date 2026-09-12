@@ -4,11 +4,11 @@ Runs the questions people are likely to ask against whichever provider is
 configured, and reports what each one decided.
 
     run.cmd eval          six questions, one per intent
-    run.cmd eval all      all 32
+    run.cmd eval all      the whole set
 
 Six by default because of arithmetic, not caution. A free Gemini key allows
-about 5 requests a minute and 20 a day; 32 questions cannot finish inside that
-however patiently they are paced. The sample covers every intent the agent can
+about 5 requests a minute and 20 a day; the whole set cannot finish inside
+that however patiently they are paced. The sample covers every intent the agent can
 choose, which is what the check is actually for. Against the mock, or Vertex,
 or a key with billing on it, run `all`.
 """
@@ -68,6 +68,10 @@ CASES: list[tuple[str, str, str]] = [
     ("what is the worst category in Software and Core", "rank", "Software and Core"),
     ("which category leads on spend", "rank", ""),
     ("biggest category by value", "rank", ""),
+    # Every question in the manual walkthrough in docs/TESTING.md belongs
+    # here too, or the script asks somebody to check by hand what the suite
+    # could have checked on its own.
+    ("who is doing best", "rank", ""),
     ("what are we asking people to do", "asks", NOWHERE),
     ("what should we do next", "asks", NOWHERE),
     ("show me the takeaways", "asks", NOWHERE),
@@ -116,7 +120,8 @@ def main() -> int:
 
     print(f"provider: {provider}   cases: {len(cases)}"
           + (f"   paced at {rpm:.0f}/min" if gap else "")
-          + ("" if everything else "   (sample; `eval all` for all 32)") + "\n")
+          + ("" if everything else
+             f"   (sample; `eval all` for all {len(CASES)})") + "\n")
 
     passed = 0
     errors = 0

@@ -43,7 +43,7 @@ so it uses the browser's own rules and the badge says so.
 ```bash
 ./run.sh test       # everything: unit tests, the agent's question set, the browser
 ./run.sh eval       # six questions, one per intent
-./run.sh eval all   # all 32, if the key's limits allow it
+./run.sh eval all   # the whole set, if the key allows it
 ./run.sh models     # what the configured key can actually call
 ```
 
@@ -62,9 +62,9 @@ presenter clicker drives it and nobody has to stand at the laptop.
 ### 0. Open it
 
 *What should happen.* The city assembles itself, district by district. Eight
-coloured blocks, roads and parkland between them, traffic moving, two red trams
-on the raised lines at the back. Top left reads 56 developed, 89 empty lots,
-21 markets, €760m.
+coloured blocks, roads between them, traffic moving, two red trams on the
+raised lines at the back. Top left reads 56 developed, 89 empty lots, 21
+markets, €760m. Top right reads 4 blueprints in use.
 
 On a first visit a card offers to show you around. Take it once; after that
 press `T`.
@@ -72,9 +72,11 @@ press `T`.
 ### 1. The ground
 
 *What should happen.* Every district sits inside a kerb in its own colour.
-Access Radio/Fixed is the biggest block, holding 37 categories; Transmission
-Infrastructure holds 10 and is among the smallest. Everything green is parkland
-and means nothing.
+Access Radio/Fixed holds the most categories at 37; Transmission Infrastructure
+holds 10. Lot size follows spend, so the block with the most land is not
+necessarily the one holding the most money: Managed Services and Outsourcing
+has 10 categories and carries €286m of the €760m. The dark ground between
+districts is undeveloped land and means nothing.
 
 ### 2. Ask for a category
 
@@ -121,9 +123,13 @@ Press `P` again, or ask for anything else, to come back.
 
 Type **`Show me AI readiness`** or press `N`.
 
-*What should happen.* Night. Windows light up, street lamps throw pools on
-alternate kerbs, and a small number of rooftops carry a column of light. The
-line says 28 of 145 categories have started any AI-generated RFP.
+*What should happen.* Night. Street lamps throw pools on alternate kerbs, and
+eight rooftops carry a column of light. The line says 8 of 145 categories have
+started any AI-generated RFP.
+
+The windows are the other half of this. Four buildings in the whole city keep
+lit windows, because four blueprints have ever been used. Everything else goes
+dark. That frame is the argument.
 
 ### 7. The ask
 

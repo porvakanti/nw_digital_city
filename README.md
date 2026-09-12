@@ -10,20 +10,44 @@ builds it in front of you.
 The reasoning behind all of this, the data caveats, and the questions still
 open are written up in [docs/DESIGN.md](docs/DESIGN.md).
 
+| If you want to | Read |
+| --- | --- |
+| understand the picture without the code | [docs/READING-THE-CITY.md](docs/READING-THE-CITY.md) |
+| know why it is built the way it is | [docs/DESIGN.md](docs/DESIGN.md) |
+| present it | [docs/DEMO.md](docs/DEMO.md) |
+| check it works | [docs/TESTING.md](docs/TESTING.md) |
+| understand the score | [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md) |
+| review it and send findings back | [docs/REVIEW-GUIDE.md](docs/REVIEW-GUIDE.md) |
+| set a Windows machine up from scratch | [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) |
+| deploy it | [docs/DEPLOY.md](docs/DEPLOY.md) |
+
 ## The metaphor
 
-Four measures from the category blueprint story, four things you can see:
+Every visible thing encodes a measure, and nothing is decoration:
 
 | Measure | What you see | Driven by |
 | --- | --- | --- |
 | Foundation | empty lot, then marked out, then foundation laid | blueprint status |
 | Building | small building, office block, tower, skyscraper | blueprint reach *(provisional)* |
 | Property | Monopoly-style houses, then a hotel | spend FY26/27 |
-| Smart city | rooftop reactor, from dark to full glow | AI-generated RFPs *(sample data)* |
+| Smart city | rooftop reactor, from dark to full glow | AI-generated RFPs |
+| Occupancy | full colour and lit windows, or drained to grey | has anybody used the blueprint |
+| Landmark | a monument in place of the tower | a blueprint that reached five or more markets |
+| Land area | a bigger lot, and a bigger plot around it | spend, square-root compressed |
 
 Geography follows the category tree: **L2 is a district, L3 is a plot, L4 is a
 lot** with a building on it. For Networks that is 8 districts, 31 plots and 145
 lots, of which 89 are still empty ground.
+
+Occupancy is the sharpest of these. 44 blueprints are live and **four have ever
+been used**, so four buildings in the whole city keep their colour. Press `N`
+and everything else goes dark.
+
+On top of the map sits a single **journey score**, 0 to 100, for a category, a
+district, a manager or the whole organisation: 40% for how far the blueprint
+itself has got, 35% for anyone actually using it, 25% for doing it with AI.
+Networks scores 19. The reasoning, the weights and the two rejected
+alternatives are in [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md).
 
 ## The pivot point
 
@@ -51,18 +75,31 @@ the UI, and swaps back to `ava_adoption` in one line when real figures land.
 
 ### Honesty rules
 
-Anything not real is badged in the UI. `ai_rfps` is placeholder data until the
-real column arrives. It is seeded from a fixed value, so rehearsal and stage
-show identical numbers. The smart-city layer is a **readiness signal, not a claim
-that autonomous procurement is live.**
+Anything not real is badged in the UI, and one placeholder is left: building
+height, which stands in for adoption for the reason above.
+
+`ai_rfps` used to be one. While the column was empty the rooftops ran on
+generated figures showing 28 of 145; the measured column says **8**. The
+generated one is now gone from the code and from the published data, and two
+tests hold that line: no metric marked `sample` may drive a visual layer, and
+no field with `sample` in its name may reach the output at all.
+
+The smart-city layer is a **readiness signal, not a claim that autonomous
+procurement is live.**
 
 ## Privacy
 
 The source workbook contains blueprint owner names and email addresses.
 
 - `data/raw/` is git-ignored. **The workbook never gets committed.**
-- `data/city.json` is derived and anonymised: no names, no emails, no contacts.
-- The build refuses to write output if it detects either, and tests re-check it.
+- `data/city.json` is derived: no emails, no contacts, no job titles, ever.
+- Category manager names are published **only** because
+  `config/metrics.yaml` says `people: show: names`, and only in the field meant
+  to carry them. Set it to `initials` or `none` and rebuild; nothing else
+  changes.
+- The build refuses to write output if it finds a contact detail at any
+  setting, or a name at a setting that does not allow one. The security suite
+  re-checks every tracked file.
 
 ## Layout
 
@@ -76,7 +113,9 @@ renderer/agent.js      the tools, the resolver, the visible trace
 app/server.py          serves the page and holds the model credential
 app/plan.py            what the model is allowed to decide, and the validation
 app/providers.py       mock, Gemini, Vertex AI, Claude behind one interface
-tests/                 privacy and data integrity, plus a browser smoke test
+tests/test_security.py privacy, secrets, what gets distributed, data integrity
+tests/                 the rest: data, the plan parser, the model ladder
+tests/smoke.js         the browser pass, on a desktop and on a phone
 ```
 
 The renderer is deliberately dependency-free at runtime. It is the on-stage
@@ -113,22 +152,28 @@ answering. With `NW_PROVIDER=mock`, or no key, the badge says so and the city
 answers with its own rules.
 
 ```bash
-./run.sh test       # python tests, the agent's question set, the browser smoke test
+./run.sh test       # every check there is, five stages, one verdict
 ./run.sh eval       # six questions, one per intent, against whatever .env says
-./run.sh eval all   # all 32, if the key's limits allow it
+./run.sh eval all   # the whole set, if the key allows it
 ./run.sh build      # rebuild city.json from the workbook in data/raw/
 ./run.sh package    # a zip of just the city, safe to send to anyone
 ./run.sh models     # which models the configured key can actually call
 ```
 
-On Windows the same four are `run.cmd test`, `run.cmd eval`, and so on.
+On Windows the same six are `run.cmd test`, `run.cmd eval`, and so on.
 
-[docs/DEMO.md](docs/DEMO.md) is the end-to-end script: what to type, in what
+`run.sh test` is the whole thing in one command: 105 data, privacy and security
+assertions, the agent's question set, then the renderer driven in a real
+browser three ways over, from a file, against the running service, and as the
+single file that actually gets emailed. Each of the three browser passes runs
+again at phone size. It ends with one verdict naming whatever failed.
+
+[docs/TESTING.md](docs/TESTING.md) covers both halves: what that command
+checks, and a numbered walkthrough for checking by hand the thing no suite can
+judge, which is whether the city reads as a city.
+
+[docs/DEMO.md](docs/DEMO.md) is the on-stage script: what to type, in what
 order, and what should happen at each step.
-
-`tests/smoke.js` is the pre-stage check. It loads the city in a real browser,
-asserts the resolver finds what people are likely to shout, and confirms the
-agent actually moves the city rather than only describing it.
 
 ### Without Python
 
@@ -198,6 +243,10 @@ Marketplace.
 - [x] Checked against the deck, the narrative and the workbook (docs/DESIGN.md §9)
 - [x] Guided tour, first-run welcome, demo script, shareable bundle
 - [x] Cloud Run deploy, Vertex AI on a service account, no key in the deployment
+- [x] Real AI-RFP data, replacing the generated stand-in
+- [x] Land area follows spend; occupancy, the journey score, the arc, landmarks
+- [x] One-command verification, security suite, manual test script
 - [ ] Listed in the Agent Marketplace
 - [ ] Speech input, offline bundle
-- [ ] Real AI-RFP data, rehearsal mode
+- [ ] A date column in the source, which is the one thing still blocking any
+      view of what changed and when

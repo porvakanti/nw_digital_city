@@ -119,7 +119,7 @@ winget install Microsoft.VisualStudioCode
 ### Opening the project
 
 **File → Open Folder**, and pick the folder that contains `run.cmd`. That is
-`C:\Users\prave\Projects\nw_digital_city`. Open the **folder**, not a file. VS
+`C:\path\to\nw_digital_city`. Open the **folder**, not a file. VS
 Code works on a folder at a time and most of what follows depends on it knowing
 which one.
 
@@ -194,7 +194,7 @@ reaches GitHub. Do not move the key into any other file.
 winget install Python.Python.3.12
 winget install Microsoft.VisualStudioCode
 # close and reopen the terminal
-cd C:\Users\prave\Projects\nw_digital_city
+cd C:\path\to\nw_digital_city
 run.cmd
 ```
 

@@ -1,13 +1,11 @@
 {
   "meta": {
-    "generated_at": "2026-09-09T19:36:19+00:00",
+    "generated_at": "2026-09-12T08:53:47+00:00",
     "source": "Category_Blueprint_Allhands.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network (Level 1)",
     "anonymised": true,
-    "sample_metrics": [
-      "ai_rfps_sample"
-    ],
+    "sample_metrics": [],
     "people": "names",
     "markets": [
       "Albania",
@@ -577,7 +575,6 @@
         "ariba_adoption": 0,
         "spend_eur": 351566.36,
         "ai_rfps": 0,
-        "ai_rfps_sample": 2,
         "cbp_used": 0
       },
       "landmark": {
@@ -625,7 +622,6 @@
         "ariba_adoption": 0,
         "spend_eur": 32142.86,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -665,7 +661,6 @@
         "ariba_adoption": 0,
         "spend_eur": 79892.86,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -708,7 +703,6 @@
         "ariba_adoption": 0,
         "spend_eur": 92566.36,
         "ai_rfps": 1,
-        "ai_rfps_sample": 12,
         "cbp_used": 1
       }
     },
@@ -748,7 +742,6 @@
         "ariba_adoption": 0,
         "spend_eur": 58142.86,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -788,7 +781,6 @@
         "ariba_adoption": 0,
         "spend_eur": 92392.86,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -830,7 +822,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 3,
         "cbp_used": 0
       }
     },
@@ -870,7 +861,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -907,7 +897,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -947,7 +936,6 @@
         "ariba_adoption": 0,
         "spend_eur": 16935942.83,
         "ai_rfps": 2,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -986,7 +974,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -1025,7 +1012,6 @@
         "ariba_adoption": 0,
         "spend_eur": 3098333.33,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1071,7 +1057,6 @@
         "ariba_adoption": 0,
         "spend_eur": 27775000,
         "ai_rfps": 2,
-        "ai_rfps_sample": 0,
         "cbp_used": 2
       },
       "landmark": {
@@ -1114,7 +1099,6 @@
         "ariba_adoption": 0,
         "spend_eur": 539273.18,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1153,7 +1137,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1192,7 +1175,6 @@
         "ariba_adoption": 0,
         "spend_eur": 10500000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1231,7 +1213,6 @@
         "ariba_adoption": 0,
         "spend_eur": 233064,
         "ai_rfps": 0,
-        "ai_rfps_sample": 7,
         "cbp_used": 0
       }
     },
@@ -1270,7 +1251,6 @@
         "ariba_adoption": 0,
         "spend_eur": 8065042.58,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1309,7 +1289,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1349,7 +1328,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2218333.33,
         "ai_rfps": 0,
-        "ai_rfps_sample": 2,
         "cbp_used": 0
       }
     },
@@ -1389,7 +1367,6 @@
         "ariba_adoption": 0,
         "spend_eur": 1833333.33,
         "ai_rfps": 0,
-        "ai_rfps_sample": 5,
         "cbp_used": 0
       }
     },
@@ -1428,7 +1405,6 @@
         "ariba_adoption": 0,
         "spend_eur": 14193337.83,
         "ai_rfps": 1,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1467,7 +1443,6 @@
         "ariba_adoption": 0,
         "spend_eur": 53333.33,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -1504,7 +1479,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1541,7 +1515,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1578,7 +1551,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1617,7 +1589,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1654,7 +1625,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1691,7 +1661,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1730,7 +1699,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1769,7 +1737,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1808,7 +1775,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1847,7 +1813,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1884,7 +1849,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1923,7 +1887,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -1962,7 +1925,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2001,7 +1963,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2040,7 +2001,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -2079,7 +2039,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 4,
         "cbp_used": 0
       }
     },
@@ -2120,7 +2079,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2163,7 +2121,6 @@
         "ariba_adoption": 0,
         "spend_eur": 39092336.1,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       },
       "landmark": {
@@ -2206,7 +2163,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2245,7 +2201,6 @@
         "ariba_adoption": 0,
         "spend_eur": 557448,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2282,7 +2237,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2322,7 +2276,6 @@
         "ariba_adoption": 0,
         "spend_eur": 7391552,
         "ai_rfps": 1,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2359,7 +2312,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2400,7 +2352,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 11,
         "cbp_used": 0
       }
     },
@@ -2437,7 +2388,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2474,7 +2424,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2511,7 +2460,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2548,7 +2496,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2585,7 +2532,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2622,7 +2568,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2659,7 +2604,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2696,7 +2640,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2737,7 +2680,6 @@
         "ariba_adoption": 0,
         "spend_eur": 62464272,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 1
       }
     },
@@ -2775,7 +2717,6 @@
         "ariba_adoption": 0,
         "spend_eur": 437500,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2812,7 +2753,6 @@
         "ariba_adoption": 0,
         "spend_eur": 350000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2849,7 +2789,6 @@
         "ariba_adoption": 0,
         "spend_eur": 1521000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2886,7 +2825,6 @@
         "ariba_adoption": 0,
         "spend_eur": 3621000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2923,7 +2861,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2960,7 +2897,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2100000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -2997,7 +2933,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2500000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3034,7 +2969,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2500000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3071,7 +3005,6 @@
         "ariba_adoption": 0,
         "spend_eur": 9912458,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3109,7 +3042,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3147,7 +3079,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2333000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3184,7 +3115,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3224,7 +3154,6 @@
         "ariba_adoption": 0,
         "spend_eur": 58554533,
         "ai_rfps": 0,
-        "ai_rfps_sample": 2,
         "cbp_used": 0
       }
     },
@@ -3261,7 +3190,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3298,7 +3226,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3335,7 +3262,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3376,7 +3302,6 @@
         "ariba_adoption": 0,
         "spend_eur": 1579528.97,
         "ai_rfps": 0,
-        "ai_rfps_sample": 5,
         "cbp_used": 0
       }
     },
@@ -3413,7 +3338,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3450,7 +3374,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3487,7 +3410,6 @@
         "ariba_adoption": 0,
         "spend_eur": 49430292.6,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3527,7 +3449,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3564,7 +3485,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3601,7 +3521,6 @@
         "ariba_adoption": 0,
         "spend_eur": 7200000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3638,7 +3557,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3677,7 +3595,6 @@
         "ariba_adoption": 0,
         "spend_eur": 60000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 5,
         "cbp_used": 0
       }
     },
@@ -3714,7 +3631,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3751,7 +3667,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3791,7 +3706,6 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 2,
         "cbp_used": 0
       }
     },
@@ -3828,7 +3742,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3867,7 +3780,6 @@
         "ariba_adoption": 0,
         "spend_eur": 54704605.17,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3904,7 +3816,6 @@
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3943,7 +3854,6 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -3980,7 +3890,6 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4017,7 +3926,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4056,7 +3964,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4095,7 +4002,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 2,
-        "ai_rfps_sample": 2,
         "cbp_used": 3
       }
     },
@@ -4134,7 +4040,6 @@
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
         "ai_rfps": 0,
-        "ai_rfps_sample": 2,
         "cbp_used": 0
       }
     },
@@ -4173,7 +4078,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4212,7 +4116,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4251,7 +4154,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4288,7 +4190,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4327,7 +4228,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4364,7 +4264,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4401,7 +4300,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4438,7 +4336,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4475,7 +4372,6 @@
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4512,7 +4408,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4549,7 +4444,6 @@
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4586,7 +4480,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4623,7 +4516,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4662,7 +4554,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4701,7 +4592,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4741,7 +4631,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 1,
-        "ai_rfps_sample": 7,
         "cbp_used": 0
       }
     },
@@ -4780,7 +4669,6 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4817,7 +4705,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4854,7 +4741,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4891,7 +4777,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4928,7 +4813,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -4965,7 +4849,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5002,7 +4885,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5039,7 +4921,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5076,7 +4957,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5117,7 +4997,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 4,
         "cbp_used": 0
       }
     },
@@ -5157,7 +5036,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5194,7 +5072,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5231,7 +5108,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5268,7 +5144,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5305,7 +5180,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5342,7 +5216,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5379,7 +5252,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5416,7 +5288,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5453,7 +5324,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5490,7 +5360,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5527,7 +5396,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5566,7 +5434,6 @@
         "ariba_adoption": 0,
         "spend_eur": 8616671.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -5605,7 +5472,6 @@
         "ariba_adoption": 0,
         "spend_eur": 5566666.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5660,7 +5526,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 8,
         "cbp_used": 0
       },
       "landmark": {
@@ -5707,7 +5572,6 @@
         "ariba_adoption": 0,
         "spend_eur": 4416671.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5753,7 +5617,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       },
       "landmark": {
@@ -5796,7 +5659,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5835,7 +5697,6 @@
         "ariba_adoption": 0,
         "spend_eur": 19642.86,
         "ai_rfps": 2,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -5875,7 +5736,6 @@
         "ariba_adoption": 0,
         "spend_eur": 7230657,
         "ai_rfps": 0,
-        "ai_rfps_sample": 7,
         "cbp_used": 0
       }
     },
@@ -5915,7 +5775,6 @@
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -5954,7 +5813,6 @@
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -5991,7 +5849,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -6030,7 +5887,6 @@
         "ariba_adoption": 0,
         "spend_eur": 29600000,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     },
@@ -6069,7 +5925,6 @@
         "ariba_adoption": 0,
         "spend_eur": 44045407.67,
         "ai_rfps": 0,
-        "ai_rfps_sample": 4,
         "cbp_used": 0
       }
     },
@@ -6108,7 +5963,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 1,
         "cbp_used": 0
       }
     },
@@ -6145,7 +5999,6 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "ai_rfps_sample": 0,
         "cbp_used": 0
       }
     }

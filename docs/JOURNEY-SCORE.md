@@ -1,19 +1,21 @@
 # The journey score
 
-One number per category, manager, district or the whole of Networks. Built to
-be explained in a sentence and to survive being argued with.
+A single 0 to 100 figure for a category, a district, a category manager or
+the whole organisation. Designed to be explainable in one sentence and to
+withstand challenge.
 
-Computed from Tomas's 9 September extract joined to the category manager
-column in the original workbook.
+Computed by `data/build_city.py` from the current per-category extract joined
+to the category manager column in the taxonomy workbook. Every threshold and
+weight is declared in `config/metrics.yaml`.
 
 ---
 
-## Why the first version was wrong
+## Why usage and AI are separate components
 
-The first draft folded "blueprint has been used" and "AI RFP started" into a
-single top rung. Two things were wrong with that.
+An earlier design folded "blueprint has been used" and "AI RFP started" into a
+single top rung of one ladder. Two problems with that.
 
-**They are not sequential.** Checked against the data:
+**They are not sequential.** From the data:
 
 | | Categories |
 | --- | --- |
@@ -77,7 +79,7 @@ Networks that has done the whole journey.
 
 ### The arc, made countable
 
-Blueprint 10 to 25 is Hilmi's **Traditional**: it exists, it works in one
+Blueprint 10 to 25 is **Traditional**: the blueprint exists and works in one
 place. Blueprint 40 is **Connected**: one blueprint, several markets. The AI
 component is **Smart**. **Autonomous** is above 100 and nobody is there, which
 is honest and worth saying out loud.
@@ -135,7 +137,7 @@ That single line is worth more than any picture in this project.
 | Access Radio/Fixed | 28 | 18 | 4 | 6 | 20 of 37 |
 | Transmission Infrastructure | 23 | 22 | 0 | 1 | 4 of 10 |
 | Energy | 22 | 21 | 0 | 2 | 11 of 18 |
-| Fixed | 19 | 13 | 6 | 0 | 11 of 12 |
+| Fixed | 20 | 13 | 7 | 0 | 11 of 12 |
 | Managed Services and Outsourcing | 19 | 17 | 1 | 1 | 4 of 10 |
 | Leased Lines | 13 | 13 | 0 | 0 | 12 of 16 |
 | Software and Core | 12 | 12 | 0 | 0 | 18 of 25 |
