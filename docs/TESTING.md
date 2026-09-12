@@ -262,8 +262,11 @@ anything about it feels wrong to show, that is the finding worth reporting.
 ### I. The explanation
 
 44. Every district name is cut into the ground along the near edge of its own
-    plate, not floating over it. Read all eight, then press **N**: they have
-    to stay legible at night, because the ground they sit on does not.
+    plate, not floating over it. All eight are set at the same size, so the
+    three long ones are on two lines: the constraint is width, not the strip,
+    and one line of "Managed Services and Outsourcing" across a district 33
+    units wide cannot be set any larger. Press **N** and they light up in
+    their own district colour, the same colour the kerb carries.
 45. Click **The full explanation** at the foot of the legend, or press **H**.
 46. The sheet is generated from `config/metrics.yaml`, so it is the one place
     to check that the words and the drawing still agree. Every layer is listed
