@@ -169,9 +169,12 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | D333 | TV Software | Rozafa Castle | Albania, score 55 |
 | A314 | Access Transmission Services | Palace of the Parliament | Romania, score 50 |
 
-27. Each stands **on top of** its building, at the height the score earned, so
-    A251 at 100 is visibly higher than A314 at 50. Every monument clears every
-    plain tower.
+27. Each stands **in place of** its building, on the ground, on a low stone
+    terrace. The lot underneath is widened to the ground the shape needs, so a
+    monument lot is visibly larger than its neighbours as well as taller:
+    every monument clears every plain tower. All eight are drawn to one
+    height, because the monument marks that the threshold was passed and the
+    score itself is on the title deed, the arc and the scoreboard.
 28. Each monument comes from a market that actually adopted that blueprint.
     Click one and the card says which.
 29. Germany supplies two, because it carries two high scorers and 23 of the

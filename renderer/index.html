@@ -138,6 +138,16 @@
   }
   .geography b { color: var(--ink); font-weight: 600; }
   .swatches { display: flex; gap: 6px; align-items: center; margin-top: 5px; flex-wrap: wrap; }
+  /* A rung of the measure above it rather than a measure of its own, so it
+     is indented under that block and not numbered alongside it. */
+  .measure .also {
+    margin-top: 6px;
+    padding-left: 9px;
+    border-left: 2px solid var(--hairline);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .measure .also b { color: var(--ink); }
   .sw {
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 11px; color: var(--ink-2);

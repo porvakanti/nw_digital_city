@@ -119,19 +119,93 @@
    * read as a building rather than as a stub. */
   const FLOORS = [0, 3, 5, 8, 12, 16];
 
-  /* A monument's own size, and the clearance it needs above its plinth.
+  /* A monument replaces its building and stands on the ground.
    *
-   * MONUMENT_HEIGHT is the tallest of the shapes in landmarkGroup() measured
-   * in its own units; scaled it is what the reactor and the roofline sit
-   * above. Read by the browser check that asserts no monument is shorter than
-   * the tallest plain tower. */
-  const MONUMENT_SCALE = 1.85;
-  const MONUMENT_HEIGHT = 6.4;
+   * It sat on top of the building for one revision. That read badly: a
+   * classical colonnade perched on sixteen floors of office block is an
+   * ornament on a roof, not a landmark, and every one of them looked
+   * top-heavy because a monument is wider than a one-lot tower.
+   *
+   * So the monument is the whole lot again, and the lot is widened to suit
+   * it. Recognising the shape is the signal: a monument means this category
+   * scores at or above the landmark threshold. The score itself is on the
+   * title deed, on the arc and on the scoreboard, so it is not encoded twice
+   * and the monument does not have to be the tallest thing in the city to
+   * carry its meaning.
+   *
+   * MONUMENT_H is one height for all of them, so the set reads as one class
+   * of object rather than nine unrelated models, and the ground each one
+   * needs then follows from its own proportions. */
+  const MONUMENT_H = 6.55;
+  // A monument's lot is widened, in half-cell steps, to the ground its shape
+  // needs at MONUMENT_H. Capped: the pyramids at full height would want three
+  // and a half cells out of a plot that only holds six lots.
+  const MONUMENT_LOT_MAX = 2.5;
+  const MONUMENT_LOT_STEP = 0.5;
+  // The monument stops short of its lot edge, so it never touches a neighbour.
+  const MONUMENT_INSET = 0.92;
+  // A low stone terrace under every monument, the size of its own footprint.
+  const TERRACE_MIN = 0.4;
+  // How far a monument has to finish above the tallest plain tower.
+  const MONUMENT_CLEAR = 0.8;
 
-  // The tallest assembly the city can produce: the top height rung with a
-  // monument standing on it. Used to size the ground margin.
-  const TALLEST = 0.62 + FLOORS[FLOORS.length - 1] * FLOOR_H
-                       + MONUMENT_HEIGHT * MONUMENT_SCALE;
+  /* The authored bounding box of a monument shape, measured once.
+   *
+   * The proportions are wildly different and they are the real ones: Big Ben
+   * is a needle at 0.94 by 6.05, the pyramids are a range at 4.15 by 2.7.
+   * Measuring the geometry rather than tabling the figures means the table
+   * cannot drift away from the models. */
+  const shapeBoxes = new Map();
+  function shapeBox(shape) {
+    if (shapeBoxes.has(shape)) return shapeBoxes.get(shape);
+    const group = landmarkGroup(shape);
+    let out = null;
+    if (group) {
+      const b = new THREE.Box3().setFromObject(group);
+      out = {
+        w: Math.max(b.max.x - b.min.x, 0.01),
+        d: Math.max(b.max.z - b.min.z, 0.01),
+        h: Math.max(b.max.y, 0.01),
+      };
+      out.ground = Math.max(out.w, out.d);
+    }
+    shapeBoxes.set(shape, out);
+    return out;
+  }
+
+  /* Whether a category gets a monument, and which shape.
+   *
+   * The build assigns the shape; the height tier decides whether there is
+   * anything standing on the lot to replace. Both the layout and the render
+   * ask this, and they have to agree or the layout reserves ground for a
+   * monument that never appears. */
+  function monumentShape(category) {
+    if (!category || !category.landmark) return null;
+    if (category.blueprint_state !== "active") return null;
+    const tier = tierIndex(layerMetric("height"), valueFor(category, "height"));
+    return FLOORS[Math.min(tier, FLOORS.length - 1)] > 0 ? category.landmark.shape : null;
+  }
+
+  /* How many cells wide a monument's lot has to be.
+   *
+   * Every monument is drawn at the same height, so the ground it needs comes
+   * straight out of its shape's aspect ratio. Rounded up to a half cell so
+   * the grid stays a grid a viewer can count. */
+  /* How tall a plain tower on this category would stand. */
+  function towerTop(category) {
+    if (!category || category.blueprint_state !== "active") return 0.62;
+    const tier = tierIndex(layerMetric("height"), valueFor(category, "height"));
+    return 0.62 + FLOORS[Math.min(tier, FLOORS.length - 1)] * FLOOR_H;
+  }
+
+  function monumentSpan(category, cell) {
+    const shape = monumentShape(category);
+    const proportions = shape ? shapeBox(shape) : null;
+    if (!proportions) return 1;
+    const need = (proportions.ground / proportions.h) * MONUMENT_H / MONUMENT_INSET;
+    const steps = Math.ceil(need / cell / MONUMENT_LOT_STEP) * MONUMENT_LOT_STEP;
+    return Math.min(MONUMENT_LOT_MAX, Math.max(1, steps));
+  }
 
   // ------------------------------------------------------------------ tiers
   function metricDef(name) {
@@ -170,17 +244,33 @@
   // is full. Deterministic, so the city looks identical every run.
   function shelfPack(items, maxWidth, gap) {
     let x = 0, z = 0, rowDepth = 0, width = 0;
+    const rows = [];
+    let row = [];
     for (const item of items) {
       if (x > 0 && x + item.w > maxWidth) {
+        rows.push({ items: row, w: x - gap });
+        row = [];
         x = 0;
         z += rowDepth + gap;
         rowDepth = 0;
       }
       item.x = x;
       item.z = z;
+      row.push(item);
       x += item.w + gap;
       width = Math.max(width, x - gap);
       rowDepth = Math.max(rowDepth, item.d);
+    }
+    rows.push({ items: row, w: x - gap });
+    /* Centre each row.
+     *
+     * Shelf packing a handful of items of very different widths leaves the
+     * last row short, and left-aligned that reads as one large void on one
+     * side rather than as a margin. Centred, the same slack sits on both
+     * sides of every row and the block looks laid out instead of ragged. */
+    for (const shelf of rows) {
+      const shift = (width - shelf.w) / 2;
+      for (const item of shelf.items) item.x += shift;
     }
     return { w: width, d: z + rowDepth };
   }
@@ -226,6 +316,30 @@
         const rows = Math.ceil(plot.codes.length / PER_ROW);
         const scale = lotScale(plot.codes, byCode);
         const cell = CELL * scale;
+        /* A monument's lot is wider and deeper than a building's.
+         *
+         * Lots are uniform inside a plot, because the count of them is part
+         * of what the plot says. The exception is a monument: its shape has
+         * to be recognisable and the shapes are not square, so the column
+         * and the row it stands in are widened to the ground that shape
+         * needs. Widening the whole line rather than the single cell is what
+         * keeps the rest of the plot on a grid. */
+        const colW = new Array(cols).fill(cell);
+        const rowD = new Array(rows).fill(cell);
+        plot.codes.forEach((code, i) => {
+          const span = monumentSpan(byCode.get(code), cell);
+          if (span <= 1) return;
+          const col = i % PER_ROW;
+          const row = Math.floor(i / PER_ROW);
+          colW[col] = Math.max(colW[col], span * cell);
+          rowD[row] = Math.max(rowD[row], span * cell);
+        });
+        const colX = [];
+        const rowZ = [];
+        let acrossX = 0;
+        for (const w of colW) { colX.push(acrossX); acrossX += w; }
+        let acrossZ = 0;
+        for (const d of rowD) { rowZ.push(acrossZ); acrossZ += d; }
         return {
           name: plot.name,
           codes: plot.codes,
@@ -233,8 +347,12 @@
           rows,
           scale,
           cell,
-          w: cols * cell + PLOT_PAD,
-          d: rows * cell + PLOT_PAD,
+          colW,
+          rowD,
+          colX,
+          rowZ,
+          w: acrossX + PLOT_PAD,
+          d: acrossZ + PLOT_PAD,
         };
       });
       /* Data order, deliberately.
@@ -255,8 +373,14 @@
       };
     });
 
-    // Widest districts first packs more tightly and keeps the skyline balanced.
-    const ordered = districts.slice().sort((a, b) => b.w - a.w || a.name.localeCompare(b.name));
+    /* Deepest district first.
+     *
+     * A shelf row is as deep as its deepest member, so grouping districts of
+     * similar depth is what stops a shallow one paying for a deep neighbour.
+     * Widest first was the first attempt and left the city filling 57% of its
+     * own bounding box against 65% for this, on a world that is also closer
+     * to square, which matters because the camera looks down the diagonal. */
+    const ordered = districts.slice().sort((a, b) => b.d - a.d || a.name.localeCompare(b.name));
     const world = shelfPack(ordered, WORLD_MAX_W, 5.0);
 
     const buildings = [];
@@ -272,11 +396,15 @@
           buildings.push({
             scale: plot.scale,
             cell: plot.cell,
+            span: monumentSpan(byCode.get(code), plot.cell),
             category: byCode.get(code),
             district,
             plot,
-            x: plot.cx + PLOT_PAD / 2 + col * plot.cell + plot.cell / 2,
-            z: plot.cz + PLOT_PAD / 2 + row * plot.cell + plot.cell / 2,
+            // Centred in its column and row, so a plain lot next to a
+            // monument sits in the middle of the wider line rather than
+            // shunted to one side of it.
+            x: plot.cx + PLOT_PAD / 2 + plot.colX[col] + plot.colW[col] / 2,
+            z: plot.cz + PLOT_PAD / 2 + plot.rowZ[row] + plot.rowD[row] / 2,
           });
         });
       }
@@ -325,8 +453,55 @@
     sky = hex;
   }
 
+  /* Geometries.
+   *
+   * Declared before the layout because the layout has to measure the
+   * monument shapes to know how much ground each one needs. */
+  const box = new THREE.BoxGeometry(1, 1, 1);
+  const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
+  const cone = new THREE.ConeGeometry(0.5, 1, 7);
+  const disc = new THREE.CircleGeometry(0.5, 18).rotateX(-Math.PI / 2);
+  const pyramid = new THREE.ConeGeometry(0.72, 1, 4).rotateY(Math.PI / 4);
+  // Low segment counts: these appear on at most a handful of monuments, and a
+  // sphere is the one shape the brick vocabulary cannot fake.
+  const sphere = new THREE.SphereGeometry(0.5, 14, 10);
+
+  /* Warm sandstone against a city of cool blues and greys. The first pass
+   * used a pale stone that vanished into the pale district buildings behind
+   * it, which is the opposite of what a landmark is for. */
+  const STONE = 0xe0cfa4, STONE_DARK = 0xb9a274, GOLD = 0xf0c74e, LEAD = 0x6f7a86;
+
   const layout = buildLayout();
   const span = Math.max(layout.size.w, layout.size.d);
+
+  /* The tallest tower standing with no monument on it.
+   *
+   * A monument means a journey score at or above the landmark threshold. If a
+   * plain tower out-topped a monument the height encoding would read
+   * backwards, so the terrace under a monument is raised until the assembly
+   * clears this figure, which makes the ordering true by construction rather
+   * than true by luck of the data.
+   *
+   * Measured rather than bounded from the config. The landmark threshold
+   * falls inside a height tier rather than on its boundary, so the config
+   * alone would only promise a ceiling four floors above anything actually
+   * built, and clearing that would put every monument back on a plinth. */
+  const PLAIN_CEILING = layout.buildings.reduce(
+    (tallest, b) => monumentShape(b.category)
+      ? tallest : Math.max(tallest, towerTop(b.category)),
+    0
+  );
+
+  /* The tallest thing that actually stands in this city. Sizes the ground
+   * margin, so it has to be what the data builds and not what the tiers
+   * allow: the top tier permits sixteen floors, no plain lot reaches it, and
+   * sizing the margin for it left the city adrift in the middle of a plate
+   * three times the area it needed. */
+  const TALLEST = Math.max(
+    PLAIN_CEILING,
+    0.62 + TERRACE_MIN + MONUMENT_H,
+    PLAIN_CEILING + MONUMENT_CLEAR
+  );
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -388,16 +563,6 @@
   sun.shadow.bias = -0.0012;
   scene.add(sun);
   scene.add(sun.target);
-
-  // ------------------------------------------------------------- geometries
-  const box = new THREE.BoxGeometry(1, 1, 1);
-  const cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
-  const cone = new THREE.ConeGeometry(0.5, 1, 7);
-  const disc = new THREE.CircleGeometry(0.5, 18).rotateX(-Math.PI / 2);
-  const pyramid = new THREE.ConeGeometry(0.72, 1, 4).rotateY(Math.PI / 4);
-  // Low segment counts: these appear on at most a handful of monuments, and a
-  // sphere is the one shape the brick vocabulary cannot fake.
-  const sphere = new THREE.SphereGeometry(0.5, 14, 10);
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
@@ -1268,11 +1433,6 @@
    * of these, so each is a plain group. Five extra draw calls buys geometry
    * that no instancing scheme would have given us.
    */
-  /* Warm sandstone against a city of cool blues and greys. The first pass
-   * used a pale stone that vanished into the pale district buildings behind
-   * it, which is the opposite of what a landmark is for. */
-  const STONE = 0xe0cfa4, STONE_DARK = 0xb9a274, GOLD = 0xf0c74e, LEAD = 0x6f7a86;
-
   function landmarkGroup(shape) {
     const group = new THREE.Group();
     const put = (hex, x, y, z, sx, sy, sz, geometry) => {
@@ -1411,29 +1571,53 @@
     const active = state === "active";
     const floors = active ? FLOORS[Math.min(heightTier, FLOORS.length - 1)] : 0;
 
-    // Foundation. A draft blueprint claims the plot; an active one lays
-    // foundations that can be built on.
+    const shape = monumentShape(category);
+    const span = building.span || 1;
+
+    /* Foundation. A draft blueprint claims the plot; an active one lays
+     * foundations that can be built on. A monument's foundation covers its
+     * whole widened lot, so the extra ground is visible from any distance
+     * even when the monument itself is not yet readable. */
     const foundationColor = state === "active" ? C.active : state === "draft" ? C.draft : C.bare;
-    pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, FOOT + 0.5, 0.24, FOOT + 0.5, foundationColor) };
+    const pad = shape ? span * LOT * MONUMENT_INSET : FOOT + 0.5;
+    pieces.foundation = { bucket: "plates", i: plates.add(x, 0.5, z, pad, 0.24, pad, foundationColor) };
 
     let top = 0.62;
-    /* A monument stands on the building, not instead of it.
-     *
-     * It used to replace the tower. That was necessary while height meant
-     * blueprint reach, because every category that earned a monument was also
-     * at the top of the height ladder and Big Ben on a fourteen-storey block
-     * left the frame. It also destroyed information: the monument was drawn at
-     * a fixed 7.0 units while the tallest plain tower reached 8.67, so the
-     * five most-reused blueprints in the estate rendered shorter than their
-     * neighbours and carried no height at all.
-     *
-     * Height now means the composite score, and a monument is earned by that
-     * same score, so the two agree: the plinth is the score and the monument
-     * says which market it travelled to. Both signals survive. */
-    const monument = floors > 0 && category.landmark
-      ? landmarkGroup(category.landmark.shape) : null;
+    const monument = shape ? landmarkGroup(shape) : null;
 
-    if (floors > 0) {
+    if (monument) {
+      /* One height for every monument, and the ground to suit the shape.
+       *
+       * The lot was already widened for this shape, so the width almost
+       * always allows the full height; the exception is a shape wider than
+       * the cap, which comes out shorter. */
+      const proportions = shapeBox(shape);
+      const allowance = span * LOT * MONUMENT_INSET;
+      const scale = Math.min(allowance / proportions.ground, MONUMENT_H / proportions.h);
+      const standing = proportions.h * scale;
+
+      /* The terrace.
+       *
+       * Two low stone courses the size of the monument's own footprint, which
+       * reads as a plaza rather than a plinth. It grows only for a shape too
+       * wide to reach full height in the lot it was given: the pyramids are
+       * half as tall as they are wide, so they stand on a plateau, and every
+       * monument still finishes clear of every plain tower. */
+      const terrace = Math.max(
+        TERRACE_MIN,
+        PLAIN_CEILING + MONUMENT_CLEAR - 0.62 - standing
+      );
+      const foot = Math.min(proportions.ground * scale + 0.6, allowance);
+      const step = Math.min(0.26, terrace / 2);
+      plates.add(x, 0.62 + step / 2, z, foot + 0.5, step, foot + 0.5, STONE);
+      plates.add(x, 0.62 + step + (terrace - step) / 2, z, foot, terrace - step, foot, STONE_DARK);
+
+      monument.position.set(x, 0.62 + terrace, z);
+      monument.scale.setScalar(scale);
+      scene.add(monument);
+      landmarks.push({ group: monument, code: category.code });
+      top = 0.62 + terrace + standing;
+    } else if (floors > 0) {
       for (let f = 0; f < floors; f++) {
         const y = 0.62 + f * FLOOR_H + FLOOR_H / 2;
         pieces.floors.push({ bucket: "bricks", i: bricks.add(x, y, z, FOOT, FLOOR_H - 0.2, FOOT, f % 2 ? palette.alt : palette.main) });
@@ -1460,19 +1644,6 @@
       }
     }
 
-    if (monument) {
-      /* Scaled up, and above every plain tower.
-       *
-       * A monument the size of its neighbours is another building. These are
-       * the eight highest-scoring categories in the estate and have to read as
-       * different from across the city, so the monument is enlarged and the
-       * whole assembly clears the tallest tower without a monument on it. */
-      monument.position.set(x, top + 0.12, z);
-      monument.scale.setScalar(MONUMENT_SCALE);
-      scene.add(monument);
-      landmarks.push({ group: monument, code: category.code });
-      top += MONUMENT_HEIGHT * MONUMENT_SCALE;
-    }
 
     if (floors > 0) {
       if (reactorTier > 0) {
@@ -1870,8 +2041,28 @@
         <div class="name">${i + 1}. ${def.label}${badge}</div>
         <div class="by">${CONFIG.layers[layer].caption}</div>
         <div class="swatches">${swatches}</div>
+        ${layer === "height" ? landmarkNote() : ""}
       </div>`;
     }).join("");
+  }
+
+  /* The monuments, in the legend, inside the height block.
+   *
+   * Eight of the 145 lots carry one, and a viewer who has not clicked one has
+   * no way to know that the shape means anything.
+   *
+   * It belongs to the height block rather than standing as a fifth one. A
+   * monument is what the measure bound to height does past the landmark
+   * threshold, so it is the top rung of that ladder and not a separate
+   * ladder. It also has to be read to be worth writing: as a fifth block it
+   * fell below the fold of a panel that is already the tallest thing on the
+   * screen. */
+  function landmarkNote() {
+    const spec = CONFIG.landmarks || {};
+    if (!spec.label || spec.min_score === undefined || spec.min_score === null) return "";
+    return `<div class="also"><b>${spec.label}</b> at ${spec.min_score}+:
+      ${spec.caption || ""}. ${landmarks.length} of ${CITY.categories.length}
+      lots have earned one.</div>`;
   }
 
   /* The two measures people were confusing are the two drawn as shapes. Height
@@ -2773,11 +2964,11 @@
       showCategory(category);
       /* Frame what is actually standing there.
        *
-       * FOCUS_SIZE frames the plot, which was right when nothing rose much
-       * above five floors. A monument on a sixteen-floor plinth reaches about
-       * 31 units and went straight off the top. The frame grows to hold the
-       * building, and the look-at point lifts to its middle so it is centred
-       * rather than pinned to the ground. */
+       * FOCUS_SIZE frames the plot, which is right for everything the city
+       * currently builds. It stops being right the moment a taller tier is
+       * bound to height, so the frame grows to hold whatever is standing and
+       * the look-at point lifts to its middle, rather than being pinned to
+       * the ground with the building running off the top. */
       const standing = spot.top || 0;
       const size = Math.max(FOCUS_SIZE, standing * 0.62);
       const ground = new THREE.Vector3(spot.x, Math.min(standing * 0.4, size * 0.5), spot.z);
@@ -2863,6 +3054,25 @@
     // Pieces still mid-flight. Read by the test suite to wait for settle.
     pending() {
       return scheduled.length;
+    },
+    /* Each monument shape's authored bounding box.
+     *
+     * The shapes are hand-built at very different proportions, because the
+     * real things are: Big Ben is a narrow shaft, the Colosseum is a squat
+     * ring. One scale constant cannot serve both, so each is scaled from its
+     * own measured box and a check confirms they end up in the same size
+     * class. */
+    monumentShapes() {
+      const out = {};
+      for (const list of Object.values((CONFIG.landmarks || {}).by_market || {})) {
+        for (const m of list) {
+          const b = shapeBox(m.shape);
+          out[m.shape] = b
+            ? { w: +b.w.toFixed(2), d: +b.d.toFixed(2), h: +b.h.toFixed(2) }
+            : null;
+        }
+      }
+      return out;
     },
     /* The ground plate, so a check can confirm nothing stands off the edge. */
     plate() {

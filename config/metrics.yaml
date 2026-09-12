@@ -110,6 +110,13 @@ landmarks:
   # threshold moved it was the thing a monument marked.
   min_score: 50
 
+  # Shown in the legend, so a viewer can name what they are looking at without
+  # having to click the lot.
+  label: Landmark
+  caption: >-
+    A monument replaces the building, on a lot widened to hold it, drawn from
+    a market that adopted the blueprint
+
   # Ordered by preference. The highest-scoring category picks first, and takes
   # the first unused monument from the first of its markets that appears here.
   #

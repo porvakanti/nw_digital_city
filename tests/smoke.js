@@ -633,6 +633,52 @@ async function onAPhone(browser) {
     heights.shortestMonument > heights.tallestPlain,
     `shortest monument ${heights.shortestMonument.toFixed(1)} vs tallest plain tower ${heights.tallestPlain.toFixed(1)}`);
 
+  /* A monument stands on more ground than a plain lot, and on nobody else's.
+   *
+   * Widening the lot is half of what marks a monument out, and it is the half
+   * that survives being looked at from across the city, where the shape is
+   * only a few pixels. So it has to be real: wider than its neighbours in the
+   * same plot, and not one millimetre into their footprints. The first pass
+   * let a monument overhang, which put a colonnade through the wall of the
+   * office block next door.
+   */
+  const ground = await page.evaluate(() => {
+    const L = window.NWCity.layout;
+    const marked = new Set(window.NWCity.monuments());
+    const boxes = L.buildings.map((b) => {
+      const monument = marked.has(b.category.code);
+      const side = monument
+        ? b.span * b.cell * 0.92
+        : (b.cell / 4) * 2.4 + 0.5;
+      return { code: b.category.code, plot: b.plot.name, monument, x: b.x, z: b.z, half: side / 2 };
+    });
+    const overlaps = [];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        const reach = a.half + b.half - 0.02;
+        if (Math.abs(a.x - b.x) < reach && Math.abs(a.z - b.z) < reach) {
+          overlaps.push(`${a.code} into ${b.code}`);
+        }
+      }
+    }
+    // Every monument against the plain lots sharing its plot.
+    const narrow = [];
+    for (const m of boxes.filter((b) => b.monument)) {
+      const neighbours = boxes.filter((b) => !b.monument && b.plot === m.plot);
+      if (neighbours.some((n) => n.half >= m.half)) narrow.push(m.code);
+    }
+    return { overlaps, narrow, monuments: boxes.filter((b) => b.monument).length };
+  });
+  check("no lot overlaps another",
+    ground.overlaps.length === 0,
+    ground.overlaps.length ? ground.overlaps.slice(0, 4).join("; ")
+      : `${ground.monuments} monument lots, none overhanging a neighbour`);
+  check("a monument stands on more ground than its plain neighbours",
+    ground.narrow.length === 0,
+    ground.narrow.length ? `no wider than a plain lot: ${ground.narrow.join(", ")}`
+      : `all ${ground.monuments} widened`);
+
   // A landmark is earned: the blueprint reached enough markets and one of
   // them has a monument defined. A landmark that appeared anywhere else would
   // be decoration, which is the one thing the city does not do.

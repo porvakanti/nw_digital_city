@@ -163,7 +163,7 @@ to be changed by configuration alone.
 | `metrics` | The measure registry: units, tier thresholds, provenance flags |
 | `score` | Composite score weights, component thresholds, roll-up method, eligibility floor |
 | `people` | Whether category owners are identified by name, by initials, or not at all |
-| `landmarks` | Market-reach threshold and per-market assignment |
+| `landmarks` | Journey-score threshold and per-market assignment |
 | `disclosure` | Whether provisional and placeholder measures are annotated in the interface. No layer currently rests on either, and a test asserts that a layer cannot rest on one with its badge switched off |
 
 Changing a visual binding is a one-line edit:
