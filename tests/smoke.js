@@ -286,6 +286,53 @@ async function onAPhone(browser) {
   check("agent calls tools", /find_gaps/.test(after.trace) && /render/.test(after.trace));
   check("agent renders a finding", /A311/.test(after.caption), after.caption);
 
+  /* Leaderboard questions open the leaderboard.
+   *
+   * All of these used to answer with A221: a category that leads on blueprint
+   * reach and that nobody has ever used. Asked who the top category manager
+   * was, the city named a lot. The checks pin the board that opens as well as
+   * the intent, because landing on the category board is the right intent and
+   * still the wrong answer.
+   *
+   * Worth running on both browser passes: served, the routing comes from the
+   * model prompt, and from a file it comes from the rules in agent.js. Those
+   * two are a known way for the same question to get two answers.
+   */
+  const BOARDS = [
+    ["who is doing best", "People"],
+    ["who is doing well", "People"],
+    ["who is the top category manager", "People"],
+    ["show me the leaders", "People"],
+    ["which district is doing best", "Districts"],
+  ];
+  for (const [question, board] of BOARDS) {
+    await page.fill("#askInput", question);
+    await page.click("#askGo");
+    await page.waitForTimeout(2200);
+    const got = await page.evaluate(() => ({
+      caption: document.querySelector("#caption b").innerText,
+      view: (document.querySelector("#jSwitch button.on") || {}).textContent || "",
+      open: !document.getElementById("journey").classList.contains("collapsed"),
+      top: (document.querySelector("#jRows .jRow .who") || {}).textContent || "",
+    }));
+    // The answer has to name the thing at the top of the board it opened, or
+    // the sentence and the screen are describing different things.
+    check(`"${question}" opens the ${board} board`,
+      got.view === board && got.open && got.top !== ""
+        && got.caption.includes(got.top) && /out of 100/.test(got.caption),
+      `${got.view}, top ${got.top}: ${got.caption.slice(0, 60)}`);
+  }
+
+  // And a ranking question still takes you to a lot, scored on the journey
+  // rather than on reach. A251 is the only category in Networks at 100.
+  await page.fill("#askInput", "which category is doing best");
+  await page.click("#askGo");
+  await page.waitForTimeout(2500);
+  const best = await page.evaluate(() =>
+    document.querySelector("#caption b").innerText);
+  check("a category ranking is scored on the journey, not on reach",
+    /A251/.test(best) && /100 out of 100/.test(best), best);
+
   // Type-ahead: four letters of a name should already offer the right lot.
   await page.fill("#askInput", "");
   await page.click("#askInput");

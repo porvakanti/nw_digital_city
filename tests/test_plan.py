@@ -62,6 +62,34 @@ class TestPlanParsing(unittest.TestCase):
                     self.assertEqual(("none", ""), (p.kind, p.value))
                     self.assertTrue(any("whole-city" in n for n in p.notes), p.notes)
 
+    def test_a_leaderboard_question_names_which_board(self):
+        for view in planning.VIEWS:
+            with self.subTest(view=view):
+                p = parse('{"intent":"leaders","view":"%s"}' % view)
+                self.assertEqual("leaders", p.intent)
+                self.assertEqual(view, p.view)
+
+    def test_an_invented_board_falls_back_to_people(self):
+        """A view the panel does not have would open nothing at all.
+
+        People is the default because "who" is the word that sends a question
+        to the leaderboard in the first place.
+        """
+        for made_up in ("managers", "PEOPLE!", "teams", "", "1"):
+            with self.subTest(view=made_up):
+                p = parse('{"intent":"leaders","view":"%s"}' % made_up)
+                self.assertEqual("people", p.view)
+
+    def test_a_ranking_metric_the_city_does_not_hold_is_refused(self):
+        p = parse('{"intent":"rank","metric":"vibes"}')
+        self.assertEqual("journey", p.metric)
+
+    def test_ranking_defaults_to_the_journey_score(self):
+        """Not blueprint reach, which ranked a category nobody has used top of
+        the city and answered every "who is doing best" with it."""
+        self.assertEqual("journey", parse('{"intent":"rank"}').metric)
+        self.assertEqual("journey", planning.Plan().metric)
+
     def test_strips_a_preamble_carrying_figures(self):
         p = parse('{"intent":"gaps","preamble":"There are 89 empty lots"}')
         self.assertEqual("", p.preamble)

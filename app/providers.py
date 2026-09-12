@@ -92,8 +92,16 @@ _RULES: list[tuple[str, dict]] = [
     (r"\b(could|potential|opportunit|what if|unbuilt|upside)", {"intent": "could_be"}),
     (r"\b(gap|empty|bare|missing|nothing|unbuilt)|no blueprint|without a blueprint", {"intent": "gaps"}),
     (r"\b(reset|zoom out|whole city|everything|daylight|back)", {"intent": "reset"}),
+    # Leaderboard questions before ranking questions: "who is doing best"
+    # matches both, and the board is the better answer.
+    (r"\b(who|whose|whom)\b|\b(categor\w+ )?manager|\bpeople\b|\bowners?\b",
+     {"intent": "leaders", "view": "people"}),
+    (r"\b(leader|leaders|leaderboard|league|ranking|rankings|standings|scoreboard)\b",
+     {"intent": "leaders", "view": "people"}),
     (r"\b(worst|weakest|behind|lowest|least)", {"intent": "rank", "direction": "asc"}),
-    (r"\b(best|biggest|largest|most|top|highest|lead|leads|leading|ahead)", {"intent": "rank", "direction": "desc"}),
+    (r"\b(best|biggest|largest|most|top|highest|lead|leads|leading|ahead|well"
+     r"|widest|broadest|furthest)",
+     {"intent": "rank", "direction": "desc"}),
     (r"\b(how many|summary|overview|overall|status|total)", {"intent": "summary"}),
 ]
 
@@ -116,8 +124,28 @@ def _mock(question: str, names: dict) -> str:
 
     if decision["intent"] == "focus" and not decision["target"]["value"]:
         decision["intent"] = "unknown"
-    if "spend" in lowered or "value" in lowered or "money" in lowered:
+
+    # Which board a leaderboard question wants, tested in the order the words
+    # override each other. "Category manager" is a person, so the people test
+    # has to come before the category one or it lands on the wrong board.
+    people = re.search(r"\b(who|whose|whom|manager|managers|people|person|owners?)\b", lowered)
+    # "Which district is doing best" wants the eight districts in an order,
+    # not one lot inside one of them.
+    if not people and re.search(r"\bdistricts?\b", lowered):
+        if decision["intent"] in ("rank", "leaders"):
+            decision["intent"] = "leaders"
+            decision["view"] = "districts"
+    elif decision["intent"] == "leaders" and not people:
+        # A bare "show me the leaderboard" means people. Only an explicit
+        # mention of categories asks for the 145-row board.
+        decision["view"] = "categories" if re.search(r"\bcategor\w+\b", lowered) else "people"
+
+    # What a ranking sorts on. The journey score unless the question says
+    # otherwise, because that is what "doing best" means.
+    if re.search(r"\bspend|value|money|euro|cost|expensive\b", lowered):
         decision["metric"] = "spend_eur"
+    elif re.search(r"\breach|markets?|adopt\w*|widely\b", lowered):
+        decision["metric"] = "market_reach"
     return json.dumps(decision)
 
 

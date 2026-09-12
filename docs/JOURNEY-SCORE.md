@@ -164,6 +164,10 @@ the split and invisible in the total.
 
 ## How to use it
 
+Asked for from the question box: "who is doing best" opens the People board,
+"which district is doing best" opens Districts, and both name the leader with
+the three components rather than the total alone.
+
 **Public, by district.** No minimum, no names, defensible. This is the
 all-hands version.
 

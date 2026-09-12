@@ -37,6 +37,11 @@ CITY = pathlib.Path(__file__).resolve().parent.parent / "data" / "city.json"
 # build" answered for Germany: right intent, and a number about one market
 # over a picture of the whole city.
 #
+# An intent written "leaders:people" also pins the choice the intent makes,
+# which for leaders is which of the three boards it opens. "Who is doing
+# best" landing on the category board is the right intent and the wrong
+# answer, and a check that could not see the difference would pass it.
+#
 # An intent may list alternatives separated by "|" where two are genuinely
 # both right. "How is Energy doing" is the case in point: `district` flies
 # there and summarises, `summary` flies there and summarises with one more
@@ -71,7 +76,19 @@ CASES: list[tuple[str, str, str]] = [
     # Every question in the manual walkthrough in docs/TESTING.md belongs
     # here too, or the script asks somebody to check by hand what the suite
     # could have checked on its own.
-    ("who is doing best", "rank", ""),
+    #
+    # These nine are the leaderboard routing. All of them used to answer with
+    # A221, a category that leads on blueprint reach and that nobody has ever
+    # used, including the one that asks for a category manager by name.
+    ("who is doing best", "leaders:people", NOWHERE),
+    ("who is doing well", "leaders:people", NOWHERE),
+    ("who is the top category manager", "leaders:people", NOWHERE),
+    ("who is behind", "leaders:people", NOWHERE),
+    ("show me the leaders", "leaders:people", NOWHERE),
+    ("show me the leaderboard", "leaders:people", NOWHERE),
+    ("the category leaderboard", "leaders:categories", NOWHERE),
+    ("which district is doing best", "leaders:districts", NOWHERE),
+    ("which category is doing best", "rank", ""),
     ("what are we asking people to do", "asks", NOWHERE),
     ("what should we do next", "asks", NOWHERE),
     ("show me the takeaways", "asks", NOWHERE),
@@ -165,7 +182,14 @@ def main() -> int:
             continue
 
         answered[got.source] = answered.get(got.source, 0) + 1
-        intent_ok = got.intent in want_intent.split("|")
+        intent_ok = False
+        for wanted_one in want_intent.split("|"):
+            name, _, choice = wanted_one.partition(":")
+            if got.intent != name:
+                continue
+            intent_ok = not choice or getattr(got, "view", "") == choice
+            if intent_ok:
+                break
         if want_target == NOWHERE:
             target_ok = not got.value
         else:
@@ -174,6 +198,10 @@ def main() -> int:
         passed += ok
         mark = "  ok  " if ok else "FAIL  "
         detail = f"{got.intent}"
+        if got.intent == "leaders":
+            detail += f":{got.view}"
+        elif got.intent == "rank":
+            detail += f" by {got.metric}"
         if got.value:
             detail += f" -> {got.value}"
         if not ok:

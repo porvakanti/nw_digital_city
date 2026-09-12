@@ -194,7 +194,15 @@ Ask in plain English. The city is what the agent does, not what it talks about.
 
 Without a model the browser uses its own rules, which is also what happens if
 the endpoint is slow, unreachable or unsure. The demo never depends on a
-network call succeeding.
+network call succeeding. Both paths route the same question the same way, and
+the browser suite drives both, because two sets of rules answering one
+question differently is a failure nobody notices until it happens live.
+
+A question asking for a leaderboard gets the leaderboard, and the word decides
+which: "who" opens the People board, "which district" opens Districts, and
+"which category is doing best" flies to the lot. A ranking sorts on the
+journey score unless the question asks about money or reach, and the answer
+quotes the measure it actually sorted on.
 
 ### The model never sees the numbers
 

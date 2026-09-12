@@ -189,6 +189,16 @@
       };
     },
 
+    /* The value a ranking sorts on.
+     *
+     * Every measure except one lives in `metrics`. The journey score is
+     * computed per category and sits beside it, so a ranking by score would
+     * silently read undefined and order 145 categories by nothing at all. */
+    measure(category, metric) {
+      if (metric === "journey") return (category.journey || {}).total || 0;
+      return category.metrics[metric] || 0;
+    },
+
     /** Categories in a scope, ordered by a metric. */
     rank(scope, metric, direction) {
       let pool = categories;
@@ -203,10 +213,16 @@
         pool = pool.filter((c) => c.markets.includes(scope.hit));
       }
       const sorted = pool.slice().sort((a, b) => {
-        const d = (b.metrics[metric] || 0) - (a.metrics[metric] || 0);
+        const d = tools.measure(b, metric) - tools.measure(a, metric);
         return direction === "asc" ? -d : d;
       });
       return { list: sorted, label: `${sorted.length} in scope` };
+    },
+
+    /** The leaderboard, on whichever of its three views was asked for. */
+    leaders(view) {
+      const rows = CITYVIEW.showJourney(view) || [];
+      return { list: rows, label: `${rows.length} on the board` };
     },
 
     /** The plots with real money on them and nothing built. */
@@ -301,7 +317,44 @@
 
   // ----------------------------------------------------------------- intents
   const WORST = /\b(worst|weakest|behind|lagging|lowest|least|poorest)\b/;
-  const BEST = /\b(best|strongest|biggest|largest|most|top|highest|lead|leads|leading|ahead)\b/;
+  const BEST = /\b(best|strongest|biggest|largest|most|top|highest|lead|leads|leading|ahead|well|widest|broadest|furthest|advanced)\b/;
+
+  /* A leaderboard question, and which board it wants.
+   *
+   * "Who" means people. It used to be answered with a category ranked by
+   * blueprint reach, so asking who the top category manager was returned a
+   * lot that nobody has ever used. The journey panel is the real answer and
+   * these decide which of its three views to open.
+   */
+  const LEADERBOARD = /\b(leader|leaders|leaderboard|league|ranking|rankings|standings|scoreboard)\b/;
+  const WHO = /\b(who|whose|whom|person|people|manager|managers|owner|owners|buyer|buyers)\b/;
+  const WHICH_DISTRICT = /\bdistricts?\b/;
+  const WHICH_CATEGORY = /\b(categor\w+|lot|lots|building|buildings)\b/;
+
+  /** Which leaderboard a question is asking for, or null if it wants a lot. */
+  function boardFor(lower) {
+    const asking = LEADERBOARD.test(lower) || BEST.test(lower) || WORST.test(lower);
+    if (!asking) return null;
+    if (WHO.test(lower)) return "people";
+    if (WHICH_DISTRICT.test(lower)) return "districts";
+    // Naming categories, or a place, means the question wants a lot on the
+    // map rather than a list. Bare "show me the leaderboard" gets people,
+    // because that is the board somebody means by the word.
+    if (WHICH_CATEGORY.test(lower)) return LEADERBOARD.test(lower) ? "categories" : null;
+    return LEADERBOARD.test(lower) ? "people" : null;
+  }
+
+  /* What a ranking sorts on when the question does not say.
+   *
+   * The journey score, because that is what "doing best" now means: 40% for
+   * the blueprint, 35% for anyone using it, 25% for doing it with AI. It used
+   * to default to blueprint reach, which ranked a category live in sixteen
+   * markets and used by none of them top of the city. */
+  function metricFor(lower) {
+    if (/\bspend|value|money|euro|cost|expensive\b/.test(lower)) return "spend_eur";
+    if (/\breach|market|markets|adopt\w*|widely\b/.test(lower)) return "market_reach";
+    return "journey";
+  }
   const GAPS = /\b(gap|gaps|empty|bare|undeveloped|missing|nothing|unbuilt|opportunit\w*)\b|no blueprint|without a blueprint/;
   const SUMMARY = /\b(how many|summary|overview|overall|status|count|total)\b/;
   const RESET = /\b(reset|whole city|zoom out|everything|all of it|back|daylight)\b/;
@@ -349,6 +402,32 @@
     );
   }
 
+  /* "Who is doing best" is a leaderboard question, so the answer is the
+   * leaderboard.
+   *
+   * The journey panel already scores every district, every category and every
+   * category manager on one 0 to 100 figure, so the agent opens it on the
+   * right view rather than paraphrasing it. Naming the top two matters: the
+   * leader is usually first on one component rather than across the board,
+   * and a total with no workings invites an argument the total cannot answer.
+   */
+  async function runLeaders(view) {
+    const board = await call("leaders", view);
+    const [first, second] = board.list;
+    if (!first) {
+      CITYVIEW.speak("Nobody qualifies for that board yet.", "Nothing here.");
+      return;
+    }
+    const noun = { people: "category manager", districts: "district", categories: "category" }[view];
+    const lead = `${first.label} leads the ${noun}s on ${first.total} out of 100: ${first.blueprint} for the blueprint, ${first.usage} for anyone using it, ${first.ai} for AI.`;
+    CITYVIEW.speak(
+      second ? `${lead} ${second.label} is next on ${second.total}.` : lead,
+      view === "people"
+        ? "Journey progress, not performance. Nobody chose their portfolio."
+        : "Three components, never just the total."
+    );
+  }
+
   async function runRank(scope, metric, direction) {
     const ranked = await call("rank", scope, metric, direction);
     const pick = direction === "asc"
@@ -360,10 +439,22 @@
     }
     await call("render", "focus", pick.code);
     const reach = pick.metrics.market_reach;
+    /* Say the figure the ranking actually sorted on.
+     *
+     * This used to quote market reach whatever it had ranked by, which is how
+     * "who is doing best" came back with a category that leads on reach and
+     * has never once been used. If the sentence and the sort disagree, the
+     * sentence is wrong. */
+    const because = {
+      journey: () => `${Math.round((pick.journey || {}).total || 0)} out of 100 on the journey`,
+      spend_eur: () => euro(pick.metrics.spend_eur),
+      market_reach: () => plural(reach, "market"),
+      cbp_total: () => plural(pick.metrics.cbp_total || 0, "blueprint"),
+    }[metric] || (() => plural(reach, "market"));
     CITYVIEW.speak(
       direction === "asc"
-        ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${euro(pick.metrics.spend_eur)}, ${reach === 0 ? "and no blueprint at all" : plural(reach, "market")}.`
-        : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${plural(reach, "market")}, ${euro(pick.metrics.spend_eur)}.`,
+        ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${because()}, ${euro(pick.metrics.spend_eur)}.`
+        : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${because()}, ${euro(pick.metrics.spend_eur)}.`,
       direction === "asc" ? "This is where I would start." : "This is the one to copy."
     );
   }
@@ -569,6 +660,7 @@
         case "gaps": return runGaps(scope);
         case "summary": return runSummary(scope);
         case "rank": return runRank(scope, plan.metric, plan.direction);
+        case "leaders": return runLeaders(plan.view || "people");
         case "could_be": return runCouldBe();
         case "night": return runNight();
         case "asks": return runAsks();
@@ -596,10 +688,13 @@
     if (COULD_BE.test(lower)) return runCouldBe();
     if (GAPS.test(lower)) return runGaps(scope);
     if (SUMMARY.test(lower)) return runSummary(scope);
-    if (WORST.test(lower) || BEST.test(lower)) {
+    // A leaderboard question with nowhere named opens the board. Named
+    // somewhere, it is a question about that place and ranks within it.
+    const board = boardFor(lower);
+    if (board && !scope) return runLeaders(board);
+    if (WORST.test(lower) || BEST.test(lower) || LEADERBOARD.test(lower)) {
       const direction = WORST.test(lower) ? "asc" : "desc";
-      const metric = /spend|value|money|euro/.test(lower) ? "spend_eur" : "market_reach";
-      return runRank(scope, metric, direction);
+      return runRank(scope, metricFor(lower), direction);
     }
     return runPlace(found);
   }
