@@ -1,4 +1,4 @@
-# NW Digital City — visual configuration
+# NW Digital City: visual configuration
 #
 # THE PIVOT POINT OF THIS PROJECT.
 #
@@ -17,7 +17,7 @@ city:
   agent_name: Crane           # the agent's display name; change freely
 
 # ---------------------------------------------------------------------------
-# LAYER BINDINGS — the four measures from the category blueprint deck.
+# LAYER BINDINGS. What each visible thing in the city is driven by.
 # Each value must name a key from `metrics:` below.
 # ---------------------------------------------------------------------------
 layers:
@@ -35,7 +35,7 @@ layers:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
   reactor:
-    metric: ai_rfps          # real since Tomas's 9 Sep extract; was ai_rfps_sample
+    metric: ai_rfps
     caption: Structured rules and future autonomy readiness
   occupancy:
     metric: cbp_used
@@ -141,9 +141,9 @@ metrics:
   market_reach:
     label: Blueprint reach
     description: >
-      Number of local markets with a blueprint for this category. Kate's brief
-      notes that adoption is measured as one blueprint per L4 per local market,
-      so this counts how widely the category has actually been taken up.
+      Number of local markets with a blueprint for this category. Adoption is
+      defined as one blueprint per L4 category per local market, so this counts
+      how widely the category has actually been taken up.
     unit: markets
     kind: numeric
     provisional: true
@@ -218,9 +218,8 @@ metrics:
       A readiness signal only. This is not a claim that autonomous procurement
       is live.
 
-      Real since Tomas's 9 September extract. It was empty before that, which
-      is why ai_rfps_sample existed; 8 of 145 categories have any, and the
-      placeholder had been showing 28.
+      Measured data. The column was empty in earlier extracts and carried a
+      placeholder until then; 8 of 145 categories have any.
     unit: rfps
     kind: numeric
     tiers:
@@ -228,24 +227,6 @@ metrics:
       - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory. First AI-generated RFPs.}
       - {id: steady,    max: 6,    label: Steady glow,    detail: Connected. Core rules structured.}
       - {id: reactor,   max: null, label: Full reactor,   detail: AI-ready candidate.}
-
-  ai_rfps_sample:
-    label: AI-generated RFPs
-    description: >
-      Stand-in for the AI-generated RFP count while the real column is empty.
-      Seeded from a fixed value so rehearsal and the live run agree, and zero
-      for any category without an active blueprint.
-    unit: rfps
-    kind: numeric
-    sample: true
-    sample_note: >
-      Not real data. Replace by pointing the reactor layer at ai_rfps once the
-      real figures land.
-    tiers:
-      - {id: dark,      max: 0,    label: Dark,          detail: Not yet measured.}
-      - {id: flicker,   max: 2,    label: Flicker,       detail: Exploratory. First AI-generated RFPs.}
-      - {id: steady,    max: 6,    label: Steady glow,   detail: Connected. Core rules structured.}
-      - {id: reactor,   max: null, label: Full reactor,  detail: AI-ready candidate.}
 
 # ---------------------------------------------------------------------------
 # Honesty guardrails. The deck is explicit that measure four signals readiness,

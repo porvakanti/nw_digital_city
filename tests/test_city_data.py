@@ -87,6 +87,7 @@ class TestPrivacy(unittest.TestCase):
 class TestCityShape(unittest.TestCase):
     def setUp(self):
         self.city = load_city()
+        self.config = load_config()
 
     def test_scope_and_counts_agree(self):
         counts = self.city["meta"]["counts"]
@@ -129,14 +130,35 @@ class TestCityShape(unittest.TestCase):
             )
 
     def test_sample_metrics_are_declared(self):
-        """Anything not real must be named in meta, so the UI can badge it."""
-        self.assertIn("ai_rfps_sample", self.city["meta"]["sample_metrics"])
+        """Anything not real must be named in meta, so the UI can badge it.
 
-    def test_sample_ai_rfps_only_where_rules_exist(self):
-        """A category with no active blueprint cannot have AI-generated RFPs."""
+        The list is derived from the config rather than written down, so this
+        checks the derivation: exactly the metrics the registry admits are
+        placeholders and that actually drive a visual layer. Empty is the
+        right answer today and the assertion still has to hold if it stops
+        being empty.
+        """
+        declared = self.city["meta"]["sample_metrics"]
+        bound = {layer["metric"] for layer in self.config["layers"].values()}
+        expected = sorted(
+            name for name, spec in self.config["metrics"].items()
+            if spec.get("sample") and name in bound
+        )
+        self.assertEqual(expected, declared)
+
+    def test_no_fabricated_figures_are_published(self):
+        """A placeholder column must not survive in the output at all.
+
+        The AI-RFP figures were generated from a seed while the real column
+        was empty, and a file carrying both would let somebody read the wrong
+        one. The measured column is the only one shipped.
+        """
         for category in self.city["categories"]:
-            if category["blueprint_state"] != "active":
-                self.assertEqual(0, category["metrics"]["ai_rfps_sample"], category["code"])
+            for name in category["metrics"]:
+                self.assertNotIn(
+                    "sample", name,
+                    f"{category['code']} still carries {name}",
+                )
 
     def test_no_sample_metric_drives_a_visual_layer(self):
         """The whole reason the sample badge exists. Now that the real AI
@@ -152,7 +174,7 @@ class TestCityShape(unittest.TestCase):
 
 
 class TestConfigBinding(unittest.TestCase):
-    """config/metrics.yaml is the pivot point — keep it honest against the data."""
+    """config/metrics.yaml is the pivot point. Keep it honest against the data."""
 
     def setUp(self):
         self.config = load_config()
@@ -199,14 +221,11 @@ class TestConfigBinding(unittest.TestCase):
     def test_unreal_metrics_are_badged(self):
         """Placeholder or stand-in numbers must be flagged, not quietly presented."""
         registry = self.config["metrics"]
-        self.assertTrue(registry["ai_rfps_sample"].get("sample"))
         self.assertTrue(registry["market_reach"].get("provisional"))
+        # The badge machinery has to stay wired up even with nothing to badge,
+        # because the next placeholder arrives as a data change, not a code one.
         self.assertTrue(self.config["disclosure"]["show_sample_badge"])
         self.assertTrue(self.config["disclosure"]["show_provisional_badge"])
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 class TestTheNumbersWeSayOutLoud(unittest.TestCase):
@@ -247,9 +266,34 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
     def test_networks_journey_score(self):
         journey = self.city["totals"]["journey"]
         self.assertAlmostEqual(19.4, journey["total"], delta=0.2)
+
         self.assertAlmostEqual(16.1, journey["blueprint"], delta=0.2)
         self.assertAlmostEqual(1.6, journey["usage"], delta=0.2)
         self.assertAlmostEqual(1.7, journey["ai"], delta=0.2)
+
+    def test_the_district_table_in_the_docs(self):
+        """Every district score quoted in JOURNEY-SCORE.md, to the digit shown.
+
+        The panel rounds these for display and the document quotes the
+        rounded figure, so this compares what a reader sees rather than the
+        underlying float. Fixed sits on 19.5 and has already been written
+        down once as 19.
+        """
+        expected = {
+            "Access Radio/Fixed": 28,
+            "Transmission Infrastructure": 23,
+            "Energy": 22,
+            "Fixed": 20,
+            "Managed Services and Outsourcing": 19,
+            "Leased Lines": 13,
+            "Software and Core": 12,
+            "Network Revenue Platforms": 9,
+        }
+        shown = {
+            d["name"]: round(d["totals"]["journey"]["total"])
+            for d in self.city["districts"]
+        }
+        self.assertEqual(expected, shown)
 
     def test_one_category_has_done_the_whole_journey(self):
         perfect = [c["code"] for c in self.cats if c["journey"]["total"] == 100]
@@ -311,3 +355,7 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
                 journey["blueprint"] + journey["usage"] + journey["ai"],
                 category["code"],
             )
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -3,9 +3,9 @@
 
     python3 run.py            start the city and open a browser
     python3 run.py serve lan  the same, reachable from a phone on the same wifi
-    python3 run.py test       every check: python tests, eval set, browser smoke
+    python3 run.py test       every check there is, one verdict at the end
     python3 run.py eval       six questions against whatever .env says
-    python3 run.py eval all   all 32, if the key's limits allow it
+    python3 run.py eval all   the whole question set, if the key allows it
     python3 run.py build      rebuild city.json from the workbook in data/raw/
     python3 run.py package    one .html file to send, and a zip, both safe
     python3 run.py models     which models the configured key can actually call
@@ -232,7 +232,7 @@ def package() -> int:
     # Inlining is a text substitution and text substitutions go wrong quietly:
     # a broken single file looks exactly like a working one until somebody
     # opens it, and by then it is in their inbox.
-    if shutil.which("node") and (ROOT / "node_modules" / "playwright").is_dir():
+    if browsers_available():
         print("· checking it opens and answers a question")
         if subprocess.call(["node", "tests/smoke.js"], cwd=ROOT,
                            env=dict(os.environ, NW_SMOKE_URL=one.as_uri())):
@@ -301,59 +301,138 @@ def browser_against_service(python: Path) -> int:
             service.kill()
 
 
-def check(python: Path) -> int:
-    """Run everything, and say plainly at the end whether it all passed.
+def browsers_available() -> bool:
+    """Whether the browser stages can run at all on this machine."""
+    return bool(shutil.which("node")) and (ROOT / "node_modules" / "playwright").is_dir()
 
-    Each part prints its own summary, and three summaries scrolling past is
-    exactly how a failure in the middle gets missed. So there is one verdict at
-    the bottom naming what failed.
-    """
-    failed = []
-    if subprocess.call([str(python), "-m", "unittest", "discover", "-s", "tests"],
-                       cwd=ROOT):
-        failed.append("python tests")
-    if subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT):
-        failed.append("the agent's question set")
 
-    if shutil.which("node") and (ROOT / "node_modules" / "playwright").is_dir():
-        if subprocess.call(["node", "tests/smoke.js"], cwd=ROOT):
-            failed.append("the browser smoke test")
-        # And again against the service, because that is what gets deployed
-        # and it is a different path through the agent: served, it asks for a
-        # plan and acts on the answer; from a file it never can. Everything
-        # above this line was testing the fallback.
-        if browser_against_service(python):
-            failed.append("the browser smoke test against the service")
+def how_to_install_playwright() -> None:
+    print("  To enable the browser stages, once:")
+    print()
+    if os.name == "nt":
+        print("    npm.cmd install playwright")
+        print("    npx.cmd playwright install chromium")
+        print()
+        print("  The .cmd matters: PowerShell refuses the unsigned npm wrapper.")
     else:
-        print("· skipping the browser smoke test. To enable it, once:")
+        print("    npm install playwright")
+        print("    npx playwright install chromium")
+    print()
+    print("  Two commands because the first installs the library and the second")
+    print("  downloads a browser for it to drive. Worth doing once: these are")
+    print("  the stages that catch a broken renderer, which nothing else sees.")
+
+
+def browser_against_file(python: Path) -> int:
+    """Drive renderer/index.html from disk, the way a reviewer opens it.
+
+    file:// is the strictest environment the city runs in: no modules, no
+    fetch, no endpoint. If it works here it works everywhere, and the agent
+    falls back to its own rules rather than asking for a plan.
+    """
+    return subprocess.call(["node", "tests/smoke.js"], cwd=ROOT)
+
+
+def browser_against_package(python: Path) -> int:
+    """Build the single file and drive that, because that is what gets sent.
+
+    Inlining is a text substitution, and text substitutions go wrong quietly:
+    a broken single file looks exactly like a working one until somebody opens
+    it, and by then it is in their inbox.
+    """
+    one = single_file()
+    print(f"  built {one.name} ({one.stat().st_size / 1e6:.1f} MB)")
+    return subprocess.call(["node", "tests/smoke.js"], cwd=ROOT,
+                           env=dict(os.environ, NW_SMOKE_URL=one.as_uri()))
+
+
+# Every stage, in the order it runs, with what a failure in it would mean.
+# Ordered cheapest first so a broken build is reported in under a second
+# rather than after two minutes of browser work.
+STAGES = [
+    ("data and privacy",
+     "104 assertions over city.json, the plan parser, the model ladder and the"
+     " service, including the security suite",
+     lambda python: subprocess.call(
+         [str(python), "-m", "unittest", "discover", "-s", "tests"], cwd=ROOT)),
+    ("the agent's question set",
+     "the questions from the stage script, end to end, against whatever .env"
+     " names",
+     lambda python: subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT)),
+    ("the renderer from a file",
+     "the city opens, draws, answers and stays reachable on a phone screen",
+     browser_against_file, True),
+    ("the renderer against the service",
+     "the served page finds its own endpoint, gets a plan and acts on it",
+     browser_against_service, True),
+    ("the file we send",
+     "the inlined single file opens on its own and does all of the above",
+     browser_against_package, True),
+]
+
+
+def check(python: Path) -> int:
+    """Every check there is, in one command, with one verdict at the end.
+
+    Each stage prints its own summary, and five summaries scrolling past is
+    exactly how a failure in the middle gets missed. So every stage is named
+    before it runs and listed again at the bottom with its result.
+    """
+    browsers = browsers_available()
+    results = []
+
+    for number, stage in enumerate(STAGES, start=1):
+        name, what, run = stage[0], stage[1], stage[2]
+        needs_browser = len(stage) > 3
+
         print()
-        if os.name == "nt":
-            print("    npm.cmd install playwright")
-            print("    npx.cmd playwright install chromium")
-            print()
-            print("  The .cmd matters: PowerShell refuses the unsigned npm wrapper.")
-        else:
-            print("    npm install playwright")
-            print("    npx playwright install chromium")
+        print(f"── {number}/{len(STAGES)}  {name}")
+        print(f"   {what}")
         print()
-        print("  Two commands because the first installs the library and the")
-        print("  second downloads a browser for it to drive. Worth doing once:")
-        print("  it is the check that catches a broken renderer, which nothing")
-        print("  else here can see.")
+
+        if needs_browser and not browsers:
+            print("   skipped: node and playwright are not installed")
+            results.append((name, "skipped"))
+            continue
+        results.append((name, "failed" if run(python) else "passed"))
 
     print()
+    print("─" * 70)
+    width = max(len(name) for name, _ in results)
+    for name, outcome in results:
+        mark = {"passed": "ok", "failed": "FAILED", "skipped": "--"}[outcome]
+        print(f"  {name.ljust(width)}   {mark}")
+    print("─" * 70)
+    print()
+
+    failed = [name for name, outcome in results if outcome == "failed"]
+    skipped = [name for name, outcome in results if outcome == "skipped"]
+
     if failed:
         print(f"FAILED: {', '.join(failed)}")
+        print()
+        print("  Scroll up to the stage that failed. Each one prints the")
+        print("  assertion that broke and the value it saw.")
         return 1
-    print("Everything passed.")
+
+    if skipped:
+        print(f"Everything that could run passed. {len(skipped)} stages skipped.")
+        print()
+        how_to_install_playwright()
+        return 0
+
+    print("Everything passed. The city draws, answers, holds its numbers,")
+    print("keeps names and keys out of what it publishes, and the file you")
+    print("would send does all of it on its own.")
     return 0
 
 
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "serve"
-    if command not in ("serve", "test", "eval", "build", "package", "models"):
-        print("usage: python3 run.py [serve|test|eval|build|package|models]",
-              file=sys.stderr)
+    if command not in ("serve", "test", "verify", "eval", "build", "package",
+                       "models"):
+        print("usage: python3 run.py "
+              "[serve|test|eval|build|package|models]", file=sys.stderr)
         return 2
 
     # Packaging is pure standard library, so it should not make anyone wait for
@@ -368,7 +447,7 @@ def main() -> int:
         return subprocess.call([str(python), "-m", "app.eval", *sys.argv[2:]], cwd=ROOT)
     if command == "models":
         return models(python)
-    if command == "test":
+    if command in ("test", "verify"):
         return check(python)
     return serve(python, lan="lan" in sys.argv[2:])
 

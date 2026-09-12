@@ -1,6 +1,6 @@
 /* Rehearsal smoke test: drives the real page in a real browser.
  *
- * Checks the things that would ruin a live demo — the city loading, the
+ * Checks the things that would ruin a live demo: the city loading, the
  * resolver finding what people will actually type, and the agent driving the
  * city rather than just talking about it.
  *
@@ -74,7 +74,7 @@ const NAVIGATION = 90000;
 let failures = 0;
 const check = (name, ok, detail) => {
   if (!ok) failures++;
-  console.log(`${ok ? "  ok  " : "FAIL  "}${name}${detail ? " — " + detail : ""}`);
+  console.log(`${ok ? "  ok  " : "FAIL  "}${name}${detail ? " · " + detail : ""}`);
 };
 
 /* The same page on a phone.
@@ -336,7 +336,7 @@ async function onAPhone(browser) {
     const health = await page.evaluate(
       async (base) => (await fetch(base + "/health")).json(), SERVED);
     check("service says what is wired up", health.ok === true,
-      `${health.provider}${health.ready ? "" : " — " + health.detail}`);
+      `${health.provider}${health.ready ? "" : ": " + health.detail}`);
 
     await page.evaluate(() => window.NWCity.reset());
     await page.fill("#askInput", "batteries");
@@ -405,6 +405,120 @@ async function onAPhone(browser) {
     land.plots.some((b) => a.perLot > b.perLot + 1e6 && a.cell < b.cell - 0.01));
   check("lot size never contradicts spend", wrongWay.length === 0,
     wrongWay.map((p) => p.name).join(", "));
+
+  // ------------------------------------------------- the four newest layers
+  // Occupancy, the arc, the journey panel and the landmarks all went in at
+  // once and all four are read from the data at render time, so a build that
+  // dropped a column would draw a plausible-looking city that says nothing.
+  // Each check here compares what is drawn against what the data holds.
+
+  const occupancy = await page.evaluate(() => {
+    const cats = window.NW_CITY.categories;
+    return {
+      used: cats.filter((c) => (c.metrics.cbp_used || 0) > 0).length,
+      built: cats.filter((c) => c.metrics.market_reach > 0).length,
+      declared: window.NW_CITY.totals.in_use,
+    };
+  });
+
+  check("the city knows how many blueprints anybody has used",
+    occupancy.used === occupancy.declared && occupancy.used > 0,
+    `${occupancy.used} used of ${occupancy.built} built`);
+
+  const arc = await page.evaluate(() => {
+    const track = document.querySelector("#arc .track").getBoundingClientRect();
+    const you = document.getElementById("arcYou").getBoundingClientRect();
+    return {
+      score: document.getElementById("arcScore").textContent.trim(),
+      note: document.getElementById("arcNote").textContent.trim(),
+      stages: [...document.querySelectorAll("#arc .stage")].map((s) => s.textContent),
+      inside: you.left >= track.left - 1 && you.right <= track.right + 1,
+      offset: Math.round(((you.left - track.left) / track.width) * 100),
+      total: Math.round(window.NW_CITY.totals.journey.total),
+    };
+  });
+
+  check("the arc names all four stages",
+    arc.stages.join(" ") === "Traditional Connected Smart Autonomous",
+    arc.stages.join(", "));
+  check("the arc reports the score the data holds",
+    arc.score.includes(String(arc.total)), `${arc.score} ${arc.note}`);
+  check("the marker sits on the rail rather than beside it", arc.inside,
+    `${arc.offset}% along`);
+
+  // Three views over one score. Each groups the same 145 categories a
+  // different way, so all three must produce rows, sort highest first, and
+  // agree with the city's own total when rolled back up.
+  for (const view of ["districts", "categories", "people"]) {
+    const panel = await page.evaluate((which) => {
+      document.querySelector(`#jSwitch [data-view="${which}"]`).click();
+      const rows = [...document.querySelectorAll("#jRows .jRow")].map((el) => ({
+        who: el.querySelector(".who").textContent,
+        num: Number(el.querySelector(".num").textContent),
+        bars: el.querySelectorAll(".bp, .use, .ai").length,
+      }));
+      return {
+        rows: rows.length,
+        sorted: rows.every((r, i) => i === 0 || rows[i - 1].num >= r.num),
+        components: rows.every((r) => r.bars === 3),
+        inRange: rows.every((r) => r.num >= 0 && r.num <= 100),
+        top: rows[0] || null,
+      };
+    }, view);
+
+    check(`the journey panel fills in for ${view}`,
+      panel.rows > 0 && panel.sorted && panel.inRange && panel.components,
+      panel.top ? `${panel.rows} rows, top ${panel.top.who} at ${panel.top.num}` : "no rows");
+  }
+
+  // People is the one view that withholds rows, and it must: below the
+  // minimum a score is a coin toss rather than a track record, and a single
+  // category with a single blueprint would sit at the top on merit it did
+  // not earn.
+  const people = await page.evaluate(() => {
+    document.querySelector('#jSwitch [data-view="people"]').click();
+    const floor = (window.NW_CONFIG.score || {}).minimum_categories || 3;
+    const rows = [...document.querySelectorAll("#jRows .jRow")];
+    const held = new Set();
+    for (const c of window.NW_CITY.categories) for (const p of c.owners || []) held.add(p);
+    return {
+      floor,
+      shown: rows.length,
+      everybody: held.size,
+      counts: rows.map((el) => Number(el.querySelector(".sub").textContent.split(" ")[0])),
+    };
+  });
+
+  check("nobody below the minimum appears on the leaderboard",
+    people.counts.every((n) => n >= people.floor) && people.shown < people.everybody,
+    `${people.shown} of ${people.everybody} people qualify at ${people.floor}+`);
+
+  await page.evaluate(() => document.querySelector('#jSwitch [data-view="districts"]').click());
+
+  // A landmark is earned: the blueprint reached enough markets and one of
+  // them has a monument defined. A landmark that appeared anywhere else would
+  // be decoration, which is the one thing the city does not do.
+  const monuments = await page.evaluate(() => {
+    const config = window.NW_CONFIG.landmarks || {};
+    const floor = config.min_markets || 5;
+    const earned = window.NW_CITY.categories.filter((c) => c.landmark);
+    return {
+      drawn: window.NWCity.monuments(),
+      earned: earned.map((c) => c.code).sort(),
+      floor,
+      unearned: earned.filter((c) => c.metrics.market_reach < floor).map((c) => c.code),
+      offMap: earned.filter((c) => !(config.by_market || {})[c.landmark.market])
+        .map((c) => c.code),
+      named: earned.map((c) => `${c.landmark.name} (${c.landmark.market})`),
+    };
+  });
+
+  check("every landmark in the data is standing in the city",
+    monuments.drawn.join(",") === monuments.earned.join(","),
+    `${monuments.drawn.length} built: ${monuments.named.join(", ")}`);
+  check("no landmark was awarded without the markets to earn it",
+    monuments.unearned.length === 0 && monuments.offMap.length === 0,
+    [...monuments.unearned, ...monuments.offMap].join(", "));
 
   check("no page errors", errors.length === 0, errors[0] || "");
 

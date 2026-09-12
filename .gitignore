@@ -1,4 +1,4 @@
-# Source data — never committed. Contains blueprint owner names and email
+# Source data, never committed. Contains blueprint owner names and email
 # addresses. Only the anonymised, derived data/city.json belongs in git.
 data/raw/
 *.xlsx

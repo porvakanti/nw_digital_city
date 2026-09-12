@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import hashlib
 import json
 import re
 from datetime import datetime, timezone
@@ -32,8 +31,7 @@ import yaml
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_SOURCE = REPO / "data" / "raw" / "Category_Blueprint_Allhands.xlsx"
-# Tomas maintains this one, and it is the newer of the two. It carries the
-# per-category model: blueprint counts, spend, AI-generated RFPs and, since 9
+# The current per-category extract, and the newer of the two sources. Carries blueprint counts, spend, AI-generated RFPs and, since 9
 # September, how many times each blueprint has actually been used. The older
 # workbook is still needed for the market lists, the definitions and the
 # category manager, none of which appear here.
@@ -49,7 +47,7 @@ SCOPE_L1 = "Network"
 
 # Sheet holding the per-L4 model in the older workbook, kept as a fallback.
 MODEL_SHEET = "Sheet4"
-# The same model in Tomas's refresh, plus the CBP used column.
+# The same model in the current extract, plus the CBP used column.
 METRICS_SHEET = "Sheet1"
 # Sheet holding one row per individual blueprint, including its markets.
 RECORDS_SHEET = "Raw Data"
@@ -70,9 +68,6 @@ PERSONAL_FIELDS = {
     "Contact for VGS supplier onboarding",
 }
 
-# Seed for the placeholder AI-RFP figures. Fixed on purpose: rehearsal and the
-# live run must show identical numbers.
-SAMPLE_SEED = "nw-digital-city-2026-09"
 
 
 def rows_of(worksheet):
@@ -104,9 +99,9 @@ def clean(value):
 def read_model(workbook, sheet_name=MODEL_SHEET):
     """Per-L4 taxonomy, blueprint counts, adoption percentages, spend and usage.
 
-    Reads either workbook: the columns are the same except that Tomas's
-    refresh adds "CBP used", which is absent from the older file and defaults
-    to zero rather than failing, so an old extract still builds.
+    Reads either workbook. The columns are the same except that the current
+    extract adds "CBP used", which is absent from older files and defaults to
+    zero rather than failing, so a superseded extract still builds.
     """
     sheet = workbook[sheet_name]
     rows = list(rows_of(sheet))
@@ -180,25 +175,6 @@ def read_definitions(workbook):
             out[code] = definition
     return out
 
-
-def sample_ai_rfps(code: str, blueprint_state: str) -> int:
-    """Deterministic placeholder for the missing AI-generated RFP column.
-
-    Skewed low, and zero for any category without an active blueprint -- an
-    agent cannot generate RFPs from rules that were never captured, which is
-    the argument the city is making in the first place.
-    """
-    if blueprint_state != "active":
-        return 0
-    digest = hashlib.sha256(f"{SAMPLE_SEED}:{code}".encode()).digest()
-    roll = digest[0] / 255.0
-    if roll < 0.35:
-        return 0
-    if roll < 0.70:
-        return 1 + digest[1] % 2
-    if roll < 0.92:
-        return 3 + digest[1] % 4
-    return 7 + digest[1] % 6
 
 
 def load_config() -> dict:
@@ -314,8 +290,11 @@ def split_people(cell: str) -> list[str]:
 
 
 def initials(person: str) -> str:
-    """"Praveen Orvakanti" becomes "P.O." Enough to tell people apart, not
-    enough to be a directory."""
+    """Reduce a full name to initials: "Ada Lovelace" becomes "A.L."
+
+    Enough to tell two people apart in a ranking, not enough to be a
+    directory. Used when people.show is set to `initials`.
+    """
     parts = [p for p in re.split(r"[\s,]+", person) if p and p[0].isalpha()]
     return ".".join(p[0].upper() for p in parts[:3]) + "." if parts else ""
 
@@ -362,12 +341,27 @@ def blueprint_state(record) -> str:
     return "none"
 
 
+def sample_metrics(config: dict) -> list[str]:
+    """Which metrics the registry admits are not real, and drive something.
+
+    Published so the renderer can badge them and nobody can present a
+    placeholder as fact. Derived from the config rather than listed here: a
+    hand-kept list is one edit away from declaring a fabricated column real,
+    and that edit is invisible until it is on a screen in front of 400 people.
+    """
+    bound = {(layer or {}).get("metric") for layer in (config.get("layers") or {}).values()}
+    return sorted(
+        name for name, spec in (config.get("metrics") or {}).items()
+        if (spec or {}).get("sample") and name in bound
+    )
+
+
 def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
     config = load_config()
     workbook = openpyxl.load_workbook(source, read_only=True, data_only=True)
 
-    # Tomas's refresh is the model when it is present; the older workbook still
-    # supplies the markets, the definitions and the category manager.
+    # The refreshed extract is the model when present; the older workbook
+    # still supplies the markets, the definitions and the category manager.
     if metrics and metrics.exists():
         refreshed = openpyxl.load_workbook(metrics, read_only=True, data_only=True)
         model = read_model(refreshed, METRICS_SHEET)
@@ -405,7 +399,6 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
                     "ariba_adoption": record["ariba_adoption"],
                     "spend_eur": record["spend_eur"],
                     "ai_rfps": record["ai_rfps"] or 0,
-                    "ai_rfps_sample": sample_ai_rfps(code, state),
                     "cbp_used": record["cbp_used"],
                 },
             }
@@ -447,7 +440,7 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
             "source_extract_date": "2026-08-06",
             "scope": f"{SCOPE_L1} (Level 1)",
             "anonymised": True,
-            "sample_metrics": ["ai_rfps_sample"],
+            "sample_metrics": sample_metrics(config),
             "people": (config.get("people") or {}).get("show", "none"),
             "markets": all_markets,
             "counts": {
@@ -474,7 +467,7 @@ def write_renderer_data(city: dict) -> None:
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     RENDERER_DATA.parent.mkdir(parents=True, exist_ok=True)
     RENDERER_DATA.write_text(
-        "// Generated by data/build_city.py — do not edit by hand.\n"
+        "// Generated by data/build_city.py. Do not edit by hand.\n"
         "// Assigns globals rather than exporting, so the renderer works from\n"
         "// file:// where ES modules and fetch() are both blocked by CORS.\n"
         f"window.NW_CITY = {json.dumps(city, ensure_ascii=False)};\n"
@@ -591,7 +584,7 @@ def main() -> None:
 
     city = build(args.source, args.out, args.metrics)
     meta, totals = city["meta"], city["totals"]
-    print(f"\n{meta['scope']} — {meta['counts']['districts']} districts, "
+    print(f"\n{meta['scope']}: {meta['counts']['districts']} districts, "
           f"{meta['counts']['plots']} plots, {meta['counts']['categories']} buildings")
     print(f"  {totals['with_blueprint']} developed / {totals['empty_lots']} empty lots "
           f"({totals['empty_lots'] / totals['categories']:.0%} of the city is empty ground)")

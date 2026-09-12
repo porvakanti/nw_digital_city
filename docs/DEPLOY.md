@@ -9,7 +9,7 @@ the whole city folded into a single file they double-click. No unzipping, no
 folder to hunt through, no infrastructure, no accounts. Everything works
 except the Gemini model, and the agent falls back to its own rules, which
 handle every question in the demo. Send `docs/REVIEW-GUIDE.md` with it.
-**For Kate and Tomas this week, do this.**
+**For a first review round, do this.**
 
 The same command also writes `nw-digital-city.zip`, which is the city as
 separate files for anyone who wants to see how it works. Do not attach
@@ -121,7 +121,7 @@ For the all-hands, set `--min-instances 1` the morning of, so the first question
 on stage does not pay for a cold start. That is one flag and a few euros for a
 day.
 
-### What Tomas, or whoever owns the environment, needs to tell us
+### What the environment owner needs to confirm
 
 1. A GCP project, and the ability to deploy a container to Cloud Run in it.
 2. Vertex AI enabled, and which Gemini models are available in the region.
@@ -160,9 +160,9 @@ the real thing. That needs no code in Foundry at all.
   "function": "Sourcing",
   "locked": false,
   "audience": "category managers, sourcing leads and anyone curious about blueprint coverage",
-  "owner": "Praveen Orvakanti",
+  "owner": "VP&C Digital",
   "owner_role": "VP&C",
-  "owner_initials": "PO",
+  "owner_initials": "VP",
   "how": [
     "You ask about a category, a district or a market in plain English",
     "It resolves what you meant, runs its tools over the blueprint extract, and drives the city",

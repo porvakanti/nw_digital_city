@@ -119,8 +119,10 @@ Anything at all, but these especially:
 
 ## Things that are known and do not need reporting
 
-- **The AI readiness lights are placeholder data.** There is no real
-  AI-generated RFP data yet. Labelled as such on screen.
+- **Only eight rooftops are lit.** That is the measured AI-generated RFP
+  column, not a placeholder. An earlier version ran on stand-in figures and
+  showed 28; eight is a weaker picture and a much better position to argue
+  from, because it is true.
 - **Some categories show zero spend.** That is what the extract says. Whether
   it is a data gap or genuinely nothing is one of my open questions.
 - **The question box uses simple rules in this version.** The full version
