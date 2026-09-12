@@ -1349,11 +1349,14 @@
 
     if (floors > 0) {
       if (reactorTier > 0) {
-        const glow = 0.3 + reactorTier * 0.12;
+        /* Sized so the lowest lit tier is still visible from the default
+         * camera. The previous constants were tuned when the ladder had four
+         * rungs and values reached double figures; on a three-rung ladder they
+         * produced a disc under half a unit across. */
+        const glow = 0.62 + reactorTier * 0.26;
         pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.3, z, glow * 1.15, 0.26, glow * 1.15) };
-        // A beam only for the top two tiers. Twenty-eight categories have
-        // some AI-generated RFPs, which is too many columns to pick out; the
-        // thirteen that are steady or better read as landmarks instead.
+        // A beam only on the top rung, so a repeated user is picked out from
+        // a first attempt. Four categories qualify; eight have any activity.
         if (reactorTier >= 2) {
           const reach = 7 + reactorTier * 3.4;
           beams.add(x, top + 0.35 + reach / 2, z, glow * 2.2, reach, glow * 2.2);
@@ -1409,10 +1412,18 @@
       // Kept inside the lot. Pushed further forward the hotel overhung the
       // kerb and clipped whatever stood on the next lot along.
       const front = z + FOOT / 2 + 0.42;
-      const bodies = active ? houses : ghostHouses;
-      const bodyName = active ? "houses" : "ghostHouses";
-      const caps = active ? roofs : ghostRoofs;
-      const capName = active ? "roofs" : "ghostRoofs";
+      /* Solid whatever the blueprint state is.
+       *
+       * The property encodes spend, which is recorded fact and does not depend
+       * on anybody having written a blueprint. Ghosting it at 7% opacity put
+       * the strongest juxtaposition in the estate out of sight: A311 carries
+       * €75m on ground nobody has claimed, and its hotel was invisible. The
+       * building outline stays ghosted, because that building genuinely does
+       * not exist; the money does. */
+      const bodies = houses;
+      const bodyName = "houses";
+      const caps = roofs;
+      const capName = "roofs";
       const push = (bucket, name, ...args) =>
         pieces.houses.push({ bucket: name, i: bucket.add(...args) });
 
@@ -1420,8 +1431,8 @@
         // The Monopoly hotel: one long red block exactly as wide as the four
         // houses it replaces, two storeys where a house has one, a white band
         // of windows across it and a sign on the roof. Told at a glance by
-        // being longer, taller and lighter, not only by being red, because at
-        // the back of a 400-seat room red and green are the same shape.
+        // being longer, taller and lighter, not only by being red: at low
+        // colour fidelity red and green resolve to the same shape.
         const width = 2.72;
         push(bodies, bodyName, x, 0.62 + 0.34, front, width, 0.68, 0.88, C.hotel);
         push(bodies, bodyName, x, 0.62 + 0.74, front, width - 0.22, 0.2, 0.92, 0xf1eee4);
@@ -1863,6 +1874,16 @@
     markStage(stageOf(j.total));
   }
 
+  /* What each stage on the rail means, in the fewest words that are still
+   * true. Referenced by the rail, the reading under it and the legend, so one
+   * definition drives all three. */
+  const STAGE_LABEL = {
+    traditional: "Traditional: a blueprint exists",
+    connected: "Connected: one blueprint, several markets",
+    smart: "Smart: in use, and with AI",
+    autonomous: "Autonomous: nobody is here yet",
+  };
+
   function stageOf(score) {
     if (score >= ARC_MAX * 0.75) return "autonomous";
     if (score >= WEIGHTS.blueprint + WEIGHTS.usage * 0.4) return "smart";
@@ -1878,11 +1899,33 @@
 
   /** Put a single category's own marker on the rail, so the arc answers
    *  "where is this one" as well as "where are we". */
+  /* Put a category's own marker on the rail, and make the reading follow it.
+   *
+   * The marker used to move while the text underneath went on reporting the
+   * organisation figure, so the rail said one thing and the sentence said
+   * another. The selected category now leads, and the organisation figure
+   * drops to a second line so the comparison is still there. */
   function showOnArc(category) {
     const pick = document.getElementById("arcPick");
-    if (!category || !category.journey) { pick.hidden = true; return; }
+    const base = document.getElementById("arcBase");
+    if (!category || !category.journey) {
+      pick.hidden = true;
+      base.hidden = true;
+      renderArc();
+      return;
+    }
+    const j = category.journey;
     pick.hidden = false;
-    pick.style.left = `${arcPosition(category.journey.total)}%`;
+    pick.style.left = `${arcPosition(j.total)}%`;
+    document.getElementById("arcScore").textContent =
+      `${category.code} ${Math.round(j.total)} / ${ARC_MAX}`;
+    document.getElementById("arcNote").textContent =
+      `· ${STAGE_LABEL[stageOf(j.total)]} · ${Math.round(j.blueprint)} blueprint, `
+      + `${Math.round(j.usage)} used, ${Math.round(j.ai)} AI`;
+    const n = CITY.totals.journey;
+    base.hidden = false;
+    base.textContent = `Networks overall ${Math.round(n.total)} / ${ARC_MAX}`;
+    markStage(stageOf(j.total));
   }
 
   /* The journey panel. Three views of one score, because the same number
@@ -2279,10 +2322,17 @@
     captionEl.classList.add("on");
   }
 
+  /* Anchored above the marker pin, not above the head.
+   *
+   * The pin is how the figure is found in a wide shot, and the bubble was
+   * pinned at head height with a 12px lift, which put it straight over the
+   * pin. Clearing the pin also fixes a second fault: the old anchor used the
+   * constant FIGURE_SCALE while the pin uses the live scale, so the two drifted
+   * apart as the camera pulled back and the figure grew. */
   function placeBubble() {
     if (!bubbleText) return;
     const head = figure.position.clone();
-    head.y += 3.4 * FIGURE_SCALE;
+    head.y += (4.1 * figure.scale.y / FIGURE_SCALE) + 1.1;
     head.project(camera);
     const x = (head.x * 0.5 + 0.5) * window.innerWidth;
     const y = (-head.y * 0.5 + 0.5) * window.innerHeight - 12;

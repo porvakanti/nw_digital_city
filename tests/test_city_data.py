@@ -218,6 +218,44 @@ class TestConfigBinding(unittest.TestCase):
                 f"layer {layer} is bound to {name}, which never varies, so it draws one tier"
             )
 
+    def test_every_visual_tier_is_reachable_by_the_data(self):
+        """A rung no value can reach draws nothing, and nobody is told.
+
+        The AI-RFP ladder had four rungs calibrated for a placeholder column
+        whose values reached double figures. On the measured column, which runs
+        0 to 2, every lit category fell on the lowest lit rung: no category
+        ever reached the tier that draws a beam, so the layer showed almost
+        nothing and no check noticed. This asserts that every declared tier of
+        every bound metric is actually occupied.
+        """
+        for layer, binding in self.config["layers"].items():
+            name = binding["metric"]
+            spec = self.config["metrics"][name]
+            tiers = spec.get("tiers")
+            if not tiers:
+                continue
+            values = [c["metrics"][name] for c in load_city()["categories"]]
+
+            def rung(value):
+                for index, tier in enumerate(tiers):
+                    ceiling = tier.get("max", tier.get("value"))
+                    if ceiling is None:
+                        return index
+                    if isinstance(ceiling, str):
+                        if value == ceiling:
+                            return index
+                    elif value <= ceiling:
+                        return index
+                return len(tiers) - 1
+
+            occupied = {rung(v) for v in values}
+            empty = [tiers[i]["id"] for i in range(len(tiers)) if i not in occupied]
+            self.assertEqual(
+                [], empty,
+                f"layer {layer} is bound to {name}, whose tier(s) {empty} no "
+                f"category can reach, so that part of the encoding never draws",
+            )
+
     def test_unreal_metrics_are_badged(self):
         """Placeholder or stand-in numbers must be flagged, not quietly presented."""
         registry = self.config["metrics"]
