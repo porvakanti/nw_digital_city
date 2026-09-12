@@ -153,7 +153,11 @@ score:
   # here yet" is true of Networks and a flat contradiction on a category
   # sitting at 100.
   stages:
-    - {id: traditional, from: 0,  label: Traditional, detail: a blueprint exists}
+    - {id: traditional, from: 0,  label: Traditional, detail: a blueprint exists,
+       # A score of nought means no blueprint at all: drafting one already
+       # scores ten. So the bottom of the bottom stage needs its own words,
+       # or the rail says "a blueprint exists" over bare ground.
+       detail_zero: "no blueprint yet"}
     - {id: connected,   from: 40, label: Connected,   detail: "one blueprint, several markets"}
     - {id: smart,       from: 54, label: Smart,       detail: "in use, and with AI"}
     - {id: autonomous,  from: 75, label: Autonomous,  detail: the whole journey,

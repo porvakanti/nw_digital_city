@@ -401,6 +401,39 @@ async function onAPhone(browser) {
     [...sheet.missingStages, ...sheet.missingMonuments, ...sheet.missingCaveats].join(", ")
       || `${sheet.length} characters`);
 
+  /* The reading of a lot leads with the score, and says nothing untrue at nought.
+   *
+   * The caption is the loudest line on the screen and it quoted market reach:
+   * "8 markets building on this blueprint" for the one category in Networks
+   * that has finished the journey, and the same sentence for A221, live in
+   * sixteen markets and never used, where it read as praise.
+   *
+   * The nought case is the other half. A score of nought means no blueprint
+   * at all, because drafting one already scores ten, so the bottom of the
+   * bottom stage needs its own words or the rail says "Traditional: a
+   * blueprint exists" over bare ground.
+   */
+  const readings = [];
+  for (const code of ["A251", "A221", "A311"]) {
+    await page.evaluate((c) => window.NWCity.focus(c), code);
+    await page.waitForTimeout(900);
+    readings.push(await page.evaluate((c) => ({
+      code: c,
+      caption: document.querySelector("#caption b").innerText.replace(/\s+/g, " "),
+      note: document.getElementById("arcNote").textContent.replace(/\s+/g, " "),
+    }), code));
+  }
+  const byCodeRead = new Map(readings.map((r) => [r.code, r]));
+  check("the reading of a built lot leads with its score",
+    /^100 out of 100 on the journey\./.test(byCodeRead.get("A251").caption)
+      && /^40 out of 100 on the journey\./.test(byCodeRead.get("A221").caption),
+    byCodeRead.get("A251").caption.slice(0, 80));
+  check("a lot with no blueprint is not told it has one",
+    !/blueprint exists/.test(byCodeRead.get("A311").note)
+      && /no blueprint/.test(byCodeRead.get("A311").note),
+    byCodeRead.get("A311").note.slice(0, 80));
+  await page.evaluate(() => window.NWCity.reset());
+
   // A district answer says where the district sits, not just how big it is.
   await page.fill("#askInput", "how is Energy doing");
   await page.click("#askGo");

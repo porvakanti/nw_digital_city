@@ -2569,14 +2569,27 @@
 
   const STAGE_LABEL = {};
   const STAGE_LABEL_ORG = {};
+  /* And one more reading for the bottom of the bottom stage.
+   *
+   * A score of nought means no blueprint at all, because drafting one already
+   * scores ten. Without this the rail reads "Traditional: a blueprint exists"
+   * over bare ground, which is the opposite of what that lot is showing. */
+  const STAGE_LABEL_ZERO = {};
   for (const stage of STAGES) {
     STAGE_LABEL[stage.id] = `${stage.label}: ${stage.detail}`;
     STAGE_LABEL_ORG[stage.id] = `${stage.label}: ${stage.detail_org || stage.detail}`;
+    STAGE_LABEL_ZERO[stage.id] = `${stage.label}: ${stage.detail_zero || stage.detail}`;
   }
 
   function stageOf(score) {
     const reached = STAGES.find((stage) => score >= (stage.from || 0));
     return (reached || STAGES[STAGES.length - 1] || { id: "traditional" }).id;
+  }
+
+  /** How a single score reads on the rail, including nought. */
+  function stageText(score) {
+    const stage = stageOf(score);
+    return Math.round(score) > 0 ? STAGE_LABEL[stage] : STAGE_LABEL_ZERO[stage];
   }
 
   function markStage(stage) {
@@ -2608,7 +2621,7 @@
     document.getElementById("arcScore").textContent =
       `${category.code} ${Math.round(j.total)} / ${ARC_MAX}`;
     document.getElementById("arcNote").textContent =
-      `· ${STAGE_LABEL[stageOf(j.total)]} · ${Math.round(j.blueprint)} blueprint, `
+      `· ${stageText(j.total)} · ${Math.round(j.blueprint)} blueprint, `
       + `${Math.round(j.usage)} used, ${Math.round(j.ai)} AI`;
     const n = CITY.totals.journey;
     base.hidden = false;
@@ -3058,10 +3071,23 @@
     const strongest = used > 0
       ? `used ${used} time${used === 1 ? "" : "s"}`
       : reach > 1 ? `live in ${markets}` : "live in one market";
+    /* The caption leads with the score, like everything else.
+     *
+     * It read "8 markets building on this blueprint" for the one category in
+     * Networks that has finished the journey: the loudest line on the screen
+     * was quoting the weakest measure the city holds, and the same line for
+     * A221, live in sixteen markets and never used, read as praise. Score
+     * first, then the stage that score reaches, then what is and is not
+     * carrying it, in that order, because that is the order of the argument.
+     */
+    const use = used > 0
+      ? `used ${used} time${used === 1 ? "" : "s"}`
+      : "never used";
+    const facts = [use, `live in ${markets}`];
+    if (m.spend_eur > 0) facts.push(`${spend} of spend`);
+    const lead = `${score} out of 100 on the journey. ${stageText(score)}.`;
     return {
-      caption: m.spend_eur > 0
-        ? `${markets} building on this blueprint. ${spend} of spend.`
-        : `${markets} building on this blueprint.`,
+      caption: `${lead} ${facts.join(", ")[0].toUpperCase()}${facts.join(", ").slice(1)}.`,
       bubble: category.landmark
         ? `${score} out of 100, and ${strongest}. ${category.landmark.name} stands here.`
         : `${score} out of 100 on the journey, and ${strongest}.`,
