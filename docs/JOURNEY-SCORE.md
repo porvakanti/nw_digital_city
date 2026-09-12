@@ -138,7 +138,7 @@ That single line is worth more than any picture in this project.
 | Transmission Infrastructure | 23 | 22 | 0 | 1 | 4 of 10 |
 | Energy | 22 | 21 | 0 | 2 | 11 of 18 |
 | Fixed | 20 | 13 | 7 | 0 | 11 of 12 |
-| Managed Services and Outsourcing | 19 | 17 | 1 | 1 | 4 of 10 |
+| Managed Services and Outsourcing | 19 | 18 | 1 | 1 | 4 of 10 |
 | Leased Lines | 13 | 13 | 0 | 0 | 12 of 16 |
 | Software and Core | 12 | 12 | 0 | 0 | 18 of 25 |
 | Network Revenue Platforms | 9 | 8 | 0 | 1 | 9 of 17 |
@@ -148,15 +148,16 @@ eight districts have **zero** on usage, which is the finding.
 
 ### By manager
 
-23 of 35 qualify at a three-category minimum. Median 19, top 61.
+30 of 38 qualify at a three-category minimum. Median 19, top 61.
 
 | | Categories | Total | Blueprint | Usage | AI |
 | --- | --- | --- | --- | --- | --- |
 | 1st | 3 | 61 | 28 | 19 | 14 |
 | 2nd | 3 | 50 | 32 | 0 | 18 |
 | 3rd | 4 | 36 | 36 | 0 | 0 |
-| 6th | 7 | 30 | 28 | 2 | 1 |
-| 9th | 14 | 23 | 21 | 0 | 2 |
+| 6th | 4 | 33 | 33 | 0 | 0 |
+| 9th | 15 | 23 | 22 | 0 | 2 |
+| 30th | 11 | 0 | 0 | 0 | 0 |
 
 **Always show the three components, never just the total.** The leader is
 first because they are the only one with real usage, and that is visible in
@@ -189,8 +190,8 @@ who to learn from. Not a slide.
 **Nobody picked their own categories.** Twelve inherited categories with no
 history is not a decision anyone made.
 
-**Six of the 23 qualifying managers score zero** and would appear at zero on
-any public board.
+**Seven of the 30 qualifying managers score zero** and would appear at zero on
+any public board. One of them holds eleven categories.
 
 **It measures the record, not the effort.** A blueprint that took six months of
 negotiation scores the same as one that took an afternoon.

@@ -137,6 +137,10 @@ the owning organisation, not a default.
 
 ## 5. Architecture
 
+Component by component, with the diagrams, is in
+[ARCHITECTURE.md](ARCHITECTURE.md). This section is why the shape is what it
+is rather than what the shape is.
+
 ```
 config/metrics.yaml    which metric drives which visual layer
 data/build_city.py     workbook → anonymised city.json (+ renderer/city-data.js)

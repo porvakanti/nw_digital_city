@@ -542,6 +542,43 @@ async function onAPhone(browser) {
 
   await page.evaluate(() => document.querySelector('#jSwitch [data-view="districts"]').click());
 
+  /* The two score implementations must agree.
+   *
+   * Python computes the score during the build; the browser computes it again
+   * for the People board, where the grouping does not exist until the page
+   * runs. Nothing forces those two to stay the same, and a formula that
+   * differs by a rounding rule would put a different person top of a board
+   * with names on it. So roll the browser's version up over each district and
+   * over the whole city, and compare against what the build wrote.
+   */
+  const rollup = await page.evaluate(() => {
+    const drift = [];
+    const check = (label, codes, expected) => {
+      const got = window.NWCity.score(codes);
+      if (!got) return drift.push(`${label}: no score`);
+      for (const key of ["total", "blueprint", "usage", "ai"]) {
+        const d = Math.abs(got[key] - expected[key]);
+        // The build rounds to one decimal before writing, so anything inside
+        // half of that is the same number and anything outside is a formula
+        // that has moved.
+        if (d > 0.05) drift.push(`${label}.${key}: ${got[key].toFixed(3)} vs ${expected[key]}`);
+      }
+    };
+    const all = window.NW_CITY.categories.map((c) => c.code);
+    check("Networks", all, window.NW_CITY.totals.journey);
+    for (const d of window.NW_CITY.districts) {
+      const codes = window.NW_CITY.categories
+        .filter((c) => c.district === d.name).map((c) => c.code);
+      check(d.name, codes, d.totals.journey);
+    }
+    return { drift, groups: window.NW_CITY.districts.length + 1 };
+  });
+
+  check("the browser and the build compute the same score",
+    rollup.drift.length === 0,
+    rollup.drift.length ? rollup.drift.join("; ")
+      : `${rollup.groups} groupings agree to one decimal`);
+
   // A landmark is earned: the blueprint reached enough markets and one of
   // them has a monument defined. A landmark that appeared anywhere else would
   // be decoration, which is the one thing the city does not do.

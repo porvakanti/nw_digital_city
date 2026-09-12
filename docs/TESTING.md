@@ -22,7 +22,7 @@ than five summaries to interpret.
 
 | Stage | What it proves | Fails if |
 | --- | --- | --- |
-| **1. Data and privacy** | 105 assertions over `city.json`, the plan parser, the model ladder and the service, including the whole security suite | a figure quoted in a document no longer matches the data, or a name, a contact detail or an API key could reach anyone |
+| **1. Data and privacy** | 127 assertions over `city.json`, the figures every document quotes, the plan parser, the model ladder and the service, including the whole security suite | a figure quoted in a document no longer matches the data, or a name, a contact detail or an API key could reach anyone |
 | **2. The agent's question set** | the questions from the stage script, end to end, against whatever `.env` names | a question that worked yesterday now resolves to the wrong place, or to nowhere |
 | **3. The renderer from a file** | the city opens, draws, answers and stays usable on a phone screen | a lot overlaps another, a plot contradicts its spend, a control lands off-screen, or the console throws |
 | **4. The renderer against the service** | the served page finds its own endpoint, asks for a plan and acts on the answer | the deployed path is broken, which the file path cannot see |
@@ -60,12 +60,22 @@ three times in a file that was already circulating. The reachability rule
 exists because a Close button sat off the edge of a phone screen and the suite
 at the time could not see it.
 
+### The document check, specifically
+
+18 of those assertions read the documents and rebuild each figure they quote
+out of `city.json`. A stale number in a document is worse than a stale number
+in code: nothing breaks, nobody notices, and somebody says it out loud. Six
+were wrong when the check was written, left over from before the category
+manager cells were parsed properly, and the failure names the document and the
+exact string to change.
+
 ### Running one part
 
 ```
 py run.py eval                 the agent's questions only
 py run.py build                rebuild city.json from the workbook
 .venv/bin/python3 -m unittest tests.test_security -v
+.venv/bin/python3 -m unittest tests.test_docs -v
 node tests/smoke.js            the browser pass on its own
 ```
 
@@ -258,7 +268,8 @@ failure mode this project has.
   Height is market count instead, and is badged provisional on screen.
 - **No source we hold has a date.** So the city cannot show what changed this
   month, and cannot tell a standing start from a slow decline.
-- **20 categories have a live blueprint and no recorded spend.** The map
+- **20 categories have a blueprint and no recorded spend**, 14 live and 6
+  drafted. The map
   therefore holds empty lots with money on them and built lots with none.
   Whether that is a data gap or genuinely nothing is an open question with the
   data owners.
