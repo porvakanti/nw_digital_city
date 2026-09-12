@@ -269,6 +269,66 @@ class TestWhatYouActuallySee(DocumentFigures):
         self.quotes("TESTING.md", f"whose blueprint reached {'five' if floor == 5 else floor} or more")
 
 
+class TestTheDiagrams(DocumentFigures):
+    """The diagrams are committed as images, not as diagram code.
+
+    VS Code does not render mermaid in markdown preview without an extension,
+    so a repository whose architecture is drawn in fenced mermaid shows a
+    reader raw code. Committed SVG renders in VS Code, on GitHub, and in
+    anything else that can show an image.
+    """
+
+    def test_no_diagram_needs_a_renderer_to_be_installed(self):
+        # assertTrue rather than assertNotIn: the built-in message for a
+        # missing substring prints the whole haystack, and a haystack here is
+        # a 300-line document.
+        for doc in sorted(DOCS.glob("*.md")):
+            self.assertTrue(
+                "```mermaid" not in doc.read_text(encoding="utf-8"),
+                f"docs/{doc.name} draws a diagram in mermaid, which VS Code "
+                "shows as raw code. Commit it to docs/diagrams as SVG instead.",
+            )
+
+    def test_every_referenced_diagram_exists(self):
+        import re
+        for doc in sorted(DOCS.glob("*.md")):
+            body = doc.read_text(encoding="utf-8")
+            for target in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", body):
+                if target.startswith(("http://", "https://")):
+                    continue
+                self.assertTrue(
+                    (doc.parent / target).is_file(),
+                    f"docs/{doc.name} shows {target}, which is not there",
+                )
+
+    def test_every_committed_diagram_is_shown_somewhere(self):
+        shown = " ".join(d.read_text(encoding="utf-8") for d in DOCS.glob("*.md"))
+        for svg in sorted((DOCS / "diagrams").glob("*.svg")):
+            self.assertIn(
+                f"diagrams/{svg.name}", shown,
+                f"{svg.name} is committed and never shown, so nobody will see it",
+            )
+
+    def test_the_diagrams_are_self_contained(self):
+        """No external fetch, no script, nothing a viewer has to allow.
+
+        GitHub and VS Code both render these inside an image element, which
+        fetches nothing and runs nothing, so anything reaching outward is
+        silently missing rather than broken. The namespace declaration is the
+        one URL allowed, and is what makes the file render at all.
+        """
+        # Fetch-shaped rather than "any http", or the required
+        # xmlns="http://www.w3.org/2000/svg" would fail its own file.
+        forbidden = ("<script", "<image", "<foreignObject", "<use ",
+                     'href="http', "url(http", "url(&#34;http", "@import")
+        for svg in sorted((DOCS / "diagrams").glob("*.svg")):
+            body = svg.read_text(encoding="utf-8")
+            found = [token for token in forbidden if token in body]
+            self.assertEqual([], found, f"{svg.name} reaches outward: {found}")
+            self.assertTrue('xmlns="http://www.w3.org/2000/svg"' in body,
+                            f"{svg.name} has no namespace, so it will not render")
+
+
 class TestTheBiggestPlaceInTheCity(DocumentFigures):
     def test_the_largest_plot_is_named_with_its_spend(self):
         codes = {c["code"]: c for c in self.cats}

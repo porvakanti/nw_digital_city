@@ -1,174 +1,165 @@
 # Architecture
 
-How the parts fit, what depends on what, and which decisions are load-bearing.
-For why each choice was made rather than what it is, see
-[DESIGN.md](DESIGN.md).
+Four pictures, plain English first, then the detail. The diagrams are committed
+as images rather than diagram code, so they render in VS Code, on GitHub and
+anywhere else without an extension.
 
-## The whole thing at a glance
+For why each choice was made rather than what it is, see [DESIGN.md](DESIGN.md).
 
-```mermaid
-flowchart TB
-  subgraph build["BUILD TIME, on one laptop"]
-    WB["Source workbook<br/>data/raw/*.xlsx<br/><i>names, emails, spend</i>"]
-    CFG["config/metrics.yaml<br/><i>which metric drives which layer</i>"]
-    BLD["data/build_city.py"]
-    GUARD{"privacy guard<br/><i>refuses to write</i>"}
-    CJ["data/city.json<br/><i>anonymised, derived</i>"]
-    CD["renderer/city-data.js<br/><i>same data as a global</i>"]
-    WB --> BLD
-    CFG --> BLD
-    BLD --> GUARD
-    GUARD -->|clean| CJ
-    CJ --> CD
-    GUARD -.->|"a name or an email"| STOP["build fails"]
-  end
+---
 
-  subgraph browser["RUN TIME, in the browser"]
-    IDX["index.html"]
-    THREE["vendor/three.min.js<br/><i>r134 UMD, vendored</i>"]
-    CITY["city.js<br/><i>the city, 2.7k lines</i>"]
-    AGENT["agent.js<br/><i>tools, resolver, trace</i>"]
-    CD --> AGENT
-    CD --> CITY
-    THREE --> CITY
-    IDX --> CITY
-    IDX --> AGENT
-    AGENT <-->|"window.NWCity"| CITY
-  end
+## 1. On the day
 
-  subgraph service["OPTIONAL SERVICE"]
-    SRV["app/server.py<br/><i>FastAPI</i>"]
-    PLAN["app/plan.py<br/><i>prompt + validation</i>"]
-    PROV["app/providers.py<br/><i>mock, Gemini, Vertex, Claude</i>"]
-    SRV --> PLAN
-    PLAN --> PROV
-  end
+![On the day](diagrams/1-on-the-day.svg)
 
-  LLM(["a language model"])
-  AGENT -.->|"POST /plan<br/>question + names only"| SRV
-  SRV -.->|"a validated Plan"| AGENT
-  PROV -.->|"no figures ever"| LLM
+The all-hands route starts in the Agent Marketplace on the AIB GCP Lab
+instance. The Digital City is one agent in it. Clicking that tile opens a new
+browser tab, and the city loads there.
 
-  style STOP stroke-dasharray: 4 4
-  style LLM stroke-dasharray: 4 4
+**That route needs the city hosted at a URL.** A marketplace tile has nothing
+to point at otherwise, so a deployment is not optional for the marketplace
+path.
+
+The backup route is the single HTML file on the laptop. Same city, same
+figures, no network, no hosting. It exists because a live demo in front of 400
+people should not have a single point of failure that belongs to somebody
+else's infrastructure.
+
+---
+
+## 2. What is inside the city
+
+![What is inside the city](diagrams/2-inside-the-city.svg)
+
+Three parts, and it matters which is which.
+
+**The figures are baked into the page.** There is no database and no API call
+to fetch data. The whole extract is a JavaScript file the page loads, which is
+why the city opens with the network unplugged.
+
+**The picture is drawn in the browser.** All of it: the 145 lots, their sizes,
+the buildings, the score, every number on screen. 3D through three.js, which
+ships with the page rather than being fetched.
+
+**The question box is the only part that ever reaches out**, and only when
+there is something to reach. From a file there is nothing to ask, so it uses
+its own rules. With the service running it asks for a routing decision and
+falls back to those same rules if the answer is slow, unreachable or
+unusable.
+
+So the dashed box is the only thing in the system that can fail, and nothing
+else depends on it.
+
+---
+
+## 3. Where the figures come from
+
+![Where the figures come from](diagrams/3-where-the-figures-come-from.svg)
+
+This happens once, on one laptop, before anybody looks at anything. It is not
+part of what runs on the day.
+
+The workbook holds blueprint owner names and email addresses. It is
+git-ignored, so it never becomes part of the repository. `run.py build` derives
+the city's figures from it, and before writing anything the build reads its own
+output back looking for contact details. If it finds one, it refuses to write
+and says so.
+
+Category manager names are in the output, and only because
+`config/metrics.yaml` says `people: show: names`. Set that to `initials` or
+`none`, rebuild, and they are gone. Nothing else changes.
+
+---
+
+## 4. What the model does, and does not, see
+
+![What the model does](diagrams/4-what-the-model-does.svg)
+
+The model gets your question and the list of things the city contains: 145
+category names, 8 districts, 31 plots, 21 markets. **It gets no figures at
+all**, so no spend number leaves the laptop, and it has nothing to state even
+if asked.
+
+It returns one small object naming which of eleven intents your question was
+and where it pointed:
+
+```json
+{"intent": "leaders", "view": "people"}
 ```
 
-The dashed edges are the ones that are allowed to fail. Everything solid works
-with no network, no key and no Python.
+Three rules make that safe rather than merely tidy.
 
-## Three things that can run, and what each needs
+1. **No figures go up.** Names only.
+2. **No figures come down.** Any digit in the model's framing text is stripped
+   before anything is drawn. Every number on screen is computed in the browser.
+3. **No invented targets.** A category the city does not hold is dropped and
+   noted, so the camera cannot fly nowhere and print a code that does not
+   exist.
 
-| What | Needs | Gets you |
-| --- | --- | --- |
-| `renderer/index.html` from disk | a browser | the whole city, the agent on its own rules |
-| **`NW Digital City.html`** | a browser | the same, as one file you can email |
-| `run.py serve` | Python, optionally a key | the same, plus a model doing the routing |
+### Is this an agent?
 
-This ordering is deliberate. The thing that matters is on screen in front of
-400 people, so the version with the fewest moving parts has to be complete on
-its own. The model improves how loosely a question can be phrased. It is not
-load-bearing.
+Partly, and worth being precise about, because it is the first thing anyone
+technical will ask.
 
-## The question path
+**What is genuinely agentic:** it uses tools (eight of them), the chosen intent
+selects which run, every call is printed to a visible trace panel as it
+happens, and the output surface is the application state rather than text. It
+answers by changing what you are looking at.
 
-Every question goes down the same path, and the path is designed so that any
-step can fall over without the previous ones caring.
+**What is not AI at all:** every number, the journey score, the layout, the
+name resolver, and the fallback routing. All deterministic, all identical on
+every run, all covered by tests.
 
-```mermaid
-sequenceDiagram
-  autonumber
-  participant P as Presenter
-  participant A as agent.js
-  participant S as /plan
-  participant M as model
-  participant C as city.js
+**The honest description:** a constrained natural-language interface over a
+deterministic visualisation, with a tool-calling loop and a visible trace. Not
+an autonomous agent. No multi-step planning, no self-correction, no memory
+between questions, and no ability to write or change any data. That is a
+deliberate choice for something running live, not a gap to fill in later.
 
-  P->>A: "who is doing best"
-  A->>S: question + the city's vocabulary
-  Note over A,S: names only, never a figure
-  S->>M: system prompt + vocabulary
-  M-->>S: {"intent":"leaders","view":"people"}
-  S->>S: validate: invented names dropped
-  S-->>A: a Plan, or unknown
-  Note over A: unknown, unreachable or slow<br/>falls through to local rules
-  A->>C: leaders("people")
-  C-->>A: the ranked rows
-  A->>C: speak(the answer)
-  C->>P: panel opens, camera moves, caption
-```
+---
 
-**The fallback is not an error path, it is the default path.** Opened from a
-file there is no service to ask, so the regex rules in `agent.js` do the
-routing every time. The browser suite drives both, because two sets of rules
-answering one question differently is a failure nobody notices until it is
-live.
+## The eight tools
 
-## What the model is allowed to decide
-
-The model chooses an intent and, where a question names somewhere, a target.
-It does not compute, phrase or see anything else.
-
-```mermaid
-flowchart LR
-  Q["a question"] --> M["model"]
-  V["145 category names<br/>8 districts, 31 plots<br/>21 markets"] --> M
-  M --> R["JSON:<br/>intent, target,<br/>metric, direction, view"]
-  R --> VAL{"validate"}
-  VAL -->|"a name the city has"| OK["Plan"]
-  VAL -->|"a name it does not"| DROP["dropped, noted"]
-  VAL -->|"a figure in the preamble"| STRIP["stripped"]
-  VAL -->|"unparseable"| UNK["unknown"]
-  OK --> T["the browser's own tools<br/>compute every number"]
-```
-
-Three rules make this safe rather than merely tidy:
-
-1. **No figures go up.** The prompt carries names only. No spend figure, no
-   score, no count leaves the laptop. It also cannot state a number, because it
-   has none to state.
-2. **No figures come down.** A preamble containing a digit is discarded. Every
-   number on screen is computed in the browser from `city.json`.
-3. **No invented targets.** A category the city does not have is dropped rather
-   than passed through, so the camera cannot fly nowhere and print a code that
-   does not exist.
-
-## The agent's tools
-
-`agent.js` holds eight functions. These are the whole of what a question can
-cause to happen, and each call is logged to the visible trace panel so the room
-can see the reasoning rather than take it on trust.
+The whole of what a question can cause to happen.
 
 | Tool | What it does |
 | --- | --- |
-| `find_category` | resolve a code, a name, a district, a plot, a market or a definition |
-| `get_metrics` | every measure held for one category |
-| `measure` | the value a ranking sorts on, including the journey score |
-| `rank` | categories in a scope, ordered by a metric |
-| `leaders` | open the leaderboard on one of its three views, return the rows |
-| `find_gaps` | lots with money on them and nothing built |
-| `summarise` | built, empty and spend for a scope |
-| `render` | drive the city: fly, focus, dim, raise, speak |
+| `find_category` | Resolve a code, a name, a district, a plot, a market or a definition |
+| `get_metrics` | Every measure held for one category |
+| `measure` | The value a ranking sorts on, including the journey score |
+| `rank` | Categories in a scope, ordered by a metric |
+| `leaders` | Open the leaderboard on one of its three views, return the rows |
+| `find_gaps` | Lots with money on them and nothing built |
+| `summarise` | Built, empty and spend for a scope |
+| `render` | Drive the city: fly, focus, dim, raise, speak |
 
-`render` is the important one. **The visualisation is the agent's output
-surface.** It answers by changing what you are looking at, not by describing
-what it would change.
+`render` is the important one. The visualisation is the agent's output surface.
+
+## One question, two routes
+
+| | Routed by | When |
+| --- | --- | --- |
+| **Served** | the model, validated | the service is up and answers in time |
+| **From a file** | regular expressions in `agent.js` | always, because there is nothing to ask |
+| **Served but degraded** | the same regular expressions | slow, unreachable, or an unusable answer |
+
+The fallback is not an error path, it is the default path. Both routes end at
+the same tool call, and the browser suite drives both, because two sets of
+rules answering one question differently is a failure nobody notices until it
+is live.
+
+---
 
 ## The renderer
 
-```mermaid
-flowchart TB
-  D["city-data.js<br/>NW_CITY + NW_CONFIG"] --> L["buildLayout()<br/><i>districts, plots, lots</i>"]
-  L --> B["instance buckets"]
-  B --> B1["bricks"]
-  B --> B2["windows"]
-  B --> B3["roads, kerbs, trees"]
-  B --> B4["houses, hotels"]
-  L --> LM["landmarks<br/><i>five monuments</i>"]
-  L --> FIG["the builder<br/><i>a minifigure, layer 1</i>"]
-  D --> ARC["the arc rail"]
-  D --> JP["the journey panel<br/><i>3 views</i>"]
-  D --> LEG["the legend<br/><i>generated from the config</i>"]
-```
+| Drawn from | Into |
+| --- | --- |
+| `city-data.js` | the layout: districts, plots, 145 lots, their sizes |
+| the layout | instance buckets: bricks, windows, roads, kerbs, trees, houses, hotels |
+| the layout | five landmarks, one per blueprint that reached five or more markets |
+| the layout | the builder, a minifigure, drawn on its own camera layer |
+| `city-data.js` | the arc rail, the journey panel's three views, the legend |
+
 
 Two things here are worth knowing before reading the code:
 
@@ -206,50 +197,37 @@ name, by initials or not at all.
 
 ## Privacy, as enforced rather than intended
 
-```mermaid
-flowchart LR
-  WB["the workbook<br/><i>names, emails</i>"]
-  GI[".gitignore<br/>data/raw/"]
-  BG["build guard"]
-  TS["the security suite"]
-  PK["the packager<br/><i>a named list, never a walk</i>"]
-  WB --> GI
-  WB --> BG
-  BG -->|"any contact detail"| F1["refuses to write"]
-  BG -->|"a name, where the config forbids it"| F1
-  TS -->|"scans every tracked file"| F2["fails the build"]
-  PK --> OUT["the zip and the single file"]
-```
+The source workbook carries blueprint owner names and email addresses. Four
+independent mechanisms, because one is a promise and four is a property.
 
-Four independent mechanisms, because one is a promise and four is a property:
-
-- **`data/raw/` is git-ignored.** The workbook never becomes a tracked file.
-- **The build refuses to write** if it finds an email or a contact detail at
-  any setting, or a name at a setting that does not permit one.
-- **The packager builds from a named list**, never a directory walk, because a
-  directory walk is how a workbook ends up in a distributable.
-- **The security suite scans every tracked file** for credentials, contact
-  details and the workbook itself, on every run of `run.py test`.
+| Mechanism | What it stops |
+| --- | --- |
+| `data/raw/` is git-ignored | the workbook ever becoming a tracked file |
+| the build reads its own output back before writing | a contact detail, or a name the config forbids, reaching `city.json` |
+| the packager works from a named list, never a directory walk | a workbook ending up inside a zip somebody emails |
+| 27 security assertions scan every tracked file | a credential, a contact detail or the workbook itself surviving a commit |
 
 Category manager names are published, and only because
 `config/metrics.yaml` says `people: show: names`. Setting it to `initials` or
-`none` and rebuilding is the whole change.
+`none` and rebuilding is the whole change; nothing else moves.
 
 ## The model ladder
 
 A single model name in a config file is a single point of failure on the day,
 so `NW_MODEL` is a first choice rather than an instruction.
 
-```mermaid
-flowchart LR
-  A["NW_MODEL<br/><i>first choice</i>"] --> B["NW_MODELS<br/><i>the ladder</i>"]
-  B --> C["mock<br/><i>always answers</i>"]
-  A -.->|"404: gone"| R1["rested 24h"]
-  A -.->|"429 or 503"| R2["rested for<br/>retryDelay, or 1h"]
-  R1 --> B
-  R2 --> B
-  D["NW_PIN=1"] -->|"refuse to move"| A
-```
+| Setting | Role |
+| --- | --- |
+| `NW_MODEL` | first choice, not an instruction |
+| `NW_MODELS` | the ladder to fall down |
+| `NW_PIN=1` | refuse to move off the first choice |
+| mock | the last rung, which always answers |
+
+| What happened | What the ladder does |
+| --- | --- |
+| 404, the model is gone | rests it for 24 hours, moves on |
+| 429 or 503 | rests it for whatever it asks for, or an hour |
+
 
 A model that returns 404 is rested for a day; one that rate-limits is rested
 for whatever it asks for, or an hour. The answer reports which model actually
@@ -258,29 +236,17 @@ a model is not much of a result.
 
 ## Testing topology
 
-```mermaid
-flowchart TB
-  subgraph py["1. Python, 127 assertions"]
-    T1["data and figures"]
-    T2["the documents agree with the data"]
-    T3["the plan parser"]
-    T4["the model ladder"]
-    T5["the service"]
-    T6["security, 27 assertions"]
-  end
-  E["2. the agent's question set<br/><i>41 questions, end to end</i>"]
-  subgraph br["3, 4, 5. a real browser, three ways"]
-    B1["from a file<br/><i>the strictest case</i>"]
-    B2["against the service<br/><i>the deployed path</i>"]
-    B3["the inlined single file<br/><i>what actually gets sent</i>"]
-  end
-  py --> E --> br
-  br --> PH["each one again at phone size"]
-  PH --> V{"one verdict"}
-```
+| Stage | What it drives |
+| --- | --- |
+| 1 | 127 Python assertions: the data, the figures the documents quote, the plan parser, the model ladder, the service, and 27 security checks |
+| 2 | 41 questions routed end to end |
+| 3 | a real browser against the file, then again at phone size |
+| 4 | a real browser against the running service, then again at phone size |
+| 5 | a real browser against the inlined single file, then again at phone size |
 
 Ordered cheapest first, so a broken build is reported in under a second rather
-than after two minutes of browser work. `run.py test` is the whole thing.
+than after two minutes of browser work. `run.py test` is the whole thing, and
+it ends with one verdict naming whatever failed.
 
 Stage 5 exists because inlining is a text substitution and text substitutions
 go wrong quietly: a broken single file looks exactly like a working one until
@@ -288,21 +254,16 @@ somebody opens it, and by then it is in their inbox.
 
 ## Deployment
 
-```mermaid
-flowchart LR
-  SRC["the repository"] --> GI[".gcloudignore<br/><i>excludes data/raw/</i>"]
-  GI --> CB["Cloud Build"]
-  CB --> IMG["container image"]
-  IMG --> CR["Cloud Run"]
-  SA["service account"] --> CR
-  CR -->|"NW_PROVIDER=vertex"| VX["Vertex AI"]
-  SA -.->|"identity, not a key"| VX
-```
+| Step | Detail |
+| --- | --- |
+| what gets uploaded | the repository minus everything `.gcloudignore` excludes, `data/raw/` first among them |
+| what builds it | Cloud Build, into a container image |
+| what runs it | Cloud Run |
+| how it authenticates | a service account, so no key is in the image or the environment |
+| what it calls | Vertex AI, with `NW_PROVIDER=vertex` |
 
-On Cloud Run the credential is a service account rather than an API key, so
-nothing secret is in the image or the environment. The deploy script refuses to
-upload without a committed `.gcloudignore`, because Cloud Build uploads a
-folder and the workbook lives in one.
+The deploy script refuses to upload without a committed `.gcloudignore`,
+because Cloud Build uploads a folder and the workbook lives in one.
 
 ## What each file is for
 
