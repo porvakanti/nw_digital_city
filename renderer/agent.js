@@ -151,7 +151,18 @@
        */
       const NAMED_ENOUGH = 0.55;
       if (!scored[0] || scored[0].score < NAMED_ENOUGH) {
+        /* Two content words at least.
+         *
+         * The rule above says one word in common is a coincidence, and the
+         * code did not enforce it: stopwords are stripped before the ratio is
+         * taken, so "what is the weather" reduced to a single word, matched a
+         * definition containing it, and scored the full ratio. One common word
+         * appearing somewhere in one of 145 prose definitions is not evidence.
+         */
+        const asked = meaningful(query);
+        const enoughToGoOn = asked.length >= 2;
         for (const c of categories) {
+          if (!enoughToGoOn) break;
           if (!c.definition || mentions(query, c.definition) < 1) continue;
           // Below any name match that got close, and above the floor where
           // the agent gives up. A weak recognition of a real name still beats
@@ -159,14 +170,23 @@
           // not the cable category whose description happens to say both
           // words somewhere in a numbered list.
           scored.push({
-            kind: "category", hit: c, score: 0.45, viaDefinition: true,
+            kind: "category", hit: c, score: DEFINITION_SCORE, viaDefinition: true,
           });
         }
         scored.sort((a, b) => b.score - a.score);
       }
 
       const best = scored[0];
-      if (!best || best.score < 0.34) return { kind: "none", confidence: 0, label: "no match" };
+      /* The floor a match has to clear to be reported at all.
+       *
+       * At 0.34 the resolver returned a lot for "restaurant" (matched against
+       * Infrastructure), "what is the weather" and "what time is it". Those
+       * are worse than a refusal: the camera moves, a card opens, and the
+       * answer is confidently wrong. Raised to the tightest value that still
+       * resolves every query in the regression set. */
+      if (!best || best.score < RESOLVE_FLOOR) {
+        return { kind: "none", confidence: 0, label: "no match" };
+      }
 
       const rival = scored.find((s) => s.kind !== best.kind || s.hit !== best.hit);
       const ambiguous = rival && best.score - rival.score < 0.06;
@@ -316,6 +336,13 @@
   }
 
   // ----------------------------------------------------------------- intents
+  /* Measured, not chosen. Across the regression set the weakest legitimate
+   * name match is "radio kit" at 0.485 and the strongest nonsense match is
+   * 0.419, so the floor sits between them. Definition matches score exactly
+   * DEFINITION_SCORE and clear it by equality. */
+  const RESOLVE_FLOOR = 0.45;
+  const DEFINITION_SCORE = 0.45;
+
   const WORST = /\b(worst|weakest|behind|lagging|lowest|least|poorest)\b/;
   const BEST = /\b(best|strongest|biggest|largest|most|top|highest|lead|leads|leading|ahead|well|widest|broadest|furthest|advanced)\b/;
 

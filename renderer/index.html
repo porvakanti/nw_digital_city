@@ -82,10 +82,18 @@
   }
 
   /* ---- legend ---- */
+  /* Capped so it cannot grow into the masthead above it.
+   *
+   * The legend is anchored to the bottom and sized by its content, and on a
+   * 800px-tall viewport it reached y=55 while the masthead ends at y=222,
+   * covering 70% of it. The cap leaves the masthead its band and scrolls the
+   * remainder. */
   #legend {
     bottom: 20px;
     left: 20px;
     width: 320px;
+    max-height: calc(100vh - 268px);
+    overflow-y: auto;
     padding: 16px 18px;
     background: var(--panel);
     border: 1px solid var(--hairline);
@@ -157,10 +165,17 @@
   .badge.sample      { background: rgba(224, 90, 90, 0.16);  color: #e88; }
 
   /* ---- inspector ---- */
+  /* Below the arc rail, not beside it.
+   *
+   * Both were anchored to the top of the viewport, and the card is wide enough
+   * that at 1440px and narrower it covered between a third and a half of the
+   * rail. The rail owns the top band; this sits under it. */
   #inspector {
-    top: 20px;
+    top: 116px;
     right: 356px;
     width: 300px;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
     padding: 16px 18px;
     background: var(--panel);
     border: 1px solid var(--hairline);
@@ -297,10 +312,19 @@
   }
 
   /* ---- what the agent is doing, as it does it ---- */
+  /* Anchored to the bottom of the right-hand column, not the top.
+   *
+   * It previously shared its coordinates with the journey panel, so on a fresh
+   * load one covered the other completely and only dragging a header separated
+   * them. The journey panel owns the top of that column; this owns the bottom,
+   * above the shortcut hint. */
   #trace {
-    top: 20px;
+    bottom: 118px;
     right: 20px;
+    top: auto;
     width: 320px;
+    max-height: 32vh;
+    overflow-y: auto;
     padding: 12px 14px;
     background: var(--panel);
     border: 1px solid var(--hairline);
@@ -417,9 +441,11 @@
   #chips button:hover { background: rgba(255,255,255,0.14); color: var(--ink); }
 
   /* ---- caption at the foot of the viewport: the agent's stated result ---- */
+  /* Clear of the preset chips below it. The chip row wraps to two lines at
+   * narrower widths, and at 128px the caption sat on the top row of it. */
   #caption {
     left: 50%;
-    bottom: 128px;
+    bottom: 152px;
     transform: translateX(-50%);
     max-width: 900px;
     text-align: center;
@@ -627,6 +653,8 @@
   #arc .foot b { color: var(--ink); font-size: 13px; }
 
   /* ---- the journey panel ---- */
+  #arc .foot.base { margin-top: 2px; opacity: 0.62; font-size: 11px; }
+
   #journey {
     top: 14px; right: 20px; width: 320px;
     padding: 12px 14px 11px;
@@ -871,6 +899,7 @@
       <i id="arcPick" hidden></i>
     </div>
     <div class="foot"><b id="arcScore"></b> <span id="arcNote"></span></div>
+    <div class="foot base" id="arcBase" hidden></div>
   </div>
 
   <div class="hud" id="journey">

@@ -98,7 +98,10 @@ these hold until they are.
 
 ### 4. The rooftop light: AI readiness
 
-Dark, flicker, steady glow, full reactor, from the count of AI-generated RFPs.
+Dark, flicker, full reactor, from the count of AI-generated RFPs. Three rungs,
+because the measured column runs 0 to 2: one RFP flickers, two or more carries
+a beam. The ladder had four rungs while the column was a placeholder reaching
+double figures, which left every real value on the lowest lit rung.
 **8 of 145 rooftops are lit**: A212, A213, A251 and A314 with two each, and
 D303, D333, D506 and D513 with one.
 

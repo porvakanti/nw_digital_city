@@ -28,7 +28,17 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 # Generated artefacts and vendored third-party code are excluded: the first is
 # derived from a source that legitimately contains owner names, and the second
 # is not ours to edit.
-EXCLUDED = ("renderer/vendor/", "data/city.json", "renderer/city-data.js")
+#
+# This module excludes itself, because the only way to state a rule against a
+# word is to write the word down. It went untracked when it was written, so
+# `git ls-files` could not see it and the suite passed; committing it made the
+# checker fail on its own pattern table.
+EXCLUDED = (
+    "renderer/vendor/",
+    "data/city.json",
+    "renderer/city-data.js",
+    "tests/test_repository_standard.py",
+)
 
 FORBIDDEN: dict[str, tuple[str, str]] = {
     "a named individual": (

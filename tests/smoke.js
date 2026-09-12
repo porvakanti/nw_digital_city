@@ -472,7 +472,14 @@ async function onAPhone(browser) {
     occupancy.used === occupancy.declared && occupancy.used > 0,
     `${occupancy.used} used of ${occupancy.built} built`);
 
+  /* This block asserts the rail at rest, so it has to be at rest.
+   *
+   * The reading under the rail now follows the selected category, and by this
+   * point the served pass has selected one. Clearing first is the difference
+   * between checking the default state and checking whatever the previous
+   * block happened to leave behind. */
   const arc = await page.evaluate(() => {
+    window.NWCity.reset();
     const track = document.querySelector("#arc .track").getBoundingClientRect();
     const you = document.getElementById("arcYou").getBoundingClientRect();
     return {
@@ -603,6 +610,101 @@ async function onAPhone(browser) {
   check("no landmark was awarded without the markets to earn it",
     monuments.unearned.length === 0 && monuments.offMap.length === 0,
     [...monuments.unearned, ...monuments.offMap].join(", "));
+
+  /* No two HUD panels may occupy the same ground at rest.
+   *
+   * The trace panel and the journey panel were both pinned to the top right at
+   * the same width, so on a fresh load one covered the other completely and
+   * only dragging a header separated them. The phone pass has always checked
+   * this; the desktop layout never did.
+   */
+  await page.fill("#askInput", "batteries");
+  await page.click("#askGo");
+  await page.waitForTimeout(2600);
+  const collisions = await page.evaluate(() => {
+    /* The panels themselves, identified by id. Descendants are excluded: a
+     * panel always overlaps its own children, and an element with no id is
+     * part of a panel rather than one.
+     *
+     * Visibility is read from the computed style and the measured box, NOT
+     * from offsetParent: every panel here is position:fixed, for which
+     * offsetParent is null, and filtering on it emptied the list and made
+     * this check pass whatever the layout did.
+     */
+    const panels = [...document.querySelectorAll(".hud")]
+      .filter((el) => {
+        if (!el.id || el.hasAttribute("hidden")) return false;
+        const style = getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden") return false;
+        return parseFloat(style.opacity || "1") > 0.05;
+      })
+      .map((el) => ({ id: el.id, r: el.getBoundingClientRect() }))
+      .filter((p) => p.r.width > 40 && p.r.height > 20);
+    if (panels.length < 4) return [`only ${panels.length} panels measured, check is not looking at the layout`];
+    const hits = [];
+    for (let i = 0; i < panels.length; i++) {
+      for (let j = i + 1; j < panels.length; j++) {
+        const a = panels[i].r, b = panels[j].r;
+        const overlap = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left))
+                      * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+        // A few pixels of touching is not a collision; covering a third of the
+        // smaller panel is.
+        if (overlap > 0.33 * Math.min(a.width * a.height, b.width * b.height)) {
+          hits.push(`${panels[i].id} over ${panels[j].id}`);
+        }
+      }
+    }
+    return hits;
+  });
+  check("no two panels cover each other on a desktop viewport",
+    collisions.length === 0, collisions.join("; "));
+
+  /* The arc reading has to follow the marker that moved.
+   *
+   * Selecting a lot moved the second marker and left the text underneath
+   * reporting the organisation figure, so the rail and the sentence disagreed.
+   */
+  const arcFollows = await page.evaluate(() => {
+    window.NWCity.focus("A251");
+    const score = document.getElementById("arcScore").textContent;
+    const base = document.getElementById("arcBase");
+    return { score, base: base.textContent, baseShown: !base.hidden };
+  });
+  check("the arc reading names the selected category",
+    /A251/.test(arcFollows.score) && arcFollows.baseShown
+      && /Networks/.test(arcFollows.base),
+    `${arcFollows.score} | ${arcFollows.base}`);
+
+  const arcClears = await page.evaluate(() => {
+    window.NWCity.reset();
+    return { score: document.getElementById("arcScore").textContent,
+             baseShown: !document.getElementById("arcBase").hidden };
+  });
+  check("clearing the selection returns the reading to the organisation",
+    /Networks/.test(arcClears.score) && !arcClears.baseShown, arcClears.score);
+
+  /* Every category over the spend threshold shows its property.
+   *
+   * The property encodes spend, which does not depend on blueprint state, but
+   * it was drawn at 7% opacity on any lot without a live blueprint. Two of the
+   * six categories carrying hotel-scale spend were therefore invisible.
+   */
+  const property = await page.evaluate(() => {
+    const bands = window.NW_CONFIG.metrics.spend_eur.tiers;
+    const top = bands[bands.length - 1];
+    const floor = bands[bands.length - 2].max;
+    const owed = window.NW_CITY.categories.filter((c) => c.metrics.spend_eur > floor);
+    return {
+      floor,
+      label: top.label,
+      owed: owed.map((c) => c.code).sort(),
+      withoutABlueprint: owed.filter((c) => c.blueprint_state !== "active")
+        .map((c) => c.code).sort(),
+    };
+  });
+  check(`every category over €${Math.round(property.floor / 1e6)}m is owed a ${property.label}`,
+    property.owed.length === 6 && property.withoutABlueprint.length === 2,
+    `${property.owed.join(", ")} (${property.withoutABlueprint.join(", ")} have no live blueprint)`);
 
   check("no page errors", errors.length === 0, errors[0] || "");
 

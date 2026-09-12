@@ -222,11 +222,14 @@ metrics:
       placeholder until then; 8 of 145 categories have any.
     unit: rfps
     kind: numeric
+    # Calibrated to the measured range, which is 0 to 2. The earlier four-tier
+    # ladder was scaled for the placeholder column, whose values reached 12. On
+    # measured data every lit category fell into the lowest lit tier, which
+    # drew a small disc and no beam at all, so the layer showed nothing.
     tiers:
-      - {id: dark,      max: 0,    label: Dark,           detail: Not yet measured.}
-      - {id: flicker,   max: 2,    label: Flicker,        detail: Exploratory. First AI-generated RFPs.}
-      - {id: steady,    max: 6,    label: Steady glow,    detail: Connected. Core rules structured.}
-      - {id: reactor,   max: null, label: Full reactor,   detail: AI-ready candidate.}
+      - {id: dark,      max: 0,    label: Dark,          detail: No AI-generated RFP recorded.}
+      - {id: flicker,   max: 1,    label: Flicker,       detail: One AI-generated RFP. A first attempt.}
+      - {id: reactor,   max: null, label: Full reactor,  detail: Repeated use. Two or more AI-generated RFPs.}
 
 # ---------------------------------------------------------------------------
 # Honesty guardrails. The deck is explicit that measure four signals readiness,
