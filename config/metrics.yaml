@@ -15,10 +15,19 @@ city:
   name: NW Digital City
   scope_label: Vodafone Networks, Level 1 "Network"
   agent_name: Crane           # the agent's display name; change freely
-  # Printed on the builder's hi-vis, the way a name goes on a site vest. Blank
-  # it to leave the vest plain. Set to the organisation the city describes;
-  # it is drawn in the interface typeface, not in any brand lettering.
-  vest_wordmark: Vodafone
+  # What the builder wears on the front of the vest.
+  #
+  #   speechmark   the speech-mark device, drawn as geometry: a white mark on
+  #                the vest's own red, which is the colour it is rendered on
+  #   none         a plain vest
+  #   data:image/  any image as a data URI, which is how an official brand
+  #                asset gets in. Paste the exported PNG or SVG here and it
+  #                replaces the drawn one with no code change
+  #   anything else  is set as text on a name badge
+  #
+  # The drawn mark is a rendition, not the official artwork. For anything
+  # leaving an internal audience, export the real asset and paste it above.
+  vest_mark: speechmark
 
 # ---------------------------------------------------------------------------
 # LAYER BINDINGS. What each visible thing in the city is driven by.
@@ -152,16 +161,53 @@ score:
   # needs one extra word the per-category reading must not use: "nobody is
   # here yet" is true of Networks and a flat contradiction on a category
   # sitting at 100.
+  # `detail` is the short reading on the rail, where there is room for a few
+  # words. `means` is the definition, and it is what the explanation shows: a
+  # stage named and not defined is not a definition, which is what a reviewer
+  # said about the first version of this table.
+  #
+  # `detail_zero` overrides `detail` for a score of nought, because drafting a
+  # blueprint already scores ten, so nought means there is no blueprint at all
+  # and the rail was reading "a blueprint exists" over bare ground.
   stages:
-    - {id: traditional, from: 0,  label: Traditional, detail: a blueprint exists,
-       # A score of nought means no blueprint at all: drafting one already
-       # scores ten. So the bottom of the bottom stage needs its own words,
-       # or the rail says "a blueprint exists" over bare ground.
-       detail_zero: "no blueprint yet"}
-    - {id: connected,   from: 40, label: Connected,   detail: "one blueprint, several markets"}
-    - {id: smart,       from: 54, label: Smart,       detail: "in use, and with AI"}
-    - {id: autonomous,  from: 75, label: Autonomous,  detail: the whole journey,
-       detail_org: nobody is here yet}
+    - id: traditional
+      from: 0
+      label: Traditional
+      detail: a blueprint exists
+      detail_zero: no blueprint yet
+      means: >-
+        Anything short of a blueprint live in more than one market. The
+        blueprint is missing, drafted, or live in a single market. Nothing in
+        this band has ever been used, because using a blueprint once is worth
+        20 marks and would carry all but the emptiest lot out of it.
+    - id: connected
+      from: 40
+      label: Connected
+      detail: one blueprint, several markets
+      means: >-
+        The rules are written and live in several markets, and that is all. 40
+        of the 100 marks are for the blueprint alone, so a category arriving
+        here has earned every mark available for writing things down and none
+        of the marks for anybody acting on them.
+    - id: smart
+      from: 54
+      label: Smart
+      detail: in use, and with AI
+      means: >-
+        The blueprint, plus something real on top of it: a sourcing event run
+        through it, worth 20, or a brief generated from its own rules, worth
+        15. This is the first band where the estate has done anything with
+        what it wrote.
+    - id: autonomous
+      from: 75
+      label: Autonomous
+      detail: the whole journey
+      detail_org: nobody is here yet
+      means: >-
+        Written, in repeated use, and generating its own briefs. Every part of
+        the journey has happened on the same category. The organisation as a
+        whole is nowhere near this, which is the point of showing the rail
+        rather than a single number.
 
   blueprint:                 # how far the blueprint itself has got
     - {id: none,      points: 0,  label: Nothing,        stage: none}

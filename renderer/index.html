@@ -32,6 +32,18 @@
 
   .hud { position: fixed; pointer-events: none; }
   .hud > * { pointer-events: auto; }
+  /* A panel that scrolls, or that is itself a surface, takes the pointer.
+   *
+   * `.hud` passes the pointer through so the transparent gaps in a panel's
+   * bounding box do not block the city behind it. A scrollbar, though,
+   * belongs to the panel element and not to a child, so on these panels
+   * grabbing it did nothing and the drag fell through to the canvas, which
+   * panned the city instead of scrolling the panel. The same rule was
+   * stopping a click on the explanation's backdrop from closing it.
+   *
+   * All of these are opaque across their whole box, so there is nothing left
+   * to pass through. Everything else stays transparent to the pointer. */
+  #legend, #inspector, #journey, #trace, #explainer { pointer-events: auto; }
 
   /* ---- title ---- */
   #masthead { top: 20px; left: 20px; max-width: 380px; }
@@ -100,6 +112,30 @@
     border-radius: 10px;
     backdrop-filter: blur(8px);
   }
+  /* Scrollbars inside the panels, wide enough to grab.
+   *
+   * A panel taller than its room scrolls, and on the default thin scrollbar
+   * the target is a few pixels wide: aiming at it and missing lands on the
+   * canvas behind, which reads as the city moving when you meant to scroll
+   * the panel. Wide, always visible while there is anything to scroll, and
+   * `overscroll-behavior` keeps a scroll that reaches the end from chaining
+   * anywhere else.
+   */
+  .hud, #jRows {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.34) transparent;
+    overscroll-behavior: contain;
+  }
+  .hud::-webkit-scrollbar, #jRows::-webkit-scrollbar { width: 12px; height: 12px; }
+  .hud::-webkit-scrollbar-track, #jRows::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 8px; }
+  .hud::-webkit-scrollbar-thumb, #jRows::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 8px;
+  }
+  .hud::-webkit-scrollbar-thumb:hover, #jRows::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.52); }
+
   .panel-toggle {
     display: flex;
     align-items: center;
@@ -831,6 +867,12 @@
     vertical-align: top;
   }
   .sheet-body td:first-child { color: var(--ink); white-space: nowrap; }
+  /* The stage table carries a definition in its last column, so the first
+     three are held narrow and the prose gets the rest. */
+  .sheet-body table.stages td:nth-child(2),
+  .sheet-body table.stages td:nth-child(3) { white-space: nowrap; color: var(--ink-muted); }
+  .sheet-body table.stages td:last-child { line-height: 1.55; }
+  .sheet-body table.stages th:last-child { width: 58%; }
   .sheet-body .caveat { margin-top: 12px; padding-left: 11px; border-left: 2px solid #6f8fd0; }
   .sheet-body .caveat .title { font-size: 12.5px; font-weight: 620; color: var(--ink); }
   .sheet-body .caveat p { margin: 3px 0 0; }

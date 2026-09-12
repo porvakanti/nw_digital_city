@@ -16,24 +16,27 @@ too.
 
 ## A. The figure and the landmarks
 
-**1. The mark on the hero character's chest.**
-A wordmark on a name badge across the chest, set from `city.vest_wordmark` in
-the config, in the interface typeface. A club shirt was not used: the kit is
-third-party intellectual property and this is going into an internal estate.
+**1. The mark on the front of the figure.**
+The speech-mark device, white on the vest's own red, which is the colour it is
+rendered on. Set by `city.vest_mark` in the config. A club shirt was not used:
+the kit is third-party intellectual property and this is going into an
+internal estate.
 
-The vest itself was reshaped for it. A real hi-vis has two full-length
-vertical bands and a horizontal one, and drawn front-on at this scale that is
-a capital H, which is exactly what a viewer reported seeing. The verticals are
-now shoulder straps and the band has dropped to the waist, which leaves the
-whole upper chest for the name.
+The vest was reshaped for it. A real hi-vis has two full-length vertical bands
+and a horizontal one, and drawn front-on at this scale that is a capital H,
+which is exactly what a viewer reported seeing. The verticals are now shoulder
+straps and the band has dropped to the waist, which leaves the whole chest for
+the mark, and the mark is scaled so its own outline fills the plate rather
+than sitting inside it.
 
-The badge is dark letters on a pale patch rather than white on the vest red.
-At the default zoom the whole figure is about forty pixels tall, so no
-lettering survives; a pale bar across the chest still reads as a name badge,
-where white letters on red read as nothing.
-*Check:* at the default zoom the figure carries a pale badge. Zoom in and it
-reads. It stays legible at night, because print on a vest is reflective and is
-drawn unlit.
+**The drawn mark is a rendition, not the official artwork.** The repository
+deliberately carries no brand asset. `city.vest_mark` also accepts a
+`data:image/` URI, so exporting the real asset and pasting it in replaces the
+drawn one with no code change, and `none` leaves the vest plain. Any other
+value is set as text on a name badge.
+*Check:* at the default zoom the figure carries a white mark on a red chest,
+and no letter. Zoom in and it resolves. It stays the same at night, because
+print on a vest is reflective and is drawn unlit.
 
 **2 and 8. Landmark scale against the buildings.**
 A monument replaces the building rather than standing on it, on a lot widened
@@ -78,11 +81,26 @@ three components, with "Networks overall 19 / 100" below. Press **R** and it
 returns to the organisation reading.
 
 **6. Definitions for Traditional, Connected, Smart and Autonomous.**
-Each stage carries a one-line definition, from the config, shown on the arc.
-The explanation has the score range for each.
+Two readings per stage, both from the config. A short one on the rail, where
+there is room for a few words, and a definition in the explanation, where
+there is room to say what the band actually requires. The first version of the
+table carried the short reading in both places, and a stage named is not a
+stage defined.
+
+The explanation's table gives each stage its score range, how many of the 145
+lots are in it, and what it means in terms of the marks:
+
+| Stage | Score | Lots | Requires |
+| --- | --- | --- | --- |
+| Traditional | 0 to 39 | 121 | Anything short of a blueprint live in more than one market |
+| Connected | 40 to 53 | 17 | The rules written and live in several markets, and nothing else |
+| Smart | 54 to 74 | 4 | The blueprint plus a sourcing event, worth 20, or a generated brief, worth 15 |
+| Autonomous | 75 to 100 | 3 | Written, in repeated use, and generating its own briefs |
+
+The counts are computed from the data rather than written down, so the table
+cannot claim a distribution the estate does not have.
 *Check:* click lots with different scores and read the line under the rail.
-Then press **H** and find The score, which gives Traditional 0 to 39,
-Connected 40 to 53, Smart 54 to 74, Autonomous 75 to 100.
+Then press **H** and find The score.
 
 **12. "Skyscraper, across XX markets" was not a useful reading.**
 The reading leads with the score, then the stage it reaches, then what is and
@@ -141,8 +159,7 @@ a layer binding is ever changed this page changes with it.
 Occupancy is legend item 4, drawn as a facade with three panes in the state
 being described. A monument follows the same rule.
 
-Worth knowing before anybody asks: **no building in the city currently has lit
-windows.** All four categories anybody has run a sourcing event through scored
+**No building in the city currently has lit windows.** All four categories anybody has run a sourcing event through scored
 high enough to earn a monument, and a monument has no windows, so the signal
 appears as floodlighting instead. The legend says so, counted from what is
 standing rather than asserted, so the line corrects itself the day a used
@@ -163,8 +180,15 @@ compression and the reason for it.
 **3 and 18. No reactor light on the rooftops at night.**
 Eight categories have a generated brief, and each carries a reactor that runs
 from dark through a flicker to a full glow, with a beam over it after dark.
-*Check:* press **N**. Eight rooftop lights with beams, on D506, A212, A251,
-D303, D513, A213, D333 and A314.
+
+The beam used to be on the top rung alone, so four of the eight lit rooftops
+had nothing to read at a distance: a disc under a unit across disappears at
+the default camera, and the city looked as though four categories had AI
+activity when eight do. A first attempt now gets a short beam and repeated use
+a tall one, which keeps both facts and keeps them in order.
+*Check:* press **N**. Eight rooftop lights: tall beams on A212, A251, A213 and
+A314, which have two generated briefs each, and short ones on D506, D303, D513
+and D333, which have one.
 
 **21. The four lit lots did not stand out at night.**
 Every one of the four categories anybody has run a sourcing event through
@@ -194,6 +218,17 @@ Fixed, and asserted: a check measures every panel on a desktop viewport and
 fails if any two intersect.
 *Check:* open the agent trace by asking a question. Nothing covers anything
 else. Panel headers can also be dragged.
+
+A second fault in the same area was found later and fixed. The panels pass the
+pointer through so the transparent gaps in their bounding boxes do not block
+the city, and a scrollbar belongs to the panel element rather than to a child:
+on the two panels that scroll, grabbing the scrollbar did nothing and the drag
+fell through to the canvas, which panned the city. The same rule was stopping a
+click on the explanation's backdrop from closing it. The scrollbars are also
+wider now, because a target a few pixels across is one you aim at and miss.
+*Check:* make the window short enough that the legend and an open card both
+overflow, then drag each scrollbar. The panel scrolls and the city stays
+still. Click outside the explanation and it closes.
 
 **14, 23 and 27. The scoreboard was not self-explanatory.**
 Renamed from Journey, which was the same word as the score it ranks by. Every
