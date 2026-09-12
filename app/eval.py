@@ -89,6 +89,13 @@ CASES: list[tuple[str, str, str]] = [
     ("the category leaderboard", "leaders:categories", NOWHERE),
     ("which district is doing best", "leaders:districts", NOWHERE),
     ("which category is doing best", "rank", ""),
+    # Market questions are a dimension the boards do not have. Either intent
+    # is accepted, because the browser sends a market ranking to the market
+    # answer whichever of the two comes back: "rank" is the right shape and
+    # the wrong dimension, and the words in the question settle it. What is
+    # not accepted is a plan that scopes the answer to one market or one lot.
+    ("which markets are doing best", "markets|rank", NOWHERE),
+    ("which market is furthest behind", "markets|rank", NOWHERE),
     ("what are we asking people to do", "asks", NOWHERE),
     ("what should we do next", "asks", NOWHERE),
     ("show me the takeaways", "asks", NOWHERE),

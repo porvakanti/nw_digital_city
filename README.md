@@ -39,8 +39,10 @@ lot** with a building on it. For Networks that is 8 districts, 31 plots and 145
 lots, of which 89 are still empty ground.
 
 Occupancy is the sharpest of these. 44 blueprints are live and **four have ever
-been used**, so four buildings in the whole city keep their colour. Press `N`
-and everything else goes dark.
+been used**, so four lots in the whole city keep their colour. All four of them
+also earned a monument, so the rule reaches the monuments too: an unused one is
+washed out, a used one is floodlit after dark. Press `N` and the four light up
+against eight districts of grey.
 
 On top of the map sits a single **journey score**, 0 to 100, for a category, a
 district, a manager or the whole organisation: 40% for how far the blueprint
@@ -78,6 +80,19 @@ The journey score counts stages rather than markets, so it has a ceiling and
 cannot penalise a category for markets it was never going to serve, and it
 spreads the same 56 buildings over five bands. Blueprint reach is still on the
 card and is still what a monument is drawn from.
+
+### The explanation, in the app
+
+Press `H`, or the button at the foot of the legend. It is the long form of
+everything the legend abbreviates: what the ground is, what each layer is bound
+to and how its values map to tiers, how the score is put together, how a
+monument is earned, and a closing section on what the data cannot tell you.
+
+It is generated from `config/metrics.yaml`, not written as prose, so
+re-binding a layer rewrites that page too. A browser check asserts that every
+layer, stage, monument and caveat in the config appears on it, because a sheet
+of confident text that has drifted from what is on screen is worse than no
+sheet at all.
 
 ### Honesty rules
 

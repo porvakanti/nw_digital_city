@@ -133,7 +133,7 @@ open a browser. Chrome or Edge. Give it a couple of seconds to draw.
 19. Click any lot. A second marker appears showing where that category sits
     against the whole.
 
-### E. The journey panel, three views
+### E. The scoreboard, three views
 
 20. **Districts.** Eight rows, highest first. Access Radio/Fixed 28,
     Transmission Infrastructure 23, Energy 22, Fixed 20, Managed Services and
@@ -145,9 +145,11 @@ open a browser. Chrome or Edge. Give it a couple of seconds to draw.
 23. **People.** 30 rows out of 38 people. The eight below three categories are
     withheld on purpose: one category and one blueprint is a coin toss, not a
     track record.
-24. Every row shows three bars, never just a total. Check the leader's split
-    against the second place: the leader is first because of real usage, and
-    that is visible in the bars and invisible in the number.
+24. Every row shows three bars and names all three components against the
+    ceiling each is scored out of, never just a total. The leader reads
+    **blueprint 28 of 40 · used 19 of 35 · AI 14 of 25**. Check that split
+    against second place: the leader is first because of real usage, and that
+    is visible in the components and invisible in the total.
 25. Click any row. The camera should fly to the relevant place.
 
 **This is the view to look at hardest.** It puts colleagues in an order. If
@@ -176,7 +178,8 @@ anything about it feels wrong to show, that is the finding worth reporting.
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
 28. Each monument comes from a market that actually adopted that blueprint.
-    Click one and the card says which.
+    Hover one and the tooltip names it; click it and the card carries the name
+    beside the category and the reason it was earned lower down.
 29. Germany supplies two, because it carries two high scorers and 23 of the
     112 blueprint records, more than any other market.
 30. A221 has **no** monument, though it is live in 16 markets. It has never
@@ -209,7 +212,7 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `Germany` | every lot Germany has adopted |
 | `banana bread` | nothing, gracefully |
 
-36. Leaderboard questions. The journey panel should open on the named board,
+36. Leaderboard questions. The scoreboard should open on the named board,
     and the spoken answer should name whoever is at the top of it:
 
 | Type this | Should open | And say |
@@ -230,35 +233,74 @@ anything about it feels wrong to show, that is the finding worth reporting.
     asking for a category *manager* named a category.
 38. `which category leads on spend` and `biggest category by value` should
     still rank by money, not by the score.
-39. Start typing a category name. Suggestions should appear.
-40. Hover any lot. A label names it with its status and spend.
-41. Ask something awkward on purpose. It should decline rather than invent.
 
-### I. The keys
+39. Market questions answer about markets, which is a dimension the
+    scoreboard does not have a view for:
 
-42. **T** guided tour. Watch it end to end. The Close button must be reachable.
-43. **N** night. **P** what we could build. **K** the ask. **R** resets.
-44. Every one of these should also work as a button, because not everybody
+| Type this | Should say |
+| --- | --- |
+| `which markets are doing best` | a ranking of the markets holding three blueprints or more |
+| `which market is furthest behind` | the same ranking, from the bottom |
+| `Germany` | 23 blueprints, its score and rank, how many are used, and the two monuments it supplies |
+| `Italy` | its score, and that two blueprints is too few to rank |
+| `UK` | its score, and that it supplies Big Ben |
+
+    Italy is the one to look at. Two blueprints, one of them the only category
+    in Networks at 100, roll up above Germany's twenty-three. Quoting that as
+    a rank would be a league table nobody could defend, so it is withheld the
+    same way a manager below three categories is.
+
+40. A district answer carries its score and its place, not only its size:
+    `how is Energy doing` reads **Energy scores 22 out of 100, 3rd of the
+    eight districts**.
+
+41. Start typing a category name. Suggestions should appear.
+42. Hover any lot. A label names it with its status and spend, and on one of
+    the eight monument lots it names the monument and the market it came from.
+43. Ask something awkward on purpose. It should decline rather than invent.
+
+### I. The explanation
+
+44. Every district name is cut into the ground along the near edge of its own
+    plate, not floating over it. Read all eight, then press **N**: they have
+    to stay legible at night, because the ground they sit on does not.
+45. Click **The full explanation** at the foot of the legend, or press **H**.
+46. The sheet is generated from `config/metrics.yaml`, so it is the one place
+    to check that the words and the drawing still agree. Every layer is listed
+    with the measure behind it, in `layer <- metric` form. If a binding was
+    changed and this page was not, the page is wrong and a test will say so.
+47. The last section is **What this does not tell you**: no time dimension,
+    adoption depth unmeasured, a score is a summary, and the people view ranks
+    portfolios rather than people. Read it as a reviewer who has been handed
+    the conclusion and not the data. If any of it reads as an excuse rather
+    than a caveat, say so.
+
+### J. The keys
+
+48. **T** guided tour. Watch it end to end. The Close button must be reachable.
+49. **N** night. **P** what we could build. **K** the ask. **R** resets.
+    **H** opens the full explanation, and Escape closes it.
+50. Every one of these should also work as a button, because not everybody
     knows the keys.
 
-### J. On a phone
+### K. On a phone
 
-45. `py run.py serve lan`, then open the address it prints on a phone on the
+51. `py run.py serve lan`, then open the address it prints on a phone on the
     same wifi. **You cannot do this by sending the HTML file: iOS will not open
     a downloaded HTML file in a browser.** The URL is the only way in.
-46. Buttons replace the keyboard shortcuts.
-47. Nothing is laid over anything else, and the page does not scroll sideways.
-48. Pinch to zoom, drag to rotate.
-49. Open the tour. The Close button must be on the screen.
-50. Type a question. It should still work.
+52. Buttons replace the keyboard shortcuts.
+53. Nothing is laid over anything else, and the page does not scroll sideways.
+54. Pinch to zoom, drag to rotate.
+55. Open the tour. The Close button must be on the screen.
+56. Type a question. It should still work.
 
-### K. Try to break it
+### L. Try to break it
 
-51. Resize the window to something narrow and tall, then very wide.
-52. Zoom all the way in, then all the way out.
-53. Click a lot, then another, then the same one twice.
-54. Press every key during the tour.
-55. Open the browser console (F12) and look for red. There should be none.
+57. Resize the window to something narrow and tall, then very wide.
+58. Zoom all the way in, then all the way out.
+59. Click a lot, then another, then the same one twice.
+60. Press every key during the tour.
+61. Open the browser console (F12) and look for red. There should be none.
 
 ---
 

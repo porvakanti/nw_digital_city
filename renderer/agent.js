@@ -108,6 +108,14 @@
       : n > 0 ? `€${Math.round(n / 1e3)}k` : "no recorded spend";
 
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many || one + "s"}`;
+  // Small numbers read as words in a spoken line, and a rank reads as a rank.
+  const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+  const word = (n) => WORDS[n] || String(n);
+  const ordinal = (n) => {
+    const tail = n % 100 >= 11 && n % 100 <= 13 ? "th"
+      : ["th", "st", "nd", "rd"][n % 10] || "th";
+    return `${n}${tail}`;
+  };
 
   // ------------------------------------------------------------------ tools
   // Each returns a plain result plus a short string for the trace panel.
@@ -239,6 +247,49 @@
       return { list: sorted, label: `${sorted.length} in scope` };
     },
 
+    /* Every market, rolled up and ranked.
+     *
+     * The city has no markets board, because a market is not a place on the
+     * map: a category is live in several at once, so markets cut across the
+     * geography rather than dividing it. They are still a real dimension of
+     * the estate, and "which market is furthest along" had been answering
+     * with a single category ranked by how many markets it reached, which is
+     * a different question with a misleading answer.
+     *
+     * Rolled up with the same spend-weighted score the scoreboard uses, so a
+     * market carrying one large category cannot outrank one carrying twenty.
+     */
+    market_table() {
+      /* Markets below the floor are listed but not ranked.
+       *
+       * The same rule the people board runs on, for the same reason. Italy
+       * holds two blueprints, one of which is the highest-scoring category in
+       * Networks, and rolls up to 86: second of twenty-one, above a Germany
+       * carrying twenty-three. That is an artefact of the denominator, not a
+       * finding, and quoting it as a rank would be the kind of league table
+       * that gets a room arguing with the screen instead of about the work.
+       */
+      const floor = CITYVIEW.config.score.minimum_categories || 3;
+      const rows = markets.map((name) => {
+        const inMarket = categories.filter((c) => c.markets.includes(name));
+        const codes = inMarket.map((c) => c.code);
+        const used = inMarket.filter((c) => (c.metrics.cbp_used || 0) > 0);
+        return {
+          name,
+          count: inMarket.length,
+          used: used.length,
+          thin: inMarket.length < floor,
+          spend: inMarket.reduce((sum, c) => sum + (c.metrics.spend_eur || 0), 0),
+          score: (CITYVIEW.score(codes) || { total: 0 }).total,
+          lead: inMarket.slice().sort((a, b) => b.journey.total - a.journey.total)[0] || null,
+        };
+      }).filter((row) => row.count > 0)
+        .sort((a, b) => Number(a.thin) - Number(b.thin)
+          || b.score - a.score || b.count - a.count);
+      const ranked = rows.filter((row) => !row.thin).length;
+      return { list: rows, ranked, floor, label: `${ranked} of ${rows.length} markets rank` };
+    },
+
     /** The leaderboard, on whichever of its three views was asked for. */
     leaders(view) {
       const rows = CITYVIEW.showJourney(view) || [];
@@ -354,6 +405,7 @@
    * these decide which of its three views to open.
    */
   const LEADERBOARD = /\b(leader|leaders|leaderboard|league|ranking|rankings|standings|scoreboard)\b/;
+  const MARKETS = /\bmarkets?\b/;
   const WHO = /\b(who|whose|whom|person|people|manager|managers|owner|owners|buyer|buyers)\b/;
   const WHICH_DISTRICT = /\bdistricts?\b/;
   const WHICH_CATEGORY = /\b(categor\w+|lot|lots|building|buildings)\b/;
@@ -446,7 +498,14 @@
       return;
     }
     const noun = { people: "category manager", districts: "district", categories: "category" }[view];
-    const lead = `${first.label} leads the ${noun}s on ${first.total} out of 100: ${first.blueprint} for the blueprint, ${first.usage} for anyone using it, ${first.ai} for AI.`;
+    // Each component against the ceiling it is scored out of, the same way
+    // the scoreboard prints it. "19 for anyone using it" reads as a small
+    // number; "19 of 35" reads as half the marks available going unclaimed.
+    const out = CITYVIEW.config.score.weights;
+    const lead = `${first.label} leads the ${noun}s on ${first.total} out of 100: `
+      + `${first.blueprint} of ${out.blueprint} for the blueprint, `
+      + `${first.usage} of ${out.usage} for anyone using it, `
+      + `${first.ai} of ${out.ai} for AI.`;
     CITYVIEW.speak(
       second ? `${lead} ${second.label} is next on ${second.total}.` : lead,
       view === "people"
@@ -523,6 +582,34 @@
     CITYVIEW.speak(null, null);
   }
 
+  /* Markets, ranked in words.
+   *
+   * "Which market is doing best" used to be answered with a single category
+   * ranked by how many markets it reached, because the word "market" steered
+   * the metric picker and nothing steered the shape of the answer. There is
+   * no markets board to open, so the answer is spoken and the camera goes to
+   * the leading market's furthest-along category.
+   */
+  async function runMarkets(direction) {
+    const table = await call("market_table");
+    const ranked = table.list.filter((row) => !row.thin);
+    if (!ranked.length) {
+      CITYVIEW.speak("No market holds enough blueprints to rank.", "Too thin to rank.");
+      return;
+    }
+    const order = direction === "asc" ? ranked.slice().reverse() : ranked;
+    const top = order.slice(0, 3);
+    await call("render", "focus", top[0].lead.code);
+    const named = top.map((row) => `${row.name} on ${Math.round(row.score)}`).join(", ");
+    CITYVIEW.speak(
+      `${direction === "asc" ? "Furthest behind" : "Furthest along"} of the `
+      + `${ranked.length} markets holding ${table.floor} blueprints or more: ${named}. `
+      + `${top[0].name} has ${plural(top[0].count, "blueprint")}, `
+      + `${top[0].used === 0 ? "none" : top[0].used} of them used.`,
+      `${top[0].name}: ${Math.round(top[0].score)} out of 100.`
+    );
+  }
+
   async function runPlace(found) {
     if (found.kind === "category") {
       await call("get_metrics", found.hit.code);
@@ -530,11 +617,26 @@
       return; // the renderer's narrator writes the line for a single category
     }
     if (found.kind === "district") {
+      /* A district answer carries its score and its place.
+       *
+       * Lots built and spend describe the size of a district, not how it is
+       * doing, and the question is usually the second one. The scoreboard
+       * already ranks the eight of them, so the answer says where this one
+       * sits on it. */
       const s = await call("summarise", found);
+      const board = CITY.districts.slice()
+        .sort((a, b) => b.totals.journey.total - a.totals.journey.total);
+      const rank = board.findIndex((d) => d.name === found.hit);
+      const mine = board[rank];
       await call("render", "district", found.hit);
+      const score = Math.round(mine.totals.journey.total);
+      const place = rank === 0 ? "top of the eight districts"
+        : rank === board.length - 1 ? "last of the eight districts"
+          : `${ordinal(rank + 1)} of the eight districts`;
       CITYVIEW.speak(
-        `${found.hit}: ${s.built} of ${s.count} lots built, ${euro(s.spend)} of spend.`,
-        `${found.hit}: ${s.bare} lots still empty.`
+        `${found.hit} scores ${score} out of 100, ${place}. `
+        + `${s.built} of ${s.count} lots are built and ${euro(s.spend)} sits on them.`,
+        `${found.hit}: ${score} out of 100, ${s.bare} lots still empty.`
       );
       return;
     }
@@ -549,16 +651,43 @@
       return;
     }
     if (found.kind === "market") {
-      const inMarket = categories.filter((c) => c.markets.includes(found.hit));
-      const lead = inMarket.slice().sort((a, b) => b.metrics.spend_eur - a.metrics.spend_eur)[0];
-      if (!lead) {
+      /* A market gets the same three facts the city gives everything else:
+       * how much of it exists, how far it has got, and what it is known for.
+       *
+       * This used to be a count and the largest category by spend, which
+       * told a market with 23 blueprints and 2 of them in use exactly what
+       * it told one with 2 blueprints both in use. */
+      const table = await call("market_table");
+      const rank = table.list.findIndex((row) => row.name === found.hit);
+      const row = table.list[rank];
+      if (!row) {
         CITYVIEW.speak(`${found.hit} has no blueprints in this extract.`, "Nothing here yet.");
         return;
       }
-      await call("render", "focus", lead.code);
+      const monuments = new Set(CITYVIEW.monuments());
+      const earned = categories.filter((c) => monuments.has(c.code)
+        && c.landmark && c.landmark.market === found.hit);
+      await call("render", "focus", row.lead.code);
+      const place = row.thin
+        ? `too few to rank against the ${table.ranked} markets holding ${table.floor} or more`
+        : rank === 0 ? "further along than any other market"
+          : `${ordinal(rank + 1)} of the ${table.ranked} markets big enough to rank`;
+      const built = row.used === row.count
+        ? `Every one of them has been used`
+        : row.used
+          ? `${row.used} of the ${row.count} ${row.used === 1 ? "has" : "have"} been used`
+          : `None of the ${row.count} has ever been used`;
+      const marks = earned.length === 1
+        ? ` It supplies the city's ${earned[0].landmark.name}.`
+        : earned.length
+          ? ` It supplies ${word(earned.length)} of the city's monuments, the `
+            + `${earned.map((c) => c.landmark.name).join(" and the ")}.`
+          : "";
       CITYVIEW.speak(
-        `${found.hit} has adopted ${plural(inMarket.length, "blueprint")}. The largest is ${lead.code} ${lead.name}.`,
-        `${found.hit} is building in ${plural(inMarket.length, "category", "categories")}.`
+        `${found.hit} has adopted ${plural(row.count, "blueprint")} and scores `
+        + `${Math.round(row.score)} out of 100, ${place}. ${built}, `
+        + `and the furthest along is ${row.lead.code} ${row.lead.name} on ${Math.round(row.lead.journey.total)}.${marks}`,
+        `${found.hit}: ${Math.round(row.score)} out of 100 across ${plural(row.count, "blueprint")}.`
       );
       return;
     }
@@ -686,8 +815,24 @@
       switch (plan.intent) {
         case "gaps": return runGaps(scope);
         case "summary": return runSummary(scope);
-        case "rank": return runRank(scope, plan.metric, plan.direction);
+        /* A ranking question about markets ranks markets, whoever decided
+         * the intent.
+         *
+         * The model reads "which markets are doing best" as a rank, which is
+         * the right shape and the wrong dimension: rank sorts categories, so
+         * the answer came back as one lot that happens to reach sixteen
+         * markets. The browser knows the question is about markets from the
+         * words in it, and there is no reason for the two paths to give two
+         * answers to the same question. */
+        case "rank": {
+          if (MARKETS.test(query.toLowerCase())) {
+            return runMarkets(plan.direction === "asc" || WORST.test(query.toLowerCase())
+              ? "asc" : "desc");
+          }
+          return runRank(scope, plan.metric, plan.direction);
+        }
         case "leaders": return runLeaders(plan.view || "people");
+        case "markets": return runMarkets(plan.direction === "asc" ? "asc" : "desc");
         case "could_be": return runCouldBe();
         case "night": return runNight();
         case "asks": return runAsks();
@@ -715,6 +860,16 @@
     if (COULD_BE.test(lower)) return runCouldBe();
     if (GAPS.test(lower)) return runGaps(scope);
     if (SUMMARY.test(lower)) return runSummary(scope);
+    /* A ranking question about markets ranks markets.
+     *
+     * Ahead of the leaderboard and the general ranking, because neither can
+     * answer it: there is no markets board for boardFor to open, and the
+     * resolver will have matched some market by name, which sets a scope and
+     * turns the question into a ranking of the categories inside one market.
+     */
+    if (MARKETS.test(lower) && (BEST.test(lower) || WORST.test(lower) || LEADERBOARD.test(lower))) {
+      return runMarkets(WORST.test(lower) ? "asc" : "desc");
+    }
     // A leaderboard question with nowhere named opens the board. Named
     // somewhere, it is a question about that place and ranks within it.
     const board = boardFor(lower);

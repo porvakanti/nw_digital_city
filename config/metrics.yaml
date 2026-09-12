@@ -15,34 +15,113 @@ city:
   name: NW Digital City
   scope_label: Vodafone Networks, Level 1 "Network"
   agent_name: Crane           # the agent's display name; change freely
+  # Printed on the builder's hi-vis, the way a name goes on a site vest. Blank
+  # it to leave the vest plain. Set to the organisation the city describes;
+  # it is drawn in the interface typeface, not in any brand lettering.
+  vest_wordmark: Vodafone
 
 # ---------------------------------------------------------------------------
 # LAYER BINDINGS. What each visible thing in the city is driven by.
 # Each value must name a key from `metrics:` below.
 # ---------------------------------------------------------------------------
+# Each layer carries two pieces of copy. `caption` is one line, and it is what
+# the legend shows: five measures and a paragraph each is a wall of text in a
+# corner panel, which nobody reads. `detail` is the full explanation, and it is
+# what the explainer and the tour draw on. Neither is written in the renderer,
+# so the on-screen words cannot drift from the binding above them.
 layers:
   foundation:
     metric: blueprint_state
-    caption: >-
-      Whether the category rules have been captured. An empty lot carries a
-      faint outline of the building that could stand there.
+    caption: Whether the category rules have been captured
+    detail: >-
+      A lot with no blueprint is bare ground. A drafted one is marked out in
+      yellow and carries a faint outline of the building that could stand
+      there. An active one has foundations laid, and only then can anything be
+      built on it.
   height:
     metric: journey_score     # alternatives: market_reach, cbp_total, ava_adoption
-    caption: >-
-      How far the category has got: 40 for the blueprint, 35 for anyone using
-      it, 25 for doing it with AI. Height rises only once a foundation is
-      laid; a drafted lot shows an outline instead.
+    caption: How far along the journey it has got
+    detail: >-
+      40 points for writing the blueprint, 35 for anybody using it, 25 for
+      doing it with AI. Height rises only once a foundation is laid, so a
+      drafted lot shows an outline rather than a building. Past the landmark
+      threshold the building is replaced by a monument.
   value:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
-  reactor:
-    metric: ai_rfps
-    caption: Structured rules and future autonomy readiness
+    detail: >-
+      Houses, then a hotel, in the Monopoly ladder. The thresholds are
+      rescaled for this estate: the largest single category is worth
+      €75m, so the original ">€100m = hotel" rung could never be reached
+      and 84% of categories collapsed into the bottom one.
   occupancy:
     metric: cbp_used
-    caption: >-
-      Whether anybody has actually run a sourcing event through the blueprint.
-      A built lot with dark windows is a blueprint nobody uses.
+    caption: Whether anybody has used the blueprint
+    detail: >-
+      A used lot keeps its colour and lights its windows. An unused one is
+      drained to grey with the windows dark. A monument follows the same rule:
+      washed out if unused, floodlit after dark if used. This is the loudest
+      thing in the city, because 52 of the 56 built lots are drained.
+  reactor:
+    metric: ai_rfps
+    caption: How ready the rules are for AI to draft the brief
+    detail: >-
+      A reactor on the roof, from dark through a flicker to a full glow with a
+      beam over it at night. It marks the categories where rules are
+      structured enough for a request for proposal to be generated rather
+      than written.
+
+# ---------------------------------------------------------------------------
+# THE EXPLAINER
+#
+# The long-form answer to "what am I looking at", shown in the app behind the
+# link at the foot of the legend. Everything about the measures, the score and
+# the monuments is generated from the blocks below rather than written out
+# again here, so the explanation cannot drift from what is actually drawn.
+#
+# What is authored here is the framing and the caveats: the part a config
+# cannot derive, and the part an audience is entitled to before they draw a
+# conclusion from a picture.
+# ---------------------------------------------------------------------------
+explainer:
+  opening: >-
+    Every category in the blueprint estate is a lot of land. What stands on
+    the lot is how that category is doing. Nothing is decoration: if you can
+    see it, it came from the extract, and this page says which field it came
+    from.
+  ground: >-
+    The geography is the category tree. A district is a Level 2 area inside
+    its own coloured kerb, a plot is a Level 3 group on the paler slab inside
+    it, and a lot is one Level 4 category on one square of land. Lot area
+    follows the average spend per category in the plot, square-root
+    compressed: the largest plot is 400 times the smallest, so drawn
+    literally the small end would be a single pixel. Lots stay uniform inside
+    a plot, so an empty one is still countable as an empty one. Street
+    traffic follows the same figure, which is why the busiest roads are in
+    the districts that spend most.
+  caveats:
+    - title: There is no time in this data
+      body: >-
+        No source carries a history, so nothing here shows change. Every
+        figure is the position at the extract date and none of it is a trend.
+    - title: Adoption depth is not measured
+      body: >-
+        The intended adoption measure reads a constant 100% across all 145
+        categories, so it says nothing and nothing is bound to it. Market
+        reach is a count with no denominator: no source states which markets
+        a category applies to, so a category live in one market cannot be
+        told apart from one that only ever applied to one.
+    - title: A score is a summary, and summaries flatter
+      body: >-
+        The journey score counts stages reached, not value delivered. Two
+        categories on the same number can have arrived there by different
+        routes, which is why the score is always shown broken into its three
+        components and never on its own.
+    - title: The people view ranks portfolios, not people
+      body: >-
+        Nobody chose the categories they hold. A manager carrying three
+        untouched categories scores lower than one carrying three that were
+        already live, and that is a fact about the portfolio.
 
 # ---------------------------------------------------------------------------
 # THE JOURNEY SCORE
@@ -58,6 +137,27 @@ score:
     blueprint: 40
     usage: 35
     ai: 25
+
+  # NOTE: a value containing a comma must be quoted inside these {curly}
+  # mappings. Unquoted, YAML reads the comma as the end of the value and the
+  # rest as another key: three tier details in this file had silently lost
+  # their second clause that way, and the truncated half was on screen.
+  #
+  # The four stages on the rail, and where each one starts out of 100. A
+  # score at or above `from` and below the next stage's `from` is in that
+  # stage. These were three expressions inside the renderer, which made the
+  # rail the one part of the city a config edit could not move.
+  #
+  # `detail_org` overrides `detail` for the whole-organisation reading, which
+  # needs one extra word the per-category reading must not use: "nobody is
+  # here yet" is true of Networks and a flat contradiction on a category
+  # sitting at 100.
+  stages:
+    - {id: traditional, from: 0,  label: Traditional, detail: a blueprint exists}
+    - {id: connected,   from: 40, label: Connected,   detail: "one blueprint, several markets"}
+    - {id: smart,       from: 54, label: Smart,       detail: "in use, and with AI"}
+    - {id: autonomous,  from: 75, label: Autonomous,  detail: the whole journey,
+       detail_org: nobody is here yet}
 
   blueprint:                 # how far the blueprint itself has got
     - {id: none,      points: 0,  label: Nothing,        stage: none}
@@ -114,8 +214,7 @@ landmarks:
   # having to click the lot.
   label: Landmark
   caption: >-
-    A monument replaces the building, on a lot widened to hold it, drawn from
-    a market that adopted the blueprint
+    A monument replaces the building, on a lot widened to hold it
 
   # Ordered by preference. The highest-scoring category picks first, and takes
   # the first unused monument from the first of its markets that appears here.
@@ -185,10 +284,10 @@ metrics:
     # live blueprint should read as a building, not as a stub.
     tiers:
       - {id: dormant,      max: 0,    label: Lot prepared,   detail: No blueprint yet.}
-      - {id: established,  max: 25,   label: Small building, detail: Live in one market, and no further.}
+      - {id: established,  max: 25,   label: Small building, detail: "Live in one market, and no further."}
       - {id: multi_market, max: 40,   label: Office block,   detail: Live in several markets.}
       - {id: in_use,       max: 64,   label: Tower,          detail: Somebody has run a sourcing event through it.}
-      - {id: advanced,     max: 84,   label: High tower,     detail: In repeated use, and with AI.}
+      - {id: advanced,     max: 84,   label: High tower,     detail: "In repeated use, and with AI."}
       - {id: complete,     max: null, label: Skyscraper,     detail: At or near the whole journey.}
 
   market_reach:
@@ -244,7 +343,7 @@ metrics:
     unit: uses
     kind: numeric
     tiers:
-      - {id: dark,     max: 0,    label: Nobody has used it, detail: Built, and empty.}
+      - {id: dark,     max: 0,    label: Nobody has used it, detail: "Built, and empty."}
       - {id: occupied, max: 1,    label: Used once,          detail: Somebody has run one.}
       - {id: busy,     max: null, label: Used repeatedly,    detail: In real service.}
 

@@ -213,6 +213,21 @@
     text-transform: uppercase;
   }
   #inspector h3 { margin: 3px 0 2px; font-size: 16px; font-weight: 620; }
+  /* The monument, named beside the category it belongs to. In the sandstone
+     the monuments are built from, so the chip and the model on the lot are
+     recognisably the same statement. */
+  #inspector .deed-landmark {
+    display: inline-block;
+    margin: 3px 0 1px;
+    padding: 2px 8px 2px 7px;
+    border: 1px solid rgba(224, 207, 164, 0.42);
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #e8dbb8;
+  }
+  #inspector .deed-landmark::before { content: "\25C6"; margin-right: 5px; opacity: 0.8; }
   #inspector .panel-toggle { margin-bottom: 2px; }
   #inspector .where { font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
   #inspector .def {
@@ -248,6 +263,14 @@
   #hover.on { opacity: 1; }
   #hover b { font-weight: 600; }
   #hover span { color: var(--ink-muted); }
+  /* The monument line, in the sandstone the monuments are built from, so the
+     tooltip says the same thing the model on the lot is saying. */
+  #hover span.lm {
+    display: block;
+    margin-top: 3px;
+    color: #e0cfa4;
+  }
+  #hover span.lm::before { content: "\25C6"; margin-right: 5px; opacity: 0.75; }
 
   /* ---- what you can ask for, as you type ---- */
   #suggest {
@@ -696,12 +719,126 @@
   .jRow .bar i { display: block; height: 100%; }
   /* Named for the journey panel alone: `.sw` is already the legend's swatch,
      and taking it over collapsed every row in there. */
-  .jKey i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
-  .jKey .bp, .jRow .bar .bp { background: #6f8fd0; }
-  .jKey .use, .jRow .bar .use { background: #4fbf7d; }
-  .jKey .ai, .jRow .bar .ai { background: #c9a227; }
-  .jKey { display: flex; gap: 10px; margin-top: 9px; font-size: 10px; color: var(--ink-muted); }
+  .jRow .bar .bp, .jRow .parts .bp { color: #93aee2; background: #6f8fd0; }
+  .jRow .bar .use, .jRow .parts .use { color: #79d49b; background: #4fbf7d; }
+  .jRow .bar .ai, .jRow .parts .ai { color: #dcbc4e; background: #c9a227; }
+  /* The three components, named in their own colour, which is what the colour
+     key at the foot of the panel used to be for. Text, so `background` from
+     the rule above is overridden back to transparent. */
+  .jRow .parts {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 9px;
+    margin-top: 1px;
+    font-size: 10px;
+  }
+  .jRow .parts .part { background: none; }
   .jRow .sub { grid-column: 1 / -1; font-size: 10px; color: var(--ink-muted); }
+
+  /* ---- the explanation ----
+     A sheet over the city rather than another corner panel. It is read once,
+     in full, and then closed: the panels are for glancing at while looking at
+     the model, and this is not. */
+  .panel-more {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 7px 0;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--hairline);
+    border-radius: 7px;
+    color: var(--ink-2);
+    font: 600 11px system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .panel-more:hover { background: rgba(255,255,255,0.1); color: var(--ink); }
+  /* display:flex below beats the browser's own [hidden] rule, so the closed
+     sheet has to be told to stay closed explicitly. It covered the whole
+     page, which is invisible against a dark city and catches every click. */
+  #explainer[hidden] { display: none; }
+  #explainer {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    background: rgba(4, 6, 12, 0.72);
+    backdrop-filter: blur(3px);
+    z-index: 40;
+  }
+  #explainer .sheet {
+    position: relative;
+    width: min(760px, 100%);
+    max-height: 100%;
+    padding: 26px 30px 30px;
+    background: #11151d;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    overflow-y: auto;
+  }
+  .sheet-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--hairline);
+    border-radius: 7px;
+    color: var(--ink-2);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .sheet-close:hover { color: var(--ink); }
+  .sheet-body h2 { margin: 0 0 4px; font-size: 19px; font-weight: 650; }
+  .sheet-body .lede { margin: 0 0 20px; font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+  .sheet-body section { margin-top: 22px; }
+  .sheet-body h3 {
+    margin: 0 0 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .sheet-body p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+  .sheet-body p b, .sheet-body dt { color: var(--ink); }
+  /* Two columns where there is room: the measures are a list of short
+     definitions and one long column of them reads as a wall. */
+  .sheet-body .pairs { display: grid; gap: 14px 26px; grid-template-columns: 1fr 1fr; }
+  .sheet-body .pair .name { font-size: 12.5px; font-weight: 620; color: var(--ink); }
+  .sheet-body .pair .from {
+    margin: 1px 0 3px;
+    font: 500 10.5px ui-monospace, monospace;
+    color: var(--ink-muted);
+  }
+  .sheet-body .pair .what { font-size: 12px; line-height: 1.55; color: var(--ink-2); }
+  .sheet-body .rungs { margin-top: 5px; font-size: 11px; color: var(--ink-muted); }
+  .sheet-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sheet-body th {
+    text-align: left;
+    padding: 0 10px 5px 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .sheet-body td {
+    padding: 5px 10px 5px 0;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    color: var(--ink-2);
+    vertical-align: top;
+  }
+  .sheet-body td:first-child { color: var(--ink); white-space: nowrap; }
+  .sheet-body .caveat { margin-top: 12px; padding-left: 11px; border-left: 2px solid #6f8fd0; }
+  .sheet-body .caveat .title { font-size: 12.5px; font-weight: 620; color: var(--ink); }
+  .sheet-body .caveat p { margin: 3px 0 0; }
+  @media (max-width: 760px) {
+    #explainer { padding: 0; }
+    #explainer .sheet { border-radius: 0; padding: 22px 18px 28px; height: 100%; }
+    .sheet-body .pairs { grid-template-columns: 1fr; }
+  }
 
   /* ---- the touch bar ----
      Five buttons standing in for the five keyboard shortcuts. Hidden until a
@@ -878,18 +1015,31 @@
   <div class="hud" id="legend">
     <button class="panel-toggle" data-collapse data-drag>How to read the city<span class="caret">&#9662;</span></button>
     <div class="panel-body">
+      <!-- The geography, in three lines. The longer version of all of this,
+           including why a lot is the size it is and why the traffic moves
+           the way it does, is in the explainer behind the button below. -->
       <div class="geography">
         <div class="name">The ground</div>
-        <div class="by">A <b>district</b> is an L2 area, inside its own coloured
-        kerb. A <b>plot</b> is an L3 group, the paler slab inside it. A
-        <b>lot</b> is one L4 category, one square of land.
-        <b>Land is worth what is spent on it</b>: lots are larger where the
-        money is, so a plot grows both with how many categories it holds and
-        with how much sits on them. Lots stay the same size inside a plot, so
-        an empty one is still an empty one. Traffic follows the same money, so
-        the busiest streets are in the districts that spend most.</div>
+        <div class="by"><b>District</b> is an L2 area inside its own coloured
+        kerb, <b>plot</b> an L3 group on the paler slab, <b>lot</b> one L4
+        category on one square of land.
+        <b>Land is worth what is spent on it</b>, and so is the traffic: the
+        biggest lots and the busiest streets are where the money is.</div>
       </div>
       <div id="measures"></div>
+      <button class="panel-more" id="legendMore">The full explanation</button>
+    </div>
+  </div>
+
+  <!-- The long form of everything the legend abbreviates: what the ground is,
+       what each measure is bound to and how it maps to tiers, how the score
+       is put together, how the monuments are earned, and what the data cannot
+       tell you. Generated from the config, so it cannot drift from what is
+       drawn. Opened from the legend or with H. -->
+  <div class="hud" id="explainer" hidden>
+    <div class="sheet">
+      <button class="sheet-close" id="explainerClose" aria-label="Close">&#10005;</button>
+      <div class="sheet-body" id="explainerBody"></div>
     </div>
   </div>
 
@@ -913,7 +1063,11 @@
   </div>
 
   <div class="hud" id="journey">
-    <button class="panel-toggle" data-collapse data-drag>Journey<span class="caret">&#9662;</span></button>
+    <!-- "Journey" named the panel the same word as the score it ranks by, so
+         "how is the journey doing" and "open the journey" meant two different
+         things. This is a league table: districts, categories or people, in
+         order, by that score. -->
+    <button class="panel-toggle" data-collapse data-drag>Scoreboard<span class="caret">&#9662;</span></button>
     <div class="panel-body">
       <div id="jSwitch" class="seg">
         <button data-view="districts" class="on">Districts</button>
@@ -921,11 +1075,6 @@
         <button data-view="people">People</button>
       </div>
       <div id="jRows"></div>
-      <div class="jKey">
-        <span><i class="bp"></i>blueprint 40</span>
-        <span><i class="use"></i>used 35</span>
-        <span><i class="ai"></i>AI 25</span>
-      </div>
     </div>
   </div>
 
@@ -997,7 +1146,8 @@
   <div class="hud" id="hint">
     hover a building · drag to pan · scroll to zoom<br>
     <kbd>T</kbd> guided tour · <kbd>R</kbd> reset · <kbd>N</kbd> night<br>
-    <kbd>P</kbd> what we could build · <kbd>K</kbd> the asks
+    <kbd>P</kbd> what we could build · <kbd>K</kbd> the asks ·
+    <kbd>H</kbd> how this works
     <div class="tip">panel headers can be dragged</div>
   </div>
 

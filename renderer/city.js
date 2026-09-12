@@ -389,7 +389,14 @@
       district.cz = district.z - world.d / 2;
       for (const plot of district.plots) {
         plot.cx = district.cx + DISTRICT_PAD + plot.x;
-        plot.cz = district.cz + DISTRICT_PAD + PLATE_STRIP + plot.z;
+        /* The reserved strip is at the near edge, not the far one.
+         *
+         * It holds the district name, and an isometric camera projects a tall
+         * building upward and backward: at the far edge the name ran behind
+         * whatever stood in the rows in front of it and came out in
+         * fragments. At the near edge nothing in the district can be between
+         * it and the camera. */
+        plot.cz = district.cz + DISTRICT_PAD + plot.z;
         plot.codes.forEach((code, i) => {
           const col = i % PER_ROW;
           const row = Math.floor(i / PER_ROW);
@@ -644,15 +651,6 @@
   // world baseplate
   /* Ground margin around the districts.
    *
-   * At +10 a monument standing near the western edge rose above the plate's
-   * horizon with nothing behind it, so it read as floating rather than as
-   * standing on a lot. The margin is now sized to the tallest thing that can
-   * stand in the city: an isometric camera at this elevation shifts a point
-   * of height h up and back by roughly h, so the plate needs that much ground
-   * behind the outermost lot for the object to have something to stand
-   * against. */
-  /* Ground margin around the districts.
-   *
    * At a flat +10 a monument standing near the western edge rose past the
    * plate's horizon with nothing behind it, so it read as floating rather
    * than as standing on a lot.
@@ -670,32 +668,80 @@
   const baseD = layout.size.d + 10 + CLEARANCE * 2;
   studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
-  const labels = [];
-  function makeLabel(text, accent, scale) {
-    const pad = 16, fontSize = 40;
-    const measure = document.createElement("canvas").getContext("2d");
-    measure.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-    const w = Math.ceil(measure.measureText(text).width) + pad * 2 + 18;
-    const h = fontSize + pad * 2;
+
+  /* Text cut into the ground.
+   *
+   * A canvas texture on a flat plane, three passes of the same letters: a
+   * dark one offset away from the sun to read as the cut, a pale one offset
+   * toward it to read as the lit edge of that cut, and the district's own
+   * colour on the face. Nothing here is shaded by the scene light, so the
+   * name stays legible after dark, when the district ground it sits on does
+   * not.
+   *
+   * The font is sized to the space rather than fixed: "Fixed" and "Managed
+   * Services and Outsourcing" go in strips of the same depth, so the letters
+   * are cut to whatever height leaves the longer one inside its district.
+   */
+  function engraveOnGround(text, accent, width, depth) {
+    const label = text.toUpperCase();
+    // Pixels per world unit. High enough that the letters survive being
+    // zoomed into, low enough that eight of these are not a texture budget.
+    const PPU = 44;
     const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = Math.max(64, Math.round(width * PPU));
+    canvas.height = Math.max(24, Math.round(depth * PPU));
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "rgba(10,12,17,0.9)";
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = accent;
-    ctx.fillRect(0, 0, 10, h);
-    ctx.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-    ctx.fillStyle = C.label;
+    const font = (px) =>
+      `700 ${px}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+
+    // Widest font that fits the strip on both axes, found by measurement
+    // rather than by a guess that holds for seven of the eight names.
+    let size = Math.round(canvas.height * 0.62);
+    ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
+    ctx.font = font(size);
+    const room = canvas.width * 0.96;
+    if (ctx.measureText(label).width > room) {
+      size = Math.floor(size * room / ctx.measureText(label).width);
+      ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
+      ctx.font = font(size);
+    }
     ctx.textBaseline = "middle";
-    ctx.fillText(text, pad + 12, h / 2 + 2);
+    ctx.textAlign = "center";
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 - Math.round(size * 0.1);
+    const cut = Math.max(1, Math.round(size * 0.07));
+    /* Pale letters, not the district's own colour.
+     *
+     * The first pass cut them in the district band, which is also what the
+     * ground under them is tinted towards, so seven of the eight names were
+     * invisible and the eighth was legible only because its band happens to
+     * be the brightest. The face is near-white against every ground in the
+     * set, and the band comes back as a rule under the text, which keeps the
+     * name tied to its district without depending on that tie to be read. */
+    ctx.fillStyle = "rgba(6,8,12,0.62)";
+    ctx.fillText(label, cx, cy + cut);
+    ctx.fillStyle = "rgba(242,245,250,0.94)";
+    ctx.fillText(label, cx, cy);
+
+    const run = Math.min(canvas.width * 0.96, ctx.measureText(label).width);
+    const rule = Math.max(2, Math.round(size * 0.09));
+    ctx.fillStyle = "rgba(6,8,12,0.5)";
+    ctx.fillRect(cx - run / 2, cy + size * 0.78 + rule, run, rule);
+    ctx.fillStyle = accent;
+    ctx.fillRect(cx - run / 2, cy + size * 0.78, run, rule);
+
     const texture = new THREE.CanvasTexture(canvas);
-    texture.anisotropy = 4;
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
-    sprite.scale.set((w / h) * scale, scale, 1);
-    sprite.userData.base = { w: (w / h) * scale, h: scale };
-    sprite.renderOrder = 10;
-    return sprite;
+    texture.anisotropy = 8;
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, depth),
+      new THREE.MeshBasicMaterial({
+        map: texture, transparent: true, depthWrite: false,
+      })
+    );
+    plane.rotation.x = -Math.PI / 2;
+    plane.renderOrder = 2;
+    return plane;
   }
 
   // ---------------------------------------------------------------- build it
@@ -752,17 +798,37 @@
         plot.w, 0.34, plot.d, C.plotPlate, 0x4a5563
       );
     }
-    /* On its plate, not floating over the district.
+    /* The district name, cut into the district's own ground.
      *
-     * At y=6.5 the label sat between the three-storey and five-storey
-     * rooflines and covered whatever stood behind it, which is how a monument
-     * ended up hidden by the words "Managed Services and Outsourcing". It now
-     * sits just above the strip reserved for it at the front edge, below every
-     * roofline in the district. */
-    const label = makeLabel(district.name, DISTRICT_BANDS[i % DISTRICT_BANDS.length], 2.9);
-    label.position.set(district.cx + district.w / 2, 1.45, district.cz + PLATE_STRIP / 2);
-    scene.add(label);
-    labels.push(label);
+     * It was a sprite hanging over the plate. At y=6.5 it sat between the
+     * three-storey and five-storey rooflines and covered whatever stood
+     * behind it, which is how a monument ended up hidden by the words
+     * "Managed Services and Outsourcing"; dropped to just above the kerb it
+     * stopped hiding buildings but was still a caption floating in the air,
+     * the one thing in the city that is not a physical object.
+     *
+     * So it goes on the ground, in the strip already reserved and left empty
+     * along the near edge of every district plate, engraved the way a board
+     * game prints the name of a square. It scales with the world because it
+     * is part of the world, which is what makes it read as cut in rather
+     * than laid over. Both ground axes foreshorten by the same factor under
+     * this camera, so the letters shear without stretching and no correction
+     * is needed. */
+    const stripDepth = DISTRICT_PAD + PLATE_STRIP - KERB - 0.5;
+    const strip = engraveOnGround(
+      district.name,
+      DISTRICT_BANDS[i % DISTRICT_BANDS.length],
+      district.w - KERB * 2 - 1.4,
+      stripDepth
+    );
+    strip.position.set(
+      district.cx + district.w / 2,
+      // Clear of the plate it sits on. At 0.01 above it the two surfaces
+      // fought for the same depth and the name came out in fragments.
+      0.31,
+      district.cz + district.d - KERB - 0.3 - stripDepth / 2
+    );
+    scene.add(strip);
   });
 
   // ---------------------------------------------------------- streetscape
@@ -1614,8 +1680,34 @@
 
       monument.position.set(x, 0.62 + terrace, z);
       monument.scale.setScalar(scale);
+
+      /* A monument is subject to occupancy like any other lot.
+       *
+       * All four categories anybody has run a sourcing event through earned a
+       * monument, so when the monument replaced the building the lit-window
+       * layer stopped encoding anything at all: the only four lots that had
+       * the signal were the only four with no windows to put it in. Four of
+       * the eight monuments are in use and four are not, and nothing on
+       * screen said which.
+       *
+       * So the same two rules the buildings follow. By day an unused
+       * monument's stone is washed towards the same cold neutral as an
+       * unused facade. By night a used one is floodlit, which is what
+       * happens to a monument somebody cares about. */
+      if (!occupied) {
+        // landmarkGroup builds one material per mesh, so this touches only
+        // this monument.
+        const wash = new THREE.Color(0x9aa0aa);
+        monument.traverse((node) => {
+          if (node.material && node.material.color) node.material.color.lerp(wash, VACANT_WASH);
+        });
+      } else {
+        const lit = Math.max(foot, standing * 0.6);
+        lightPools.add(x, 0.62 + terrace + 0.02, z, lit * 1.5, 1, lit * 1.5, 0xffdc9a);
+      }
+
       scene.add(monument);
-      landmarks.push({ group: monument, code: category.code });
+      landmarks.push({ group: monument, code: category.code, occupied });
       top = 0.62 + terrace + standing;
     } else if (floors > 0) {
       for (let f = 0; f < floors; f++) {
@@ -1756,13 +1848,30 @@
     // size cut the monument off the top the moment you focused on one.
     building.top = top;
 
+    /* The pointer target covers the lot, whatever size the lot is.
+     *
+     * It was a fixed 3.4 square, which is wider than a lot in the cheapest
+     * plots and a third of the ground under a monument. Hovering the edge of
+     * a small lot picked its neighbour, and hovering the pyramids picked
+     * nothing at all. */
+    const reach = shape ? span * LOT * MONUMENT_INSET : Math.max(LOT - 0.6, 1.6);
     const pick = new THREE.Mesh(box, pickMaterial);
-    pick.scale.set(CELL - 0.6, Math.max(top + 1.5, 3), CELL - 0.6);
+    pick.scale.set(reach, Math.max(top + 1.5, 3), reach);
     pick.position.set(x, Math.max(top + 1.5, 3) / 2, z);
     pick.userData.category = category;
     scene.add(pick);
     pickTargets.push(pick);
   }
+
+  // Every category by code, and every lot by the code standing on it, for
+  // anything that needs to look one up rather than scan the list.
+  const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
+  const positionOf = new Map(layout.buildings.map((b) => [b.category.code, b]));
+
+  // Which codes have a monument actually standing on them, as opposed to one
+  // assigned in the data. The two agree today and the interface should not
+  // depend on their agreeing.
+  const standing = new Set(landmarks.map((l) => l.code));
 
   const BUCKETS = {
     plates: { bucket: plates, mesh: plates.mesh(box, matPlate, false, true) },
@@ -1986,6 +2095,21 @@
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
 
+    /* The used monuments are floodlit after dark.
+     *
+     * The pool on the terrace says a light is on; this is the light landing
+     * on the stone. Without it a monument at night is the same dark grey
+     * whether anybody has used the category or not, and the four that have
+     * been used are the whole point of the night view. */
+    for (const mark of landmarks) {
+      if (!mark.occupied) continue;
+      mark.group.traverse((node) => {
+        if (node.material && node.material.emissive) {
+          node.material.emissive.setHex(isNight ? 0x4a3416 : 0x000000);
+        }
+      });
+    }
+
     // Lamp heads and headlights are lit fittings; they only read as lights
     // once there is darkness for them to sit in.
     if (BUCKETS.reactors.mesh) {
@@ -2022,7 +2146,13 @@
   }
 
   function renderLegend() {
-    const order = ["foundation", "height", "value", "reactor"];
+    /* Occupancy is in this list now.
+     *
+     * It was bound in the config and left out of the legend, so the single
+     * loudest thing in the city went unexplained: 52 of the 56 built lots are
+     * drained to grey with their windows dark, and nothing on screen said
+     * why. Whichever measure is bound to it, the same four rungs are drawn. */
+    const order = ["foundation", "height", "value", "occupancy", "reactor"];
     document.getElementById("measures").innerHTML = order.map((layer, i) => {
       const name = layerMetric(layer);
       const def = metricDef(name);
@@ -2081,6 +2211,23 @@
         + `<rect x="3.5" y="${12 - h}" width="7" height="${h}" rx="1" fill="${colour}"/>`);
     }
 
+    /* A facade rather than a swatch.
+     *
+     * Occupancy is drawn as two things at once, a drained wall and dark
+     * windows, and neither is a colour a single square can stand for. Three
+     * panes on a wall in the state being described says it in one glyph. */
+    if (layer === "occupancy") {
+      const dark = (tier.__i || 0) === 0;
+      const wall = dark ? "#8d929a" : "#6f8fd0";
+      const pane = dark ? "#2a2f38" : "#ffd98a";
+      let glass = "";
+      for (let i = 0; i < 3; i++) {
+        glass += `<rect x="${2.6 + i * 3.4}" y="4" width="2.2" height="6.4" fill="${pane}"/>`;
+      }
+      return svg(16, 16, `<rect x="1" y="13" width="14" height="2.4" rx="1" fill="#5b6068"/>`
+        + `<rect x="1.2" y="2" width="13.6" height="11" rx="1" fill="${wall}"/>` + glass);
+    }
+
     if (layer === "value") {
       if (!tier.pieces) return svg(16, 16, `<rect x="1" y="12" width="14" height="3" rx="1" fill="#5b6068"/>`);
       const ground = `<rect x="0" y="13" width="26" height="2.5" rx="1" fill="#5b6068"/>`;
@@ -2105,6 +2252,10 @@
     if (layer === "foundation") {
       return { none: "#898781", draft: "#fab219", active: "#0ca30c" }[tier.value] || "#898781";
     }
+    if (layer === "occupancy") {
+      // Dark pane, then the warm one the city actually lights windows with.
+      return (tier.__i || 0) === 0 ? "#2a2f38" : "#ffd98a";
+    }
     if (layer === "value") {
       if (!tier.pieces) return "#3a3f47";
       return tier.id === "hotel" ? "#e60000" : "#2e9e4f";
@@ -2122,6 +2273,55 @@
   Object.values(CONFIG.metrics).forEach((def) => def.tiers.forEach((t, i) => { t.__i = i; }));
 
   const inspector = document.getElementById("inspector");
+  /* Where this plot's lots sit in the range, so the size means something.
+   *
+   * Land area is one of the five measures and the only one with nothing on
+   * the card: the legend says lots are larger where the money is, and then a
+   * viewer looking at one lot has no way to tell whether theirs is a large
+   * one. Ranked against the other plots rather than quoted as a number,
+   * because 3.12 across is not a fact anybody can use.
+   */
+  const plotSizes = layout.districts
+    .flatMap((d) => d.plots.map((plot) => plot.cell))
+    .sort((a, b) => a - b);
+  const SIZE_WORD = ["smallest", "small", "average-sized", "large", "largest"];
+
+  function landRow(category) {
+    const spot = positionOf.get(category.code);
+    if (!spot) return null;
+    const plot = spot.plot;
+    const below = plotSizes.filter((cell) => cell < plot.cell - 0.001).length;
+    const share = plotSizes.length > 1 ? below / (plotSizes.length - 1) : 0;
+    const word = SIZE_WORD[Math.min(SIZE_WORD.length - 1, Math.floor(share * SIZE_WORD.length))];
+    const perLot = plot.codes.reduce(
+      (sum, code) => sum + ((byCode.get(code) || { metrics: {} }).metrics.spend_eur || 0), 0
+    ) / plot.codes.length;
+    return [
+      "Land",
+      `Among the ${word} lots in the city, because ${plot.name} averages `
+      + `${euro(perLot)} across its ${plot.codes.length} categories`,
+    ];
+  }
+
+  /* What is still on the table, in points.
+   *
+   * The Monopoly deed prints the rent ladder: what this property pays now and
+   * what it would pay with a house on it. The city's equivalent is the score,
+   * and the useful half of it is the part not yet earned, named as the thing
+   * somebody would have to do. Read off the same weights the score uses, so
+   * it cannot disagree with the number above it.
+   */
+  function whatItTakes(category) {
+    const j = category.journey;
+    const gaps = [];
+    const short = (have, out, what) =>
+      have < out - 0.5 ? gaps.push(`${Math.round(out - have)} for ${what}`) : null;
+    short(j.blueprint, WEIGHTS.blueprint, "finishing the blueprint");
+    short(j.usage, WEIGHTS.usage, "running a sourcing event through it");
+    short(j.ai, WEIGHTS.ai, "generating the brief from the rules");
+    return gaps.length ? gaps.join(" · ") : "Nothing. This one is the whole journey.";
+  }
+
   function showCategory(category) {
     showOnArc(category);
     if (!category) {
@@ -2144,11 +2344,22 @@
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
+    const land = landRow(category);
+    if (land) rows.push(land);
+    rows.push(["Still on the table", whatItTakes(category)]);
     if (category.owners && category.owners.length) {
       rows.push([category.owners.length > 1 ? "Owners" : "Owner", category.owners.join(", ")]);
     }
-    if (category.landmark) {
-      rows.push(["Landmark", `${category.landmark.name}, ${category.landmark.market}`]);
+    /* The monument, on the deed as well as on the lot.
+     *
+     * Twice on purpose: a chip beside the name, so it is the first thing read
+     * and the shape on the lot stops being a puzzle, and a row lower down
+     * with the reason, because "why does this one have a monument" is the
+     * next question and the answer is a sentence the build already wrote. */
+    const monument = standing.has(category.code) ? category.landmark : null;
+    if (monument) {
+      rows.push(["Landmark", `${monument.name}, ${monument.market}`]);
+      rows.push(["Earned it", monument.because]);
     }
     // Laid out as a Monopoly title deed, because that is what it is: one
     // property, its colour group across the top, what it is worth, and what
@@ -2161,6 +2372,7 @@
       </div>
       <button class="panel-toggle" data-collapse data-drag>Title deed &middot; ${category.code}<span class="caret">&#9662;</span></button>
       <h3>${category.name}</h3>
+      ${monument ? `<div class="deed-landmark">${monument.name}</div>` : ""}
       <div class="panel-body">
         <div class="where">${category.plot}</div>
         <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
@@ -2177,6 +2389,16 @@
    */
   const WEIGHTS = (CONFIG.score && CONFIG.score.weights) || { blueprint: 40, usage: 35, ai: 25 };
   const ARC_MAX = WEIGHTS.blueprint + WEIGHTS.usage + WEIGHTS.ai;
+  /* What to call each component wherever a score is broken down.
+   *
+   * One place, because the scoreboard, the arc and the agent all say the same
+   * three things and had three sets of words for them. From the config, so
+   * renaming a component is a config edit rather than a search across the
+   * renderer. */
+  const COMPONENT_LABEL = Object.assign(
+    { blueprint: "blueprint", usage: "used", ai: "AI" },
+    (CONFIG.score && CONFIG.score.component_labels) || {}
+  );
 
   /** Where a score sits along the rail, as a percentage of its width.
    *  Autonomous occupies the last quarter and nothing reaches it, which is
@@ -2198,28 +2420,26 @@
     markStage(stageOf(j.total));
   }
 
-  /* What each stage on the rail means, in the fewest words that are still
-   * true. Referenced by the rail, the reading under it and the legend, so one
-   * definition drives all three. */
-  const STAGE_LABEL = {
-    traditional: "Traditional: a blueprint exists",
-    connected: "Connected: one blueprint, several markets",
-    smart: "Smart: in use, and with AI",
-    autonomous: "Autonomous: the whole journey",
-  };
+  /* The stages on the rail, from the config.
+   *
+   * Both the boundaries and the wording used to be written here, which made
+   * the rail the one part of the city a config edit could not move. Highest
+   * first, so the first stage a score clears is the one it is in.
+   */
+  const STAGES = ((CONFIG.score && CONFIG.score.stages) || [])
+    .slice()
+    .sort((a, b) => (b.from || 0) - (a.from || 0));
 
-  /* The organisation reading needs one extra word the per-category reading
-   * must not use. "Autonomous: nobody is here yet" is true of Networks and a
-   * flat contradiction on a category sitting at 100. */
-  const STAGE_LABEL_ORG = Object.assign({}, STAGE_LABEL, {
-    autonomous: "Autonomous: nobody is here yet",
-  });
+  const STAGE_LABEL = {};
+  const STAGE_LABEL_ORG = {};
+  for (const stage of STAGES) {
+    STAGE_LABEL[stage.id] = `${stage.label}: ${stage.detail}`;
+    STAGE_LABEL_ORG[stage.id] = `${stage.label}: ${stage.detail_org || stage.detail}`;
+  }
 
   function stageOf(score) {
-    if (score >= ARC_MAX * 0.75) return "autonomous";
-    if (score >= WEIGHTS.blueprint + WEIGHTS.usage * 0.4) return "smart";
-    if (score >= WEIGHTS.blueprint) return "connected";
-    return "traditional";
+    const reached = STAGES.find((stage) => score >= (stage.from || 0));
+    return (reached || STAGES[STAGES.length - 1] || { id: "traditional" }).id;
   }
 
   function markStage(stage) {
@@ -2314,6 +2534,29 @@
       .sort((a, b) => b.j.total - a.j.total);
   }
 
+  /* The three components, named, on every row.
+   *
+   * The bar alone put three unlabelled colours against a key at the foot of
+   * the panel, so reading a row meant looking somewhere else and remembering
+   * which colour was which. Naming them in place is what the key was for, so
+   * the key is gone and the vertical it cost goes to the rows.
+   *
+   * Each is shown against its own ceiling, because 18 means nothing without
+   * the 40 it is out of: a district on 18 of 40 for blueprint and 4 of 35 for
+   * usage has written most of what it can write and used almost none of it,
+   * and that is the whole finding. */
+  function scoreParts(j) {
+    const parts = [
+      ["bp", COMPONENT_LABEL.blueprint, j.blueprint, WEIGHTS.blueprint],
+      ["use", COMPONENT_LABEL.usage, j.usage, WEIGHTS.usage],
+      ["ai", COMPONENT_LABEL.ai, j.ai, WEIGHTS.ai],
+    ];
+    return parts
+      .map(([key, label, value, out]) =>
+        `<span class="part ${key}">${label} ${Math.round(value)} of ${out}</span>`)
+      .join("");
+  }
+
   function renderJourney() {
     const rows = journeyData();
     journeyRows.innerHTML = rows.map((r, i) => `
@@ -2321,6 +2564,7 @@
         <span class="who">${r.label}</span>
         <span class="num">${Math.round(r.j.total)}</span>
         ${scoreBar(r.j)}
+        <span class="parts">${scoreParts(r.j)}</span>
         <span class="sub">${r.sub}</span>
       </div>`).join("");
     journeyRows.querySelectorAll(".jRow").forEach((el) => {
@@ -2395,6 +2639,46 @@
       part(group, hiVis, 0.46, 1.62, face, 0.44, 1.0, 0.06);
       part(group, hiVis, 0, 1.5, face, 1.3, 0.16, 0.05);
     }
+    /* A wordmark across the vest.
+     *
+     * A site vest carries the name of whoever sent you, and this figure is
+     * building one organisation's estate. Drawn from the config so it can be
+     * changed or emptied, and in the interface typeface rather than in any
+     * brand lettering, so it is a label on a vest and not a reproduction of
+     * a logo. A thin plate just clear of the torso face: a box takes one
+     * material per mesh, so texturing a single face means its own plate.
+     */
+    const wordmark = (CONFIG.city && CONFIG.city.vest_wordmark) || "";
+    if (wordmark) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 320;
+      canvas.height = 80;
+      const ctx = canvas.getContext("2d");
+      ctx.font = '700 52px system-ui, -apple-system, "Segoe UI", sans-serif';
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(wordmark, canvas.width / 2, canvas.height / 2 + 3,
+        canvas.width * 0.94);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.anisotropy = 4;
+      // Clear of the hi-vis panels, whose front faces are already at 0.43:
+      // level with them the two surfaces fought and half the letters went.
+      for (const [z, turn] of [[0.45, 0], [-0.45, Math.PI]]) {
+        // Across the whole chest, over the hi-vis panels rather than squeezed
+        // into the red between them, which left it four pixels wide.
+        const plate = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.34, 0.335),
+          // Unlit: print on a vest is reflective, and under the scene light
+          // the wordmark came out grey on the face turned away from the sun.
+          new THREE.MeshBasicMaterial({ map: texture, transparent: true })
+        );
+        plate.position.set(0, 1.83, z);
+        plate.rotation.y = turn;
+        group.add(plate);
+      }
+    }
+
     part(group, dark, 0, 1.16, 0, 1.46, 0.2, 0.82);   // tool belt
     part(group, steel, 0.6, 1.14, 0.3, 0.16, 0.34, 0.16); // and something on it
 
@@ -2812,10 +3096,20 @@
     }
     const state = tierOf("blueprint_state", category.blueprint_state).label;
     const spend = category.metrics.spend_eur;
+    /* A monument gets named on hover.
+     *
+     * Recognising the shape is the point, and somebody who does not
+     * recognise it should not have to click to find out what they are
+     * looking at. The market comes with it, because the shape was chosen
+     * from a market that adopted the blueprint and that is the only reason
+     * this category has that monument and not another. */
+    const monument = standing.has(category.code)
+      ? `<span class="lm">${category.landmark.name} &middot; ${category.landmark.market}</span>`
+      : "";
     hoverEl.innerHTML =
       `<b>${category.code}</b> ${category.name}<br>` +
       `<span>${category.district} &middot; ${state}` +
-      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>`;
+      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>` + monument;
     hoverEl.classList.add("on");
     // Nudged clear of the cursor, and kept on screen near the edges.
     const box = hoverEl.getBoundingClientRect();
@@ -2927,8 +3221,138 @@
   /* One place for the four things a key can ask for, because a phone has no
    * keys and the buttons that stand in for them must do exactly the same
    * thing. Two code paths to the same view is how they drift. */
+  /* The explainer.
+   *
+   * Everything the legend abbreviates, written out once: what the ground is,
+   * what each measure is bound to and how its values map to tiers, how the
+   * score is put together, how a monument is earned, and what the data cannot
+   * tell you.
+   *
+   * Generated from the same config the city draws from rather than written as
+   * prose, so re-binding a layer rewrites this page as well. The authored
+   * parts are the framing and the caveats, which no config can derive and
+   * which an audience is entitled to before drawing a conclusion from a
+   * picture. */
+  const explainer = document.getElementById("explainer");
+
+  function renderExplainer() {
+    const copy = CONFIG.explainer || {};
+    const counts = CITY.meta.counts;
+    const layerOrder = ["foundation", "height", "value", "occupancy", "reactor"];
+
+    const measures = layerOrder.filter((layer) => CONFIG.layers[layer]).map((layer) => {
+      const name = layerMetric(layer);
+      const def = metricDef(name);
+      const rungs = def.tiers.map((tier) => tier.label).join(" → ");
+      return `<div class="pair">
+        <div class="name">${def.label}</div>
+        <div class="from">${layer} ← ${name}</div>
+        <div class="what">${CONFIG.layers[layer].detail || CONFIG.layers[layer].caption}</div>
+        <div class="rungs">${rungs}</div>
+      </div>`;
+    }).join("");
+
+    // Lowest first here, the way a ladder is read, and each rung bounded by
+    // the next rather than left open: "40 and up" four times over says
+    // nothing about where one stage stops.
+    const ladder = STAGES.slice().reverse();
+    const stages = ladder.map((stage, i) => {
+      const next = ladder[i + 1];
+      const span = next ? `${stage.from || 0} to ${next.from - 1}` : `${stage.from || 0} to 100`;
+      return `<tr><td>${stage.label}</td><td>${span}</td><td>${stage.detail || ""}</td></tr>`;
+    }).join("");
+
+    const built = CITY.categories.filter((c) => c.blueprint_state !== "none").length;
+    const used = CITY.categories.filter((c) => (c.metrics.cbp_used || 0) > 0).length;
+
+    const monuments = landmarks
+      .map((mark) => byCode.get(mark.code))
+      .filter(Boolean)
+      .sort((a, b) => b.metrics.journey_score - a.metrics.journey_score)
+      .map((c) => `<tr><td>${c.landmark.name}</td><td>${c.code}</td>`
+        + `<td>${Math.round(c.metrics.journey_score)} out of 100, from ${c.landmark.market}</td></tr>`)
+      .join("");
+
+    const caveats = (copy.caveats || []).map((item) =>
+      `<div class="caveat"><div class="title">${item.title}</div><p>${item.body}</p></div>`
+    ).join("");
+
+    document.getElementById("explainerBody").innerHTML = `
+      <h2>${CONFIG.city.name}</h2>
+      <p class="lede">${CONFIG.city.scope_label} &middot; ${counts.districts} districts,
+        ${counts.plots} plots, ${counts.categories} lots. ${built} built,
+        ${used} that anybody has used.</p>
+
+      <section>
+        <h3>What you are looking at</h3>
+        <p>${copy.opening || ""}</p>
+      </section>
+
+      <section>
+        <h3>The ground</h3>
+        <p>${copy.ground || ""}</p>
+      </section>
+
+      <section>
+        <h3>What is drawn, and what drives it</h3>
+        <div class="pairs">${measures}</div>
+      </section>
+
+      <section>
+        <h3>The score</h3>
+        <p>${WEIGHTS.blueprint} points for the blueprint, ${WEIGHTS.usage} for
+          anybody using it, ${WEIGHTS.ai} for doing it with AI.
+          ${COMPONENT_LABEL.usage[0].toUpperCase()}${COMPONENT_LABEL.usage.slice(1)}
+          is the heaviest single component on purpose: a blueprint nobody uses
+          is paperwork, and the score should say so.</p>
+        <p>For a group of categories the score is rolled up weighted by the
+          square root of spend, floored at
+          ${euro((CONFIG.score.rollup || {}).floor_eur || 1e6)}, so one large category
+          cannot carry a group that has done nothing else. A grouping holding
+          fewer than ${CONFIG.score.minimum_categories} categories is left off
+          the scoreboard, because below that a score is a coin toss rather
+          than a track record.</p>
+        <table><thead><tr><th>Stage</th><th>Score</th><th>Means</th></tr></thead>
+          <tbody>${stages}</tbody></table>
+      </section>
+
+      <section>
+        <h3>The monuments</h3>
+        <p>A category scoring ${CONFIG.landmarks.min_score} or more out of 100
+          has its building replaced by a monument, on a lot widened to hold it.
+          The shape comes from a market that has actually adopted the
+          blueprint, so it is recognisable and it is earned twice over. A
+          market may supply more than one, because a market carrying several
+          high scorers would otherwise leave the lower ones with nothing.</p>
+        <table><thead><tr><th>Monument</th><th>Lot</th><th>Earned</th></tr></thead>
+          <tbody>${monuments}</tbody></table>
+      </section>
+
+      <section>
+        <h3>What this does not tell you</h3>
+        ${caveats}
+      </section>`;
+  }
+
+  function showExplainer(on) {
+    const want = on === undefined ? explainer.hidden : on;
+    if (want) explainer.scrollTop = 0;
+    explainer.hidden = !want;
+    return want;
+  }
+
+  renderExplainer();
+  document.getElementById("legendMore").addEventListener("click", () => showExplainer(true));
+  document.getElementById("explainerClose").addEventListener("click", () => showExplainer(false));
+  // Anywhere off the sheet closes it, which is what a click on a dimmed
+  // backdrop is for.
+  explainer.addEventListener("click", (e) => {
+    if (e.target === explainer) showExplainer(false);
+  });
+
   const COMMANDS = {
     night: () => setNight(!isNight),
+    explain: () => showExplainer(),
     potential: () => window.NWCity.potential(),
     asks: () => setAsks(!showingAsks),
     reset: () => {
@@ -2936,11 +3360,12 @@
       flyTo(HOME.target, HOME.size);
     },
   };
-  const KEYS = { n: "night", p: "potential", k: "asks", r: "reset" };
+  const KEYS = { n: "night", p: "potential", k: "asks", r: "reset", h: "explain", "?": "explain" };
 
   window.addEventListener("keydown", (e) => {
     if (typingInAField(e.target)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "Escape" && !explainer.hidden) return void showExplainer(false);
     const command = KEYS[e.key.toLowerCase()];
     if (command) COMMANDS[command]();
   });
@@ -2951,8 +3376,6 @@
   });
 
   // ------------------------------------------------------------- public API
-  const byCode = new Map(CITY.categories.map((c) => [c.code, c]));
-  const positionOf = new Map(layout.buildings.map((b) => [b.category.code, b]));
 
   window.NWCity = {
     data: CITY,
@@ -3125,6 +3548,44 @@
     monuments() {
       return landmarks.map((l) => l.code).sort();
     },
+    /* What the stone on each monument is actually doing.
+     *
+     * Occupancy is drawn on a monument as a colour wash by day and a
+     * floodlight after dark, and reading the data would not tell you whether
+     * either reached the geometry. This reports the material, so a check can
+     * compare the two. */
+    monumentLight() {
+      return landmarks.map((mark) => {
+        /* Averaged over every material in the monument, and reported as
+         * saturation rather than as a colour.
+         *
+         * The shapes are built from different mixes of the same palette, so
+         * the first material in one is sandstone and in another the darker
+         * course under it. Saturation is what the wash moves, whatever the
+         * shape: it pulls every colour towards a near-grey neutral. */
+        const hsl = { h: 0, s: 0, l: 0 };
+        let saturation = 0;
+        let lightness = 0;
+        let glow = 0;
+        let count = 0;
+        mark.group.traverse((node) => {
+          if (!node.material || !node.material.color) return;
+          node.material.color.getHSL(hsl);
+          saturation += hsl.s;
+          lightness += hsl.l;
+          if (node.material.emissive) glow = Math.max(glow, node.material.emissive.getHex());
+          count++;
+        });
+        return {
+          code: mark.code,
+          occupied: mark.occupied,
+          saturation: count ? +(saturation / count).toFixed(3) : 0,
+          lightness: count ? +(lightness / count).toFixed(3) : 0,
+          glow,
+          parts: count,
+        };
+      }).sort((a, b) => a.code.localeCompare(b.code));
+    },
     reset() {
       showCategory(null);
       say(null);
@@ -3166,11 +3627,6 @@
     // capped, so it stays a character rather than becoming
     // a monument standing over the city.
     figure.scale.setScalar(FIGURE_SCALE * THREE.MathUtils.clamp(zoom * 1.9, 1, 2.6));
-    for (const label of labels) {
-      const base = label.userData.base;
-      label.scale.set(base.w * zoom, base.h * zoom, 1);
-      label.material.opacity = THREE.MathUtils.clamp((zoom - 0.28) * 4, 0, 1);
-    }
     camera.layers.set(0);
     renderer.setClearColor(sky, 1);
     renderer.clear();

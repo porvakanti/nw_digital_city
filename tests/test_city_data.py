@@ -420,6 +420,51 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
         self.assertEqual(8, len(lit))
         self.assertEqual(2, max(c["metrics"]["ai_rfps"] for c in lit))
 
+    def test_no_config_value_was_truncated_by_an_unquoted_comma(self):
+        """A comma inside a {curly} mapping ends the value.
+
+        YAML reads `detail: in use, and with AI` as the value "in use" plus a
+        second key "and with AI" with no value. It parses, it validates, and
+        the half sentence goes on screen. Three tier details and two stage
+        definitions in this file had lost their second clause that way, and
+        nothing caught it because the result is legal YAML.
+
+        Any key mapped to None is the signature, except `max: null`, which is
+        how an open-ended top tier is written on purpose.
+        """
+        found = []
+
+        def walk(node, path):
+            if isinstance(node, dict):
+                for key, value in node.items():
+                    if value is None and key != "max":
+                        found.append(f"{path}.{key}")
+                    walk(value, f"{path}.{key}")
+            elif isinstance(node, list):
+                for i, item in enumerate(node):
+                    walk(item, f"{path}[{i}]")
+
+        walk(load_config(), "config")
+        self.assertEqual([], found, "quote these values, they contain a comma")
+
+    def test_the_stages_cover_the_whole_score_without_a_gap(self):
+        """Four stages, in order, from zero, each starting where the last ends.
+
+        The boundaries moved out of the renderer and into the config, which
+        means a config edit can now leave a score in no stage at all.
+        """
+        stages = load_config()["score"]["stages"]
+        weights = load_config()["score"]["weights"]
+        self.assertEqual(4, len(stages))
+        self.assertEqual(0, stages[0]["from"])
+        starts = [stage["from"] for stage in stages]
+        self.assertEqual(starts, sorted(starts))
+        self.assertEqual(len(set(starts)), len(starts))
+        self.assertLess(starts[-1], sum(weights.values()))
+        for stage in stages:
+            self.assertTrue(stage["label"])
+            self.assertTrue(stage["detail"])
+
     def test_every_category_scores_within_its_weights(self):
         weights = load_config()["score"]["weights"]
         for category in self.cats:
