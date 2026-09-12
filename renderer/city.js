@@ -389,7 +389,14 @@
       district.cz = district.z - world.d / 2;
       for (const plot of district.plots) {
         plot.cx = district.cx + DISTRICT_PAD + plot.x;
-        plot.cz = district.cz + DISTRICT_PAD + PLATE_STRIP + plot.z;
+        /* The reserved strip is at the near edge, not the far one.
+         *
+         * It holds the district name, and an isometric camera projects a tall
+         * building upward and backward: at the far edge the name ran behind
+         * whatever stood in the rows in front of it and came out in
+         * fragments. At the near edge nothing in the district can be between
+         * it and the camera. */
+        plot.cz = district.cz + DISTRICT_PAD + plot.z;
         plot.codes.forEach((code, i) => {
           const col = i % PER_ROW;
           const row = Math.floor(i / PER_ROW);
@@ -644,15 +651,6 @@
   // world baseplate
   /* Ground margin around the districts.
    *
-   * At +10 a monument standing near the western edge rose above the plate's
-   * horizon with nothing behind it, so it read as floating rather than as
-   * standing on a lot. The margin is now sized to the tallest thing that can
-   * stand in the city: an isometric camera at this elevation shifts a point
-   * of height h up and back by roughly h, so the plate needs that much ground
-   * behind the outermost lot for the object to have something to stand
-   * against. */
-  /* Ground margin around the districts.
-   *
    * At a flat +10 a monument standing near the western edge rose past the
    * plate's horizon with nothing behind it, so it read as floating rather
    * than as standing on a lot.
@@ -670,32 +668,80 @@
   const baseD = layout.size.d + 10 + CLEARANCE * 2;
   studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
-  const labels = [];
-  function makeLabel(text, accent, scale) {
-    const pad = 16, fontSize = 40;
-    const measure = document.createElement("canvas").getContext("2d");
-    measure.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-    const w = Math.ceil(measure.measureText(text).width) + pad * 2 + 18;
-    const h = fontSize + pad * 2;
+
+  /* Text cut into the ground.
+   *
+   * A canvas texture on a flat plane, three passes of the same letters: a
+   * dark one offset away from the sun to read as the cut, a pale one offset
+   * toward it to read as the lit edge of that cut, and the district's own
+   * colour on the face. Nothing here is shaded by the scene light, so the
+   * name stays legible after dark, when the district ground it sits on does
+   * not.
+   *
+   * The font is sized to the space rather than fixed: "Fixed" and "Managed
+   * Services and Outsourcing" go in strips of the same depth, so the letters
+   * are cut to whatever height leaves the longer one inside its district.
+   */
+  function engraveOnGround(text, accent, width, depth) {
+    const label = text.toUpperCase();
+    // Pixels per world unit. High enough that the letters survive being
+    // zoomed into, low enough that eight of these are not a texture budget.
+    const PPU = 44;
     const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = Math.max(64, Math.round(width * PPU));
+    canvas.height = Math.max(24, Math.round(depth * PPU));
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "rgba(10,12,17,0.9)";
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = accent;
-    ctx.fillRect(0, 0, 10, h);
-    ctx.font = `600 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-    ctx.fillStyle = C.label;
+    const font = (px) =>
+      `700 ${px}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+
+    // Widest font that fits the strip on both axes, found by measurement
+    // rather than by a guess that holds for seven of the eight names.
+    let size = Math.round(canvas.height * 0.62);
+    ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
+    ctx.font = font(size);
+    const room = canvas.width * 0.96;
+    if (ctx.measureText(label).width > room) {
+      size = Math.floor(size * room / ctx.measureText(label).width);
+      ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
+      ctx.font = font(size);
+    }
     ctx.textBaseline = "middle";
-    ctx.fillText(text, pad + 12, h / 2 + 2);
+    ctx.textAlign = "center";
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 - Math.round(size * 0.1);
+    const cut = Math.max(1, Math.round(size * 0.07));
+    /* Pale letters, not the district's own colour.
+     *
+     * The first pass cut them in the district band, which is also what the
+     * ground under them is tinted towards, so seven of the eight names were
+     * invisible and the eighth was legible only because its band happens to
+     * be the brightest. The face is near-white against every ground in the
+     * set, and the band comes back as a rule under the text, which keeps the
+     * name tied to its district without depending on that tie to be read. */
+    ctx.fillStyle = "rgba(6,8,12,0.62)";
+    ctx.fillText(label, cx, cy + cut);
+    ctx.fillStyle = "rgba(242,245,250,0.94)";
+    ctx.fillText(label, cx, cy);
+
+    const run = Math.min(canvas.width * 0.96, ctx.measureText(label).width);
+    const rule = Math.max(2, Math.round(size * 0.09));
+    ctx.fillStyle = "rgba(6,8,12,0.5)";
+    ctx.fillRect(cx - run / 2, cy + size * 0.78 + rule, run, rule);
+    ctx.fillStyle = accent;
+    ctx.fillRect(cx - run / 2, cy + size * 0.78, run, rule);
+
     const texture = new THREE.CanvasTexture(canvas);
-    texture.anisotropy = 4;
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
-    sprite.scale.set((w / h) * scale, scale, 1);
-    sprite.userData.base = { w: (w / h) * scale, h: scale };
-    sprite.renderOrder = 10;
-    return sprite;
+    texture.anisotropy = 8;
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, depth),
+      new THREE.MeshBasicMaterial({
+        map: texture, transparent: true, depthWrite: false,
+      })
+    );
+    plane.rotation.x = -Math.PI / 2;
+    plane.renderOrder = 2;
+    return plane;
   }
 
   // ---------------------------------------------------------------- build it
@@ -752,17 +798,37 @@
         plot.w, 0.34, plot.d, C.plotPlate, 0x4a5563
       );
     }
-    /* On its plate, not floating over the district.
+    /* The district name, cut into the district's own ground.
      *
-     * At y=6.5 the label sat between the three-storey and five-storey
-     * rooflines and covered whatever stood behind it, which is how a monument
-     * ended up hidden by the words "Managed Services and Outsourcing". It now
-     * sits just above the strip reserved for it at the front edge, below every
-     * roofline in the district. */
-    const label = makeLabel(district.name, DISTRICT_BANDS[i % DISTRICT_BANDS.length], 2.9);
-    label.position.set(district.cx + district.w / 2, 1.45, district.cz + PLATE_STRIP / 2);
-    scene.add(label);
-    labels.push(label);
+     * It was a sprite hanging over the plate. At y=6.5 it sat between the
+     * three-storey and five-storey rooflines and covered whatever stood
+     * behind it, which is how a monument ended up hidden by the words
+     * "Managed Services and Outsourcing"; dropped to just above the kerb it
+     * stopped hiding buildings but was still a caption floating in the air,
+     * the one thing in the city that is not a physical object.
+     *
+     * So it goes on the ground, in the strip already reserved and left empty
+     * along the near edge of every district plate, engraved the way a board
+     * game prints the name of a square. It scales with the world because it
+     * is part of the world, which is what makes it read as cut in rather
+     * than laid over. Both ground axes foreshorten by the same factor under
+     * this camera, so the letters shear without stretching and no correction
+     * is needed. */
+    const stripDepth = DISTRICT_PAD + PLATE_STRIP - KERB - 0.5;
+    const strip = engraveOnGround(
+      district.name,
+      DISTRICT_BANDS[i % DISTRICT_BANDS.length],
+      district.w - KERB * 2 - 1.4,
+      stripDepth
+    );
+    strip.position.set(
+      district.cx + district.w / 2,
+      // Clear of the plate it sits on. At 0.01 above it the two surfaces
+      // fought for the same depth and the name came out in fragments.
+      0.31,
+      district.cz + district.d - KERB - 0.3 - stripDepth / 2
+    );
+    scene.add(strip);
   });
 
   // ---------------------------------------------------------- streetscape
@@ -1756,13 +1822,25 @@
     // size cut the monument off the top the moment you focused on one.
     building.top = top;
 
+    /* The pointer target covers the lot, whatever size the lot is.
+     *
+     * It was a fixed 3.4 square, which is wider than a lot in the cheapest
+     * plots and a third of the ground under a monument. Hovering the edge of
+     * a small lot picked its neighbour, and hovering the pyramids picked
+     * nothing at all. */
+    const reach = shape ? span * LOT * MONUMENT_INSET : Math.max(LOT - 0.6, 1.6);
     const pick = new THREE.Mesh(box, pickMaterial);
-    pick.scale.set(CELL - 0.6, Math.max(top + 1.5, 3), CELL - 0.6);
+    pick.scale.set(reach, Math.max(top + 1.5, 3), reach);
     pick.position.set(x, Math.max(top + 1.5, 3) / 2, z);
     pick.userData.category = category;
     scene.add(pick);
     pickTargets.push(pick);
   }
+
+  // Which codes have a monument actually standing on them, as opposed to one
+  // assigned in the data. The two agree today and the interface should not
+  // depend on their agreeing.
+  const standing = new Set(landmarks.map((l) => l.code));
 
   const BUCKETS = {
     plates: { bucket: plates, mesh: plates.mesh(box, matPlate, false, true) },
@@ -2147,8 +2225,16 @@
     if (category.owners && category.owners.length) {
       rows.push([category.owners.length > 1 ? "Owners" : "Owner", category.owners.join(", ")]);
     }
-    if (category.landmark) {
-      rows.push(["Landmark", `${category.landmark.name}, ${category.landmark.market}`]);
+    /* The monument, on the deed as well as on the lot.
+     *
+     * Twice on purpose: a chip beside the name, so it is the first thing read
+     * and the shape on the lot stops being a puzzle, and a row lower down
+     * with the reason, because "why does this one have a monument" is the
+     * next question and the answer is a sentence the build already wrote. */
+    const monument = standing.has(category.code) ? category.landmark : null;
+    if (monument) {
+      rows.push(["Landmark", `${monument.name}, ${monument.market}`]);
+      rows.push(["Earned it", monument.because]);
     }
     // Laid out as a Monopoly title deed, because that is what it is: one
     // property, its colour group across the top, what it is worth, and what
@@ -2161,6 +2247,7 @@
       </div>
       <button class="panel-toggle" data-collapse data-drag>Title deed &middot; ${category.code}<span class="caret">&#9662;</span></button>
       <h3>${category.name}</h3>
+      ${monument ? `<div class="deed-landmark">${monument.name}</div>` : ""}
       <div class="panel-body">
         <div class="where">${category.plot}</div>
         <dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
@@ -2177,6 +2264,16 @@
    */
   const WEIGHTS = (CONFIG.score && CONFIG.score.weights) || { blueprint: 40, usage: 35, ai: 25 };
   const ARC_MAX = WEIGHTS.blueprint + WEIGHTS.usage + WEIGHTS.ai;
+  /* What to call each component wherever a score is broken down.
+   *
+   * One place, because the scoreboard, the arc and the agent all say the same
+   * three things and had three sets of words for them. From the config, so
+   * renaming a component is a config edit rather than a search across the
+   * renderer. */
+  const COMPONENT_LABEL = Object.assign(
+    { blueprint: "blueprint", usage: "used", ai: "AI" },
+    (CONFIG.score && CONFIG.score.component_labels) || {}
+  );
 
   /** Where a score sits along the rail, as a percentage of its width.
    *  Autonomous occupies the last quarter and nothing reaches it, which is
@@ -2314,6 +2411,29 @@
       .sort((a, b) => b.j.total - a.j.total);
   }
 
+  /* The three components, named, on every row.
+   *
+   * The bar alone put three unlabelled colours against a key at the foot of
+   * the panel, so reading a row meant looking somewhere else and remembering
+   * which colour was which. Naming them in place is what the key was for, so
+   * the key is gone and the vertical it cost goes to the rows.
+   *
+   * Each is shown against its own ceiling, because 18 means nothing without
+   * the 40 it is out of: a district on 18 of 40 for blueprint and 4 of 35 for
+   * usage has written most of what it can write and used almost none of it,
+   * and that is the whole finding. */
+  function scoreParts(j) {
+    const parts = [
+      ["bp", COMPONENT_LABEL.blueprint, j.blueprint, WEIGHTS.blueprint],
+      ["use", COMPONENT_LABEL.usage, j.usage, WEIGHTS.usage],
+      ["ai", COMPONENT_LABEL.ai, j.ai, WEIGHTS.ai],
+    ];
+    return parts
+      .map(([key, label, value, out]) =>
+        `<span class="part ${key}">${label} ${Math.round(value)} of ${out}</span>`)
+      .join("");
+  }
+
   function renderJourney() {
     const rows = journeyData();
     journeyRows.innerHTML = rows.map((r, i) => `
@@ -2321,6 +2441,7 @@
         <span class="who">${r.label}</span>
         <span class="num">${Math.round(r.j.total)}</span>
         ${scoreBar(r.j)}
+        <span class="parts">${scoreParts(r.j)}</span>
         <span class="sub">${r.sub}</span>
       </div>`).join("");
     journeyRows.querySelectorAll(".jRow").forEach((el) => {
@@ -2812,10 +2933,20 @@
     }
     const state = tierOf("blueprint_state", category.blueprint_state).label;
     const spend = category.metrics.spend_eur;
+    /* A monument gets named on hover.
+     *
+     * Recognising the shape is the point, and somebody who does not
+     * recognise it should not have to click to find out what they are
+     * looking at. The market comes with it, because the shape was chosen
+     * from a market that adopted the blueprint and that is the only reason
+     * this category has that monument and not another. */
+    const monument = standing.has(category.code)
+      ? `<span class="lm">${category.landmark.name} &middot; ${category.landmark.market}</span>`
+      : "";
     hoverEl.innerHTML =
       `<b>${category.code}</b> ${category.name}<br>` +
       `<span>${category.district} &middot; ${state}` +
-      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>`;
+      (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>` + monument;
     hoverEl.classList.add("on");
     // Nudged clear of the cursor, and kept on screen near the edges.
     const box = hoverEl.getBoundingClientRect();
@@ -3166,11 +3297,6 @@
     // capped, so it stays a character rather than becoming
     // a monument standing over the city.
     figure.scale.setScalar(FIGURE_SCALE * THREE.MathUtils.clamp(zoom * 1.9, 1, 2.6));
-    for (const label of labels) {
-      const base = label.userData.base;
-      label.scale.set(base.w * zoom, base.h * zoom, 1);
-      label.material.opacity = THREE.MathUtils.clamp((zoom - 0.28) * 4, 0, 1);
-    }
     camera.layers.set(0);
     renderer.setClearColor(sky, 1);
     renderer.clear();

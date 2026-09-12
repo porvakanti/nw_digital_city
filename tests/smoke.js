@@ -358,6 +358,43 @@ async function onAPhone(browser) {
   check("hover names the lot", /[A-Z]\d{3}/.test(hovered),
     hovered.replace(/\s+/g, " ") || "nothing under the pointer");
 
+  /* Hovering a monument names the monument.
+   *
+   * Recognising the shape is what a monument is for, and somebody who does
+   * not recognise it should not have to click to find out what it is. Driven
+   * by focusing the lot first, which centres the camera on it, so the check
+   * does not depend on where a monument happens to land in the wide view.
+   */
+  const named = [];
+  for (const code of await page.evaluate(() => window.NWCity.monuments())) {
+    await page.evaluate((c) => window.NWCity.focus(c), code);
+    await page.waitForTimeout(1400);
+    /* A short sweep down the middle rather than one point.
+     *
+     * The camera frames the lot, but where on the screen the lot lands
+     * depends on how tall what is standing on it is, and the two needle
+     * monuments put their own base well below the centre of the frame. */
+    const mid = Math.round(page.viewportSize().width / 2);
+    let tip = { code: "", name: "" };
+    for (const fraction of [0.5, 0.56, 0.62, 0.68, 0.44]) {
+      await page.mouse.move(mid, Math.round(page.viewportSize().height * fraction));
+      await page.waitForTimeout(110);
+      tip = await page.evaluate(() => {
+        const el = document.getElementById("hover");
+        const line = el.querySelector(".lm");
+        return { code: (el.querySelector("b") || {}).textContent || "", name: line ? line.textContent : "" };
+      });
+      if (tip.code === code) break;
+    }
+    if (tip.code === code && tip.name.trim()) named.push(`${code} ${tip.name.trim()}`);
+    else named.push(null);
+  }
+  const missed = named.filter((n) => !n).length;
+  check("hovering a monument names it", missed === 0,
+    missed ? `${missed} of ${named.length} gave no name`
+      : `all ${named.length} named, e.g. ${named[0]}`);
+  await page.evaluate(() => window.NWCity.reset());
+
   // The definitions are a net under the names: "lead acid" is nowhere in a
   // category name, and is the first two words of what D504 actually is.
   const viaDefinition = await page.evaluate(
@@ -509,12 +546,21 @@ async function onAPhone(browser) {
       const rows = [...document.querySelectorAll("#jRows .jRow")].map((el) => ({
         who: el.querySelector(".who").textContent,
         num: Number(el.querySelector(".num").textContent),
-        bars: el.querySelectorAll(".bp, .use, .ai").length,
+        // Scoped to the bar: the same three class names also mark the
+        // written-out components below it, and counting both made this
+        // assertion pass on any number of segments.
+        bars: el.querySelectorAll(".bar .bp, .bar .use, .bar .ai").length,
+        named: el.querySelectorAll(".parts .part").length,
+        namedText: [...el.querySelectorAll(".parts .part")].map((p) => p.textContent.trim()),
       }));
       return {
         rows: rows.length,
         sorted: rows.every((r, i) => i === 0 || rows[i - 1].num >= r.num),
         components: rows.every((r) => r.bars === 3),
+        // Every component named, against the ceiling it is scored out of.
+        labelled: rows.every((r) => r.named === 3
+          && r.namedText.every((t) => /^[A-Za-z ]+ \d+ of \d+$/.test(t))),
+        sample: (rows[0] || {}).namedText,
         inRange: rows.every((r) => r.num >= 0 && r.num <= 100),
         top: rows[0] || null,
       };
@@ -523,6 +569,8 @@ async function onAPhone(browser) {
     check(`the journey panel fills in for ${view}`,
       panel.rows > 0 && panel.sorted && panel.inRange && panel.components,
       panel.top ? `${panel.rows} rows, top ${panel.top.who} at ${panel.top.num}` : "no rows");
+    check(`the {} score components are named on every row`.replace("{}", view),
+      panel.labelled, (panel.sample || []).join(" · "));
   }
 
   // People is the one view that withholds rows, and it must: below the

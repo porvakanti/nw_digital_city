@@ -176,7 +176,8 @@ anything about it feels wrong to show, that is the finding worth reporting.
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
 28. Each monument comes from a market that actually adopted that blueprint.
-    Click one and the card says which.
+    Hover one and the tooltip names it; click it and the card carries the name
+    beside the category and the reason it was earned lower down.
 29. Germany supplies two, because it carries two high scorers and 23 of the
     112 blueprint records, more than any other market.
 30. A221 has **no** monument, though it is live in 16 markets. It has never
