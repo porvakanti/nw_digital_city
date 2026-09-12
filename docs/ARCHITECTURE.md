@@ -164,7 +164,7 @@ to be changed by configuration alone.
 | `score` | Composite score weights, component thresholds, roll-up method, eligibility floor |
 | `people` | Whether category owners are identified by name, by initials, or not at all |
 | `landmarks` | Market-reach threshold and per-market assignment |
-| `disclosure` | Whether provisional and placeholder measures are annotated in the interface |
+| `disclosure` | Whether provisional and placeholder measures are annotated in the interface. No layer currently rests on either, and a test asserts that a layer cannot rest on one with its badge switched off |
 
 Changing a visual binding is a one-line edit:
 
@@ -269,7 +269,8 @@ generated figures.
 | Every candidate measure carried in the dataset | Increases artefact size; makes the visual encoding configurable without a rebuild. |
 | No presentation-tier dependency on the service tier | Any capability that requires the service tier is unavailable in the offline distribution, and is therefore not used for core function. |
 | Composite score implemented twice | Required because interface groupings are not known at build time. Mitigated by a cross-implementation assertion. |
-| Building height bound to market reach | The intended measure reads a constant 100% across all 145 categories in the current extract, which would render a uniform skyline. The substitution is annotated in the interface and reversible by configuration. |
+| Building height bound to the composite score | The intended adoption measure reads a constant 100% across all 145 categories, and market reach is a count with no denominator: no source states which markets a category applies to. The score counts stages instead, has a ceiling, and spreads the buildable categories over five bands rather than two. Reversible by configuration. |
+| Monuments earned by score, not by spread | A blueprint live in many markets and used by none is not an achievement, and that is what the previous threshold marked. A market may supply several monuments, because a market carrying several high scorers would otherwise leave the lower-scoring ones without one. |
 
 ## 11. Known limitations
 

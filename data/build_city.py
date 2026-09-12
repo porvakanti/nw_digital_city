@@ -300,37 +300,59 @@ def initials(person: str) -> str:
 
 
 def assign_landmarks(categories, config) -> None:
-    """Give the most reused blueprints a world landmark from a market that
+    """Give the best-performing categories a monument from a market that
     actually adopted them.
 
-    The rule is the point. A landmark that came from nowhere would be
-    decoration; one drawn from an adopting market says this blueprint
-    travelled. Each landmark is used once, most-reused category first.
+    Two rules, and both matter. The threshold is the composite score, so a
+    monument marks progress rather than spread: a blueprint live in many
+    markets and used by none of them is not an achievement. The shape is drawn
+    from a market that adopted it, so the monument says where it travelled
+    rather than decorating.
+
+    A market may supply more than one monument, because a market carrying
+    several high scorers would otherwise leave the lower-scoring ones with
+    nothing. Each monument is still used once, highest score first, so the
+    strongest performer gets the first choice from its markets.
     """
     rules = config.get("landmarks") or {}
-    floor = rules.get("min_markets", 5)
+    floor = rules.get("min_score", 50)
     by_market = rules.get("by_market") or {}
 
     qualifying = sorted(
-        (c for c in categories if c["metrics"]["market_reach"] >= floor),
-        key=lambda c: -c["metrics"]["market_reach"],
+        (c for c in categories
+         if c["blueprint_state"] == "active" and c["journey"]["total"] >= floor),
+        key=lambda c: (-c["journey"]["total"], c["code"]),
     )
     taken = set()
     for category in qualifying:
-        for market, landmark in by_market.items():
-            if market in category["markets"] and landmark["name"] not in taken:
-                taken.add(landmark["name"])
+        placed = False
+        for market, monuments in by_market.items():
+            if market not in category["markets"]:
+                continue
+            for monument in monuments:
+                if monument["name"] in taken:
+                    continue
+                taken.add(monument["name"])
                 category["landmark"] = {
-                    "name": landmark["name"],
-                    "shape": landmark["shape"],
+                    "name": monument["name"],
+                    "shape": monument["shape"],
                     "market": market,
-                    "because": (f"{category['metrics']['market_reach']} markets have "
-                                f"adopted this blueprint, {market} among them"),
+                    "because": (f"scores {round(category['journey']['total'])} out of "
+                                f"100, and {market} has adopted this blueprint"),
                 }
+                placed = True
                 break
+            if placed:
+                break
+
     named = [c for c in categories if c.get("landmark")]
-    print(f"  landmarks: {len(named)} "
+    short = [c["code"] for c in qualifying if not c.get("landmark")]
+    print(f"  landmarks: {len(named)} of {len(qualifying)} qualifying at {floor}+ "
           + ", ".join(f"{c['code']} {c['landmark']['name']}" for c in named))
+    if short:
+        # Loud, because a category that earned a monument and has no market we
+        # can depict is a gap in the configuration, not a property of the data.
+        print(f"  WARNING: no monument available for {', '.join(short)}")
 
 
 def blueprint_state(record) -> str:
@@ -400,6 +422,11 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
                     "spend_eur": record["spend_eur"],
                     "ai_rfps": record["ai_rfps"] or 0,
                     "cbp_used": record["cbp_used"],
+                    # The composite score is carried as a measure as well as
+                    # under "journey", so config/metrics.yaml can bind a
+                    # visual layer to it without the renderer special-casing
+                    # where the value lives.
+                    "journey_score": journey(record, config)["total"],
                 },
             }
         )

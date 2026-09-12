@@ -59,22 +59,37 @@ Networks. That mismatch is worth pointing at.
 
 61% of Networks is bare ground.
 
-### 2. The height: how many markets have taken it up
+### 2. The height: how far the category has got
 
-One band per market: 0 is flat, 1 a small building, 2 an office block, 3 to 4
-a tower, 5 or more a skyscraper.
+The composite score, 0 to 100. 40 points for the blueprint itself, 35 for
+anyone actually using it, 25 for doing it with AI. The full workings are in
+[JOURNEY-SCORE.md](JOURNEY-SCORE.md).
 
-The spread is severe. 89 categories are in no market at all, 34 are in exactly
-one, and only five categories anywhere reach five or more. One reaches 16. The
-skyline is mostly low-rise, and that is accurate rather than a rendering
-choice.
+| Score | What stands there | Categories |
+| --- | --- | --- |
+| 0 | bare or outlined ground | 101 |
+| up to 25 | small building, 3 floors | 20 |
+| up to 40 | office block, 5 floors | 16 |
+| up to 64 | tower, 8 floors | 4 |
+| up to 84 | high tower, 12 floors | 2 |
+| over 84 | skyscraper, 16 floors | 2 |
 
-**This measure is a substitute.** The proper column is AVA Sourcing adoption,
-which reads a flat 100% for all 145 categories in the current extract. Using
-it would make every building an identical maximum-height tower and the skyline
-would carry no information at all. Market count is real and varies, so it
-stands in. It is badged provisional on screen and swaps back in one line in
-`config/metrics.yaml` if real adoption figures arrive.
+**Height used to be blueprint reach, and that was the weaker choice twice
+over.**
+
+It was a count with no denominator. A category live in both of the two markets
+where it applies scored worse than one live in five of twenty, and no source
+we hold says which markets a category applies to. A count like that cannot be
+defended as performance.
+
+And it barely varied. 48 of the 56 buildings sat at reach 1 or 2, so the
+skyline was 48 near-identical low blocks and four outliers. The score spreads
+the same 56 buildings over five bands.
+
+Reach is still on the card, and it is still what a monument is drawn from. It
+just stopped standing in for progress. A221 is live in 16 markets, more than
+twice the next, and has never been used: on the old encoding it was the tallest
+thing in the city, and it is now a five-floor block.
 
 ### 3. The houses and hotels: spend
 
@@ -155,10 +170,11 @@ built.** It is the most exposed district on the map.
 
 Say these before someone finds them.
 
-**Height still stands in for adoption.** The AVA column reads a flat 100% for
-all 145 categories in the September extract as well, so building height is
-market reach and is badged provisional on screen. This is the last placeholder
-left: the rooftop lights became real data in the same refresh.
+**Nothing measures adoption depth.** The AVA column reads a flat 100% for all
+145 categories, so it cannot differentiate, and blueprint reach counts markets
+without knowing how many a category could serve. Height is the composite score
+instead, which scores stages rather than counting markets. The gap is real:
+nothing in any source says how deeply a blueprint is used within a market.
 
 **20 categories have a blueprint and no recorded spend**, 14 of them live and
 6 drafted. So the map
@@ -172,6 +188,6 @@ looks the same whether that market is Germany or Albania.
 ## Changing any of this
 
 `config/metrics.yaml` binds each visual layer to a metric. Swapping height
-from market reach to real adoption, or moving the spend thresholds, is an edit
-to that file. No rebuild, no code change, and the on-screen legend follows,
+from the composite score back to blueprint reach, or moving the spend
+thresholds, is an edit to that file. No rebuild, no code change, and the on-screen legend follows,
 so the explanation cannot drift from what is drawn.

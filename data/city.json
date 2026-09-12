@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-09-12T15:23:17+00:00",
+    "generated_at": "2026-09-12T16:07:09+00:00",
     "source": "Category_Blueprint_Allhands.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network (Level 1)",
@@ -575,13 +575,8 @@
         "ariba_adoption": 0,
         "spend_eur": 351566.36,
         "ai_rfps": 0,
-        "cbp_used": 0
-      },
-      "landmark": {
-        "name": "The Pyramids",
-        "shape": "pyramid",
-        "market": "Egypt",
-        "because": "5 markets have adopted this blueprint, Egypt among them"
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -622,7 +617,8 @@
         "ariba_adoption": 0,
         "spend_eur": 32142.86,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -661,7 +657,8 @@
         "ariba_adoption": 0,
         "spend_eur": 79892.86,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -703,7 +700,14 @@
         "ariba_adoption": 0,
         "spend_eur": 92566.36,
         "ai_rfps": 1,
-        "cbp_used": 1
+        "cbp_used": 1,
+        "journey_score": 75
+      },
+      "landmark": {
+        "name": "The Pyramids",
+        "shape": "pyramid",
+        "market": "Egypt",
+        "because": "scores 75 out of 100, and Egypt has adopted this blueprint"
       }
     },
     {
@@ -742,7 +746,8 @@
         "ariba_adoption": 0,
         "spend_eur": 58142.86,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -781,7 +786,8 @@
         "ariba_adoption": 0,
         "spend_eur": 92392.86,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -822,7 +828,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -861,7 +868,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -897,7 +905,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -936,7 +945,14 @@
         "ariba_adoption": 0,
         "spend_eur": 16935942.83,
         "ai_rfps": 2,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 65
+      },
+      "landmark": {
+        "name": "Berlin TV Tower",
+        "shape": "spire_sphere",
+        "market": "Germany",
+        "because": "scores 65 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -974,7 +990,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1012,7 +1029,8 @@
         "ariba_adoption": 0,
         "spend_eur": 3098333.33,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1057,13 +1075,14 @@
         "ariba_adoption": 0,
         "spend_eur": 27775000,
         "ai_rfps": 2,
-        "cbp_used": 2
+        "cbp_used": 2,
+        "journey_score": 100
       },
       "landmark": {
-        "name": "The Colosseum",
-        "shape": "colosseum",
-        "market": "Italy",
-        "because": "8 markets have adopted this blueprint, Italy among them"
+        "name": "Big Ben",
+        "shape": "clocktower",
+        "market": "UK",
+        "because": "scores 100 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -1099,7 +1118,8 @@
         "ariba_adoption": 0,
         "spend_eur": 539273.18,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1137,7 +1157,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1175,7 +1196,8 @@
         "ariba_adoption": 0,
         "spend_eur": 10500000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -1213,7 +1235,8 @@
         "ariba_adoption": 0,
         "spend_eur": 233064,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1251,7 +1274,8 @@
         "ariba_adoption": 0,
         "spend_eur": 8065042.58,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1289,7 +1313,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1328,7 +1353,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2218333.33,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -1367,7 +1393,8 @@
         "ariba_adoption": 0,
         "spend_eur": 1833333.33,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -1405,7 +1432,8 @@
         "ariba_adoption": 0,
         "spend_eur": 14193337.83,
         "ai_rfps": 1,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -1443,7 +1471,8 @@
         "ariba_adoption": 0,
         "spend_eur": 53333.33,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -1479,7 +1508,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1515,7 +1545,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1551,7 +1582,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1589,7 +1621,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1625,7 +1658,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1661,7 +1695,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1699,7 +1734,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1737,7 +1773,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1775,7 +1812,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1813,7 +1851,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1849,7 +1888,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1887,7 +1927,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1925,7 +1966,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -1963,7 +2005,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2001,7 +2044,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -2039,7 +2083,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -2079,7 +2124,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -2121,13 +2167,8 @@
         "ariba_adoption": 0,
         "spend_eur": 39092336.1,
         "ai_rfps": 0,
-        "cbp_used": 0
-      },
-      "landmark": {
-        "name": "Brandenburg Gate",
-        "shape": "gate",
-        "market": "Germany",
-        "because": "5 markets have adopted this blueprint, Germany among them"
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -2163,7 +2204,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2201,7 +2243,8 @@
         "ariba_adoption": 0,
         "spend_eur": 557448,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -2237,7 +2280,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2276,7 +2320,14 @@
         "ariba_adoption": 0,
         "spend_eur": 7391552,
         "ai_rfps": 1,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 55
+      },
+      "landmark": {
+        "name": "Hagia Sophia",
+        "shape": "dome",
+        "market": "Turkey",
+        "because": "scores 55 out of 100, and Turkey has adopted this blueprint"
       }
     },
     {
@@ -2312,7 +2363,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2352,7 +2404,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -2388,7 +2441,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2424,7 +2478,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2460,7 +2515,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2496,7 +2552,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2532,7 +2589,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2568,7 +2626,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2604,7 +2663,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2640,7 +2700,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2680,7 +2741,14 @@
         "ariba_adoption": 0,
         "spend_eur": 62464272,
         "ai_rfps": 0,
-        "cbp_used": 1
+        "cbp_used": 1,
+        "journey_score": 60
+      },
+      "landmark": {
+        "name": "The Parthenon",
+        "shape": "parthenon",
+        "market": "Greece",
+        "because": "scores 60 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -2717,7 +2785,8 @@
         "ariba_adoption": 0,
         "spend_eur": 437500,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2753,7 +2822,8 @@
         "ariba_adoption": 0,
         "spend_eur": 350000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2789,7 +2859,8 @@
         "ariba_adoption": 0,
         "spend_eur": 1521000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2825,7 +2896,8 @@
         "ariba_adoption": 0,
         "spend_eur": 3621000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2861,7 +2933,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2897,7 +2970,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2100000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2933,7 +3007,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2500000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -2969,7 +3044,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2500000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3005,7 +3081,8 @@
         "ariba_adoption": 0,
         "spend_eur": 9912458,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3042,7 +3119,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3079,7 +3157,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2333000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3115,7 +3194,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3154,7 +3234,8 @@
         "ariba_adoption": 0,
         "spend_eur": 58554533,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -3190,7 +3271,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3226,7 +3308,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3262,7 +3345,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3302,7 +3386,8 @@
         "ariba_adoption": 0,
         "spend_eur": 1579528.97,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -3338,7 +3423,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3374,7 +3460,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3410,7 +3497,8 @@
         "ariba_adoption": 0,
         "spend_eur": 49430292.6,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3449,7 +3537,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -3485,7 +3574,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3521,7 +3611,8 @@
         "ariba_adoption": 0,
         "spend_eur": 7200000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3557,7 +3648,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3595,7 +3687,8 @@
         "ariba_adoption": 0,
         "spend_eur": 60000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -3631,7 +3724,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3667,7 +3761,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3706,7 +3801,8 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -3742,7 +3838,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3780,7 +3877,8 @@
         "ariba_adoption": 0,
         "spend_eur": 54704605.17,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -3816,7 +3914,8 @@
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3854,7 +3953,8 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -3890,7 +3990,8 @@
         "ariba_adoption": 0,
         "spend_eur": 75000000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3926,7 +4027,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -3964,7 +4066,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4002,7 +4105,14 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 2,
-        "cbp_used": 3
+        "cbp_used": 3,
+        "journey_score": 85
+      },
+      "landmark": {
+        "name": "Brandenburg Gate",
+        "shape": "gate",
+        "market": "Germany",
+        "because": "scores 85 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -4040,7 +4150,8 @@
         "ariba_adoption": 0,
         "spend_eur": 3321610.17,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -4078,7 +4189,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4116,7 +4228,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4154,7 +4267,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4190,7 +4304,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4228,7 +4343,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4264,7 +4380,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4300,7 +4417,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4336,7 +4454,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4372,7 +4491,8 @@
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4408,7 +4528,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4444,7 +4565,8 @@
         "ariba_adoption": 0,
         "spend_eur": 1211330.66,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4480,7 +4602,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4516,7 +4639,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4554,7 +4678,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4592,7 +4717,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4631,7 +4757,14 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 1,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 55
+      },
+      "landmark": {
+        "name": "Rozafa Castle",
+        "shape": "castle",
+        "market": "Albania",
+        "because": "scores 55 out of 100, and Albania has adopted this blueprint"
       }
     },
     {
@@ -4669,7 +4802,8 @@
         "ariba_adoption": 0,
         "spend_eur": 2538000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 10
       }
     },
     {
@@ -4705,7 +4839,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4741,7 +4876,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4777,7 +4913,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4813,7 +4950,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4849,7 +4987,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4885,7 +5024,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4921,7 +5061,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4957,7 +5098,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -4997,7 +5139,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5036,7 +5179,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5072,7 +5216,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5108,7 +5253,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5144,7 +5290,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5180,7 +5327,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5216,7 +5364,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5252,7 +5401,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5288,7 +5438,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5324,7 +5475,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5360,7 +5512,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5396,7 +5549,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5434,7 +5588,8 @@
         "ariba_adoption": 0,
         "spend_eur": 8616671.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5472,7 +5627,8 @@
         "ariba_adoption": 0,
         "spend_eur": 5566666.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5526,13 +5682,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
-      },
-      "landmark": {
-        "name": "Big Ben",
-        "shape": "clocktower",
-        "market": "UK",
-        "because": "16 markets have adopted this blueprint, UK among them"
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5572,7 +5723,8 @@
         "ariba_adoption": 0,
         "spend_eur": 4416671.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5617,13 +5769,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
-      },
-      "landmark": {
-        "name": "The Parthenon",
-        "shape": "parthenon",
-        "market": "Greece",
-        "because": "7 markets have adopted this blueprint, Greece among them"
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5659,7 +5806,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5697,7 +5845,14 @@
         "ariba_adoption": 0,
         "spend_eur": 19642.86,
         "ai_rfps": 2,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 50
+      },
+      "landmark": {
+        "name": "Palace of the Parliament",
+        "shape": "palace",
+        "market": "Romania",
+        "because": "scores 50 out of 100, and Romania has adopted this blueprint"
       }
     },
     {
@@ -5736,7 +5891,8 @@
         "ariba_adoption": 0,
         "spend_eur": 7230657,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5775,7 +5931,8 @@
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 40
       }
     },
     {
@@ -5813,7 +5970,8 @@
         "ariba_adoption": 0,
         "spend_eur": 12157339.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5849,7 +6007,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     },
     {
@@ -5887,7 +6046,8 @@
         "ariba_adoption": 0,
         "spend_eur": 29600000,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5925,7 +6085,8 @@
         "ariba_adoption": 0,
         "spend_eur": 44045407.67,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5963,7 +6124,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 25
       }
     },
     {
@@ -5999,7 +6161,8 @@
         "ariba_adoption": 0,
         "spend_eur": 0,
         "ai_rfps": 0,
-        "cbp_used": 0
+        "cbp_used": 0,
+        "journey_score": 0
       }
     }
   ]

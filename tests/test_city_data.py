@@ -256,12 +256,28 @@ class TestConfigBinding(unittest.TestCase):
                 f"category can reach, so that part of the encoding never draws",
             )
 
-    def test_unreal_metrics_are_badged(self):
-        """Placeholder or stand-in numbers must be flagged, not quietly presented."""
+    def test_no_bound_layer_rests_on_an_unreal_measure(self):
+        """Every visual layer must be driven by a measured column.
+
+        Both flags are now clear: the AI column stopped being a placeholder
+        when it was measured, and blueprint reach stopped being provisional
+        when height moved to the composite score, because it no longer stands
+        in for anything. The assertion is the rule rather than the state, so a
+        future substitution has to be declared before it can drive anything.
+        """
         registry = self.config["metrics"]
-        self.assertTrue(registry["market_reach"].get("provisional"))
-        # The badge machinery has to stay wired up even with nothing to badge,
-        # because the next placeholder arrives as a data change, not a code one.
+        for layer, binding in self.config["layers"].items():
+            spec = registry[binding["metric"]]
+            for flag in ("sample", "provisional"):
+                if spec.get(flag):
+                    self.assertTrue(
+                        self.config["disclosure"][f"show_{flag}_badge"],
+                        f"layer {layer} rests on a {flag} measure with the "
+                        f"badge switched off, which presents it as measured",
+                    )
+
+        # The badge machinery stays wired up with nothing to badge, because
+        # the next substitution arrives as a data change, not a code one.
         self.assertTrue(self.config["disclosure"]["show_sample_badge"])
         self.assertTrue(self.config["disclosure"]["show_provisional_badge"])
 
@@ -337,43 +353,66 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
         perfect = [c["code"] for c in self.cats if c["journey"]["total"] == 100]
         self.assertEqual(["A251"], perfect)
 
-    def test_five_landmarks_each_from_an_adopting_market(self):
-        """The rule that makes a landmark mean something rather than decorate."""
+    def test_the_eight_monuments(self):
+        """Earned by the composite score, and drawn from an adopting market.
+
+        The threshold used to be blueprint reach, which put a monument on four
+        categories that are live in several markets and have never been used.
+        Progress is the threshold now, so the monuments mark the eight
+        best-performing categories in the estate.
+        """
         marked = {c["code"]: c for c in self.cats if c.get("landmark")}
         self.assertEqual(
-            {"A221", "A251", "D406", "A201", "D504"}, set(marked),
+            {"A251", "A213", "D506", "A212", "D408", "D513", "D333", "A314"},
+            set(marked),
         )
-        self.assertEqual("Big Ben", marked["A221"]["landmark"]["name"])
         names = [c["landmark"]["name"] for c in marked.values()]
-        self.assertEqual(len(names), len(set(names)), "a landmark is used twice")
+        self.assertEqual(len(names), len(set(names)), "a monument is used twice")
         for code, category in marked.items():
             self.assertIn(
                 category["landmark"]["market"], category["markets"],
-                f"{code} has a landmark from a market that never adopted it",
+                f"{code} has a monument from a market that never adopted it",
             )
 
-    def test_landmarks_are_earned_and_unique(self):
-        """A landmark says a blueprint travelled. It has to be from somewhere
-        that actually adopted it, or it is decoration wearing a rule."""
+    def test_monuments_are_earned_and_every_earner_gets_one(self):
         config = load_config()
-        floor = config["landmarks"]["min_markets"]
+        floor = config["landmarks"]["min_score"]
+        declared = {
+            m["shape"]
+            for monuments in config["landmarks"]["by_market"].values()
+            for m in monuments
+        }
         marked = [c for c in self.cats if c.get("landmark")]
-        eligible = [c for c in self.cats if c["metrics"]["market_reach"] >= floor]
-        self.assertEqual(len(eligible), len(marked),
-                         "every category above the threshold should have one")
+        eligible = [c for c in self.cats
+                    if c["blueprint_state"] == "active" and c["journey"]["total"] >= floor]
+        self.assertEqual(
+            sorted(c["code"] for c in eligible), sorted(c["code"] for c in marked),
+            "every category over the threshold must get a monument, and no other",
+        )
         for category in marked:
-            self.assertGreaterEqual(category["metrics"]["market_reach"], floor)
+            self.assertGreaterEqual(category["journey"]["total"], floor)
             self.assertIn(category["landmark"]["market"], category["markets"])
-            self.assertIn(category["landmark"]["shape"],
-                          {v["shape"] for v in config["landmarks"]["by_market"].values()})
+            self.assertIn(category["landmark"]["shape"], declared)
 
-    def test_the_most_reused_blueprint_gets_big_ben(self):
-        """A221 is live in sixteen markets, double the next. Vodafone is a UK
-        company, so the most-copied blueprint in the estate takes the UK."""
+    def test_big_ben_goes_to_the_completed_journey(self):
+        """Vodafone is a UK company, and A251 is the only category in Networks
+        that has done the whole journey. It held the Colosseum while the
+        threshold was reach, because A221 took the UK on sixteen markets and
+        has never been used."""
+        uk = [c for c in self.cats
+              if c.get("landmark") and c["landmark"]["name"] == "Big Ben"]
+        self.assertEqual(1, len(uk))
+        self.assertEqual("A251", uk[0]["code"])
+        self.assertEqual(100, uk[0]["journey"]["total"])
+
+    def test_the_most_reused_blueprint_no_longer_gets_one(self):
+        """A221 is live in sixteen markets, double the next, and has never been
+        used. Losing its monument is the point of the change."""
         top = max(self.cats, key=lambda c: c["metrics"]["market_reach"])
         self.assertEqual("A221", top["code"])
         self.assertEqual(16, top["metrics"]["market_reach"])
-        self.assertEqual("Big Ben", top["landmark"]["name"])
+        self.assertEqual(0, top["metrics"]["cbp_used"])
+        self.assertIsNone(top.get("landmark"))
 
     def test_ai_rooftops_are_no_longer_a_placeholder(self):
         """Eight, and the guide and the screen must agree on which eight."""

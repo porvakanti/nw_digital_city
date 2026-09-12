@@ -355,7 +355,7 @@ async function onAPhone(browser) {
         (el) => (el.classList.contains("on") ? el.innerText : ""));
     }
   }
-  check("hover names the lot", /[A-D]\d{3}/.test(hovered),
+  check("hover names the lot", /[A-Z]\d{3}/.test(hovered),
     hovered.replace(/\s+/g, " ") || "nothing under the pointer");
 
   // The definitions are a net under the names: "lead acid" is nowhere in a
@@ -586,28 +586,90 @@ async function onAPhone(browser) {
     rollup.drift.length ? rollup.drift.join("; ")
       : `${rollup.groups} groupings agree to one decimal`);
 
+  /* Nothing may stand off the edge of the ground plate.
+   *
+   * Under this projection a point at height h lands where the ground point
+   * h * hypot(dx,dz)/dy behind it would, so a tall object near the city's edge
+   * appears above the plate's horizon with nothing behind it and reads as
+   * floating. A monument at the western edge did exactly that.
+   */
+  const grounded = await page.evaluate(() => {
+    const plate = window.NWCity.plate();
+    const L = window.NWCity.layout;
+    // The same shift the renderer derives the margin from, per ground axis.
+    const shift = plate.clearance / plate.tallest;
+    const off = [];
+    for (const code of window.NWCity.monuments()) {
+      const b = L.buildings.find((x) => x.category.code === code);
+      const back = (b.top || 0) * shift;
+      if (b.x - back < -plate.w / 2 || b.z - back < -plate.d / 2) {
+        off.push(`${code} at x${b.x.toFixed(0)} z${b.z.toFixed(0)} top${(b.top || 0).toFixed(0)}`);
+      }
+    }
+    return { off, plate: `${plate.w.toFixed(0)}x${plate.d.toFixed(0)}`, tallest: plate.tallest.toFixed(1) };
+  });
+  check("no monument stands off the edge of the ground",
+    grounded.off.length === 0,
+    grounded.off.length ? grounded.off.join("; ")
+      : `plate ${grounded.plate}, tallest assembly ${grounded.tallest}`);
+
+  /* A monument has to be taller than every plain tower.
+   *
+   * It used to replace the tower and was drawn at a fixed height, so the five
+   * categories that earned one rendered shorter than their neighbours.
+   */
+  const heights = await page.evaluate(() => {
+    const L = window.NWCity.layout;
+    const marked = new Set(window.NWCity.monuments());
+    let tallestPlain = 0, shortestMonument = Infinity;
+    for (const b of L.buildings) {
+      const top = b.top || 0;
+      if (marked.has(b.category.code)) shortestMonument = Math.min(shortestMonument, top);
+      else tallestPlain = Math.max(tallestPlain, top);
+    }
+    return { tallestPlain, shortestMonument };
+  });
+  check("every monument stands above every plain tower",
+    heights.shortestMonument > heights.tallestPlain,
+    `shortest monument ${heights.shortestMonument.toFixed(1)} vs tallest plain tower ${heights.tallestPlain.toFixed(1)}`);
+
   // A landmark is earned: the blueprint reached enough markets and one of
   // them has a monument defined. A landmark that appeared anywhere else would
   // be decoration, which is the one thing the city does not do.
   const monuments = await page.evaluate(() => {
     const config = window.NW_CONFIG.landmarks || {};
-    const floor = config.min_markets || 5;
+    const floor = config.min_score || 50;
     const earned = window.NW_CITY.categories.filter((c) => c.landmark);
+    const shapes = new Set();
+    for (const list of Object.values(config.by_market || {})) {
+      for (const m of list) shapes.add(m.name);
+    }
     return {
       drawn: window.NWCity.monuments(),
       earned: earned.map((c) => c.code).sort(),
       floor,
-      unearned: earned.filter((c) => c.metrics.market_reach < floor).map((c) => c.code),
-      offMap: earned.filter((c) => !(config.by_market || {})[c.landmark.market])
+      // Earned by progress now, not by spread.
+      unearned: earned.filter((c) => c.journey.total < floor).map((c) => c.code),
+      // And still drawn from a market that actually adopted it.
+      offMap: earned.filter((c) => !(c.markets || []).includes(c.landmark.market)
+                                || !shapes.has(c.landmark.name))
         .map((c) => c.code),
       named: earned.map((c) => `${c.landmark.name} (${c.landmark.market})`),
+      // Nobody over the threshold may be left without one.
+      missed: window.NW_CITY.categories
+        .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor && !c.landmark)
+        .map((c) => c.code),
     };
   });
 
+  check("every category over the threshold has a monument",
+    monuments.missed.length === 0,
+    monuments.missed.length ? `no monument for ${monuments.missed.join(", ")}`
+      : `all ${monuments.earned.length} at ${monuments.floor}+ are covered`);
   check("every landmark in the data is standing in the city",
     monuments.drawn.join(",") === monuments.earned.join(","),
     `${monuments.drawn.length} built: ${monuments.named.join(", ")}`);
-  check("no landmark was awarded without the markets to earn it",
+  check("no monument was awarded without the score to earn it",
     monuments.unearned.length === 0 && monuments.offMap.length === 0,
     [...monuments.unearned, ...monuments.offMap].join(", "));
 

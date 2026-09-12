@@ -27,11 +27,11 @@ Every visible thing encodes a measure, and nothing is decoration:
 | Measure | What you see | Driven by |
 | --- | --- | --- |
 | Foundation | empty lot, then marked out, then foundation laid | blueprint status |
-| Building | small building, office block, tower, skyscraper | blueprint reach *(provisional)* |
+| Building | small building, office block, tower, skyscraper | the journey score, 0 to 100 |
 | Property | Monopoly-style houses, then a hotel | spend FY26/27 |
 | Smart city | rooftop reactor, from dark to full glow | AI-generated RFPs |
 | Occupancy | full colour and lit windows, or drained to grey | has anybody used the blueprint |
-| Landmark | a monument in place of the tower | a blueprint that reached five or more markets |
+| Landmark | a monument on top of the building | a category scoring 50 or more |
 | Land area | a bigger lot, and a bigger plot around it | spend, square-root compressed |
 
 Geography follows the category tree: **L2 is a district, L3 is a plot, L4 is a
@@ -63,19 +63,28 @@ layers:
 Change that line and the skyline, the legend and the on-screen explanation all
 follow. Tests fail if a layer points at a metric the data does not carry.
 
-### Why height is "blueprint reach" and not AVA adoption
+### Why height is the journey score and not an adoption figure
 
-In the current extract `% AVA Sourcing` reads a flat **100% for all 145
-categories**, which would make every building a maxed-out skyscraper and leave
-the skyline saying nothing. Blueprint reach counts how many local markets have
-adopted the blueprint, which is how the brief defines adoption. That figure is
-real, it spreads from 1 to 16, and it tells a truer story. It is badged as provisional in
-the UI, and swaps back to `ava_adoption` in one line when real figures land.
+`% AVA Sourcing` reads a flat **100% for all 145 categories**, so it cannot
+differentiate: every building would be a maxed-out skyscraper.
+
+Height was blueprint reach until it became clear that was the weaker choice
+twice over. It is a count with no denominator, because nothing in any source
+says which markets a category applies to, so a category live in both of its
+two relevant markets scores worse than one live in five of twenty. And it
+barely varied: 48 of the 56 buildings sat at reach 1 or 2.
+
+The journey score counts stages rather than markets, so it has a ceiling and
+cannot penalise a category for markets it was never going to serve, and it
+spreads the same 56 buildings over five bands. Blueprint reach is still on the
+card and is still what a monument is drawn from.
 
 ### Honesty rules
 
-Anything not real is badged in the UI, and one placeholder is left: building
-height, which stands in for adoption for the reason above.
+Anything not real is badged in the UI, and there is now nothing badged: every
+visual layer is bound to a measured column. What remains is a gap rather than a
+placeholder, since no source measures how deeply a blueprint is used within a
+market.
 
 `ai_rfps` used to be one. While the column was empty the rooftops ran on
 generated figures showing 28 of 145; the measured column says **8**. The

@@ -251,22 +251,38 @@ class TestWhatYouActuallySee(DocumentFigures):
                           f"{hotel['code']} is a hotel and is not named")
 
     def test_the_tallest_building(self):
-        tallest = max(self.cats, key=lambda c: c["metrics"]["market_reach"])
-        reach = tallest["metrics"]["market_reach"]
-        self.quotes("TESTING.md", f"{reach} storeys, the tallest thing")
-        self.quotes("READING-THE-CITY.md", f"One reaches {reach}.")
+        """Named by the measure height actually encodes.
+
+        This asserted the category with the most markets, which stopped being
+        the tallest building when height moved to the composite score. A221
+        is still the most-adopted blueprint and is now a five-floor block.
+        """
+        tallest = max(self.cats, key=lambda c: c["journey"]["total"])
+        self.quotes("TESTING.md",
+                    f"**{tallest['code']}**, the tallest thing in the city at "
+                    f"{shown(tallest['journey']['total'])} out of 100")
+        widest = max(self.cats, key=lambda c: c["metrics"]["market_reach"])
+        self.quotes("READING-THE-CITY.md",
+                    f"{widest['code']} is live in {widest['metrics']['market_reach']} markets")
 
     def test_the_landmark_table(self):
+        """Every monument, its category and the market it came from.
+
+        The threshold moved from blueprint reach to the composite score, which
+        changed which categories hold a monument and which market each one
+        draws from. The table is rebuilt from the data so it cannot describe
+        the previous rule.
+        """
         marked = [c for c in self.cats if c.get("landmark")]
-        floor = self.config["landmarks"]["min_markets"]
-        self.quotes("TESTING.md", f"markets:")
+        floor = self.config["landmarks"]["min_score"]
+        self.quotes("TESTING.md",
+                    f"{len(marked)} monuments, one per category scoring {floor} or more")
         for c in marked:
             self.quotes(
                 "TESTING.md",
                 f"| {c['code']} | {c['name']} | {c['landmark']['name']} | "
-                f"{c['landmark']['market']}, {c['metrics']['market_reach']} markets |",
+                f"{c['landmark']['market']}, score {shown(c['journey']['total'])} |",
             )
-        self.quotes("TESTING.md", f"whose blueprint reached {'five' if floor == 5 else floor} or more")
 
 
 class TestTheDiagrams(DocumentFigures):
