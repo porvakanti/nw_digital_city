@@ -351,8 +351,8 @@ def browser_against_package(python: Path) -> int:
 # rather than after two minutes of browser work.
 STAGES = [
     ("data and privacy",
-     "104 assertions over city.json, the plan parser, the model ladder and the"
-     " service, including the security suite",
+     "every assertion over city.json, the figures the documents quote, the"
+     " plan parser, the model ladder and the service, security suite included",
      lambda python: subprocess.call(
          [str(python), "-m", "unittest", "discover", "-s", "tests"], cwd=ROOT)),
     ("the agent's question set",

@@ -2654,6 +2654,19 @@
     pending() {
       return scheduled.length;
     },
+    /* Roll the journey score up over a named set of categories.
+
+     * The score is computed twice: in Python for the build, and here for the
+     * People board, where the grouping does not exist until the page runs.
+     * Two implementations of one formula drift, so this exposes the browser's
+     * one and a check compares it against the figures the build wrote. The
+     * alternative was shipping pre-computed rollups for every grouping
+     * somebody might one day ask for.
+     */
+    score(codes) {
+      const list = (codes || []).map((code) => byCode.get(code)).filter(Boolean);
+      return list.length ? rollUp(list) : null;
+    },
     /* Open the leaderboard on one of its three views and report what it says.
 
      * The journey panel is already the best answer the city has to "who is

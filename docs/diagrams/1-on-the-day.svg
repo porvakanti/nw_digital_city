@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 356" width="880" height="356" font-family="Helvetica, Arial, sans-serif">
+  <rect width="880" height="356" fill="#fcfcfb"/>
+  <text x="28" y="40" font-size="19" font-weight="bold" fill="#1b1e24">On the day</text>
+  <text x="28" y="62" font-size="13.5" fill="#5d6873">Two ways in. Both end at the same city.</text>
+
+  <!-- THE PLAN -->
+  <text x="28" y="104" font-size="11.5" font-weight="bold" fill="#9a6b00" letter-spacing="1.2">THE PLAN</text>
+  <rect x="28" y="118" width="205" height="64" rx="3" fill="#ffffff" stroke="#1b1e24" stroke-width="1.6"/>
+  <text x="130" y="144" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">Agent Marketplace</text>
+  <text x="130" y="164" font-size="12" fill="#5d6873" text-anchor="middle">AIB GCP Lab instance</text>
+
+  <rect x="330" y="118" width="180" height="64" rx="3" fill="#ffffff" stroke="#1b1e24" stroke-width="1.6"/>
+  <text x="420" y="144" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">A new browser tab</text>
+  <text x="420" y="164" font-size="12" fill="#5d6873" text-anchor="middle">opens at a URL</text>
+
+  <!-- THE BACKUP -->
+  <text x="28" y="238" font-size="11.5" font-weight="bold" fill="#5d6873" letter-spacing="1.2">THE BACKUP</text>
+  <rect x="28" y="252" width="205" height="58" rx="3" fill="#eef0ed" stroke="#5d6873" stroke-width="1.6"/>
+  <text x="130" y="277" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">One HTML file</text>
+  <text x="130" y="296" font-size="12" fill="#5d6873" text-anchor="middle">on the laptop</text>
+
+  <!-- THE CITY -->
+  <rect x="655" y="118" width="200" height="130" rx="3" fill="#ffffff" stroke="#1b1e24" stroke-width="2.4"/>
+  <text x="755" y="164" font-size="16" fill="#1b1e24" text-anchor="middle" font-weight="bold">The Digital City</text>
+  <text x="755" y="188" font-size="12.5" fill="#5d6873" text-anchor="middle">8 districts, 31 plots</text>
+  <text x="755" y="206" font-size="12.5" fill="#5d6873" text-anchor="middle">145 category lots</text>
+  <text x="755" y="230" font-size="12.5" fill="#5d6873" text-anchor="middle">runs in the browser</text>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b1e24"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5d6873"/>
+    </marker>
+  </defs>
+
+  <line x1="233" y1="150" x2="324" y2="150" stroke="#1b1e24" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="278" y="141" font-size="11.5" fill="#5d6873" text-anchor="middle">click the tile</text>
+
+  <path d="M510 150 L580 150 L580 160 L649 160" fill="none" stroke="#1b1e24" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <path d="M233 281 L580 281 L580 212 L649 212" fill="none" stroke="#5d6873" stroke-width="1.6" marker-end="url(#g)"/>
+  <text x="330" y="272" font-size="11.5" fill="#5d6873">double-click it</text>
+
+  <text x="28" y="340" font-size="12.5" fill="#c00000" font-weight="bold">The plan needs the city hosted somewhere.</text>
+  <text x="312" y="340" font-size="12.5" fill="#5d6873">The backup needs nothing at all, which is why it stays the backup.</text>
+</svg>

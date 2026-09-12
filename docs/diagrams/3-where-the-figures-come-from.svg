@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" font-family="Helvetica, Arial, sans-serif">
+  <rect width="880" height="300" fill="#fcfcfb"/>
+  <text x="28" y="40" font-size="19" font-weight="bold" fill="#1b1e24">Where the figures come from</text>
+  <text x="28" y="62" font-size="13.5" fill="#5d6873">Once, on one laptop. Never while anybody is looking at the city.</text>
+
+  <defs>
+    <marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b1e24"/>
+    </marker>
+    <marker id="cr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#c00000"/>
+    </marker>
+  </defs>
+
+  <rect x="28" y="96" width="168" height="74" rx="3" fill="#eef0ed" stroke="#1b1e24" stroke-width="1.6"/>
+  <text x="112" y="122" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">Tomas's workbook</text>
+  <text x="112" y="142" font-size="11.5" fill="#c00000" text-anchor="middle">holds names and emails</text>
+  <text x="112" y="158" font-size="11.5" fill="#5d6873" text-anchor="middle">never committed</text>
+
+  <rect x="252" y="96" width="148" height="74" rx="3" fill="#ffffff" stroke="#1b1e24" stroke-width="1.6"/>
+  <text x="326" y="129" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">One command</text>
+  <text x="326" y="149" font-size="11.5" fill="#5d6873" text-anchor="middle">run.py build</text>
+
+  <rect x="456" y="96" width="148" height="74" rx="3" fill="#fdeeee" stroke="#c00000" stroke-width="2"/>
+  <text x="530" y="122" font-size="14.5" fill="#c00000" text-anchor="middle" font-weight="bold">Privacy check</text>
+  <text x="530" y="142" font-size="11.5" fill="#5d6873" text-anchor="middle">reads the output back</text>
+  <text x="530" y="158" font-size="11.5" fill="#5d6873" text-anchor="middle">before writing it</text>
+
+  <rect x="660" y="96" width="192" height="74" rx="3" fill="#ffffff" stroke="#1b1e24" stroke-width="1.6"/>
+  <text x="756" y="122" font-size="14.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">The city's figures</text>
+  <text x="756" y="142" font-size="11.5" fill="#5d6873" text-anchor="middle">no emails, no contacts</text>
+  <text x="756" y="158" font-size="11.5" fill="#5d6873" text-anchor="middle">names only by a setting</text>
+
+  <line x1="196" y1="133" x2="246" y2="133" stroke="#1b1e24" stroke-width="1.6" marker-end="url(#c)"/>
+  <line x1="400" y1="133" x2="450" y2="133" stroke="#1b1e24" stroke-width="1.6" marker-end="url(#c)"/>
+  <line x1="604" y1="133" x2="654" y2="133" stroke="#1b1e24" stroke-width="1.6" marker-end="url(#c)"/>
+  <text x="629" y="124" font-size="11" fill="#5d6873" text-anchor="middle">clean</text>
+
+  <line x1="530" y1="170" x2="530" y2="214" stroke="#c00000" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#cr)"/>
+  <text x="530" y="234" font-size="12.5" fill="#c00000" text-anchor="middle" font-weight="bold">Finds a contact detail? The build stops. Nothing is written.</text>
+
+  <text x="28" y="272" font-size="12.5" fill="#5d6873">The workbook stays on the laptop. What ships is this derived copy, and the check runs every single time.</text>
+</svg>

@@ -111,7 +111,7 @@ a much better position to argue from, because it is true.
 | What you see | What it means | Count |
 | --- | --- | --- |
 | Full district colour, lit windows | The blueprint has been used | **4** |
-| Drained towards grey, dark windows | Built, and nobody has used it | 40 |
+| Drained towards grey, dark windows | Built, and nobody has used it | 52 |
 
 The newest column in the extract and the most important one. Turn the lights
 off with **N** and the whole city goes dark except four buildings. That single
@@ -157,7 +157,8 @@ all 145 categories in the September extract as well, so building height is
 market reach and is badged provisional on screen. This is the last placeholder
 left: the rooftop lights became real data in the same refresh.
 
-**20 categories have an active blueprint and no recorded spend.** So the map
+**20 categories have a blueprint and no recorded spend**, 14 of them live and
+6 drafted. So the map
 holds empty lots with money on them and built lots with none. Whether that is
 a data gap or genuinely nothing is an open question with the data owners, and
 anyone in the room who owns one of those categories will notice.

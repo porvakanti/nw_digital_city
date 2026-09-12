@@ -13,6 +13,7 @@ open are written up in [docs/DESIGN.md](docs/DESIGN.md).
 | If you want to | Read |
 | --- | --- |
 | understand the picture without the code | [docs/READING-THE-CITY.md](docs/READING-THE-CITY.md) |
+| see how the parts fit together | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | know why it is built the way it is | [docs/DESIGN.md](docs/DESIGN.md) |
 | present it | [docs/DEMO.md](docs/DEMO.md) |
 | check it works | [docs/TESTING.md](docs/TESTING.md) |
@@ -113,6 +114,7 @@ renderer/agent.js      the tools, the resolver, the visible trace
 app/server.py          serves the page and holds the model credential
 app/plan.py            what the model is allowed to decide, and the validation
 app/providers.py       mock, Gemini, Vertex AI, Claude behind one interface
+tests/test_docs.py     every figure the documents quote, against the data
 tests/test_security.py privacy, secrets, what gets distributed, data integrity
 tests/                 the rest: data, the plan parser, the model ladder
 tests/smoke.js         the browser pass, on a desktop and on a phone
@@ -162,8 +164,8 @@ answers with its own rules.
 
 On Windows the same six are `run.cmd test`, `run.cmd eval`, and so on.
 
-`run.sh test` is the whole thing in one command: 105 data, privacy and security
-assertions, the agent's question set, then the renderer driven in a real
+`run.sh test` is the whole thing in one command: 127 data, privacy, document
+and security assertions, the agent's question set, then the renderer driven in a real
 browser three ways over, from a file, against the running service, and as the
 single file that actually gets emailed. Each of the three browser passes runs
 again at phone size. It ends with one verdict naming whatever failed.
