@@ -107,6 +107,8 @@
   const DISTRICT_PAD = 1.6;
   // Depth of the strip the district name plate sits on, at the front edge.
   const PLATE_STRIP = 2.0;
+  // The coloured kerb round a district, which the name strip has to clear.
+  const KERB = 0.9;
   const DISTRICT_MAX_W = 32;
   const WORLD_MAX_W = 132;
   // Floors per height tier. Six entries so any registered metric can drive it.
@@ -363,13 +365,26 @@
        * shelf packing a handful of plots of very different sizes, and closing
        * it would need a real two-dimensional packer for a few per cent. */
       const inner = shelfPack(plots, DISTRICT_MAX_W, 1.6);
+      /* The name strip is reserved to fit this district's own name.
+       *
+       * It was one constant depth for all eight, which meant every district
+       * paid for the longest name and the longest name still did not fit.
+       * "Fixed" needs a fraction of the ground "Managed Services and
+       * Outsourcing" does, so each gets what it needs and the letters come
+       * out the same height in all eight, which is the only way the set
+       * reads as one piece of lettering. */
+      const w = inner.w + DISTRICT_PAD * 2;
+      const nameFit = fitName(district.name, w - KERB * 2 - 1.0);
+      const strip = Math.max(PLATE_STRIP, nameFit.depth + KERB + 0.6);
       return {
         index,
         name: district.name,
         plots,
         totals: district.totals,
-        w: inner.w + DISTRICT_PAD * 2,
-        d: inner.d + DISTRICT_PAD * 2 + PLATE_STRIP,
+        nameFit,
+        strip,
+        w,
+        d: inner.d + DISTRICT_PAD * 2 + strip,
       };
     });
 
@@ -477,6 +492,191 @@
    * used a pale stone that vanished into the pale district buildings behind
    * it, which is the opposite of what a landmark is for. */
   const STONE = 0xe0cfa4, STONE_DARK = 0xb9a274, GOLD = 0xf0c74e, LEAD = 0x6f7a86;
+
+  /* Pixels per world unit in a ground engraving. High enough that the letters
+   * survive being zoomed into, low enough that eight textures are not a
+   * budget. */
+  const NAME_PPU = 44;
+  /* Cap height of a district name, in world units.
+   *
+   * The binding constraint is width, not the strip: "MANAGED SERVICES AND
+   * OUTSOURCING" is 32 characters across a district 33 units wide, so on one
+   * line it cannot exceed about 1.5 units whatever depth it is given. A
+   * bigger letter therefore means wrapping the long names, and the strip is
+   * then reserved per district to whatever its own name needs rather than
+   * globally to the worst case. */
+  const NAME_CAP = 2.05;
+  const NAME_LEADING = 1.12;
+  const NAME_FONT = (px) =>
+    `700 ${px}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+
+  const measurer = document.createElement("canvas").getContext("2d");
+
+  function nameWidth(line, size) {
+    measurer.letterSpacing = `${Math.round(size * 0.08)}px`;
+    measurer.font = NAME_FONT(size);
+    return measurer.measureText(line).width;
+  }
+
+  /** Ground needed for n lines at this pixel size, in world units. */
+  function lineDepth(count, size) {
+    // The rule under the text and a margin round the block, in cap heights.
+    return ((count - 1) * NAME_LEADING + 1.62) * size / NAME_PPU;
+  }
+
+  /* How to set a district name in the width available.
+   *
+   * One line at the full cap height if it fits. Otherwise split at a word
+   * boundary into the balanced pair that minimises the longer half, and if
+   * even that is too wide, shrink until it fits. Returns the lines, the size
+   * they are set at and the ground they need, so the layout can reserve
+   * exactly that and no more.
+   */
+  function fitName(text, width) {
+    const label = text.toUpperCase();
+    const room = width * NAME_PPU * 0.96;
+    const full = Math.round(NAME_CAP * NAME_PPU);
+
+    if (nameWidth(label, full) <= room) {
+      return { lines: [label], size: full, depth: lineDepth(1, full) };
+    }
+
+    const words = label.split(/\s+/);
+    let best = null;
+    for (let cut = 1; cut < words.length; cut++) {
+      const pair = [words.slice(0, cut).join(" "), words.slice(cut).join(" ")];
+      const longest = Math.max(nameWidth(pair[0], full), nameWidth(pair[1], full));
+      if (!best || longest < best.longest) best = { pair, longest };
+    }
+    if (best && best.longest <= room) {
+      return { lines: best.pair, size: full, depth: lineDepth(2, full) };
+    }
+
+    // Nothing fits at full height: one word too long to break, or a district
+    // narrow enough that two lines are still over. Shrink to fit.
+    const lines = best ? best.pair : [label];
+    const widest = lines.reduce((most, line) => Math.max(most, nameWidth(line, full)), 1);
+    const size = Math.max(12, Math.floor(full * room / widest));
+    return { lines, size, depth: lineDepth(lines.length, size) };
+  }
+
+  // The engraved district names, so the night switch can light them.
+  const districtNames = [];
+
+  /* Text cut into the ground, in two passes.
+   *
+   * A canvas texture on a flat plane, and nothing here is shaded by the scene
+   * light, so the name reads the same at any hour. Both axes of the ground
+   * foreshorten by the same factor under this camera, so the letters shear
+   * without stretching and no correction is needed.
+   */
+  function engraveOnGround(fitted, accent, width, depth) {
+    const { lines, size } = fitted;
+    const w = Math.max(64, Math.round(width * NAME_PPU));
+    const h = Math.max(24, Math.round(depth * NAME_PPU));
+
+    // Geometry of the block, shared by both passes so the lit lettering lands
+    // exactly where the cut lettering was.
+    const cx = w / 2;
+    const leading = size * NAME_LEADING;
+    const stack = (lines.length - 1) * leading;
+    const top = h / 2 - stack / 2 - size * 0.16;
+    const rule = Math.max(2, Math.round(size * 0.09));
+
+    const sheet = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
+      ctx.font = NAME_FONT(size);
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      return ctx;
+    };
+    const eachLine = (ctx, draw) => {
+      let widest = 1;
+      lines.forEach((line, i) => {
+        draw(ctx, line, top + i * leading);
+        widest = Math.max(widest, ctx.measureText(line).width);
+      });
+      return Math.min(w * 0.96, widest);
+    };
+    const asPlane = (ctx, additive) => {
+      const texture = new THREE.CanvasTexture(ctx.canvas);
+      texture.anisotropy = 8;
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, depth),
+        new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          depthWrite: false,
+          blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
+        })
+      );
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.renderOrder = 2;
+      return mesh;
+    };
+
+    /* Daylight: cut into stone.
+     *
+     * A dark pass offset away from the sun to read as the groove, the face in
+     * near-white, the district's colour as a rule underneath.
+     *
+     * Pale letters rather than the district band. The first pass cut them in
+     * the band, which is also what the ground under them is tinted towards,
+     * so seven of the eight names were invisible and the eighth was legible
+     * only because its band happens to be the brightest. The band comes back
+     * as the rule, which keeps the name tied to its district without the
+     * reading depending on that tie. */
+    const day = sheet();
+    const cut = Math.max(1, Math.round(size * 0.07));
+    const run = eachLine(day, (ctx, line, y) => {
+      ctx.fillStyle = "rgba(6,8,12,0.62)";
+      ctx.fillText(line, cx, y + cut);
+      ctx.fillStyle = "rgba(242,245,250,0.94)";
+      ctx.fillText(line, cx, y);
+    });
+    const under = top + stack + size * 0.78;
+    day.fillStyle = "rgba(6,8,12,0.5)";
+    day.fillRect(cx - run / 2, under + rule, run, rule);
+    day.fillStyle = accent;
+    day.fillRect(cx - run / 2, under, run, rule);
+
+    /* After dark: the same lettering, lit.
+     *
+     * Additively blended, so the groove contributes nothing and only the
+     * light does, which is what makes it read as illuminated rather than as
+     * a pale shape lying on a dark surface. Drawn in the district's own
+     * colour with a halo round it and a white core inside: at night the kerb
+     * is the only other thing carrying that colour, so the name and the
+     * boundary it names come up together. */
+    const night = sheet();
+    night.shadowColor = accent;
+    eachLine(night, (ctx, line, y) => {
+      ctx.shadowBlur = size * 0.5;
+      ctx.fillStyle = accent;
+      ctx.fillText(line, cx, y);
+      ctx.fillText(line, cx, y);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fillText(line, cx, y);
+    });
+    night.shadowBlur = size * 0.35;
+    night.fillStyle = accent;
+    night.fillRect(cx - run / 2, under, run, rule);
+
+    const stone = asPlane(day, false);
+    const lit = asPlane(night, true);
+    lit.visible = false;
+    const group = new THREE.Group();
+    group.add(stone);
+    group.add(lit);
+    group.userData.stone = stone;
+    group.userData.lit = lit;
+    return group;
+  }
 
   const layout = buildLayout();
   const span = Math.max(layout.size.w, layout.size.d);
@@ -669,80 +869,6 @@
   studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
 
 
-  /* Text cut into the ground.
-   *
-   * A canvas texture on a flat plane, three passes of the same letters: a
-   * dark one offset away from the sun to read as the cut, a pale one offset
-   * toward it to read as the lit edge of that cut, and the district's own
-   * colour on the face. Nothing here is shaded by the scene light, so the
-   * name stays legible after dark, when the district ground it sits on does
-   * not.
-   *
-   * The font is sized to the space rather than fixed: "Fixed" and "Managed
-   * Services and Outsourcing" go in strips of the same depth, so the letters
-   * are cut to whatever height leaves the longer one inside its district.
-   */
-  function engraveOnGround(text, accent, width, depth) {
-    const label = text.toUpperCase();
-    // Pixels per world unit. High enough that the letters survive being
-    // zoomed into, low enough that eight of these are not a texture budget.
-    const PPU = 44;
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(64, Math.round(width * PPU));
-    canvas.height = Math.max(24, Math.round(depth * PPU));
-    const ctx = canvas.getContext("2d");
-    const font = (px) =>
-      `700 ${px}px system-ui, -apple-system, "Segoe UI", sans-serif`;
-
-    // Widest font that fits the strip on both axes, found by measurement
-    // rather than by a guess that holds for seven of the eight names.
-    let size = Math.round(canvas.height * 0.62);
-    ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
-    ctx.font = font(size);
-    const room = canvas.width * 0.96;
-    if (ctx.measureText(label).width > room) {
-      size = Math.floor(size * room / ctx.measureText(label).width);
-      ctx.letterSpacing = `${Math.round(size * 0.08)}px`;
-      ctx.font = font(size);
-    }
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "center";
-
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2 - Math.round(size * 0.1);
-    const cut = Math.max(1, Math.round(size * 0.07));
-    /* Pale letters, not the district's own colour.
-     *
-     * The first pass cut them in the district band, which is also what the
-     * ground under them is tinted towards, so seven of the eight names were
-     * invisible and the eighth was legible only because its band happens to
-     * be the brightest. The face is near-white against every ground in the
-     * set, and the band comes back as a rule under the text, which keeps the
-     * name tied to its district without depending on that tie to be read. */
-    ctx.fillStyle = "rgba(6,8,12,0.62)";
-    ctx.fillText(label, cx, cy + cut);
-    ctx.fillStyle = "rgba(242,245,250,0.94)";
-    ctx.fillText(label, cx, cy);
-
-    const run = Math.min(canvas.width * 0.96, ctx.measureText(label).width);
-    const rule = Math.max(2, Math.round(size * 0.09));
-    ctx.fillStyle = "rgba(6,8,12,0.5)";
-    ctx.fillRect(cx - run / 2, cy + size * 0.78 + rule, run, rule);
-    ctx.fillStyle = accent;
-    ctx.fillRect(cx - run / 2, cy + size * 0.78, run, rule);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.anisotropy = 8;
-    const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(width, depth),
-      new THREE.MeshBasicMaterial({
-        map: texture, transparent: true, depthWrite: false,
-      })
-    );
-    plane.rotation.x = -Math.PI / 2;
-    plane.renderOrder = 2;
-    return plane;
-  }
 
   // ---------------------------------------------------------------- build it
   layout.districts.forEach((district, i) => {
@@ -760,7 +886,6 @@
     // no line where one district stops and the parkland starts, so a small
     // district next to a big lawn looks enormous and a big one looks small.
     // This is slide 11's coloured L2 rectangle, built in bricks.
-    const KERB = 0.9;
     for (const side of [-1, 1]) {
       plates.add(
         district.cx + district.w / 2, 0.3,
@@ -814,21 +939,22 @@
      * than laid over. Both ground axes foreshorten by the same factor under
      * this camera, so the letters shear without stretching and no correction
      * is needed. */
-    const stripDepth = DISTRICT_PAD + PLATE_STRIP - KERB - 0.5;
-    const strip = engraveOnGround(
-      district.name,
+    const stripD = district.strip - KERB - 0.6;
+    const plate = engraveOnGround(
+      district.nameFit,
       DISTRICT_BANDS[i % DISTRICT_BANDS.length],
-      district.w - KERB * 2 - 1.4,
-      stripDepth
+      district.w - KERB * 2 - 1.0,
+      stripD
     );
-    strip.position.set(
+    plate.position.set(
       district.cx + district.w / 2,
       // Clear of the plate it sits on. At 0.01 above it the two surfaces
       // fought for the same depth and the name came out in fragments.
       0.31,
-      district.cz + district.d - KERB - 0.3 - stripDepth / 2
+      district.cz + district.d - KERB - 0.3 - stripD / 2
     );
-    scene.add(strip);
+    scene.add(plate);
+    districtNames.push(plate);
   });
 
   // ---------------------------------------------------------- streetscape
@@ -2094,6 +2220,17 @@
     if (BUCKETS.windows.mesh) BUCKETS.windows.mesh.visible = true;
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
+
+    /* The district names light up after dark.
+     *
+     * Cut into stone they depend on the sun to read at all, and after dark
+     * the ground they sit in is nearly black. The lit pass is the same
+     * lettering in the district's own colour, additively blended, so the
+     * groove contributes nothing and only the light does. */
+    for (const plate of districtNames) {
+      plate.userData.lit.visible = isNight;
+      plate.userData.stone.visible = !isNight;
+    }
 
     /* The used monuments are floodlit after dark.
      *
@@ -3496,6 +3633,22 @@
         }
       }
       return out;
+    },
+    /* The district names as drawn: the lines they were broken into, the size
+     * they were set at, and which of the two passes is showing. A check that
+     * read the config would pass while the lettering came out four pixels
+     * high or ran off its own strip. */
+    districtNames() {
+      return layout.districts.map((district, i) => ({
+        name: district.name,
+        lines: district.nameFit.lines,
+        size: district.nameFit.size,
+        cap: +(district.nameFit.size / NAME_PPU).toFixed(2),
+        strip: +district.strip.toFixed(2),
+        fits: district.nameFit.depth <= district.strip - KERB - 0.6 + 0.001,
+        lit: districtNames[i] ? districtNames[i].userData.lit.visible : null,
+        stone: districtNames[i] ? districtNames[i].userData.stone.visible : null,
+      }));
     },
     /* The ground plate, so a check can confirm nothing stands off the edge. */
     plate() {

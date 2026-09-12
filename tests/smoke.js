@@ -769,6 +769,39 @@ async function onAPhone(browser) {
     heights.shortestMonument > heights.tallestPlain,
     `shortest monument ${heights.shortestMonument.toFixed(1)} vs tallest plain tower ${heights.tallestPlain.toFixed(1)}`);
 
+  /* The district names are cut into the ground, at one size, and they light up.
+   *
+   * The binding constraint is width, not the strip a name sits in: the
+   * longest name is 32 characters across a district 33 units wide, so on one
+   * line it cannot exceed about 1.5 units of cap height whatever depth it is
+   * given. So the long names wrap and the strip is reserved per district,
+   * which is the only way all eight come out the same height. If one district
+   * quietly shrank its lettering to fit, the set stops reading as one piece
+   * of lettering and this is what says so.
+   */
+  const names = await page.evaluate(() => {
+    window.NWCity.night(false);
+    const day = window.NWCity.districtNames();
+    window.NWCity.night(true);
+    const night = window.NWCity.districtNames();
+    window.NWCity.night(false);
+    return { day, night };
+  });
+  const caps = [...new Set(names.day.map((d) => d.cap))];
+  check("every district name is cut at the same size",
+    caps.length === 1, `${caps.length} sizes: ${caps.join(", ")}`);
+  check("every district name is big enough to read",
+    Math.min(...names.day.map((d) => d.cap)) >= 2,
+    `${Math.min(...names.day.map((d) => d.cap))} units of cap height`);
+  check("every district name fits the strip reserved for it",
+    names.day.every((d) => d.fits),
+    names.day.filter((d) => !d.fits).map((d) => d.name).join(", ")
+      || names.day.map((d) => `${d.name.split(" ")[0]} ${d.lines.length}L`).join(" · "));
+  check("the district names are engraved by day and lit at night",
+    names.day.every((d) => d.stone && !d.lit)
+      && names.night.every((d) => d.lit && !d.stone),
+    `day stone ${names.day.filter((d) => d.stone).length}/8, night lit ${names.night.filter((d) => d.lit).length}/8`);
+
   /* A monument stands on more ground than a plain lot, and on nobody else's.
    *
    * Widening the lot is half of what marks a monument out, and it is the half
