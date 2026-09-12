@@ -31,7 +31,7 @@ Every visible thing encodes a measure, and nothing is decoration:
 | Property | Monopoly-style houses, then a hotel | spend FY26/27 |
 | Smart city | rooftop reactor, from dark to full glow | AI-generated RFPs |
 | Occupancy | full colour and lit windows, or drained to grey | has anybody used the blueprint |
-| Landmark | a monument on top of the building | a category scoring 50 or more |
+| Landmark | a monument, on a widened lot, in place of the building | a category scoring 50 or more |
 | Land area | a bigger lot, and a bigger plot around it | spend, square-root compressed |
 
 Geography follows the category tree: **L2 is a district, L3 is a plot, L4 is a
