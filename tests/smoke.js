@@ -374,8 +374,10 @@ async function onAPhone(browser) {
     const bindings = Object.entries(config.layers)
       .map(([layer, spec]) => `${layer} \u2190 ${spec.metric}`)
       .filter((line) => !text.includes(line));
+    // Against `means`, the definition, not `detail`, the short reading the
+    // rail carries: a stage named and not defined is not a definition.
     const stages = (config.score.stages || [])
-      .filter((stage) => !text.includes(stage.detail));
+      .filter((stage) => !text.includes((stage.means || "").replace(/\s+/g, " ").trim()));
     const monuments = window.NWCity.monuments()
       .filter((code) => !text.includes(code));
     const caveats = (config.explainer.caveats || [])
@@ -400,6 +402,39 @@ async function onAPhone(browser) {
       && sheet.missingCaveats.length === 0,
     [...sheet.missingStages, ...sheet.missingMonuments, ...sheet.missingCaveats].join(", ")
       || `${sheet.length} characters`);
+
+  /* The reading of a lot leads with the score, and says nothing untrue at nought.
+   *
+   * The caption is the loudest line on the screen and it quoted market reach:
+   * "8 markets building on this blueprint" for the one category in Networks
+   * that has finished the journey, and the same sentence for A221, live in
+   * sixteen markets and never used, where it read as praise.
+   *
+   * The nought case is the other half. A score of nought means no blueprint
+   * at all, because drafting one already scores ten, so the bottom of the
+   * bottom stage needs its own words or the rail says "Traditional: a
+   * blueprint exists" over bare ground.
+   */
+  const readings = [];
+  for (const code of ["A251", "A221", "A311"]) {
+    await page.evaluate((c) => window.NWCity.focus(c), code);
+    await page.waitForTimeout(900);
+    readings.push(await page.evaluate((c) => ({
+      code: c,
+      caption: document.querySelector("#caption b").innerText.replace(/\s+/g, " "),
+      note: document.getElementById("arcNote").textContent.replace(/\s+/g, " "),
+    }), code));
+  }
+  const byCodeRead = new Map(readings.map((r) => [r.code, r]));
+  check("the reading of a built lot leads with its score",
+    /^100 out of 100 on the journey\./.test(byCodeRead.get("A251").caption)
+      && /^40 out of 100 on the journey\./.test(byCodeRead.get("A221").caption),
+    byCodeRead.get("A251").caption.slice(0, 80));
+  check("a lot with no blueprint is not told it has one",
+    !/blueprint exists/.test(byCodeRead.get("A311").note)
+      && /no blueprint/.test(byCodeRead.get("A311").note),
+    byCodeRead.get("A311").note.slice(0, 80));
+  await page.evaluate(() => window.NWCity.reset());
 
   // A district answer says where the district sits, not just how big it is.
   await page.fill("#askInput", "how is Energy doing");
@@ -768,6 +803,78 @@ async function onAPhone(browser) {
   check("every monument stands above every plain tower",
     heights.shortestMonument > heights.tallestPlain,
     `shortest monument ${heights.shortestMonument.toFixed(1)} vs tallest plain tower ${heights.tallestPlain.toFixed(1)}`);
+
+  /* A panel that scrolls takes the pointer, and scrolling it does not pan.
+   *
+   * `.hud` passes the pointer through so the transparent gaps in a panel's
+   * bounding box do not block the city behind it, and a scrollbar belongs to
+   * the panel element rather than to a child: on the panels that scroll,
+   * grabbing it did nothing and the drag fell through to the canvas, which
+   * panned the city instead. The same rule was stopping a click on the
+   * explanation's backdrop from closing it.
+   *
+   * Driven at a short viewport, because on a tall one the panels do not
+   * overflow and there is no scrollbar to miss.
+   */
+  const wideViewport = await page.viewportSize();
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.evaluate(() => window.NWCity.focus("D408"));
+  // The resize has to settle before the panels are measured, and the card has
+  // to have been written, or there is nothing long enough to scroll.
+  await page.waitForTimeout(2400);
+  const grabbed = [];
+  for (const id of ["legend", "inspector"]) {
+    const where = await page.evaluate((panel) => {
+      const el = document.getElementById(panel);
+      const box = el.getBoundingClientRect();
+      const x = Math.round(box.right - 5);
+      const y = Math.round(box.top + box.height * 0.4);
+      const under = document.elementFromPoint(x, y);
+      return {
+        scrollable: el.scrollHeight - el.clientHeight,
+        onPanel: !!(under && under.closest(`#${panel}`)),
+        centre: Math.round(box.left + box.width / 2),
+        y,
+        target: window.NWCity.state().target,
+        size: window.NWCity.state().size,
+      };
+    }, id);
+    /* Whether the canvas saw the wheel, rather than whether the panel moved.
+     *
+     * The canvas wheel handler zooms, so an unchanged camera is proof the
+     * event never reached it, and that is the property under test: before
+     * this fix a wheel or a drag over the panel fell through. Asserting the
+     * panel's own scrollTop instead would be asserting that the browser
+     * delivered a synthetic wheel to a scroll container, which it does most
+     * of the time and not every time. */
+    await page.mouse.move(where.centre, where.y, { steps: 4 });
+    await page.waitForTimeout(120);
+    await page.mouse.wheel(0, 240);
+    await page.waitForTimeout(400);
+    const after = await page.evaluate((panel) => ({
+      scroll: document.getElementById(panel).scrollTop,
+      target: window.NWCity.state().target,
+      size: window.NWCity.state().size,
+    }), id);
+    grabbed.push({
+      id,
+      scrollable: where.scrollable > 0,
+      onPanel: where.onPanel,
+      scrolled: after.scroll > 0,
+      reachedCanvas: where.size !== after.size
+        || String(where.target) !== String(after.target),
+    });
+  }
+  check("the scrollbar on a panel belongs to the panel",
+    grabbed.every((g) => g.scrollable && g.onPanel),
+    grabbed.map((g) => `${g.id} scrollable ${g.scrollable}, on panel ${g.onPanel}`).join("; "));
+  check("a wheel over a panel never reaches the city",
+    grabbed.every((g) => !g.reachedCanvas),
+    grabbed.map((g) => `${g.id} reached canvas ${g.reachedCanvas}`
+      + `, panel scrolled ${g.scrolled}`).join("; "));
+  await page.setViewportSize(wideViewport);
+  await page.evaluate(() => window.NWCity.reset());
+  await page.waitForTimeout(900);
 
   /* The district names are cut into the ground, at one size, and they light up.
    *

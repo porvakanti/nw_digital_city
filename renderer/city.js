@@ -773,8 +773,16 @@
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
+  /* The outline of the building an empty lot could carry.
+   *
+   * Unlit, so its opacity is its brightness whatever the hour, and after dark
+   * everything around it drops by an order of magnitude: at 0.3 the eighty-nine
+   * empty lots turned into a wireframe mesh over the whole city and the four
+   * that matter were lost inside it. It dims with the light. */
+  const GHOST_DAY = 0.3;
+  const GHOST_NIGHT = 0.075;
   const matGhost = new THREE.MeshBasicMaterial({
-    color: C.bare, wireframe: true, transparent: true, opacity: 0.3,
+    color: C.bare, wireframe: true, transparent: true, opacity: GHOST_DAY,
   });
   const matGhostSolid = new THREE.MeshLambertMaterial({
     color: C.bare, transparent: true, opacity: 0.07,
@@ -1871,10 +1879,17 @@
          * produced a disc under half a unit across. */
         const glow = 0.62 + reactorTier * 0.26;
         pieces.reactor = { bucket: "reactors", i: reactors.add(x, top + 0.3, z, glow * 1.15, 0.26, glow * 1.15) };
-        // A beam only on the top rung, so a repeated user is picked out from
-        // a first attempt. Four categories qualify; eight have any activity.
-        if (reactorTier >= 2) {
-          const reach = 7 + reactorTier * 3.4;
+        /* Every lit rooftop gets a beam, and the top rung gets a tall one.
+         *
+         * The beam used to be the top rung alone, which meant four of the
+         * eight lit rooftops had nothing to read at a distance: the disc on
+         * its own is under a unit across and disappears at the default
+         * camera, so the city looked as though four categories had AI
+         * activity when eight do. A short beam for a first attempt and a
+         * tall one for repeated use keeps both facts, and keeps them in
+         * order. */
+        if (reactorTier > 0) {
+          const reach = reactorTier >= 2 ? 7 + reactorTier * 3.4 : 4.2;
           beams.add(x, top + 0.35 + reach / 2, z, glow * 2.2, reach, glow * 2.2);
         }
       }
@@ -2221,6 +2236,9 @@
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
 
+    // The outlines on empty lots dim with the light. See GHOST_DAY.
+    matGhost.opacity = isNight ? GHOST_NIGHT : GHOST_DAY;
+
     /* The district names light up after dark.
      *
      * Cut into stone they depend on the sun to read at all, and after dark
@@ -2309,6 +2327,7 @@
         <div class="by">${CONFIG.layers[layer].caption}</div>
         <div class="swatches">${swatches}</div>
         ${layer === "height" ? landmarkNote() : ""}
+        ${layer === "occupancy" ? occupancyNote() : ""}
       </div>`;
     }).join("");
   }
@@ -2324,6 +2343,31 @@
    * ladder. It also has to be read to be worth writing: as a fifth block it
    * fell below the fold of a panel that is already the tallest thing on the
    * screen. */
+  /* Where the occupancy signal actually turns up.
+   *
+   * The rung above draws a facade with its windows lit, and at the moment no
+   * lot in the city looks like that: all four categories anybody has run a
+   * sourcing event through scored high enough to earn a monument, and a
+   * monument has no windows. It carries the same signal as floodlighting
+   * instead.
+   *
+   * So the legend says which, counted from what is standing rather than
+   * asserted, because the day a used category does not have a monument on it
+   * this line has to change by itself. */
+  function occupancyNote() {
+    const used = CITY.categories.filter((c) => (c.metrics.cbp_used || 0) > 0);
+    if (!used.length) return "";
+    const marked = used.filter((c) => standing.has(c.code)).length;
+    if (!marked) return "";
+    const lots = (n) => `${n} lot${n === 1 ? "" : "s"}`;
+    const where = marked === used.length
+      ? `All ${lots(used.length)} in use carry a monument, so the signal is
+         floodlighting after dark.`
+      : `${lots(used.length - marked)} light their windows. The other
+         ${marked} carry a monument, floodlit after dark instead.`;
+    return `<div class="also">${where}</div>`;
+  }
+
   function landmarkNote() {
     const spec = CONFIG.landmarks || {};
     if (!spec.label || spec.min_score === undefined || spec.min_score === null) return "";
@@ -2569,14 +2613,27 @@
 
   const STAGE_LABEL = {};
   const STAGE_LABEL_ORG = {};
+  /* And one more reading for the bottom of the bottom stage.
+   *
+   * A score of nought means no blueprint at all, because drafting one already
+   * scores ten. Without this the rail reads "Traditional: a blueprint exists"
+   * over bare ground, which is the opposite of what that lot is showing. */
+  const STAGE_LABEL_ZERO = {};
   for (const stage of STAGES) {
     STAGE_LABEL[stage.id] = `${stage.label}: ${stage.detail}`;
     STAGE_LABEL_ORG[stage.id] = `${stage.label}: ${stage.detail_org || stage.detail}`;
+    STAGE_LABEL_ZERO[stage.id] = `${stage.label}: ${stage.detail_zero || stage.detail}`;
   }
 
   function stageOf(score) {
     const reached = STAGES.find((stage) => score >= (stage.from || 0));
     return (reached || STAGES[STAGES.length - 1] || { id: "traditional" }).id;
+  }
+
+  /** How a single score reads on the rail, including nought. */
+  function stageText(score) {
+    const stage = stageOf(score);
+    return Math.round(score) > 0 ? STAGE_LABEL[stage] : STAGE_LABEL_ZERO[stage];
   }
 
   function markStage(stage) {
@@ -2608,7 +2665,7 @@
     document.getElementById("arcScore").textContent =
       `${category.code} ${Math.round(j.total)} / ${ARC_MAX}`;
     document.getElementById("arcNote").textContent =
-      `· ${STAGE_LABEL[stageOf(j.total)]} · ${Math.round(j.blueprint)} blueprint, `
+      `· ${stageText(j.total)} · ${Math.round(j.blueprint)} blueprint, `
       + `${Math.round(j.usage)} used, ${Math.round(j.ai)} AI`;
     const n = CITY.totals.journey;
     base.hidden = false;
@@ -2768,49 +2825,110 @@
     part(group, dark, 0.32, 0.06, 0.06, 0.56, 0.14, 0.8);
     part(group, legs, 0, 1.06, 0, 1.24, 0.24, 0.72);
 
-    // Torso, and the hi-vis over it. Anyone who has been on a site recognises
-    // the shape before they read a word of the screen.
+    /* Torso, and the hi-vis over it.
+     *
+     * A real vest has two full-length vertical bands and a horizontal one,
+     * and drawn front-on at this scale that is a capital H. It read as a
+     * letter on the chest, which is the one thing it must not do with a mark
+     * there. So the verticals are shoulder straps and the band sits at the
+     * waist, which leaves the whole chest clear.
+     */
     part(group, overalls, 0, 1.62, 0, 1.42, 1.05, 0.78);
     for (const face of [0.4, -0.4]) {
-      part(group, hiVis, -0.46, 1.62, face, 0.44, 1.0, 0.06);
-      part(group, hiVis, 0.46, 1.62, face, 0.44, 1.0, 0.06);
-      part(group, hiVis, 0, 1.5, face, 1.3, 0.16, 0.05);
+      part(group, hiVis, -0.52, 2.0, face, 0.3, 0.26, 0.06);
+      part(group, hiVis, 0.52, 2.0, face, 0.3, 0.26, 0.06);
+      part(group, hiVis, 0, 1.24, face, 1.34, 0.22, 0.05);
     }
-    /* A wordmark across the vest.
+
+    /* The mark on the front of the vest.
      *
-     * A site vest carries the name of whoever sent you, and this figure is
-     * building one organisation's estate. Drawn from the config so it can be
-     * changed or emptied, and in the interface typeface rather than in any
-     * brand lettering, so it is a label on a vest and not a reproduction of
-     * a logo. A thin plate just clear of the torso face: a box takes one
-     * material per mesh, so texturing a single face means its own plate.
+     * The vest is already the organisation's red, so the speech mark goes on
+     * it as white geometry with no disc behind it, which is how the device is
+     * actually rendered on a red field. Drawn rather than loaded, so the
+     * repository carries no brand asset, and replaceable by one: put a data
+     * URI in `city.vest_mark` and it is used instead, with no code change.
+     *
+     * Front and back, on their own plates. A box takes one material per
+     * mesh, so marking a single face of the torso means giving it a plate,
+     * and the plate sits clear of the hi-vis panels: level with them the two
+     * surfaces fought for the same depth and half the mark went.
      */
-    const wordmark = (CONFIG.city && CONFIG.city.vest_wordmark) || "";
-    if (wordmark) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 320;
-      canvas.height = 80;
-      const ctx = canvas.getContext("2d");
-      ctx.font = '700 52px system-ui, -apple-system, "Segoe UI", sans-serif';
-      ctx.fillStyle = "#ffffff";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(wordmark, canvas.width / 2, canvas.height / 2 + 3,
-        canvas.width * 0.94);
-      const texture = new THREE.CanvasTexture(canvas);
+    const vestMark = String((CONFIG.city && CONFIG.city.vest_mark) || "").trim();
+    if (vestMark && vestMark !== "none") {
+      const SIDE = 256;
+      let texture = null;
+      let size = [0.62, 0.62];
+
+      if (/^data:image\//i.test(vestMark)) {
+        texture = new THREE.TextureLoader().load(vestMark);
+      } else if (vestMark === "speechmark") {
+        const canvas = document.createElement("canvas");
+        canvas.width = SIDE;
+        canvas.height = SIDE;
+        const ctx = canvas.getContext("2d");
+        /* Drawn to fill the texture, not to sit inside it.
+         *
+         * The shape below occupies x 27 to 69 and y 19 to 88 of a 100 box, so
+         * drawn straight it filled two fifths of the width and looked like a
+         * speck on the chest. The context is scaled so the mark's own
+         * bounding box fills the square, height first, and the plate is
+         * square, so the mark comes out as large as the chest allows. */
+        const MARK = { x0: 27, x1: 69, y0: 19, y1: 88 };
+        const k = (SIDE * 0.94) / (MARK.y1 - MARK.y0);
+        ctx.translate(SIDE / 2, SIDE / 2);
+        ctx.scale(k, k);
+        ctx.translate(-(MARK.x0 + MARK.x1) / 2, -(MARK.y0 + MARK.y1) / 2);
+        ctx.fillStyle = "#ffffff";
+        // The head, then the tail, then a bite out of the head's upper right,
+        // which is the notch that makes it a speech mark and not a comma.
+        ctx.beginPath();
+        ctx.arc(48, 40, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(68, 44);
+        ctx.bezierCurveTo(66, 68, 54, 82, 30, 88);
+        ctx.bezierCurveTo(48, 70, 46, 58, 40, 48);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(60, 30, 12, 0, Math.PI * 2);
+        ctx.fill();
+        texture = new THREE.CanvasTexture(canvas);
+        size = [0.8, 0.8];
+      } else {
+        // Any other value is a name, set on a pale badge. Dark on light,
+        // because at the default zoom the whole figure is about forty pixels
+        // tall: no lettering survives that, and a pale bar across the chest
+        // still reads as a badge where white letters on red read as nothing.
+        const canvas = document.createElement("canvas");
+        canvas.width = 512;
+        canvas.height = 168;
+        const ctx = canvas.getContext("2d");
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const pad = 10;
+        ctx.fillStyle = "#f3f5f8";
+        ctx.beginPath();
+        ctx.roundRect(pad, pad, canvas.width - pad * 2, canvas.height - pad * 2, 22);
+        ctx.fill();
+        ctx.font = '800 104px system-ui, -apple-system, "Segoe UI", sans-serif';
+        ctx.fillStyle = "#1b1e24";
+        ctx.fillText(vestMark, canvas.width / 2, canvas.height / 2 + 6,
+          canvas.width - pad * 2 - 26);
+        texture = new THREE.CanvasTexture(canvas);
+        size = [1.3, 0.427];
+      }
+
       texture.anisotropy = 4;
-      // Clear of the hi-vis panels, whose front faces are already at 0.43:
-      // level with them the two surfaces fought and half the letters went.
       for (const [z, turn] of [[0.45, 0], [-0.45, Math.PI]]) {
-        // Across the whole chest, over the hi-vis panels rather than squeezed
-        // into the red between them, which left it four pixels wide.
         const plate = new THREE.Mesh(
-          new THREE.PlaneGeometry(1.34, 0.335),
+          new THREE.PlaneGeometry(size[0], size[1]),
           // Unlit: print on a vest is reflective, and under the scene light
-          // the wordmark came out grey on the face turned away from the sun.
+          // the mark came out grey on the face turned away from the sun.
           new THREE.MeshBasicMaterial({ map: texture, transparent: true })
         );
-        plate.position.set(0, 1.83, z);
+        plate.position.set(0, 1.7, z);
         plate.rotation.y = turn;
         group.add(plate);
       }
@@ -3058,10 +3176,23 @@
     const strongest = used > 0
       ? `used ${used} time${used === 1 ? "" : "s"}`
       : reach > 1 ? `live in ${markets}` : "live in one market";
+    /* The caption leads with the score, like everything else.
+     *
+     * It read "8 markets building on this blueprint" for the one category in
+     * Networks that has finished the journey: the loudest line on the screen
+     * was quoting the weakest measure the city holds, and the same line for
+     * A221, live in sixteen markets and never used, read as praise. Score
+     * first, then the stage that score reaches, then what is and is not
+     * carrying it, in that order, because that is the order of the argument.
+     */
+    const use = used > 0
+      ? `used ${used} time${used === 1 ? "" : "s"}`
+      : "never used";
+    const facts = [use, `live in ${markets}`];
+    if (m.spend_eur > 0) facts.push(`${spend} of spend`);
+    const lead = `${score} out of 100 on the journey. ${stageText(score)}.`;
     return {
-      caption: m.spend_eur > 0
-        ? `${markets} building on this blueprint. ${spend} of spend.`
-        : `${markets} building on this blueprint.`,
+      caption: `${lead} ${facts.join(", ")[0].toUpperCase()}${facts.join(", ").slice(1)}.`,
       bubble: category.landmark
         ? `${score} out of 100, and ${strongest}. ${category.landmark.name} stands here.`
         : `${score} out of 100 on the journey, and ${strongest}.`,
@@ -3389,14 +3520,27 @@
       </div>`;
     }).join("");
 
-    // Lowest first here, the way a ladder is read, and each rung bounded by
-    // the next rather than left open: "40 and up" four times over says
-    // nothing about where one stage stops.
+    /* Lowest first here, the way a ladder is read, and each rung bounded by
+     * the next rather than left open: "40 and up" four times over says
+     * nothing about where one stage stops.
+     *
+     * The definition comes from `means` rather than from the short reading
+     * the rail carries, and the count of lots in each band is counted here
+     * rather than written down, so the table cannot claim a distribution the
+     * data does not have. */
     const ladder = STAGES.slice().reverse();
     const stages = ladder.map((stage, i) => {
       const next = ladder[i + 1];
-      const span = next ? `${stage.from || 0} to ${next.from - 1}` : `${stage.from || 0} to 100`;
-      return `<tr><td>${stage.label}</td><td>${span}</td><td>${stage.detail || ""}</td></tr>`;
+      const from = stage.from || 0;
+      const to = next ? next.from - 1 : ARC_MAX;
+      const span = `${from} to ${to}`;
+      const here = CITY.categories.filter((c) => {
+        const total = (c.journey || {}).total || 0;
+        return total >= from && total <= to;
+      }).length;
+      return `<tr><td>${stage.label}</td><td>${span}</td>`
+        + `<td>${here} of ${CITY.categories.length}</td>`
+        + `<td>${stage.means || stage.detail || ""}</td></tr>`;
     }).join("");
 
     const built = CITY.categories.filter((c) => c.blueprint_state !== "none").length;
@@ -3449,7 +3593,8 @@
           fewer than ${CONFIG.score.minimum_categories} categories is left off
           the scoreboard, because below that a score is a coin toss rather
           than a track record.</p>
-        <table><thead><tr><th>Stage</th><th>Score</th><th>Means</th></tr></thead>
+        <table class="stages"><thead><tr><th>Stage</th><th>Score</th>
+          <th>Lots</th><th>What it means</th></tr></thead>
           <tbody>${stages}</tbody></table>
       </section>
 
@@ -3609,6 +3754,9 @@
         potential: showingPotential,
         asks: showingAsks,
         size: view.size,
+        // Where the camera is looking, so a check can tell a panel that
+        // scrolled from a city that panned.
+        target: [+view.target.x.toFixed(3), +view.target.z.toFixed(3)],
       };
     },
     // Pieces still mid-flight. Read by the test suite to wait for settle.
