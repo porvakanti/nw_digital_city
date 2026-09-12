@@ -1,4 +1,4 @@
-/* Rehearsal smoke test: drives the real page in a real browser.
+/* Browser smoke test: drives the real page in a real browser.
  *
  * Checks the things that would ruin a live demo: the city loading, the
  * resolver finding what people will actually type, and the agent driving the
@@ -32,7 +32,7 @@ const SERVED = /^https?:/.test(TARGET) ? TARGET : "";
 const PAGE = (SERVED ? SERVED + "/index.html"
   : TARGET || "file://" + path.join(__dirname, "..", "renderer", "index.html")) + "?clean";
 
-// What the room is likely to shout, and what it has to resolve to.
+// Representative queries, and what each has to resolve to.
 const RESOLUTIONS = [
   ["A221", "category", "A221"],
   ["batteries", "category", "D504"],
@@ -65,7 +65,7 @@ function findChromium() {
  * In the packaged single file every script is inline, so the load event does
  * not fire until the whole city has been built: 145 buildings, the roads, the
  * trees and the trams, synchronously. That is fast on a developer machine
- * with a warm cache and slow on a laptop doing something else, and a timeout
+ * with a warm cache and slow on a loaded host, and a timeout
  * here reads as "the page is broken" when it means "the page was still
  * working". A real hang still fails, a minute later, with the same message.
  */
@@ -79,7 +79,7 @@ const check = (name, ok, detail) => {
 
 /* The same page on a phone.
  *
- * Not the demo, and never will be: the demo is a laptop and a projector. It
+ * Not the primary target viewport, but a supported one. It
  * is how a reviewer opens a link, and the first version of this laid a 320px
  * legend over the whole city, hid the question box behind six lines of
  * starter prompts, and offered a corner note advising them to hover a
@@ -90,7 +90,7 @@ const check = (name, ok, detail) => {
  */
 /* Every control you can see, you can reach.
  *
- * The rule a phone breaks and a laptop does not. It caught a card centred
+ * The rule a handset breaks and a desktop viewport does not. It caught a card centred
  * with translateX(-50%) that had been given left:10 right:10 instead of
  * left:50%: the transform then drags it half its own width off the screen,
  * and it measured -175 to 195 on a 390px viewport with both its buttons
@@ -154,7 +154,7 @@ async function onAPhone(browser) {
     (await page.isVisible("#touchbar")) && !(await page.isVisible("#hint")));
 
   // The original failure, and the one most likely to come back: a panel
-  // written for a laptop corner, laid over the city on a 390px screen.
+  // written for a desktop corner, laid over the model on a 390px screen.
   const overlap = await page.evaluate(() => {
     const boxes = ["ask", "touchbar", "chips", "legend", "trace"]
       .map((id) => [id, document.getElementById(id)])
@@ -245,7 +245,7 @@ async function onAPhone(browser) {
 (async () => {
   const browser = await chromium.launch({
     // Prefer a browser already on the machine over whatever this playwright
-    // build expects, so the check runs on a CI image and on a laptop alike.
+    // build expects, so the check runs on a CI image and a local host alike.
     executablePath: findChromium(),
     args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
   });

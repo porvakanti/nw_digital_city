@@ -82,7 +82,7 @@ Networks that has done the whole journey.
 Blueprint 10 to 25 is **Traditional**: the blueprint exists and works in one
 place. Blueprint 40 is **Connected**: one blueprint, several markets. The AI
 component is **Smart**. **Autonomous** is above 100 and nobody is there, which
-is honest and worth saying out loud.
+is stated rather than implied.
 
 One definition now drives the narrative, the visuals and the leaderboard.
 
@@ -170,7 +170,7 @@ Asked for from the question box: "who is doing best" opens the People board,
 the three components rather than the total alone.
 
 **Public, by district.** No minimum, no names, defensible. This is the
-all-hands version.
+version suitable for wider circulation.
 
 **Private, by manager.** A good conversation with a team and a good way to find
 who to learn from. Not a slide.

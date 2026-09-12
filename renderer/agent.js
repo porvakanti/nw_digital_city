@@ -8,8 +8,8 @@
  *
  * This layer is deliberately deterministic. When the model endpoint lands it
  * takes over the parsing and the wording, calling exactly these tools through
- * exactly this interface. If the endpoint is unreachable on the day, this is
- * what runs instead, and the demo still works.
+ * exactly this interface. Where the endpoint is absent or unreachable, this
+ * layer routes the query instead, with no loss of function.
  */
 (function () {
   "use strict";
@@ -455,7 +455,7 @@
       direction === "asc"
         ? `${pick.code} ${pick.name} is the weakest lot in ${scopeText(scope)}: ${because()}, ${euro(pick.metrics.spend_eur)}.`
         : `${pick.code} ${pick.name} leads ${scopeText(scope)}: ${because()}, ${euro(pick.metrics.spend_eur)}.`,
-      direction === "asc" ? "This is where I would start." : "This is the one to copy."
+      direction === "asc" ? "The weakest position in this scope." : "The strongest position in this scope."
     );
   }
 
@@ -473,9 +473,9 @@
     );
   }
 
-  /* The closing beat. Four things the room is being asked to go and do, taken
-   * straight from the narrative, so the session ends on an instruction rather
-   * than on a picture. */
+  /* The four actions requested of category owners, taken from the programme
+   * narrative. Rendered as a closing view so the sequence ends on an
+   * instruction rather than on a visual. */
   async function runAsks() {
     await call("render", "asks");
     // The card carries the words; a caption underneath would only repeat them.
@@ -829,9 +829,8 @@
     }
   });
 
-  // Preset chips for the beats that have to land. Typing on stage is dead air;
-  // these make the scripted moments one click while the box stays open for
-  // whatever the room shouts out.
+  // Preset queries for the common paths, so the frequent cases are one click
+  // while the input remains open for anything else.
   const PRESETS = [
     "Spring 2/R",
     "batteries",
@@ -856,10 +855,9 @@
 
   /* ------------------------------------------------------------- the tour
    *
-   * The same sequence does three jobs. It introduces the city to somebody
-   * seeing it for the first time, it is the run of show on stage, and it is
-   * the end-to-end test: walk it through and every part of the application
-   * has been exercised in a sensible order.
+   * The same sequence does two jobs. It introduces the model to a first-time
+   * viewer, and it is the end-to-end exercise: stepping through it invokes
+   * every part of the application in a coherent order.
    *
    * It advances on a click, never on a timer. Nobody wants a demo running
    * ahead of them while a room is asking a question.
@@ -872,7 +870,7 @@
     },
     {
       title: "Ask it about a category.",
-      body: "That word was typed in plain English. The agent worked out which of the 145 lots was meant, looked up its figures, sent the builder and rebuilt the lot in front of you. Watch the order it builds in: foundation, then the building, then the property, then the roof.",
+      body: "That word was typed in plain English. The agent worked out which of the 145 lots was meant, looked up its figures, dispatched the figure and rebuilt the lot. Watch the order it builds in: foundation, then the building, then the property, then the roof.",
       run: () => submit("batteries"),
     },
     {
@@ -973,8 +971,8 @@
     if (e.key === "t" || e.key === "T") return startTour();
     if (tourStep < 0) return;
     if (e.key === "Escape") endTour();
-    // Space, the arrow keys and Page Up / Page Down, because a presenter
-    // clicker sends the page keys and nobody wants to be at the laptop.
+    // Space, the arrow keys and Page Up / Page Down. Remote input devices
+    // commonly emit the page keys, so both sets advance the sequence.
     if (e.key === " " || e.key === "ArrowRight" || e.key === "PageDown") {
       e.preventDefault();
       showTourStep(tourStep + 1);
@@ -985,8 +983,8 @@
     }
   });
 
-  /* Offered once. Somebody rehearsing does not want to dismiss a welcome card
-   * every time they reload, and on the day it must not be on screen at all. */
+  /* Offered once per browser. Repeat visits should not have to dismiss it,
+   * and it must not appear over the model unprompted. */
   function offerWelcome() {
     let seen = null;
     try {

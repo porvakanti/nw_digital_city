@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 570" width="900" height="570" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="570" fill="#fcfcfb"/>
+  <defs>
+    <marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b1e24"/>
+    </marker>
+    <marker id="sg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#55606b"/>
+    </marker>
+  </defs>
+  <text x="28" y="38" font-size="18" font-weight="bold" fill="#1b1e24">Component model</text>
+  <text x="28" y="58" font-size="12.5" fill="#55606b">The presentation tier is self-sufficient. The service tier and the model are optional.</text>
+
+  <!-- ============ presentation tier ============ -->
+  <rect x="28" y="78" width="844" height="218" rx="3" fill="#f2f4f2" stroke="#1b1e24" stroke-width="1.4"/>
+  <text x="44" y="94" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">PRESENTATION TIER (BROWSER)</text>
+
+  <rect x="46" y="102" width="808" height="42" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="62" y="120" font-size="13" fill="#1b1e24" font-weight="bold">index.html</text>
+  <text x="62" y="136" font-size="11" fill="#55606b">Document shell, HUD panels, stylesheet. Loads the scripts below as classic scripts: no module system, no runtime fetch.</text>
+
+  <rect x="46" y="158" width="176" height="50" rx="2" fill="#ffffff" stroke="#55606b" stroke-width="1.3"/>
+  <text x="134" y="178" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">three.min.js</text>
+  <text x="134" y="195" font-size="10.5" fill="#55606b" text-anchor="middle">WebGL, r134 UMD, vendored</text>
+
+  <rect x="46" y="226" width="176" height="50" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="134" y="246" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">city-data.js</text>
+  <text x="134" y="263" font-size="10.5" fill="#55606b" text-anchor="middle">derived dataset + configuration</text>
+
+  <rect x="256" y="158" width="230" height="118" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="371" y="182" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">city.js</text>
+  <text x="371" y="202" font-size="11" fill="#55606b" text-anchor="middle">Visualisation engine</text>
+  <text x="371" y="222" font-size="11" fill="#55606b" text-anchor="middle">Spatial layout of 145 lots</text>
+  <text x="371" y="240" font-size="11" fill="#55606b" text-anchor="middle">Geometry, camera, transitions</text>
+  <text x="371" y="258" font-size="11" fill="#55606b" text-anchor="middle">All displayed measures</text>
+
+  <rect x="576" y="158" width="278" height="118" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="715" y="182" font-size="13" fill="#1b1e24" text-anchor="middle" font-weight="bold">agent.js</text>
+  <text x="715" y="202" font-size="11" fill="#55606b" text-anchor="middle">Query resolution and intent routing</text>
+  <text x="715" y="222" font-size="11" fill="#55606b" text-anchor="middle">8 tools, invoked per resolved intent</text>
+  <text x="715" y="240" font-size="11" fill="#55606b" text-anchor="middle">Deterministic local routing fallback</text>
+  <text x="715" y="258" font-size="11" fill="#55606b" text-anchor="middle">Call trace surfaced in the UI</text>
+
+  <line x1="222" y1="180" x2="250" y2="192" stroke="#55606b" stroke-width="1.3" marker-end="url(#sg)"/>
+  <line x1="222" y1="248" x2="250" y2="240" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#s)"/>
+  <path d="M222 236 L238 236 L238 286 L700 286 L700 280" fill="none" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#s)"/>
+  <line x1="486" y1="217" x2="570" y2="217" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#s)" marker-start="url(#s)"/>
+  <text x="528" y="209" font-size="10.5" fill="#55606b" text-anchor="middle">window.NWCity</text>
+
+  <!-- ============ interface ============ -->
+  <text x="28" y="322" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">INTERFACE</text>
+  <text x="120" y="322" font-size="12" fill="#1b1e24">HTTP / JSON, same origin as the page: POST /plan, GET /health</text>
+  <path d="M640 296 L640 342 L122 342 L122 366" fill="none" stroke="#1b1e24" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#s)"/>
+
+  <!-- ============ service tier ============ -->
+  <rect x="28" y="370" width="530" height="180" rx="3" fill="#f2f4f2" stroke="#1b1e24" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text x="44" y="390" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">SERVICE TIER (OPTIONAL)</text>
+
+  <rect x="46" y="402" width="152" height="58" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="122" y="424" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">server.py</text>
+  <text x="122" y="441" font-size="10.5" fill="#55606b" text-anchor="middle">FastAPI, static mount</text>
+
+  <rect x="214" y="402" width="162" height="58" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="295" y="424" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">plan.py</text>
+  <text x="295" y="441" font-size="10.5" fill="#55606b" text-anchor="middle">contract and validation</text>
+
+  <rect x="392" y="402" width="148" height="58" rx="2" fill="#ffffff" stroke="#1b1e24" stroke-width="1.3"/>
+  <text x="466" y="424" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">providers.py</text>
+  <text x="466" y="441" font-size="10.5" fill="#55606b" text-anchor="middle">provider adapter</text>
+
+  <line x1="198" y1="431" x2="210" y2="431" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#s)"/>
+  <line x1="376" y1="431" x2="388" y2="431" stroke="#1b1e24" stroke-width="1.3" marker-end="url(#s)"/>
+
+  <text x="46" y="486" font-size="11" fill="#55606b">Supporting: models.py (capability probe), env.py (configuration loader),</text>
+  <text x="46" y="502" font-size="11" fill="#55606b">eval.py (routing regression set).</text>
+  <text x="46" y="524" font-size="11" fill="#55606b">Returns HTTP 200 in all cases. An upstream failure is returned as intent</text>
+  <text x="46" y="540" font-size="11" fill="#55606b">"unknown", so the presentation tier applies its own routing.</text>
+
+  <!-- ============ external ============ -->
+  <rect x="600" y="370" width="272" height="180" rx="3" fill="none" stroke="#55606b" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text x="616" y="390" font-size="11" font-weight="bold" fill="#55606b" letter-spacing="1.1">EXTERNAL</text>
+  <rect x="618" y="402" width="236" height="58" rx="2" fill="#ffffff" stroke="#55606b" stroke-width="1.3"/>
+  <text x="736" y="424" font-size="12.5" fill="#1b1e24" text-anchor="middle" font-weight="bold">LLM inference endpoint</text>
+  <text x="736" y="441" font-size="10.5" fill="#55606b" text-anchor="middle">generateContent, JSON response</text>
+
+  <line x1="540" y1="431" x2="612" y2="431" stroke="#55606b" stroke-width="1.3" marker-end="url(#sg)" marker-start="url(#sg)"/>
+
+  <text x="618" y="486" font-size="11" fill="#55606b">Receives the query text and the</text>
+  <text x="618" y="502" font-size="11" fill="#55606b">controlled vocabulary only.</text>
+  <text x="618" y="524" font-size="11" fill="#55606b">No measure, amount or score is</text>
+  <text x="618" y="540" font-size="11" fill="#55606b">included in the request.</text>
+</svg>

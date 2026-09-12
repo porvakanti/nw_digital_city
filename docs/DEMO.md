@@ -8,17 +8,16 @@ you can either click **Next** eight times or drive it yourself.
 
 **No installs.** Open `renderer/index.html` in Chrome. The city, the
 animations, the builder and the agent all work with no server and no network.
-This is the safety net: if the venue wifi dies on the day, this still runs.
+This is the fallback path: it runs with no network available.
 
 **To send to somebody else**, `run.cmd package` writes `NW Digital City.html`,
 which is the same thing folded into one file they can double-click. index.html
 on its own is a shell that loads four other files, so it opens as a blank page
-and is not the thing to attach. `docs/REVIEW-GUIDE.md` is the page to send
-with it.
+and is not the artefact to distribute.
 
 **With the model.** From the repository root:
 
-| Your machine | Run this |
+| Platform | Run this |
 | --- | --- |
 | Windows | double-click **`run.cmd`** |
 | macOS, Linux | `./run.sh` |
@@ -47,7 +46,7 @@ so it uses the browser's own rules and the badge says so.
 ./run.sh models     # what the configured key can actually call
 ```
 
-If you are presenting this, read `READING-THE-CITY.md` first. It is what every
+Read `READING-THE-CITY.md` first for interpretation. It is what every
 part of the picture means and what the picture is saying, with the figures to
 quote and the three places the data is soft.
 
@@ -56,8 +55,8 @@ quote and the three places the data is soft.
 Nine beats. Press `T` for the guided tour and it runs them in order, or type
 the questions yourself. **What should happen** is what to check.
 
-On stage: the tour steps forward on space, right arrow **or Page Down**, so a
-presenter clicker drives it and nobody has to stand at the laptop.
+The walkthrough advances on space, right arrow **or Page Down**, so remote
+input devices that emit the page keys also work.
 
 ### 0. Open it
 
@@ -129,7 +128,7 @@ started any AI-generated RFP.
 
 The windows are the other half of this. Four buildings in the whole city keep
 lit windows, because four blueprints have ever been used. Everything else goes
-dark. That frame is the argument.
+dark. That state is the clearest expression of the adoption gap.
 
 ### 7. The ask
 
@@ -161,7 +160,7 @@ cannot read a file saved on the device, Chrome on iOS is Safari underneath in
 any case, and the Files app preview does not run JavaScript, so it shows a
 blank page. Android will usually manage it, awkwardly.
 
-The way in is a URL, and the quickest one is your own laptop:
+The way in is a URL. The quickest one is the local host:
 
 ```
 run.cmd serve lan
@@ -180,13 +179,13 @@ is a decision rather than a convenience, hence the separate word. Plain
 
 ## On a phone
 
-Not the demo, which is a laptop and a projector, but it is how a reviewer
+Not the primary target viewport, but it is how a reviewer
 opens a link, so it works: the panels become a stack along the bottom and
 start collapsed, five buttons stand in for the keyboard shortcuts, the starter
 questions scroll sideways, and two fingers pinch to zoom. Landscape drops the
 panels and leaves the city.
 
-`./run.sh test` drives an emulated phone as well as a desktop window, so this
+`./run.sh test` drives an emulated handset as well as a desktop viewport, so this
 stays true.
 
 ## If something looks wrong
@@ -212,7 +211,7 @@ stays true.
 - **Every eval question fails.** Run `run.cmd models`. It makes one small
   request and tells you which of three things it is: a network that cannot
   reach Google, a key that is refused, or a model name that no longer exists.
-  A timeout is the network: on a corporate laptop that usually means a proxy
+  A timeout is the network: on a managed network that usually means a proxy
   (`setx HTTPS_PROXY http://your-proxy:port`) or TLS interception
   (`setx SSL_CERT_FILE` pointing at the company root certificate).
 - **The badge changes to "model did not answer" after a question.** The service

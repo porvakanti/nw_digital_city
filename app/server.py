@@ -11,7 +11,7 @@ same origin, the browser finds the endpoint on its own: no query parameter, no
 second server, no CORS to think about.
 
 One service, no state, no database. It runs the same in a container on a
-laptop, on Cloud Run, and in the internal environment; only the environment
+host, on Cloud Run, and in the internal environment; only the environment
 variables change.
 """
 
@@ -37,7 +37,7 @@ app = FastAPI(title="NW Digital City", version="1.0")
 
 # Served from here the page is same-origin and needs none of this. It stays
 # because the page can also be opened straight off the disk, which is the
-# fallback if anything about the venue network goes wrong, and from a file://
+# fallback where the network is unavailable, and from a file://
 # origin every request here is cross-origin by definition.
 app.add_middleware(
     CORSMiddleware,
@@ -99,7 +99,7 @@ def make_plan(ask: Ask) -> dict:
     """Decide what the city should do about a question.
 
     Never fails the caller. The browser has a deterministic parser of its own,
-    and a 500 from here on the day would take the demo down with it, so an
+    and a 500 from here would take the interface with it, so an
     unreachable or misbehaving model comes back as an unknown intent and the
     page falls back on its own.
     """

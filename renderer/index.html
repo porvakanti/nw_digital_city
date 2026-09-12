@@ -379,7 +379,7 @@
     cursor: pointer;
   }
   /* Says which model is answering, or that nothing is. Live is a fact worth
-     stating on stage; local rules are worth stating honestly. */
+     stating; the local-rules case is stated plainly rather than hidden. */
   #modelBadge {
     flex: none;
     padding: 4px 9px;
@@ -416,7 +416,7 @@
   }
   #chips button:hover { background: rgba(255,255,255,0.14); color: var(--ink); }
 
-  /* ---- lower third: the agent's line, readable from the back of the room ---- */
+  /* ---- caption at the foot of the viewport: the agent's stated result ---- */
   #caption {
     left: 50%;
     bottom: 128px;
@@ -443,7 +443,7 @@
 
   /* ---- hint ---- */
   /* ---- the closing ask ----
-     The four things the room is being asked to go away and do. It is the
+     The four actions requested of category owners. It is the
      point of the whole session, so it gets the screen to itself rather than
      living in a corner. */
   #asks {
@@ -667,7 +667,7 @@
 
   /* ---- the touch bar ----
      Five buttons standing in for the five keyboard shortcuts. Hidden until a
-     screen turns out to have no keyboard, because on a laptop the keys are
+     screen turns out to have no keyboard, because with a keyboard the shortcuts are
      better and the screen is worth more than the buttons. */
   #touchbar { display: none; }
   #touchbar button {
@@ -686,7 +686,7 @@
   #touchbar button.on { background: var(--hotel); border-color: var(--hotel); color: #fff; }
 
   /* ---- phones ----
-     The layout above is built for a laptop: panels 320px wide, pinned to the
+     The layout above targets a pointer device: panels 320px wide, pinned to the
      corners of a screen that has corners to spare. On a 390px phone the legend
      alone covered the city, the ask bar, and most of the suggestions, and the
      hint in the corner said to hover and press keys, neither of which exists
@@ -914,7 +914,7 @@
       <p>It takes about two minutes to walk through.</p>
       <div class="row">
         <button class="btn" id="welcomeTour">Show me around</button>
-        <button class="btn quiet" id="welcomeSkip">I will explore on my own</button>
+        <button class="btn quiet" id="welcomeSkip">Explore without the walkthrough</button>
       </div>
     </div>
   </div>

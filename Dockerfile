@@ -1,4 +1,4 @@
-# One container, three destinations: a laptop, a temporary Cloud Run service,
+# One container, three destinations: a local host, a temporary Cloud Run service,
 # and the internal environment. Only the environment variables differ.
 FROM python:3.12-slim
 

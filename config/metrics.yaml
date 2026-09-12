@@ -125,7 +125,7 @@ landmarks:
 # provisional: true  → the UI shows a "provisional measure" marker.
 # sample: true       → the UI shows a "sample data" marker. Use this for any
 #                      metric that is not yet real. It must be impossible to
-#                      present placeholder numbers as fact in front of 400 people.
+#                      present placeholder figures as measured fact.
 # ---------------------------------------------------------------------------
 metrics:
 
@@ -230,7 +230,7 @@ metrics:
 
 # ---------------------------------------------------------------------------
 # Honesty guardrails. The deck is explicit that measure four signals readiness,
-# not live autonomy. Keep it that way on stage.
+# not live autonomy. The wording must not overstate it.
 # ---------------------------------------------------------------------------
 disclosure:
   show_provisional_badge: true

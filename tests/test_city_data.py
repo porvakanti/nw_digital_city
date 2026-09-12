@@ -4,7 +4,7 @@ Run with:  python3 -m unittest discover -s tests -v
 
 These guard the two things that would actually hurt us: shipping personal data
 into a demo, and config/metrics.yaml drifting out of sync with city.json so a
-layer silently renders nothing on stage.
+layer silently renders a single tier.
 """
 
 import json
@@ -233,7 +233,7 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
 
     These are deliberately brittle. A refreshed extract that changes one of
     them should fail this suite, because the alternative is finding out from
-    somebody in the audience.
+    a reader of those documents.
     """
 
     def setUp(self):

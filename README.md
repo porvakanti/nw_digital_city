@@ -2,25 +2,23 @@
 
 An agent that turns the Networks category blueprint estate into a city you can
 walk through: districts, plots and lots that develop according to how each
-category is doing. Built for the Networks all-hands, September 2026.
+category is doing. Scoped to the Networks organisation.
 
 Ask it about a category in plain English and it finds it, reasons about it, and
-builds it in front of you.
+renders it.
 
-The reasoning behind all of this, the data caveats, and the questions still
-open are written up in [docs/DESIGN.md](docs/DESIGN.md).
+## Documentation
 
-| If you want to | Read |
+| Read | For |
 | --- | --- |
-| understand the picture without the code | [docs/READING-THE-CITY.md](docs/READING-THE-CITY.md) |
-| see how the parts fit together | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| know why it is built the way it is | [docs/DESIGN.md](docs/DESIGN.md) |
-| present it | [docs/DEMO.md](docs/DEMO.md) |
-| check it works | [docs/TESTING.md](docs/TESTING.md) |
-| understand the score | [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md) |
-| review it and send findings back | [docs/REVIEW-GUIDE.md](docs/REVIEW-GUIDE.md) |
-| set a Windows machine up from scratch | [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) |
-| deploy it | [docs/DEPLOY.md](docs/DEPLOY.md) |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, interfaces, runtime views, data pipeline, security controls, and the current and target deployment topologies |
+| [docs/DESIGN.md](docs/DESIGN.md) | Why the design is what it is, and what was considered and rejected |
+| [docs/READING-THE-CITY.md](docs/READING-THE-CITY.md) | How to interpret the visualisation, and where the data is soft |
+| [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md) | The composite score: components, weights, roll-up method |
+| [docs/TESTING.md](docs/TESTING.md) | Verification: the automated stages, and a manual walkthrough |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Deployment and agent catalogue registration |
+| [docs/DEMO.md](docs/DEMO.md) | Feature walkthrough and troubleshooting |
+| [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) | First-time setup on a Windows host |
 
 ## The metaphor
 
@@ -121,16 +119,16 @@ tests/smoke.js         the browser pass, on a desktop and on a phone
 ```
 
 The renderer is deliberately dependency-free at runtime. It is the on-stage
-safety net: if the venue wifi dies, the city still opens from a local file.
+fallback path: with no network available, the model still opens from a local file.
 
 ## Running it
 
-| Your machine | Run this |
+| Platform | Run this |
 | --- | --- |
 | Windows | double-click **`run.cmd`**, or `run.cmd` in a terminal |
 | macOS, Linux | `./run.sh` |
 
-Setting a Windows laptop up from scratch, including VS Code, is written out
+Setting up a Windows host from scratch, including VS Code, is written out
 step by step in [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md).
 
 From the repository root. That is the whole thing. (`run.sh` is a shell script:
@@ -198,7 +196,7 @@ Without a model the browser uses its own rules, which is also what happens if
 the endpoint is slow, unreachable or unsure. The demo never depends on a
 network call succeeding. Both paths route the same question the same way, and
 the browser suite drives both, because two sets of rules answering one
-question differently is a failure nobody notices until it happens live.
+question differently is a defect that surfaces only in use.
 
 A question asking for a leaderboard gets the leaderboard, and the word decides
 which: "who" opens the People board, "which district" opens Districts, and
@@ -214,7 +212,7 @@ wanted; the tools then run in the browser against `city.json` and work out what
 is actually on that lot.
 
 So no figure on screen can have been invented, and no spend figure leaves the
-laptop while we are building against a temporary endpoint. Replies are
+environment while the provider is a temporary endpoint. Replies are
 validated before they are used: an invented category is dropped, a category
 offered as the scope of an area question is ignored, and a sentence containing
 figures is discarded.
@@ -229,7 +227,7 @@ figures is discarded.
 | `claude` | `NW_API_KEY` | Anthropic API. |
 
 `Dockerfile` builds the one container that gets deployed: the page and the
-service that answers it, together. The same image runs on a laptop, on Cloud
+service that answers it, together. The same image runs on a local host, on Cloud
 Run, and in the internal environment; only the environment variables change.
 
 ```bash

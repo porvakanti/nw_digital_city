@@ -1,14 +1,14 @@
 # Deploying it, and putting it in the Agent Marketplace
 
-## First, the plain version
+## Distribution options
 
-You have three ways to get this in front of somebody, in order of effort.
+Three, in order of effort.
 
-**1. Email them one file.** `run.cmd package` writes **`NW Digital City.html`**,
-the whole city folded into a single file they double-click. No unzipping, no
-folder to hunt through, no infrastructure, no accounts. Everything works
-except the Gemini model, and the agent falls back to its own rules, which
-handle every question in the demo. Send `docs/REVIEW-GUIDE.md` with it.
+**1. A single document.** `run.cmd package` writes **`NW Digital City.html`**,
+the whole application inlined into one file. No archive, no infrastructure, no
+accounts. Everything works except the model, and the agent falls back to its
+own routing rules, which
+handle every query in the walkthrough.
 **For a first review round, do this.**
 
 The same command also writes `nw-digital-city.zip`, which is the city as
@@ -52,7 +52,7 @@ iframe, which adds a layer and gains nothing. Cloud Run just serves it.
 
 **You do not run the Docker command yourself.** `deploy/cloudrun.sh` hands the
 folder to Cloud Build, which builds the image in Google's cloud and deploys it.
-Nothing needs installing on your laptop except the `gcloud` command.
+Nothing needs installing locally except the `gcloud` command.
 
 ### What you would actually type, once
 
@@ -73,8 +73,8 @@ URL at the end. Every deploy after that is the last line again.
 
 One container. It holds the page and the small service that answers questions,
 so there is one thing to roll out and one URL to hand out. The same image runs
-on a laptop, on Cloud Run, and in the internal environment; only environment
-variables differ.
+on a local host, on Cloud Run, and in the internal environment; only
+environment variables differ.
 
 ```
 Dockerfile          the image: FastAPI + the renderer, nothing else
@@ -108,7 +108,7 @@ more than it should could not put it in the image.
 
 It deploys with `NW_PROVIDER=vertex`, which uses the service account's
 application default credentials. **No API key exists anywhere in the deployed
-system.** The Google AI Studio key is for building on a laptop.
+system.** The Google AI Studio key is for local development only.
 
 ### Scale, and what it costs
 
@@ -117,9 +117,9 @@ nothing. The only per-request cost is a Vertex AI call of a few hundred tokens,
 and only when somebody types a question: the city itself, the animation and the
 tools all run in the browser.
 
-For the all-hands, set `--min-instances 1` the morning of, so the first question
-on stage does not pay for a cold start. That is one flag and a few euros for a
-day.
+Set `--min-instances 1` ahead of any session where first-request latency
+matters, so the first query does not pay for a cold start. One flag, and it can
+be reverted afterwards.
 
 ### What the environment owner needs to confirm
 
@@ -154,7 +154,7 @@ the real thing. That needs no code in Foundry at all.
   "id": "nwc",
   "name": "NW Digital City",
   "tagline": "Ask about any Networks category and watch it build itself.",
-  "about": "NW Digital City turns the Networks category blueprint estate into a city: 8 districts, 31 plots and 145 category lots. Ask about a category, a district or a market in plain English and it finds it, works out how it is doing on blueprint status, adoption, spend and AI readiness, and builds it in front of you. Built for the Networks all-hands, September 2026.",
+  "about": "NW Digital City turns the Networks category blueprint estate into a city: 8 districts, 31 plots and 145 category lots. Ask about a category, a district or a market in plain English and it finds it, works out how it is doing on blueprint status, adoption, spend and AI readiness, and renders it. Scoped to the Networks organisation.",
   "maturity": "pilot",
   "platform": "GCP",
   "function": "Sourcing",
@@ -182,7 +182,7 @@ the real thing. That needs no code in Foundry at all.
 
 ### 2. How it gets tried, and the two options
 
-**Deep link, which is what I would do.** Add a `CityPlayground` adapter with
+**Deep link, the recommended option.** Add a `CityPlayground` adapter with
 `embeddable = False` and the marketplace behaves exactly as it does for Emplay
 and Looker today: the detail page shows the sample transcript, and the button
 opens the city in a new tab. **Nothing changes in Foundry's code.** It costs a
@@ -212,10 +212,8 @@ playground contract earns its place at two users, not one.
 ### Where it sits in the marketplace's own story
 
 Foundry's pitch is that anyone in VP&C can discover, try and scale the agents
-built across the org. This is the case in point: an agent built in a fortnight
-by one person, running on the same GCP the production agents run on, listed
-next to Sourcing Copilot and Contract IQ. On stage that is worth saying out
-loud, because it is the marketplace's argument and this is its evidence.
+built across the org. This entry runs on the same GCP estate as the production
+agents and is listed alongside them.
 
 ## The internal environment
 
@@ -233,10 +231,9 @@ Same image, same command shape, different address. What changes:
 Nothing in the code changes between them. That was the point of putting the
 provider behind an interface.
 
-## The fallback, which is not a formality
+## Offline fallback
 
-If none of this is ready on the day, `renderer/index.html` opens from a USB
-stick with no server and no network, and everything except the model works: the
-city, the choreography, the builder, the guided tour and the agent's own rules.
-That is the version to have on the presenting laptop regardless of how the
-deployment goes.
+`renderer/index.html` opens from local storage with no server and no network.
+Everything except the model works: the visualisation, the sequencing, the
+figure, the guided walkthrough and the agent's own routing rules. This path is
+independent of the deployment and remains available regardless of its state.
