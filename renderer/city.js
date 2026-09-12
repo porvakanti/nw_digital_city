@@ -773,8 +773,16 @@
 
   const matSolid = new THREE.MeshLambertMaterial();
   const matPlate = new THREE.MeshLambertMaterial();
+  /* The outline of the building an empty lot could carry.
+   *
+   * Unlit, so its opacity is its brightness whatever the hour, and after dark
+   * everything around it drops by an order of magnitude: at 0.3 the eighty-nine
+   * empty lots turned into a wireframe mesh over the whole city and the four
+   * that matter were lost inside it. It dims with the light. */
+  const GHOST_DAY = 0.3;
+  const GHOST_NIGHT = 0.075;
   const matGhost = new THREE.MeshBasicMaterial({
-    color: C.bare, wireframe: true, transparent: true, opacity: 0.3,
+    color: C.bare, wireframe: true, transparent: true, opacity: GHOST_DAY,
   });
   const matGhostSolid = new THREE.MeshLambertMaterial({
     color: C.bare, transparent: true, opacity: 0.07,
@@ -2221,6 +2229,9 @@
     if (poolMesh) poolMesh.visible = isNight;
     if (beamMesh) beamMesh.visible = isNight;
 
+    // The outlines on empty lots dim with the light. See GHOST_DAY.
+    matGhost.opacity = isNight ? GHOST_NIGHT : GHOST_DAY;
+
     /* The district names light up after dark.
      *
      * Cut into stone they depend on the sun to read at all, and after dark
@@ -2309,6 +2320,7 @@
         <div class="by">${CONFIG.layers[layer].caption}</div>
         <div class="swatches">${swatches}</div>
         ${layer === "height" ? landmarkNote() : ""}
+        ${layer === "occupancy" ? occupancyNote() : ""}
       </div>`;
     }).join("");
   }
@@ -2324,6 +2336,31 @@
    * ladder. It also has to be read to be worth writing: as a fifth block it
    * fell below the fold of a panel that is already the tallest thing on the
    * screen. */
+  /* Where the occupancy signal actually turns up.
+   *
+   * The rung above draws a facade with its windows lit, and at the moment no
+   * lot in the city looks like that: all four categories anybody has run a
+   * sourcing event through scored high enough to earn a monument, and a
+   * monument has no windows. It carries the same signal as floodlighting
+   * instead.
+   *
+   * So the legend says which, counted from what is standing rather than
+   * asserted, because the day a used category does not have a monument on it
+   * this line has to change by itself. */
+  function occupancyNote() {
+    const used = CITY.categories.filter((c) => (c.metrics.cbp_used || 0) > 0);
+    if (!used.length) return "";
+    const marked = used.filter((c) => standing.has(c.code)).length;
+    if (!marked) return "";
+    const lots = (n) => `${n} lot${n === 1 ? "" : "s"}`;
+    const where = marked === used.length
+      ? `All ${lots(used.length)} in use carry a monument, so the signal is
+         floodlighting after dark.`
+      : `${lots(used.length - marked)} light their windows. The other
+         ${marked} carry a monument, floodlit after dark instead.`;
+    return `<div class="also">${where}</div>`;
+  }
+
   function landmarkNote() {
     const spec = CONFIG.landmarks || {};
     if (!spec.label || spec.min_score === undefined || spec.min_score === null) return "";
@@ -2781,13 +2818,20 @@
     part(group, dark, 0.32, 0.06, 0.06, 0.56, 0.14, 0.8);
     part(group, legs, 0, 1.06, 0, 1.24, 0.24, 0.72);
 
-    // Torso, and the hi-vis over it. Anyone who has been on a site recognises
-    // the shape before they read a word of the screen.
+    /* Torso, and the hi-vis over it.
+     *
+     * A real vest has two full-length vertical bands and a horizontal one,
+     * and drawn front-on at this scale that is a capital H. It read as a
+     * letter on the chest, which is the one thing it must not do now there
+     * is a wordmark there. So the verticals are shortened to shoulder
+     * straps and the band drops to the waist, which leaves the whole upper
+     * chest for the name and still reads as a site vest.
+     */
     part(group, overalls, 0, 1.62, 0, 1.42, 1.05, 0.78);
     for (const face of [0.4, -0.4]) {
-      part(group, hiVis, -0.46, 1.62, face, 0.44, 1.0, 0.06);
-      part(group, hiVis, 0.46, 1.62, face, 0.44, 1.0, 0.06);
-      part(group, hiVis, 0, 1.5, face, 1.3, 0.16, 0.05);
+      part(group, hiVis, -0.5, 1.94, face, 0.34, 0.36, 0.06);
+      part(group, hiVis, 0.5, 1.94, face, 0.34, 0.36, 0.06);
+      part(group, hiVis, 0, 1.34, face, 1.34, 0.2, 0.05);
     }
     /* A wordmark across the vest.
      *
@@ -2801,15 +2845,28 @@
     const wordmark = (CONFIG.city && CONFIG.city.vest_wordmark) || "";
     if (wordmark) {
       const canvas = document.createElement("canvas");
-      canvas.width = 320;
-      canvas.height = 80;
+      canvas.width = 512;
+      canvas.height = 168;
       const ctx = canvas.getContext("2d");
-      ctx.font = '700 52px system-ui, -apple-system, "Segoe UI", sans-serif';
-      ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(wordmark, canvas.width / 2, canvas.height / 2 + 3,
-        canvas.width * 0.94);
+      /* A white panel behind the letters.
+       *
+       * White on the vest red is the highest contrast available and it was
+       * still unreadable, because at the default zoom the whole figure is
+       * about forty pixels tall and the name is a tenth of that. Reversing
+       * it, dark letters on a white patch, gives the name a shape of its own
+       * that survives down to a few pixels: even when the letters go, a pale
+       * bar across the chest is legible as a name badge. */
+      const pad = 10;
+      ctx.fillStyle = "#f3f5f8";
+      ctx.beginPath();
+      ctx.roundRect(pad, pad, canvas.width - pad * 2, canvas.height - pad * 2, 22);
+      ctx.fill();
+      ctx.font = '800 104px system-ui, -apple-system, "Segoe UI", sans-serif';
+      ctx.fillStyle = "#1b1e24";
+      ctx.fillText(wordmark, canvas.width / 2, canvas.height / 2 + 6,
+        canvas.width - pad * 2 - 26);
       const texture = new THREE.CanvasTexture(canvas);
       texture.anisotropy = 4;
       // Clear of the hi-vis panels, whose front faces are already at 0.43:
@@ -2818,12 +2875,12 @@
         // Across the whole chest, over the hi-vis panels rather than squeezed
         // into the red between them, which left it four pixels wide.
         const plate = new THREE.Mesh(
-          new THREE.PlaneGeometry(1.34, 0.335),
+          new THREE.PlaneGeometry(1.3, 0.427),
           // Unlit: print on a vest is reflective, and under the scene light
           // the wordmark came out grey on the face turned away from the sun.
           new THREE.MeshBasicMaterial({ map: texture, transparent: true })
         );
-        plate.position.set(0, 1.83, z);
+        plate.position.set(0, 1.7, z);
         plate.rotation.y = turn;
         group.add(plate);
       }

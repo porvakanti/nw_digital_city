@@ -64,7 +64,7 @@ layers:
       thing in the city, because 52 of the 56 built lots are drained.
   reactor:
     metric: ai_rfps
-    caption: How ready the rules are for AI to draft the brief
+    caption: Readiness for an AI-drafted brief
     detail: >-
       A reactor on the roof, from dark through a flicker to a full glow with a
       beam over it at night. It marks the categories where rules are
