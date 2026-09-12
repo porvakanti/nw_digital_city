@@ -185,44 +185,58 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `worst in software and core` | Software and Core |
 | `packet switching` | that plot |
 | `Germany` | every lot Germany has adopted |
-| `who is doing best` | a ranking, highest first |
 | `banana bread` | nothing, gracefully |
 
-35. On that second-to-last one: it ranks by **blueprint reach**, because that
-    is the default measure for a ranking question. Now that the journey score
-    and the People view exist, "who is doing best" arguably ought to mean the
-    journey score instead, and "who" arguably ought to mean people rather than
-    categories. Worth a view on which answer you would want on stage. Related:
-    `who is doing well` currently resolves to nothing at all.
-36. Start typing a category name. Suggestions should appear.
-37. Hover any lot. A label names it with its status and spend.
-38. Ask something awkward on purpose. It should decline rather than invent.
+35. Leaderboard questions. The journey panel should open on the named board,
+    and the spoken answer should name whoever is at the top of it:
+
+| Type this | Should open | And say |
+| --- | --- | --- |
+| `who is doing best` | People | the top manager, with the three components |
+| `who is doing well` | People | the same |
+| `who is the top category manager` | People | the same, not a category |
+| `show me the leaders` | People | the same |
+| `who is behind` | People | the board, lowest of interest |
+| `which district is doing best` | Districts | Access Radio/Fixed on 28 |
+| `the category leaderboard` | Categories | A251 on 100 |
+| `which category is doing best` | flies to a lot | A251, 100 out of 100 |
+
+36. Two things to watch on those. The sentence must name the same thing that
+    is top of the board it opened, and a ranking must quote the measure it
+    actually sorted on. Both used to be wrong: every one of these answered
+    with A221, which leads on blueprint reach and has never been used, and
+    asking for a category *manager* named a category.
+37. `which category leads on spend` and `biggest category by value` should
+    still rank by money, not by the score.
+38. Start typing a category name. Suggestions should appear.
+39. Hover any lot. A label names it with its status and spend.
+40. Ask something awkward on purpose. It should decline rather than invent.
 
 ### I. The keys
 
-39. **T** guided tour. Watch it end to end. The Close button must be reachable.
-40. **N** night. **P** what we could build. **K** the ask. **R** resets.
-41. Every one of these should also work as a button, because not everybody
+41. **T** guided tour. Watch it end to end. The Close button must be reachable.
+42. **N** night. **P** what we could build. **K** the ask. **R** resets.
+43. Every one of these should also work as a button, because not everybody
     knows the keys.
 
 ### J. On a phone
 
-42. `py run.py serve lan`, then open the address it prints on a phone on the
+44. `py run.py serve lan`, then open the address it prints on a phone on the
     same wifi. **You cannot do this by sending the HTML file: iOS will not open
     a downloaded HTML file in a browser.** The URL is the only way in.
-43. Buttons replace the keyboard shortcuts.
-44. Nothing is laid over anything else, and the page does not scroll sideways.
-45. Pinch to zoom, drag to rotate.
-46. Open the tour. The Close button must be on the screen.
-47. Type a question. It should still work.
+45. Buttons replace the keyboard shortcuts.
+46. Nothing is laid over anything else, and the page does not scroll sideways.
+47. Pinch to zoom, drag to rotate.
+48. Open the tour. The Close button must be on the screen.
+49. Type a question. It should still work.
 
 ### K. Try to break it
 
-48. Resize the window to something narrow and tall, then very wide.
-49. Zoom all the way in, then all the way out.
-50. Click a lot, then another, then the same one twice.
-51. Press every key during the tour.
-52. Open the browser console (F12) and look for red. There should be none.
+50. Resize the window to something narrow and tall, then very wide.
+51. Zoom all the way in, then all the way out.
+52. Click a lot, then another, then the same one twice.
+53. Press every key during the tour.
+54. Open the browser console (F12) and look for red. There should be none.
 
 ---
 

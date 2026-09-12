@@ -24,6 +24,7 @@ INTENTS = [
     "gaps",       # the lots with money on them and nothing built
     "summary",    # built / empty / spend for a scope
     "rank",       # best or worst in a scope
+    "leaders",    # the leaderboard, by person, district or category
     "could_be",   # raise every undeveloped lot
     "night",      # after dark, the readiness view
     "asks",       # the four things the room is being asked to do
@@ -32,7 +33,11 @@ INTENTS = [
 ]
 
 SCOPE_KINDS = ["category", "district", "plot", "market", "none"]
-METRICS = ["market_reach", "spend_eur", "cbp_total"]
+METRICS = ["journey", "market_reach", "spend_eur", "cbp_total"]
+
+# Which leaderboard "leaders" opens. People is the default because "who" is
+# the word that sends a question here.
+VIEWS = ["people", "districts", "categories"]
 
 SYSTEM_PROMPT = """You route questions about a city to the right view of it.
 
@@ -46,7 +51,12 @@ Intents:
 - district: the question is about a whole district
 - gaps: asks where the missing blueprints or opportunities are
 - summary: asks how somewhere is doing overall
-- rank: asks for the best, worst, biggest or weakest
+- rank: asks which single category is best, worst, biggest or weakest, and
+  wants to be taken to it
+- leaders: asks for a leaderboard rather than one lot. Any question using
+  "who", or asking for leaders, a ranking or a league table. Set view to
+  "people" for who, "districts" for which district, "categories" for a list
+  of categories.
 - could_be: asks what could be built, the potential or the upside
 - night: asks about AI readiness, autonomy, reactors or AI-generated RFPs
 - asks: asks what people should do, what is being asked of them, or the
@@ -62,6 +72,7 @@ Rules:
   no target.
 - gaps and summary take a district, a plot or a market, never a single
   category.
+- leaders takes no target. The board covers the whole organisation.
 - could_be, night, asks and reset take no target at all. They redraw the whole
   city, so there is nothing for a target to scope.
 - You have no figures. Do not state or guess any number, amount or percentage.
@@ -70,7 +81,12 @@ Rules:
 
 Reply with JSON only, no prose and no code fence:
 {"intent": "...", "target": {"kind": "...", "value": "..."}, "metric": "...",
- "direction": "asc|desc", "preamble": "..."}
+ "direction": "asc|desc", "view": "people|districts|categories",
+ "preamble": "..."}
+
+metric is for rank only and is one of journey, spend_eur, market_reach or
+cbp_total. journey is the 0 to 100 progress score and is the default: it is
+what "doing best" means unless the question asks about money or reach.
 """
 
 
@@ -81,8 +97,9 @@ class Plan:
     intent: str = "unknown"
     kind: str = "none"
     value: str = ""
-    metric: str = "market_reach"
+    metric: str = "journey"
     direction: str = "desc"
+    view: str = "people"
     preamble: str = ""
     source: str = "mock"
     notes: list[str] = field(default_factory=list)
@@ -93,6 +110,7 @@ class Plan:
             "target": {"kind": self.kind, "value": self.value},
             "metric": self.metric,
             "direction": self.direction,
+            "view": self.view,
             "preamble": self.preamble,
             "source": self.source,
             "notes": self.notes,
@@ -114,7 +132,7 @@ def vocabulary(names: dict[str, list[str]]) -> str:
 # the entire map, so a target on them would scope the sentence to something
 # the screen is not showing. "What could we build" answered for Germany is a
 # number about Germany over a picture of Networks.
-WHOLE_CITY_INTENTS = ("could_be", "night", "asks", "reset")
+WHOLE_CITY_INTENTS = ("could_be", "night", "asks", "reset", "leaders")
 
 # These do take a place, but never a single lot: gaps and totals are questions
 # about an area, and an area is a district, a plot or a market.
@@ -200,6 +218,9 @@ def parse(raw: str, names: dict[str, list[str]], source: str,
     direction = str(data.get("direction") or "").strip().lower()
     if direction in ("asc", "desc"):
         plan.direction = direction
+    view = str(data.get("view") or "").strip().lower()
+    if view in VIEWS:
+        plan.view = view
 
     preamble = str(data.get("preamble") or "").strip()
     if any(ch.isdigit() for ch in preamble):

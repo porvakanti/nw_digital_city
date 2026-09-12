@@ -2654,6 +2654,32 @@
     pending() {
       return scheduled.length;
     },
+    /* Open the leaderboard on one of its three views and report what it says.
+
+     * The journey panel is already the best answer the city has to "who is
+     * doing best", so the agent opens it rather than inventing a second way
+     * of saying the same thing. It returns the rows so whatever asked can
+     * speak the top of the list without recomputing the score.
+     */
+    showJourney(view) {
+      if (!["districts", "categories", "people"].includes(view)) return null;
+      const button = document.querySelector(`#jSwitch [data-view="${view}"]`);
+      if (!button) return null;
+      button.click();
+      // On a phone the panel starts collapsed, and a leaderboard nobody can
+      // see is not an answer.
+      const panel = document.getElementById("journey");
+      if (panel) panel.classList.remove("collapsed");
+      const rows = document.getElementById("jRows");
+      if (rows) rows.scrollTop = 0;
+      return journeyData().map((r) => ({
+        label: r.label, sub: r.sub,
+        total: Math.round(r.j.total),
+        blueprint: Math.round(r.j.blueprint),
+        usage: Math.round(r.j.usage),
+        ai: Math.round(r.j.ai),
+      }));
+    },
     /* Which categories actually got a monument built on them.
      *
      * The assignment happens in the build and the geometry happens here, and
