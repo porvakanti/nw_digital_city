@@ -211,7 +211,13 @@ def journey(record, config) -> dict:
     used = banded("usage", record["cbp_used"])
     ai = banded("ai", record["ai_rfps"] or 0)
     return {
-        "stage": rung["stage"],
+        # No "stage" here. It used to carry the blueprint rung's own stage,
+        # which is not the category's stage and disagreed with the arc: A251
+        # at 100 out of 100 came out labelled "connected" and A213 at 85 came
+        # out "traditional". A category's stage is a band of the total, it is
+        # computed from the config where the rail is drawn, and nothing read
+        # this field. A number in the published data that contradicts the
+        # screen is worse than no number.
         "blueprint": rung["points"],
         "usage": used["points"],
         "ai": ai["points"],
@@ -317,6 +323,7 @@ def assign_landmarks(categories, config) -> None:
     """
     rules = config.get("landmarks") or {}
     floor = rules.get("min_score", 50)
+    cap = rules.get("max_landmarks")
     by_market = rules.get("by_market") or {}
 
     qualifying = sorted(
@@ -324,8 +331,13 @@ def assign_landmarks(categories, config) -> None:
          if c["blueprint_state"] == "active" and c["journey"]["total"] >= floor),
         key=lambda c: (-c["journey"]["total"], c["code"]),
     )
+    # Scores only go up, so the threshold alone does not keep a monument
+    # scarce: it says who is eligible, and this says how many there are. The
+    # highest scorers keep them, and a category below the cut has earned its
+    # height and its houses without earning a monument.
+    eligible = qualifying if cap is None else qualifying[:cap]
     taken = set()
-    for category in qualifying:
+    for category in eligible:
         placed = False
         for market, monuments in by_market.items():
             if market not in category["markets"]:
@@ -347,12 +359,17 @@ def assign_landmarks(categories, config) -> None:
                 break
 
     named = [c for c in categories if c.get("landmark")]
-    short = [c["code"] for c in qualifying if not c.get("landmark")]
+    short = [c["code"] for c in eligible if not c.get("landmark")]
+    over = len(qualifying) - len(eligible)
     print(f"  landmarks: {len(named)} of {len(qualifying)} qualifying at {floor}+ "
           + ", ".join(f"{c['code']} {c['landmark']['name']}" for c in named))
+    if over:
+        # Not a warning. Holding the count is what the cap is for, and the
+        # lowest scorers are the right ones to hold back.
+        print(f"  {over} more qualified and were held back by the cap of {cap}")
     if short:
-        # Loud, because a category that earned a monument and has no market we
-        # can depict is a gap in the configuration, not a property of the data.
+        # Loud, because a category inside the cap with no market we can depict
+        # is a gap in the configuration, not a property of the data.
         print(f"  WARNING: no monument available for {', '.join(short)}")
 
 

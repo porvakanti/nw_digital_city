@@ -103,9 +103,15 @@
   const plots = [...new Set(categories.map((c) => c.plot))];
   const markets = CITY.meta.markets;
 
-  const euro = (n) =>
-    n >= 1e6 ? `€${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}m`
-      : n > 0 ? `€${Math.round(n / 1e3)}k` : "no recorded spend";
+  // Whole millions lose the decimal, matching the renderer. "€1.0m" beside
+  // "€20m" reads as a different level of precision rather than the same one.
+  const euro = (n) => {
+    if (n >= 1e6) {
+      const m = (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, "");
+      return `€${m}m`;
+    }
+    return n > 0 ? `€${Math.round(n / 1e3)}k` : "no recorded spend";
+  };
 
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many || one + "s"}`;
   // Small numbers read as words in a spoken line, and a rank reads as a rank.
