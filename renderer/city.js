@@ -1463,6 +1463,83 @@
    *
    * The binding is in config/metrics.yaml under `street_life`.
    */
+  /* Walkable ground inside a district.
+   *
+   * The people were on the street pavements, and the streets run between the
+   * district plates rather than through them, so every figure stood outside
+   * the coloured ground it was supposed to be describing. A district read as
+   * deserted however busy its approaches were.
+   *
+   * District plates are 34% to 56% plots, so there is a great deal of free
+   * ground inside each one. This finds it: a coarse scan of the plate marking
+   * cells that miss every plot and the name strip, then runs of free cells
+   * joined into corridors. A corridor is shaped like a road, so the walkers
+   * and the clusters animate on it with no change to either.
+   */
+  const DISTRICT_FLOOR = 0.2;
+  const walkCache = new Map();
+  function districtWalks(district) {
+    if (walkCache.has(district)) return walkCache.get(district);
+    const CELL_W = 1.15;
+    const MARGIN = 0.5;
+    // The name strip is at the near edge and carries the engraved lettering,
+    // which nobody should be standing on.
+    const usableD = district.d - (district.strip || 0);
+    const cols = Math.max(1, Math.floor((district.w - MARGIN * 2) / CELL_W));
+    const rows = Math.max(1, Math.floor((usableD - MARGIN * 2) / CELL_W));
+    const free = (x, z) => {
+      for (const plot of district.plots) {
+        if (x >= plot.cx - 0.35 && x <= plot.cx + plot.w + 0.35
+          && z >= plot.cz - 0.35 && z <= plot.cz + plot.d + 0.35) return false;
+      }
+      return true;
+    };
+
+    const walks = [];
+    // Horizontal runs first, then vertical, so a district with a tall gap
+    // between plot columns gets a corridor along it as well as across it.
+    for (let r = 0; r < rows; r++) {
+      const z = district.cz + MARGIN + (r + 0.5) * CELL_W;
+      let run = null;
+      for (let c = 0; c <= cols; c++) {
+        const x = district.cx + MARGIN + (c + 0.5) * CELL_W;
+        const open = c < cols && free(x, z);
+        if (open) { run = run || { from: x }; run.to = x; continue; }
+        if (run && run.to - run.from >= CELL_W * 2) {
+          walks.push({
+            x: (run.from + run.to) / 2, z,
+            w: run.to - run.from, d: CELL_W * 0.9, vertical: false,
+          });
+        }
+        run = null;
+      }
+    }
+    for (let c = 0; c < cols; c++) {
+      const x = district.cx + MARGIN + (c + 0.5) * CELL_W;
+      let run = null;
+      for (let r = 0; r <= rows; r++) {
+        const z = district.cz + MARGIN + (r + 0.5) * CELL_W;
+        const open = r < rows && free(x, z);
+        if (open) { run = run || { from: z }; run.to = z; continue; }
+        if (run && run.to - run.from >= CELL_W * 3) {
+          walks.push({
+            x, z: (run.from + run.to) / 2,
+            w: CELL_W * 0.9, d: run.to - run.from, vertical: true,
+          });
+        }
+        run = null;
+      }
+    }
+    /* Longest first, and capped. A district's free ground breaks into a lot
+     * of short scraps, and putting figures on every one of them scatters the
+     * district's allocation into ones and twos that read as noise rather than
+     * as a populated place. */
+    walks.sort((a, b) => Math.max(b.w, b.d) - Math.max(a.w, a.d));
+    const kept = walks.slice(0, 14);
+    walkCache.set(district, kept);
+    return kept;
+  }
+
   let streetPlanCache = null;
   function streetPlan(roads) {
     if (streetPlanCache) return streetPlanCache;
@@ -1660,12 +1737,32 @@
     /* Allocated as individuals and then gathered into clusters on the street
      * each was given, so a district's count still matches the measure
      * however the clusters happen to fall. */
-    const standingSlots = preferBuilt(plan.allocate(standingTarget, rnd));
+    /* Inside the district, not on the street beside it.
+     *
+     * A slot's district is what carries the measure; where the figure stands
+     * is then chosen from that district's own free ground, so the people are
+     * on the coloured plate they are describing. A share stay on the street
+     * pavements, because a city with empty streets and busy interiors reads
+     * as odd, and the streets are where the vehicles already are. */
+    const inside = (slot) => {
+      const walks = slot.district ? districtWalks(slot.district) : [];
+      if (!walks.length || rnd() < streetShare) return slot;
+      return {
+        district: slot.district,
+        road: walks[Math.floor(rnd() * walks.length)],
+        interior: true,
+      };
+    };
+    const streetShare = LIFE.on_streets === undefined ? 0.2 : LIFE.on_streets;
+
+    const standingSlots = preferBuilt(plan.allocate(standingTarget, rnd)).map(inside);
     while (placed < standingTarget) {
       const slot = standingSlots[placed];
       if (!slot) break;
       const r = slot.road;
-      const spot = pavement(r);
+      const spot = slot.interior
+        ? { side: 1, lane: (rnd() - 0.5) * Math.min(r.w, r.d) * 0.5 }
+        : pavement(r);
       const size = Math.min(2 + Math.floor(rnd() * (clusterMax - 1)), standingTarget - placed);
       if (size < 2) break;
       const t = 0.08 + rnd() * 0.84;
@@ -1682,15 +1779,20 @@
       groups.push({
         road: r, lane: spot.lane, t, members,
         owner: slot.district && slot.district.name,
+        ground: slot.interior ? DISTRICT_FLOOR : PAVEMENT_TOP,
         sway: rnd() * Math.PI * 2,
       });
       placed += size;
     }
 
     // The rest walk.
-    for (const slot of preferBuilt(plan.allocate(Math.max(0, total - placed), rnd))) {
+    for (const slot of preferBuilt(plan.allocate(Math.max(0, total - placed), rnd)).map(inside)) {
       const r = slot.road;
-      const spot = pavement(r);
+      const spot = slot.interior
+        // A corridor is walked down the middle: it is free ground, not a
+        // carriageway with a kerb to keep to.
+        ? { side: 1, lane: (rnd() - 0.5) * Math.min(r.w, r.d) * 0.5 }
+        : pavement(r);
       const person = figure(COATS[Math.floor(rnd() * COATS.length)]);
       let dog = null;
       if (rnd() < 0.28) {
@@ -1703,6 +1805,9 @@
         person,
         dog,
         owner: slot.district && slot.district.name,
+        // A district plate stands at a different height from a street
+        // pavement, so the figure carries the ground it is standing on.
+        ground: slot.interior ? DISTRICT_FLOOR : PAVEMENT_TOP,
         road: r,
         lane: spot.lane,
         t: rnd(),
@@ -1938,13 +2043,13 @@
       const x = r.x + (r.vertical ? w.lane : along);
       const z = r.z + (r.vertical ? along : w.lane);
       const bob = Math.abs(Math.sin(now * 8 + w.lane)) * 0.06;
-      w.person.position.set(x, PAVEMENT_TOP + bob, z);
+      w.person.position.set(x, (w.ground === undefined ? PAVEMENT_TOP : w.ground) + bob, z);
       w.person.rotation.y = r.vertical ? (w.speed > 0 ? 0 : Math.PI) : (w.speed > 0 ? Math.PI / 2 : -Math.PI / 2);
       if (w.dog) {
         const trail = 0.9 * (w.speed > 0 ? -1 : 1);
         w.dog.position.set(
           x + (r.vertical ? 0.45 : trail),
-          PAVEMENT_TOP,
+          w.ground === undefined ? PAVEMENT_TOP : w.ground,
           z + (r.vertical ? trail : 0.45)
         );
         w.dog.rotation.y = w.person.rotation.y;
@@ -1966,7 +2071,7 @@
         const x = r.x + (r.vertical ? g.lane + m.across : along + shift);
         const z = r.z + (r.vertical ? along + shift : g.lane + m.across);
         const sway = Math.sin(now * 1.4 + g.sway + m.offset) * 0.035;
-        m.person.position.set(x, PAVEMENT_TOP, z);
+        m.person.position.set(x, g.ground === undefined ? PAVEMENT_TOP : g.ground, z);
         // Face the centre of the cluster: the sign of the offset decides
         // which way round, and a figure at the middle of three faces along.
         const inward = shift === 0 ? 1 : -Math.sign(shift);
@@ -4422,6 +4527,9 @@
       for (const d of layout.districts) {
         tally[d.name] = {
           score: scoreOf(d), vehicles: 0, riders: 0, walking: 0, standing: 0,
+          // How many of this district's people stand on its own ground
+          // rather than on a street beside it.
+          indoors: 0,
         };
       }
       /* By the district the mover was allocated to, not the one its street
@@ -4438,9 +4546,15 @@
         if (v.rider) { riders += 1; bump(v.owner, v.road, "riders"); continue; }
         bump(v.owner, v.road, "vehicles");
       }
-      for (const w of walkers) bump(w.owner, w.road, "walking");
+      for (const w of walkers) {
+        bump(w.owner, w.road, "walking");
+        if (w.ground === DISTRICT_FLOOR) bump(w.owner, w.road, "indoors");
+      }
       for (const g of groups) {
-        for (let n = 0; n < g.members.length; n++) bump(g.owner, g.road, "standing");
+        for (let n = 0; n < g.members.length; n++) {
+          bump(g.owner, g.road, "standing");
+          if (g.ground === DISTRICT_FLOOR) bump(g.owner, g.road, "indoors");
+        }
       }
       return {
         metric,
