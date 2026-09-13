@@ -17,26 +17,28 @@ too.
 ## A. The figure and the landmarks
 
 **1. The mark on the front of the figure.**
-The speech-mark device, white on the vest's own red, which is the colour it is
-rendered on. Set by `city.vest_mark` in the config. A club shirt was not used:
-the kit is third-party intellectual property and this is going into an
-internal estate.
+The supplied logo, at `renderer/vest-mark.png`, named by `city.vest_mark` in
+the config and inlined by the build as a data URI so it survives into the
+single-file bundle. A club shirt was not used: the kit is third-party
+intellectual property and this is going into an internal estate.
 
 The vest was reshaped for it. A real hi-vis has two full-length vertical bands
 and a horizontal one, and drawn front-on at this scale that is a capital H,
 which is exactly what a viewer reported seeing. The verticals are now shoulder
 straps and the band has dropped to the waist, which leaves the whole chest for
-the mark, and the mark is scaled so its own outline fills the plate rather
-than sitting inside it.
+the mark.
 
-**The drawn mark is a rendition, not the official artwork.** The repository
-deliberately carries no brand asset. `city.vest_mark` also accepts a
-`data:image/` URI, so exporting the real asset and pasting it in replaces the
-drawn one with no code change, and `none` leaves the vest plain. Any other
-value is set as text on a name badge.
-*Check:* at the default zoom the figure carries a white mark on a red chest,
-and no letter. Zoom in and it resolves. It stays the same at night, because
-print on a vest is reflective and is drawn unlit.
+`city.vest_mark` also takes `speechmark`, which draws the device as geometry
+and needs no asset; `none`, for a plain vest; a `data:` URI already inlined;
+or any other word, which is set as text on a badge. Replacing the logo is
+replacing one PNG.
+
+Keep any replacement small. It is base64-encoded into the bundle and drawn
+about a centimetre across, so 128 pixels square is already more than the plate
+can show; the current one costs 23KB encoded against a 1MB file.
+*Check:* at the default zoom the figure carries the mark on a red chest, and
+no letter. Zoom in and it resolves. It stays the same at night, because print
+on a vest is reflective and is drawn unlit.
 
 **2 and 8. Landmark scale against the buildings.**
 A monument replaces the building rather than standing on it, on a lot widened

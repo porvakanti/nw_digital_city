@@ -17,17 +17,18 @@ city:
   agent_name: Crane           # the agent's display name; change freely
   # What the builder wears on the front of the vest.
   #
-  #   speechmark   the speech-mark device, drawn as geometry: a white mark on
-  #                the vest's own red, which is the colour it is rendered on
+  #   a path       an image file in this repository, inlined by the build as
+  #                a data URI so it survives into the single-file bundle
+  #   speechmark   the speech-mark device drawn as geometry, a fallback that
+  #                needs no asset: a white mark on the vest's own red
   #   none         a plain vest
-  #   data:image/  any image as a data URI, which is how an official brand
-  #                asset gets in. Paste the exported PNG or SVG here and it
-  #                replaces the drawn one with no code change
-  #   anything else  is set as text on a name badge
+  #   data:image/  an image already inlined as a data URI
+  #   anything else  a name, set as text on a badge
   #
-  # The drawn mark is a rendition, not the official artwork. For anything
-  # leaving an internal audience, export the real asset and paste it above.
-  vest_mark: speechmark
+  # Keep the asset small. It is base64-encoded into the bundle, it is drawn
+  # about a centimetre across on screen, and 128 pixels square is already more
+  # than the plate can show.
+  vest_mark: renderer/vest-mark.png
 
 # ---------------------------------------------------------------------------
 # LAYER BINDINGS. What each visible thing in the city is driven by.

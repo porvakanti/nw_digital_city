@@ -2857,9 +2857,12 @@
     if (vestMark && vestMark !== "none") {
       const SIDE = 256;
       let texture = null;
-      let size = [0.62, 0.62];
+      // Square by default, because a logo is: only the text badge is wide.
+      let size = [0.8, 0.8];
 
       if (/^data:image\//i.test(vestMark)) {
+        // An asset, inlined by the build. Nothing here assumes what it is,
+        // beyond that a logo is square and wants the whole chest.
         texture = new THREE.TextureLoader().load(vestMark);
       } else if (vestMark === "speechmark") {
         const canvas = document.createElement("canvas");
@@ -2905,7 +2908,6 @@
         ctx.arc(60, 30, 12, 0, Math.PI * 2);
         ctx.fill();
         texture = new THREE.CanvasTexture(canvas);
-        size = [0.8, 0.8];
       } else {
         // Any other value is a name, set on a pale badge. Dark on light,
         // because at the default zoom the whole figure is about forty pixels
