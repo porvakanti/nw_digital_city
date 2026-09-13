@@ -1,57 +1,80 @@
-# Standing up the model on GCP
+# Model service provisioning
 
-The same steps on a personal account and on an internal one. Only the project
-id, the region and who runs the commands change.
+## 1. Purpose and scope
 
----
+This document specifies how to provision the inference service that NW Digital
+City calls, on a Google Cloud project, and how to transfer that provisioning to
+a corporate environment.
 
-## First, the thing that surprises everyone
+The procedure is identical for a pilot project and a corporate one. Only the
+project identifier, the region and the party executing the change differ.
 
-**There is no model to deploy and no endpoint to create.** Gemini on Vertex AI
-is a *publisher model*: it already exists in every project where the API is
-enabled, and you call it by name.
+Application deployment is in [DEPLOY.md](DEPLOY.md). Component structure and
+security controls are in [ARCHITECTURE.md](ARCHITECTURE.md). Verification
+procedures are in [TESTING.md](TESTING.md).
+
+## 2. Current state
+
+| Aspect | State |
+| --- | --- |
+| Default provider | `mock`. Deterministic local routing, no network dependency. |
+| Development provider | `gemini`, authenticated by a Google AI Studio key held in `.env`, which is excluded from version control. |
+| Deployed provider | Not provisioned. |
+| Application dependency on the model | Query routing only. All measures are resolved in the browser from the embedded dataset. |
+| Behaviour without a model | Full function except natural-language routing, which falls back to deterministic local rules. |
+
+## 3. Target state
+
+| Aspect | Target |
+| --- | --- |
+| Provider | Vertex AI, Gemini publisher model. |
+| Authentication | Application default credentials of the Cloud Run runtime service account. No API key in the deployed system. |
+| Authorisation | One role, `roles/aiplatform.user`. |
+| Network path | Cloud Run to the regional Vertex AI endpoint. |
+| Configuration surface | Three environment variables. No code change between environments. |
+| Failure behaviour | Deterministic local routing, with the answering path named on the interface. |
+
+## 4. Model access model
+
+Gemini on Vertex AI is a publisher model. It is addressed by name on a regional
+endpoint:
 
 ```
 POST https://{region}-aiplatform.googleapis.com/v1/projects/{project}
      /locations/{region}/publishers/google/models/{model}:generateContent
 ```
 
-No endpoint resource, no machine type, no minimum instance, no warm-up, nothing
-to keep running and nothing to pay for while idle. Enabling the API and holding
-one IAM role is the whole of it.
+No endpoint resource is created, no machine type is selected, no capacity is
+reserved and no cost accrues while the service is idle.
 
-That matters for the handover, because "deploy a model endpoint" is a job that
-takes a platform team a week, and this is not that job. What the internal
-environment has to provide is a project with the API on and a service account
-with one role. If somebody offers to provision a dedicated endpoint instead,
-[read the last section](#if-you-are-given-a-real-endpoint-instead) before
-agreeing: it works, it costs money by the hour, and it needs a two-line code
-change.
+Two consequences govern the rest of this document:
 
----
+1. Provisioning consists of API enablement and a single IAM binding. It creates
+   no infrastructure and requires no capacity planning.
+2. A request to provision a model endpoint does not apply to this integration.
+   Section 11 assesses the alternative where an organisation mandates a
+   dedicated endpoint, and states the code change it requires.
 
-## Part 1: your own account, end to end
+## 5. Prerequisites
 
-### What you need before you start
+| Requirement | Notes |
+| --- | --- |
+| A Google Cloud project with billing enabled | Project-level `owner` or equivalent is sufficient for the procedure in section 6. |
+| The `gcloud` CLI | `winget install Google.CloudSDK` on Windows, `brew install --cask google-cloud-sdk` on macOS. |
+| A POSIX shell | The deployment script is a shell script. Git for Windows provides one. |
+| A clone of this repository | The deployment script and the provider layer are both in it. |
 
-- A GCP project with billing enabled, which you have.
-- The `gcloud` CLI. `winget install Google.CloudSDK` on Windows, `brew install
-  --cask google-cloud-sdk` on a Mac.
-- The repository, and `bash`. Git for Windows ships `bash`, so if you have Git
-  you have it.
+## 6. Provisioning procedure
 
-### Step 1. Point gcloud at the project
+### 6.1 Select the project
 
 ```bash
 gcloud auth login
 gcloud config set project YOUR-PROJECT-ID
-gcloud config get-value project          # confirm it took
+gcloud config get-value project
 ```
 
-### Step 2. Turn on the four APIs
-
-The deploy script does this for you, but do it once by hand so you see what is
-being switched on and can answer for it later.
+### 6.2 Enable the required APIs
 
 ```bash
 gcloud services enable \
@@ -61,18 +84,22 @@ gcloud services enable \
   artifactregistry.googleapis.com
 ```
 
-| API | What it is for |
+| API | Function |
 | --- | --- |
-| `aiplatform` | Vertex AI. This is the model. |
-| `run` | Cloud Run, which hosts the one container. |
-| `cloudbuild` | Builds that container from the repository. |
-| `artifactregistry` | Stores the built image. |
+| `aiplatform.googleapis.com` | Vertex AI. The inference service. |
+| `run.googleapis.com` | Cloud Run. Hosts the container. |
+| `cloudbuild.googleapis.com` | Builds the container image from the repository. |
+| `artifactregistry.googleapis.com` | Stores the built image. |
 
-### Step 3. Prove the model answers, before deploying anything
+The deployment script in section 6.4 performs this step as well. Executing it
+separately establishes which services are enabled on the project before any
+deployment is attempted.
 
-Do this step carefully. It separates "the model is not available" from "my
-application is misconfigured", and those two look identical from inside the
-app.
+### 6.3 Verify model availability
+
+This step is a precondition for every step that follows. Model unavailability
+and application misconfiguration present identically at the application layer,
+so the model path is verified independently before the application is deployed.
 
 ```bash
 PROJECT=$(gcloud config get-value project)
@@ -86,54 +113,49 @@ curl -s -X POST \
   -d '{"contents":[{"role":"user","parts":[{"text":"Reply with the single word: ready"}]}]}'
 ```
 
-You want a JSON reply containing `ready`.
+**Exit criterion.** The response is JSON containing generated text.
 
-**If it comes back 404**, the model name is not available in that region. Model
-names change and Google retires them; this is the single most likely thing to
-go wrong, and it is the reason `NW_MODEL` is a setting rather than a constant.
-Try `global` as the region (the host then drops the region prefix and becomes
-`aiplatform.googleapis.com`, which the application already handles), or pick a
-current model from the Model Garden page in the console.
+| Response | Cause | Resolution |
+| --- | --- | --- |
+| `404` | The model name is not available in that region. Model identifiers change and are retired on the provider's schedule. | Set the region to `global`, which addresses the endpoint without a regional prefix and is handled by the application, or select a currently available identifier from the Model Garden. `NW_MODEL` is a configuration value for this reason. |
+| `403` | The API is not enabled on the project, or the calling principal lacks Vertex AI access. | Complete section 6.2, and confirm the principal holds `roles/aiplatform.user` or equivalent. |
+| Connection failure | Egress to the Vertex AI host is blocked. | See section 10.1, item 5. |
 
-**If it comes back 403**, the API is not enabled on the project or your account
-cannot use it.
-
-Do not move on until this returns text. Everything after it assumes the model
-answers.
-
-### Step 4. Deploy
+### 6.4 Deploy the service
 
 ```bash
 cd /path/to/nw_digital_city
 PROJECT=$(gcloud config get-value project) bash deploy/cloudrun.sh
 ```
 
-Five to ten minutes the first time, mostly the build. It prints the URL.
+Initial execution takes five to ten minutes, predominantly the container build.
+The service URL is printed on completion.
 
-What the script does, in order:
+The script performs the following, in order:
 
-1. Enables the four APIs, in case step 2 was skipped.
-2. Creates an Artifact Registry repository called `apps`.
-3. Creates a service account `nw-digital-city@PROJECT.iam.gserviceaccount.com`
-   and grants it **one** role: `roles/aiplatform.user`. It can call Vertex AI
-   and read nothing else in the project.
-4. Uploads the folder to Cloud Build, builds the image, pushes it.
-5. Deploys to Cloud Run as that service account, with these environment
-   variables:
+1. Enables the four APIs listed in section 6.2.
+2. Creates an Artifact Registry repository named `apps`.
+3. Creates the service account `nw-digital-city@PROJECT.iam.gserviceaccount.com`
+   and grants it one role, `roles/aiplatform.user`. The service account can
+   invoke Vertex AI and read no other resource in the project.
+4. Submits the source to Cloud Build, builds the image and pushes it.
+5. Deploys to Cloud Run under that service account with the following
+   environment:
 
-```
-NW_PROVIDER=vertex        use Vertex AI, with the service account's own credentials
-NW_MODEL=gemini-3.5-flash which model
-NW_PROJECT=<project>      whose quota the call is billed to
-NW_REGION=<region>        which regional endpoint to call
-```
+| Variable | Value | Function |
+| --- | --- | --- |
+| `NW_PROVIDER` | `vertex` | Selects the Vertex AI provider, authenticated by application default credentials. |
+| `NW_MODEL` | `gemini-3.5-flash` | Model identifier. |
+| `NW_PROJECT` | the project | Project the inference quota is attributed to. |
+| `NW_REGION` | the region | Regional endpoint to address. |
 
 **No API key exists anywhere in the deployed system.** `NW_PROVIDER=vertex`
-authenticates with application default credentials, which on Cloud Run are the
-runtime service account's. The Google AI Studio key in the local `.env` is for
-development only and never leaves the local host.
+authenticates by application default credentials, which on Cloud Run resolve to
+the runtime service account. The Google AI Studio key used in development is
+confined to the local `.env`, which is excluded from version control and from
+the Cloud Build upload.
 
-### Step 5. Check the deployment from the outside
+### 6.5 Verify the deployment
 
 ```bash
 URL=$(gcloud run services describe nw-digital-city --region europe-west1 \
@@ -141,149 +163,147 @@ URL=$(gcloud run services describe nw-digital-city --region europe-west1 \
 curl -s "$URL/health"
 ```
 
-`{"ready": true, "provider": "vertex", "model": "..."}` means the service can
-reach the model. Then open `$URL` in a browser: the badge on the ask bar names
-the model that is answering. If it says **local rules, no model**, the page is
-working and the service could not reach Vertex, and `/health` will say why.
+**Exit criterion.** `/health` reports `{"ready": true, "provider": "vertex",
+"model": "..."}`, and the interface at `$URL` names the answering model on the
+query bar.
 
-### Step 6. Override anything without editing code
+A status of **local rules, no model** indicates that the application is serving
+correctly and could not reach Vertex AI. `/health` reports the cause.
+
+### 6.6 Configuration overrides
 
 ```bash
 PROJECT=my-project REGION=europe-west4 MODEL=gemini-3.5-flash-lite \
   bash deploy/cloudrun.sh
 ```
 
-`REGION`, `SERVICE`, `PROVIDER`, `MODEL` and `FRAME_ANCESTORS` all work this
-way.
+`REGION`, `SERVICE`, `PROVIDER`, `MODEL` and `FRAME_ANCESTORS` are all
+overridable by environment variable at deployment time.
 
----
+## 7. Application configuration
 
-## Part 2: what changes in the application
+No application change is required for a Vertex AI deployment. `app/providers.py`
+implements four providers behind one interface, selected by `NW_PROVIDER`:
 
-**Nothing, for a normal Vertex deployment.** That is the point of the provider
-layer, and it is worth being able to say so plainly when you hand this over.
-
-`app/providers.py` holds four providers behind one interface, chosen by
-`NW_PROVIDER`:
-
-| `NW_PROVIDER` | Needs | Auth |
+| `NW_PROVIDER` | Required configuration | Authentication |
 | --- | --- | --- |
-| `mock` | nothing | none. Deterministic, no network. The default. |
-| `gemini` | `NW_API_KEY` | Google AI Studio key. Local development. |
+| `mock` | none | None. Deterministic, no network. The default. |
+| `gemini` | `NW_API_KEY` | Google AI Studio key. Development only. |
 | `vertex` | `NW_PROJECT`, `NW_REGION` | Application default credentials. No key. |
 | `claude` | `NW_API_KEY` | Anthropic API. |
 
-Moving from your account to Vodafone's is three environment variables:
-`NW_PROJECT`, `NW_REGION`, `NW_MODEL`. No rebuild of the data, no code change,
-no redeploy of anything but the revision.
+Transition between Google Cloud projects is a change to three values:
+`NW_PROJECT`, `NW_REGION` and `NW_MODEL`. It requires no data rebuild, no code
+change and no image rebuild.
 
-### The one thing to hold on to
+## 8. Disclosure boundary
 
-The prompt carries **names only**. Category codes, category titles, district
-names, plot names, market names. It carries no spend, no adoption, no score,
-and no owner. The model decides *which* lot to fly to and *what kind* of
-question was asked; the browser works out what is on the lot, from
-`city.json`, locally.
+The prompt carries identifiers only: category codes, category titles, district
+names, plot names and market names. It carries no spend, no adoption measure,
+no score and no personal data.
 
-Two consequences worth stating in a review:
+The model determines which category a query refers to and what class of query
+it is. The browser resolves the corresponding measures locally, from the
+dataset embedded in the delivered page.
 
-- No figure on screen can have been invented by the model, because the model
-  never sees a figure.
-- No commercially sensitive value leaves the environment, even while the
-  endpoint is a temporary one.
+Two properties follow, and both are material to a security review:
 
-`app/plan.py` is where this is enforced: the reply is validated against the
-name lists, and a category the city does not have is dropped rather than
-passed through.
+1. No figure presented by the interface can originate from the model, because
+   the model is not supplied with any figure.
+2. No commercially sensitive value leaves the environment, including during
+   any interim period in which the inference endpoint is not the final one.
 
-### What a question actually costs
+The boundary is enforced in `app/plan.py`, which validates the model response
+against the permitted identifier lists and discards any category not present
+in the dataset.
 
-Measured, not estimated:
+## 9. Cost model
 
-| | |
+Measured per query:
+
+| Component | Volume |
 | --- | --- |
 | System prompt | 2,800 characters |
-| The name lists | 7,038 characters |
-| **Per question, in** | **~2,500 tokens** |
-| Per question, out | ~60 tokens, one line of JSON |
+| Identifier vocabulary | 7,038 characters |
+| **Input per query** | **approximately 2,500 tokens** |
+| Output per query | approximately 60 tokens |
 
-Only a typed question costs anything. The city, the animation, the scoreboard,
-the tour, night mode and every tool the agent runs are all in the browser and
-cost nothing. A walkthrough with a dozen questions in it is about 30,000 input
-tokens in total. Check the current per-token price in the console rather than
-trusting a figure written down here.
+Only natural-language queries consume inference. The visualisation, the
+animation, the scoring, the guided walkthrough and all agent tools execute in
+the browser at no inference cost. A twelve-query session consumes approximately
+30,000 input tokens.
 
-Cloud Run at `--min-instances 0` costs nothing while nobody is using it.
+Cloud Run at `--min-instances 0` costs nothing while the service is idle.
+Current per-token pricing should be taken from the provider's pricing page
+rather than from this document.
 
----
+## 10. Transition to a corporate environment
 
-## Part 3: handing it to the internal team
+### 10.1 Requirements to confirm with the environment owner
 
-### What to ask them for
+1. A project, and authorisation to deploy a container to Cloud Run within it.
+2. `aiplatform.googleapis.com` enabled, and confirmation of which Gemini models
+   are available in which region. This should be established by the procedure
+   in section 6.3 rather than from a model identifier supplied from record.
+3. Whether unauthenticated ingress is permitted. The deployment script sets
+   `--allow-unauthenticated`. Where that is not permitted, the flag is removed
+   and the service is placed behind the standard ingress control.
+4. The origin serving the Agent Marketplace, required for `FRAME_ANCESTORS`.
+   See [DEPLOY.md](DEPLOY.md).
+5. Whether egress from Cloud Run to `*-aiplatform.googleapis.com` is permitted.
+   On a restricted VPC this may require Private Google Access or a Serverless
+   VPC connector.
 
-1. A project, and permission to deploy a container to Cloud Run in it.
-2. `aiplatform.googleapis.com` enabled, and **which Gemini models are
-   available in which region**. Ask for the answer to step 3's curl, not for a
-   model name from memory.
-3. Whether `--allow-unauthenticated` is permitted. If not, drop the flag and
-   put the service behind whatever fronts internal applications.
-4. The exact origin the Agent Marketplace is served from, for
-   `FRAME_ANCESTORS`. See [DEPLOY.md](DEPLOY.md).
-5. Whether egress from Cloud Run to `*-aiplatform.googleapis.com` is open. On a
-   locked-down VPC it may need Private Google Access or a Serverless VPC
-   connector.
+### 10.2 Artefacts to transfer
 
-### What they need from you
+This repository, which contains the deployment script, the provider layer and
+this document. No model configuration is compiled into the application.
 
-The repository, and this file. That is the whole handover: the deploy script is
-in it, the provider layer is in it, and nothing about the model is compiled in.
-
-### The sequence to run on their side
+### 10.3 Execution sequence
 
 ```bash
 gcloud config set project THEIR-PROJECT-ID
-# step 3's curl first, with their region and their model name
+# section 6.3, with the target region and model identifier
 PROJECT=THEIR-PROJECT-ID REGION=their-region MODEL=their-model \
   bash deploy/cloudrun.sh
 ```
 
-If the curl in step 3 works and the deploy finishes, it works. If the curl
-fails, nothing after it can succeed, and the deploy will produce a service
-where every question falls back to the browser's own rules.
+Where section 6.3 succeeds and the deployment completes, the integration is
+operational. Where section 6.3 fails, the deployment will still complete and
+will produce a service in which every query falls back to local routing.
 
-### The fallback is not a failure state
+### 10.4 Degraded operation
 
-If the model is unreachable, unapproved or not yet provisioned, the application
-still answers every question in the walkthrough using rules in the browser. The
-badge says **local rules, no model** so nobody is misled about what is
-answering. A review that stalls on model approval does not stall the
-demonstration.
+Where the model is unreachable, not approved or not yet provisioned, the
+application continues to answer every query in the documented walkthrough using
+deterministic rules in the browser. The interface reports **local rules, no
+model**, so the answering path is never ambiguous.
 
----
+This is a designed state rather than an error state. An outstanding model
+approval does not block evaluation of the application.
 
-## If you are given a real endpoint instead
+## 11. Alternative: a dedicated endpoint
 
 Some environments standardise on a self-deployed model: an open model from the
-Model Garden, or a tuned model, deployed to a Vertex AI **endpoint** with an id.
-That is a different URL shape, and it does need a code change.
+Model Garden, or a tuned model, deployed to a Vertex AI endpoint with an
+identifier. This is a different request path and requires an application change.
 
 ```
 publisher model   .../publishers/google/models/{model}:generateContent
 endpoint          .../endpoints/{endpoint_id}:generateContent
 ```
 
-The change is in one function, `_vertex` in `app/providers.py`, which builds
-that URL. Read the endpoint id from an environment variable and use the second
-form when it is set.
+The change is confined to one function, `_vertex` in `app/providers.py`, which
+constructs the request URL. The endpoint identifier is read from an environment
+variable and the second form used when it is set.
 
-Two things to weigh before accepting one:
+| Criterion | Publisher model | Dedicated endpoint |
+| --- | --- | --- |
+| Provisioning | API enablement and one IAM binding | Endpoint resource, machine type, capacity |
+| Cost basis | Per token consumed | Per hour of allocated capacity, irrespective of use |
+| Idle cost | None | The full allocation |
+| Request format | In use by the application | Gemini endpoints accept the current body; other model families may require `:predict` and a different envelope, which exceeds a URL change |
 
-- A dedicated endpoint holds machines. It is billed by the hour whether or not
-  anybody asks a question, where the publisher model is billed per token. For
-  an application that is idle most of the time, that is the difference between
-  nothing and a standing cost.
-- The request and response bodies differ between model families. A Gemini
-  endpoint takes the body already in use. An open model may want
-  `:predict` and a different envelope, which is more than a URL change.
-
-If the environment offers both, take the publisher model.
+**Recommendation.** Where both are available, use the publisher model. The
+application is idle for the majority of its operating time, which makes the
+cost difference the difference between none and a standing allocation.

@@ -1,205 +1,198 @@
-# Deploying it, and putting it in the Agent Marketplace
+# Deployment and marketplace registration
 
-For standing up the model itself, on a personal project or an internal one,
-see [GCP-SETUP.md](GCP-SETUP.md). This file is about where the application
-runs and how the marketplace reaches it.
+## 1. Purpose and scope
 
-## The shape of it, in one page
+This document specifies how NW Digital City is deployed and how it is
+registered in the VP&C Agent Marketplace.
+
+Provisioning of the inference service is in [GCP-SETUP.md](GCP-SETUP.md).
+Component structure and security controls are in
+[ARCHITECTURE.md](ARCHITECTURE.md). Verification procedures are in
+[TESTING.md](TESTING.md).
+
+## 2. Current state
+
+| Aspect | State |
+| --- | --- |
+| Distribution | A single self-contained HTML document, built on demand. |
+| Hosting | None. The application runs from local storage with no server. |
+| Inference | Not provisioned. Queries are routed by deterministic local rules. |
+| Marketplace presence | None. |
+
+## 3. Target state
+
+| Aspect | Target |
+| --- | --- |
+| Hosting | One Cloud Run service, one URL, one container. |
+| Inference | Vertex AI, addressed by the runtime service account. |
+| Marketplace presence | One catalogue entry with a deep link. |
+| State | None. No database, no session store, no persistence of any kind. |
+| Rollback unit | One Cloud Run revision. |
+
+## 4. Deployment architecture
 
 ```
    Agent Marketplace (Foundry, Streamlit)
         |  a row in Foundry's data/agents.json, and either
-        |   - a button that opens the city in its own tab   <- do this first
-        |   - an iframe of the same URL                      <- later, if wanted
+        |   - a control that opens the application in a new tab   <- phase 1
+        |   - an inline frame of the same URL                     <- phase 2
         v
    Cloud Run: one container, one URL
-     +-- the page          static: renderer/, ~1MB, no state
+     +-- the page          static: renderer/, approximately 1MB, no state
      +-- the service       FastAPI, /plan and /health only
              |
-             |  names only: codes, titles, districts, plots, markets.
-             |  no spend, no score, no owner.
+             |  identifiers only: codes, titles, districts, plots, markets.
+             |  no spend, no score, no personal data.
              v
         Vertex AI, Gemini as a publisher model
-        called with the runtime service account. No API key anywhere.
+        addressed by the runtime service account. No API key.
 ```
 
-Four properties follow from that shape, and they are the four a deployment
-review asks about:
+Four properties of this topology are material to a deployment review:
 
-- **One artefact.** The page and the service are the same container, so there
-  is one thing to roll out, one URL to allow-list and one revision to roll
-  back. No database, no session store, no state at all.
-- **No key in the deployment.** `NW_PROVIDER=vertex` authenticates with the
-  Cloud Run service account, which holds exactly one role,
-  `roles/aiplatform.user`. There is nothing to rotate and nothing to leak.
-- **No sensitive value reaches the model.** The prompt carries names. The
-  figures are resolved in the browser from a file that shipped with the page.
-- **It degrades to working.** If the model is unreachable or unapproved, the
-  browser answers from its own rules and the badge says so. The deployment is
-  not a precondition for the application being usable.
+| Property | Basis |
+| --- | --- |
+| Single artefact | The page and the service are one container: one rollout, one URL to allow-list, one revision to roll back. No database, no session store, no state. |
+| No credential in the deployment | `NW_PROVIDER=vertex` authenticates by the Cloud Run service account, which holds one role, `roles/aiplatform.user`. Nothing to rotate and nothing to disclose. |
+| No sensitive value reaches the model | The prompt carries identifiers. Measures are resolved in the browser from the dataset embedded in the delivered page. See [GCP-SETUP.md](GCP-SETUP.md#8-disclosure-boundary). |
+| Degrades to operational | Where the model is unreachable or not approved, the browser routes queries by local rules and the interface reports the answering path. Deployment of the model is not a precondition for use of the application. |
 
-## Distribution options
+## 5. Distribution options
 
-Three, in order of effort.
+| Option | Produces | Inference | Applicability |
+| --- | --- | --- | --- |
+| 1. Single document | `run.cmd package` writes `NW Digital City.html`, the application inlined into one file. No infrastructure, no accounts. | Local rules only | Initial review rounds. No approvals required. |
+| 2. Static host | The `renderer` folder served from any static host, including a Cloud Storage bucket with website hosting enabled. | Local rules only | Circulation to a team. |
+| 3. Cloud Run | A URL with the inference service behind it. | Vertex AI | Pilot and corporate deployment. Specified in section 6. |
 
-**1. A single document.** `run.cmd package` writes **`NW Digital City.html`**,
-the whole application inlined into one file. No archive, no infrastructure, no
-accounts. Everything works except the model, and the agent falls back to its
-own routing rules, which
-handle every query in the walkthrough.
-**For a first review round, do this.**
+`run.cmd package` also writes `nw-digital-city.zip`, the application as separate
+files. `renderer/index.html` is not distributable on its own: it loads four
+sibling files and renders an empty page without them.
 
-The same command also writes `nw-digital-city.zip`, which is the city as
-separate files for anyone who wants to see how it works. Do not attach
-`renderer/index.html` on its own: it is a shell that loads four other files
-and opens as a blank page.
+## 6. Deployment procedure
 
-**2. Put the folder on a static host, get a link.** The `renderer` folder is
-just files: drag it onto <https://app.netlify.com/drop> and you have a public
-URL in about ten seconds, or put it in a Google Cloud Storage bucket with
-website hosting turned on. Same caveat: no model, everything else works. Good
-for "send it round the team".
-
-**3. Cloud Run, for the real thing.** A URL with the model behind it, which is
-also what gets deployed internally. This is the rest of this document.
-
-### How Cloud Run compares to Streamlit Community Cloud
-
-You already know the Streamlit flow: point it at a GitHub repo, it works out
-how to run it, you get a URL. Cloud Run is the same idea with one extra step in
-the middle:
+### 6.1 Platform selection
 
 | | Streamlit Community Cloud | Cloud Run |
 | --- | --- | --- |
-| You give it | a GitHub repo | a container image |
-| It works out how to run it from | `requirements.txt` | the `Dockerfile` |
-| You get back | a URL | a URL |
-| It sleeps when idle | yes | yes, and costs nothing while asleep |
-| Secrets | Advanced settings | `--set-env-vars`, or Secret Manager |
+| Input | A repository | A container image |
+| Build definition | `requirements.txt` | `Dockerfile` |
+| Output | A URL | A URL |
+| Idle behaviour | Sleeps | Scales to zero at no cost |
+| Configuration | Application settings | `--set-env-vars`, or Secret Manager |
 
-**A container image** is the extra concept, and it is simpler than it sounds:
-a zip of your code together with the exact operating system and libraries it
-needs, so it runs identically everywhere. The `Dockerfile` at the root of this
-repo is the recipe for building it, and it is fifteen lines: start from Python
-3.12, install four packages, copy in `app` and `renderer`, run uvicorn.
+The application is a three-dimensional scene with its own camera and animation
+loop, served alongside a small web service. Streamlit renders Python widgets
+and would host it in an inline frame, which adds a layer without benefit.
+Cloud Run serves it directly.
 
-**Why this project needs Cloud Run rather than Streamlit.** Streamlit renders
-Python widgets. This is a 3D scene with its own camera and animation loop,
-served alongside a small web service. Streamlit would end up hosting it in an
-iframe, which adds a layer and gains nothing. Cloud Run just serves it.
+The container image is built by Cloud Build from the `Dockerfile` at the
+repository root: Python 3.12, four packages, `app` and `renderer` copied in,
+uvicorn as the entry point. No container tooling is required locally beyond the
+`gcloud` CLI.
 
-**You do not run the Docker command yourself.** `deploy/cloudrun.sh` hands the
-folder to Cloud Build, which builds the image in Google's cloud and deploys it.
-Nothing needs installing locally except the `gcloud` command.
-
-### What you would actually type, once
-
-```powershell
-winget install Google.CloudSDK
-gcloud auth login
-gcloud config set project YOUR-PROJECT-ID
-bash deploy/cloudrun.sh
-```
-
-Five to ten minutes the first time, mostly waiting for the build. It prints the
-URL at the end. Every deploy after that is the last line again.
-
-`bash` is there because the script is a shell script; Git for Windows installs
-`bash`, so if you have Git you have it. Running it from Git Bash works too.
-
-## What actually gets deployed
-
-One container. It holds the page and the small service that answers questions,
-so there is one thing to roll out and one URL to hand out. The same image runs
-on a local host, on Cloud Run, and in the internal environment; only
-environment variables differ.
+### 6.2 Deployed artefacts
 
 ```
-Dockerfile          the image: FastAPI + the renderer, nothing else
-deploy/cloudrun.sh  build it and put it on Cloud Run
+Dockerfile          the image: FastAPI and the renderer, nothing else
+deploy/cloudrun.sh  builds the image and deploys the service
 ```
 
-No database, no state, no session store. A cold start is a Python process and a
-few hundred kilobytes of static files.
+The same image runs on a local host, on Cloud Run and in a corporate
+environment. Only environment variables differ. A cold start is a Python
+process and a few hundred kilobytes of static files.
 
-## Cloud Run
+### 6.3 Procedure
 
 ```bash
 PROJECT=your-gcp-project ./deploy/cloudrun.sh
 ```
 
-That script does the whole thing: enables the APIs, creates an Artifact
-Registry repository, creates a service account holding exactly one role
-(`roles/aiplatform.user`, so it can call Vertex AI and read nothing else in the
-project), builds the image with Cloud Build, deploys, and prints the URL.
+The script enables the required APIs, creates an Artifact Registry repository,
+creates a service account holding one role (`roles/aiplatform.user`, permitting
+Vertex AI invocation and no other read access in the project), builds the image
+with Cloud Build, deploys the service and prints its URL.
 
-Overridable the same way: `REGION`, `SERVICE`, `PROVIDER`, `MODEL`,
-`FRAME_ANCESTORS`.
+`REGION`, `SERVICE`, `PROVIDER`, `MODEL` and `FRAME_ANCESTORS` are overridable
+by environment variable.
 
-**What gets uploaded to Cloud Build is decided by `.gcloudignore`**, which is
-committed rather than left for gcloud to infer from `.gitignore`. The workbook
-in `data/raw` has blueprint owner names and email addresses in it, and that is
-not something to keep out of a build by side effect of another file. The
-script refuses to run if the file is missing. The Dockerfile is the layer
-under that: it copies `app` and `renderer` by name, so even an upload carrying
-more than it should could not put it in the image.
+The service is deployed with `NW_PROVIDER=vertex`, which authenticates by the
+service account's application default credentials. **No API key exists anywhere
+in the deployed system.** The Google AI Studio key is confined to local
+development.
 
-It deploys with `NW_PROVIDER=vertex`, which uses the service account's
-application default credentials. **No API key exists anywhere in the deployed
-system.** The Google AI Studio key is for local development only.
+Step-by-step provisioning, including the verification that must precede
+deployment, is in
+[GCP-SETUP.md](GCP-SETUP.md#63-verify-model-availability).
 
-### Scale, and what it costs
+### 6.4 Upload control
 
-`--min-instances 0 --max-instances 4`, 1 CPU, 512Mi. At zero traffic it costs
-nothing. The only per-request cost is a Vertex AI call of a few hundred tokens,
-and only when somebody types a question: the city itself, the animation and the
-tools all run in the browser.
+The Cloud Build upload is governed by `.gcloudignore`, which is committed
+rather than inferred by `gcloud` from `.gitignore`. The source extract in
+`data/raw` contains blueprint owner names and email addresses, and its
+exclusion from the build is stated explicitly rather than left as a side effect
+of another file. The script refuses to execute if `.gcloudignore` is absent.
 
-Set `--min-instances 1` ahead of any session where first-request latency
-matters, so the first query does not pay for a cold start. One flag, and it can
-be reverted afterwards.
+The `Dockerfile` is the second control: it copies `app` and `renderer` by name,
+so an upload carrying more than intended could not introduce it into the image.
 
-### What the environment owner needs to confirm
+## 7. Scaling and cost
 
-1. A GCP project, and the ability to deploy a container to Cloud Run in it.
+The service is deployed with `--min-instances 0 --max-instances 4`, 1 CPU and
+512Mi. At zero traffic it incurs no cost. The only per-request cost is one
+Vertex AI call of approximately 2,500 input tokens, and only for a typed query:
+the visualisation, the animation and all agent tools execute in the browser.
+
+Setting `--min-instances 1` in advance of a session where first-request latency
+matters removes the cold start from the first query. It is a single flag and is
+reversible.
+
+## 8. Environment requirements
+
+The environment owner confirms the following:
+
+1. A Google Cloud project, and authorisation to deploy a container to Cloud Run
+   within it.
 2. Vertex AI enabled, and which Gemini models are available in the region.
-   Ask for the result of the test call in
-   [GCP-SETUP.md](GCP-SETUP.md#step-3-prove-the-model-answers-before-deploying-anything)
-   rather than for a model name from memory: names change, Google retires them,
-   and a wrong one produces a service where every question returns 404.
-3. Whether unauthenticated access is allowed, or whether it has to sit behind
-   IAP or the standard reverse proxy. The script uses
-   `--allow-unauthenticated`; if that is not permitted, drop the flag and put
-   it behind whatever fronts internal apps.
-4. The origin the Agent Marketplace is served from, for `FRAME_ANCESTORS`.
-5. Whether egress from Cloud Run to `*-aiplatform.googleapis.com` is open. On a
-   locked-down VPC it may need Private Google Access or a Serverless VPC
-   connector, and that is a network request rather than a change here.
+   This should be established by the verification procedure in
+   [GCP-SETUP.md](GCP-SETUP.md#63-verify-model-availability) rather than from a
+   model identifier supplied from record: identifiers change and are retired,
+   and an incorrect one produces a service in which every query returns 404.
+3. Whether unauthenticated ingress is permitted, or whether the service must
+   sit behind IAP or the standard reverse proxy. The script sets
+   `--allow-unauthenticated`; where that is not permitted the flag is removed
+   and the service placed behind the standard ingress control.
+4. The origin serving the Agent Marketplace, required for `FRAME_ANCESTORS`.
+5. Whether egress from Cloud Run to `*-aiplatform.googleapis.com` is permitted.
+   On a restricted VPC this may require Private Google Access or a Serverless
+   VPC connector, which is a network change rather than a change to this
+   application.
 
 There is no model to provision and no endpoint to create: Gemini on Vertex AI
-is a publisher model that exists in any project with the API enabled. If the
-environment offers a dedicated endpoint instead, that works and needs a
-two-line change, and the trade is set out at the end of
-[GCP-SETUP.md](GCP-SETUP.md#if-you-are-given-a-real-endpoint-instead).
+is a publisher model available in any project with the API enabled. Where an
+environment offers a dedicated endpoint instead, the assessment and the
+required code change are in
+[GCP-SETUP.md](GCP-SETUP.md#11-alternative-a-dedicated-endpoint).
 
-## Putting it in the Agent Marketplace
+## 9. Agent Marketplace registration
 
-Foundry, the VP&C Agent Marketplace, is a Streamlit app. Every agent on it is a
-row in its own `data/agents.json`: name, tagline, what it does, who owns it,
-some sample prompts, and a link. The detail page is rendered from that row.
-Adding an agent to the marketplace is, in the normal case, **adding an entry to
-a JSON file**.
+### 9.1 Integration model
 
-There is one wrinkle. Foundry expects an agent to be a chat: a *playground*
-adapter takes a message and returns reply text, and the page draws a chat panel.
-Where a platform cannot be embedded, like Emplay and Looker, it shows a sample
-transcript and a button that opens the agent in its own tab instead.
+Foundry, the VP&C Agent Marketplace, is a Streamlit application. Each agent is
+a row in its own `data/agents.json` carrying name, description, ownership,
+sample prompts and a link; the detail page is rendered from that row.
+Registration is, in the normal case, the addition of one entry to that file.
 
-This agent is not a chat. The answer is a city moving, not a paragraph. So it
-takes the second shape: sample transcript in the marketplace, button that opens
-the real thing. That needs no code in Foundry at all.
+Foundry's playground contract assumes a conversational agent: an adapter
+accepts a message and returns reply text, and the detail page renders a chat
+panel. For platforms that cannot be embedded, such as Emplay and Looker, it
+renders a sample transcript and a control that opens the agent in a new tab.
 
-### 1. An entry in Foundry's `data/agents.json`
+This agent is not conversational. Its response is a change of state in a
+visualisation rather than text. It therefore takes the second form, which
+requires no change to Foundry.
+
+### 9.2 Catalogue entry
 
 ```json
 {
@@ -230,62 +223,51 @@ the real thing. That needs no code in Foundry at all.
 }
 ```
 
-`deep_link` is what the Cloud Run deploy prints.
+`deep_link` is the URL printed by the Cloud Run deployment.
 
-### 2. How it gets tried, and the two options
+### 9.3 Integration options
 
-**Deep link, the recommended option.** Add a `CityPlayground` adapter with
-`embeddable = False` and the marketplace behaves exactly as it does for Emplay
-and Looker today: the detail page shows the sample transcript, and the button
-opens the city in a new tab. **Nothing changes in Foundry's code.** It costs a
-reviewer one click.
+| | Phase 1: deep link | Phase 2: embedded surface |
+| --- | --- | --- |
+| Foundry change | None. A `CityPlayground` adapter with `embeddable = False` produces the behaviour already used for Emplay and Looker. | Approximately 10 lines in `foundry/pages/agent.py` to branch on adapter kind and render `st.components.v1.iframe(url, height=720)`. |
+| Change here | None | Set `NW_FRAME_ANCESTORS` to the marketplace origin. |
+| Reviewer cost | One click to open in a new tab | None |
+| Status | Available on a data change alone | Ready on this side |
 
-**Embedded, later.** A third kind of playground alongside chat: an *embedded
-surface*, where the adapter gives a URL and the detail page renders
-`st.components.v1.iframe(url, height=720)` instead of a chat box. That is a
-small change in `foundry/pages/agent.py` to branch on the adapter's kind, and
-this service is already ready for its half: set `NW_FRAME_ANCESTORS` to the
-marketplace's origin and it sends `Content-Security-Policy: frame-ancestors
-<that origin>`, so the marketplace can frame it and nobody else can. Unset, it
-refuses everyone, which is the right default.
+The application already implements its half of phase 2: with
+`NW_FRAME_ANCESTORS` set it sends `Content-Security-Policy: frame-ancestors
+<origin>`, permitting the marketplace to frame it and no other origin. Unset,
+it denies all framing, which is the appropriate default.
 
-Do the deep link first. It works today with a data change and no code. Add the
-embedded surface when a *second* agent wants one, because a new concept on the
-playground contract earns its place at two users, not one.
+**Recommendation.** Implement phase 1 first. It requires a data change and no
+code. Phase 2 introduces a new concept into the playground contract and should
+be justified by a second consumer rather than the first.
 
-### In short
+### 9.4 Change summary
 
-| To do this | You change |
+| Objective | Change required |
 | --- | --- |
-| List it in the marketplace | one entry in Foundry's `data/agents.json` |
-| Make the button work | `deep_link`, from the Cloud Run URL |
-| Show it inside the page instead | ~10 lines in `foundry/pages/agent.py`, and set `NW_FRAME_ANCESTORS` here |
+| List the agent in the marketplace | One entry in Foundry's `data/agents.json` |
+| Make the control functional | `deep_link`, set to the Cloud Run URL |
+| Render inline instead | Approximately 10 lines in `foundry/pages/agent.py`, and `NW_FRAME_ANCESTORS` set here |
 
-### Where it sits in the marketplace's own story
+## 10. Corporate environment configuration
 
-Foundry's pitch is that anyone in VP&C can discover, try and scale the agents
-built across the org. This entry runs on the same GCP estate as the production
-agents and is listed alongside them.
-
-## The internal environment
-
-Same image, same command shape, different address. What changes:
-
-| Setting | Cloud Run pilot | Internal |
+| Setting | Cloud Run pilot | Corporate |
 | --- | --- | --- |
 | `NW_PROVIDER` | `vertex` | `vertex` |
-| `NW_PROJECT` | the pilot project | the internal project |
-| `NW_REGION` | `europe-west1` | whatever is approved |
-| `NW_MODEL` | `gemini-3.5-flash` | whichever Gemini is available there |
-| Access | `--allow-unauthenticated` | behind whatever fronts internal apps |
+| `NW_PROJECT` | the pilot project | the corporate project |
+| `NW_REGION` | `europe-west1` | as approved |
+| `NW_MODEL` | `gemini-3.5-flash` | as available in that region |
+| Ingress | `--allow-unauthenticated` | per the standard ingress control |
 | `NW_FRAME_ANCESTORS` | marketplace origin | marketplace origin |
 
-Nothing in the code changes between them. That was the point of putting the
-provider behind an interface.
+No code differs between the two. The provider is implemented behind an
+interface for this purpose.
 
-## Offline fallback
+## 11. Offline distribution
 
 `renderer/index.html` opens from local storage with no server and no network.
-Everything except the model works: the visualisation, the sequencing, the
-figure, the guided walkthrough and the agent's own routing rules. This path is
-independent of the deployment and remains available regardless of its state.
+The visualisation, the sequencing, the measures, the guided walkthrough and the
+local routing rules all function. This path is independent of the deployment
+and remains available irrespective of its state.

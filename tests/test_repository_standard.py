@@ -85,6 +85,47 @@ ALSO = (
 )
 
 
+# Documents written to a specification rather than to a reader: they are read
+# by people evaluating this for deployment in a corporate environment, and the
+# register is part of what is being evaluated. Current state, target state,
+# procedure, verification. Not a narrative of how any of it was discovered.
+SPECIFICATION = (
+    "docs/ARCHITECTURE.md",
+    "docs/DEPLOY.md",
+    "docs/GCP-SETUP.md",
+)
+
+# Second person addresses a reader, which a specification does not do, and
+# these openings frame the content as a discovery rather than stating it.
+# Every one of them was in the first draft of GCP-SETUP.md.
+REGISTER = (
+    r"\b(you|your|yours)\b|\byou're\b|\bwe'll\b|\blet's\b"
+    r"|\bsurprises everyone\b|\bfirst things first\b|\bfirst, the\b"
+    r"|\byou already know\b|\bsimpler than it sounds\b"
+    r"|\bfor the real thing\b|\bthe thing that\b|\bhere'?s\b"
+    r"|\bdo not move on\b|\bwhat to (ask|say)\b|\bthe whole of it\b"
+    r"|\bin one page\b|\bthe one to\b|\bhold on to\b"
+)
+
+
+def prose(body: str) -> list[tuple[int, str]]:
+    """Every line outside a fenced block.
+
+    A code sample is not prose and is not held to the register: the catalogue
+    entry in DEPLOY.md carries product copy addressed to a marketplace user,
+    which is correct there and would fail every rule below.
+    """
+    out: list[tuple[int, str]] = []
+    fenced = False
+    for number, line in enumerate(body.splitlines(), 1):
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            continue
+        if not fenced:
+            out.append((number, line))
+    return out
+
+
 def tracked() -> list[pathlib.Path]:
     listing = subprocess.run(
         ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
@@ -143,6 +184,35 @@ class TestRepositoryStandard(unittest.TestCase):
 
     def test_no_narrative_filler(self):
         self.refuse("narrative filler")
+
+    def test_the_specification_documents_keep_their_register(self):
+        """The three documents an environment owner is handed.
+
+        They were first written in a discovery register: a reader addressed
+        directly, sections framed as what surprises people, procedure given
+        as advice. That is the wrong form for a document submitted to a
+        corporate review, and rewriting it once does not stop it recurring.
+        """
+        found = []
+        for name in SPECIFICATION:
+            path = REPO / name
+            if not path.is_file():
+                continue
+            for number, line in prose(path.read_text(encoding="utf-8")):
+                # finditer, not findall: the pattern carries a capture group
+                # for the second-person alternatives, so findall returns that
+                # group and yields an empty string for every other branch.
+                for hit in re.finditer(REGISTER, line, re.IGNORECASE):
+                    found.append(
+                        f"  {name}:{number}  {hit.group(0)!r} in: {line.strip()[:72]}"
+                    )
+        if found:
+            self.fail(
+                f"{len(found)} line(s) address a reader or frame the content as a "
+                "discovery.\nThese documents are specifications: state the current "
+                "position, the target position, the procedure and how it is "
+                "verified.\n\n" + "\n".join(found)
+            )
 
     def test_no_em_dashes(self):
         """Punctuation the rest of the repository does not use."""

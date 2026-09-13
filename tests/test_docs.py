@@ -346,6 +346,42 @@ class TestTheDiagrams(DocumentFigures):
                     f"{doc.name} links to {target}, which is not there",
                 )
 
+    def test_every_section_reference_resolves(self):
+        """A link into a section, not just into a file.
+
+        test_every_internal_link_resolves deliberately ignores the fragment,
+        so renaming a heading left two references in DEPLOY.md pointing at
+        sections of GCP-SETUP.md that no longer existed and nothing failed.
+        A reference to a numbered section is the normal way these documents
+        cite each other, which makes a silent one worse than a broken file
+        path.
+        """
+        import re
+
+        def headings(body: str) -> set[str]:
+            """GitHub's slug: lowercase, punctuation dropped, spaces hyphenated."""
+            found = set()
+            for line in body.splitlines():
+                title = re.match(r"^#{1,6}\s+(.*)$", line)
+                if not title:
+                    continue
+                text = re.sub(r"[^\w\s-]", "", title.group(1).strip().lower())
+                found.add(re.sub(r"\s+", "-", text))
+            return found
+
+        dead = []
+        for doc in published() + [REPO / "README.md"]:
+            body = doc.read_text(encoding="utf-8")
+            for target, fragment in re.findall(r"(?<!!)\[[^\]]+\]\(([^)#]*)#([^)]+)\)", body):
+                if target.startswith(("http://", "https://", "mailto:")):
+                    continue
+                referenced = (doc.parent / target) if target else doc
+                if not referenced.is_file():
+                    dead.append(f"{doc.name} -> {target} (no such file)")
+                elif fragment not in headings(referenced.read_text(encoding="utf-8")):
+                    dead.append(f"{doc.name} -> {target or doc.name}#{fragment}")
+        self.assertEqual([], dead, "section references that no longer resolve")
+
     def test_every_committed_diagram_is_shown_somewhere(self):
         shown = " ".join(d.read_text(encoding="utf-8") for d in published())
         for svg in sorted((DOCS / "diagrams").glob("*.svg")):
