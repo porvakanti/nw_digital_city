@@ -2875,8 +2875,18 @@
          * square, so the mark comes out as large as the chest allows. */
         const MARK = { x0: 27, x1: 69, y0: 19, y1: 88 };
         const k = (SIDE * 0.94) / (MARK.y1 - MARK.y0);
+        /* Turned through half a circle, which is the orientation of the mark.
+         *
+         * The shape below is built the way a comma is written, ball at the
+         * top and tail descending. A speech mark is that shape rotated, ball
+         * at the lower left and tail rising to the upper right, and drawn
+         * unrotated it came out upside down on the chest.
+         *
+         * A rotation and not a mirror: mirroring would reverse the handedness
+         * of the curve, which gives a shape that is the wrong way round in a
+         * way that is harder to see and just as wrong. */
         ctx.translate(SIDE / 2, SIDE / 2);
-        ctx.scale(k, k);
+        ctx.scale(-k, -k);
         ctx.translate(-(MARK.x0 + MARK.x1) / 2, -(MARK.y0 + MARK.y1) / 2);
         ctx.fillStyle = "#ffffff";
         // The head, then the tail, then a bite out of the head's upper right,
