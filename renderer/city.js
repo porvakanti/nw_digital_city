@@ -4343,45 +4343,44 @@
       </section>
 
       <section>
-        <h3>How a category gets to a number</h3>
+        <h3>How a category is scored</h3>
         <p>Three components added together, out of 100. Each has fixed rungs
           and there is no partial credit between them, so a category's total
           is always one of a small set of sums.</p>
         <div class="pairs three">${rungs}</div>
         <p>${COMPONENT_LABEL.usage[0].toUpperCase()}${COMPONENT_LABEL.usage.slice(1)}
-          is the heaviest single component on purpose: a blueprint nobody uses
-          is paperwork, and the score should say so.</p>
+          carries the heaviest weight of the three. A blueprint nobody uses is
+          paperwork.</p>
         <table><thead><tr><th>Lot</th><th>Adds up as</th><th>Total</th>
           <th>Because</th></tr></thead><tbody>${worked}</tbody></table>
       </section>
 
       <section>
-        <h3>Why a district scores 28 and no category does</h3>
-        <p>A district, a category manager and the whole of Networks have no
-          blueprint of their own, so their score is not on the rungs. It is
-          the average of the categories they hold, weighted by the square root
-          of spend and floored at
-          ${euro((CONFIG.score.rollup || {}).floor_eur || 1e6)} so one large
-          category cannot carry a group that has done nothing else.</p>
-        <p>That is the whole reason the organisation reads
-          ${Math.round(CITY.totals.journey.total)} out of 100 while single
-          categories read 0, 25, 40 or 100. Networks is low because 89 of its
-          ${counts.categories} lots are at nought. A grouping holding fewer
-          than ${CONFIG.score.minimum_categories} categories is left off the
-          scoreboard entirely, because below that a score is a coin toss
-          rather than a track record.</p>
+        <h3>How a district, a manager or the organisation is scored</h3>
+        <p>A district, a category manager and the whole of Networks hold no
+          blueprint of their own, so there is no rung to put them on. The
+          score is a weighted average of the categories they hold, and the
+          weight is the square root of spend, floored at
+          ${euro(rollFloor)}.</p>
         <div class="formula">
           <b>group score</b> =
           <span class="frac"><span class="num">&#931; ( category total &times;
             &radic;( max(spend, ${euro(rollFloor)}) ) )</span><span
             class="den">&#931; &radic;( max(spend, ${euro(rollFloor)}) )</span></span>
         </div>
-        <p>The square root is taken on each category and the results are
-          added. Rooting the sum instead would leave every category weighted
-          exactly as raw spend, which is the thing the square root is there to
-          prevent.</p>
-        <p>${smallest ? smallest.name : ""} worked through, smallest district
-          first because the table stays short:</p>
+        <p>Three steps. Weight each category by the square root of its
+          spend. Multiply each score by its own weight and sum. Divide by the
+          sum of the weights. The root is applied per category, not to the
+          total.</p>
+        <p><b>The square root</b> limits how far one large category can carry
+          a group. On raw spend, Fixed ranks second of the eight districts on
+          one category of twelve, the other eleven at nought.
+          <b>The floor</b> keeps a category with no spend recorded in the
+          calculation. A weight of nought removes it altogether, and
+          ${CITY.categories.filter((c) => !(c.metrics.spend_eur > 0)).length}
+          categories have no spend figure against them. Both are single lines
+          of configuration.</p>
+        <p>${smallest ? smallest.name : ""}, the smallest district:</p>
         <table class="rollup"><thead><tr><th>Lot</th><th>Spend</th>
           <th>Weight</th><th>Score</th><th>Score &times; weight</th></tr></thead>
           <tbody>${rollBody}</tbody>
@@ -4391,8 +4390,16 @@
           ${group(rollTotalWeight)} =
           <b>${(rollNumerator / rollTotalWeight).toFixed(1)}</b>
           ${rollFloored ? "<span>* spend floored to " + euro(rollFloor)
-            + " before the square root, so a lot with nothing recorded still"
-            + " counts for something</span>" : ""}</p>
+            + " before the square root, so a lot with no spend recorded"
+            + " still carries weight</span>" : ""}</p>
+        <p>A category total is one of a fixed set of sums. An average of
+          those sums is not, so a group scores a figure none of its categories
+          can: Networks reads ${Math.round(CITY.totals.journey.total)} out of
+          100 where single categories read 0, 25, 40 or 100. It reads low
+          because ${CITY.categories.filter((c) => c.journey.total === 0).length}
+          of the ${counts.categories} lots score nought. Groupings holding
+          fewer than ${CONFIG.score.minimum_categories} categories are
+          excluded from the scoreboard.</p>
         <table class="stages"><thead><tr><th>Stage</th><th>Score</th>
           <th>Lots</th><th>What it means</th></tr></thead>
           <tbody>${stages}</tbody></table>
