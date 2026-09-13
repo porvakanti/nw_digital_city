@@ -107,6 +107,22 @@
   const DISTRICT_PAD = 1.6;
   // Depth of the strip the district name plate sits on, at the front edge.
   const PLATE_STRIP = 2.0;
+  /* The tram viaducts, which ring the city in the outermost streets.
+   *
+   * Declared here because the ground margin has to know about them: they
+   * stand at the edge of the world with nothing behind them, which is the
+   * one place the margin exists for, and the overhead wire is the highest
+   * thing on them at DECK_Y + 2.7. */
+  const DECK_Y = 4.6;
+  const FLYOVER_TOP = DECK_Y + 2.8;
+  /* The ring road the viaducts run on, and how far outside the districts it
+   * lies. The margin needs both: the viaduct is not only tall, it stands
+   * beyond the block, so its own distance from the edge counts against it
+   * rather than for it. Sized without this, the overhead wire came out
+   * against the void with the plate four units short. */
+  const RING_ROAD = 4.8;
+  const RING_PAD = 2.4;
+  const FLYOVER_OUT = RING_PAD + RING_ROAD / 2;
   // The coloured kerb round a district, which the name strip has to clear.
   const KERB = 0.9;
   const DISTRICT_MAX_W = 32;
@@ -135,13 +151,28 @@
    * and the monument does not have to be the tallest thing in the city to
    * carry its meaning.
    *
-   * MONUMENT_H is one height for all of them, so the set reads as one class
-   * of object rather than nine unrelated models, and the ground each one
-   * needs then follows from its own proportions. */
-  const MONUMENT_H = 6.55;
+   * They are sized to a common silhouette area rather than a common height.
+   *
+   * One height was the first rule, on the reasoning that it made the set read
+   * as one class of object. It does not, because the shapes are not close to
+   * a common proportion: Big Ben is a needle at 0.94 wide by 6.05 tall and
+   * the Parthenon a colonnade at 2.5 by 2.37, so at one height the needle
+   * occupies a seventh of the screen the colonnade does. The two towers came
+   * out as splinters that had to be looked for.
+   *
+   * Equal area alone is no good either: the clocktower would need to stand
+   * fifteen units to match a colonnade's mass, which is more than twice the
+   * tallest thing in the city. So area, bounded by a height band. A tower is
+   * allowed to be tall, because being tall is what a tower is, and a wide
+   * shape is not allowed to be squat enough to lose the plot. What makes the
+   * set read as one class is the stone and the terrace, which every one of
+   * them has, not a measurement they were never going to share. */
+  const MONUMENT_AREA = 38;
+  const MONUMENT_H_MIN = 6.55;
+  const MONUMENT_H_MAX = 11.5;
   // A monument's lot is widened, in half-cell steps, to the ground its shape
-  // needs at MONUMENT_H. Capped: the pyramids at full height would want three
-  // and a half cells out of a plot that only holds six lots.
+  // wants at that size. Capped: the pyramids would want three and a half
+  // cells out of a plot that only holds six lots.
   const MONUMENT_LOT_MAX = 2.5;
   const MONUMENT_LOT_STEP = 0.5;
   // The monument stops short of its lot edge, so it never touches a neighbour.
@@ -200,11 +231,26 @@
     return 0.62 + FLOORS[Math.min(tier, FLOORS.length - 1)] * FLOOR_H;
   }
 
+  /* The size a shape wants, before its lot is allowed an opinion.
+   *
+   * Equal silhouette area, clamped into the height band. Both the layout and
+   * the render ask this: the layout to know how much ground to reserve, the
+   * render to know what to draw. Two derivations of one number drift, and a
+   * lot reserved for a size the monument is not drawn at is a gap in the
+   * grid nobody can account for. */
+  function freeScale(box) {
+    const byArea = Math.sqrt(MONUMENT_AREA / (box.ground * box.h));
+    const wants = box.h * byArea;
+    if (wants < MONUMENT_H_MIN) return MONUMENT_H_MIN / box.h;
+    if (wants > MONUMENT_H_MAX) return MONUMENT_H_MAX / box.h;
+    return byArea;
+  }
+
   function monumentSpan(category, cell) {
     const shape = monumentShape(category);
     const proportions = shape ? shapeBox(shape) : null;
     if (!proportions) return 1;
-    const need = (proportions.ground / proportions.h) * MONUMENT_H / MONUMENT_INSET;
+    const need = proportions.ground * freeScale(proportions) / MONUMENT_INSET;
     const steps = Math.ceil(need / cell / MONUMENT_LOT_STEP) * MONUMENT_LOT_STEP;
     return Math.min(MONUMENT_LOT_MAX, Math.max(1, steps));
   }
@@ -699,16 +745,42 @@
     0
   );
 
-  /* The tallest thing that actually stands in this city. Sizes the ground
-   * margin, so it has to be what the data builds and not what the tiers
-   * allow: the top tier permits sixteen floors, no plain lot reaches it, and
-   * sizing the margin for it left the city adrift in the middle of a plate
-   * three times the area it needed. */
-  const TALLEST = Math.max(
-    PLAIN_CEILING,
-    0.62 + TERRACE_MIN + MONUMENT_H,
-    PLAIN_CEILING + MONUMENT_CLEAR
-  );
+  /* How a monument is sized on its lot, worked out once.
+   *
+   * The lot was already widened for this shape, so the width almost always
+   * allows the size the shape wants; the exception is a shape wider than the
+   * cap, which comes out shorter and is lifted by its terrace instead.
+   *
+   * Asked before anything is drawn, to size the ground margin, and again by
+   * the build loop to draw it. One derivation, because a margin computed from
+   * a different height than the monument is drawn at is a margin that is
+   * wrong in exactly the case it exists for. */
+  function monumentFit(building) {
+    const shape = monumentShape(building.category);
+    if (!shape) return null;
+    const box = shapeBox(shape);
+    if (!box) return null;
+    const lot = building.cell || CELL;
+    const allowance = (building.span || 1) * lot * MONUMENT_INSET;
+    const scale = Math.min(allowance / box.ground, freeScale(box));
+    const standing = box.h * scale;
+    const terrace = Math.max(
+      TERRACE_MIN,
+      PLAIN_CEILING + MONUMENT_CLEAR - 0.62 - standing
+    );
+    return { shape, box, allowance, scale, standing, terrace, top: 0.62 + terrace + standing };
+  }
+
+  /** What stands on this lot, whichever kind of thing it is. */
+  function assemblyTop(building) {
+    const fit = monumentFit(building);
+    return fit ? fit.top : towerTop(building.category);
+  }
+
+  // The tallest thing that actually stands in this city. Reported, and used
+  // to frame the opening view.
+  const TALLEST = layout.buildings.reduce(
+    (most, b) => Math.max(most, assemblyTop(b)), 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -866,12 +938,31 @@
    * The margin is derived from the camera rather than chosen. Under this
    * orthographic projection a point at height h lands where the ground point
    * h * hypot(dx,dz) / dy behind it would, so that much ground has to exist
-   * behind the outermost lot for the tallest thing in the city to have
-   * something to stand against. Split evenly between the two ground axes.
+   * behind it for the thing to have something to stand against. Split evenly
+   * between the two ground axes.
+   *
+   * Asked of every lot rather than of the tallest one anywhere, and answered
+   * by what each lot has left over: a monument standing well inside the city
+   * already has most of the ground it needs behind it, and only the shortfall
+   * has to come out of the margin. Sizing it for the tallest object as though
+   * it stood on the boundary cost twelve units on each axis for two towers
+   * that are nowhere near one.
    */
-  const CLEARANCE = Math.ceil(
-    TALLEST * Math.hypot(CAM_DIR.x, CAM_DIR.z) / CAM_DIR.y / Math.SQRT2
-  );
+  const BEHIND = Math.hypot(CAM_DIR.x, CAM_DIR.z) / CAM_DIR.y / Math.SQRT2;
+  const CLEARANCE = Math.ceil(layout.buildings.reduce(
+    (most, b) => {
+      const reach = assemblyTop(b) * BEHIND;
+      return Math.max(most,
+        reach - (b.x + layout.size.w / 2),
+        reach - (b.z + layout.size.d / 2));
+    },
+    // The viaducts start in deficit: they run along the ring road outside
+    // the districts, so their distance from the block counts against them
+    // rather than for them. Left out of the first version of this, their
+    // overhead wire came out against the void, which is the one fault the
+    // margin exists to prevent.
+    FLYOVER_TOP * BEHIND + FLYOVER_OUT
+  ));
   const baseW = layout.size.w + 10 + CLEARANCE * 2;
   const baseD = layout.size.d + 10 + CLEARANCE * 2;
   studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
@@ -1010,13 +1101,13 @@
     }
     const rowKeys = [...rows.keys()].sort((a, b) => a - b);
 
-    const ROAD = 4.8;
+    const ROAD = RING_ROAD;
     const PAVEMENT = 1.15;
     const KERB_H = 0.26;
     const roads = [];
     const road = (x, z, w, d) => roads.push({ x, z, w, d, vertical: d > w });
 
-    const pad = 2.4;
+    const pad = RING_PAD;
     const minX = bounds.minX - pad, maxX = bounds.maxX + pad;
     const minZ = bounds.minZ - pad, maxZ = bounds.maxZ + pad;
     const spanX = maxX - minX, spanZ = maxZ - minZ;
@@ -1221,7 +1312,6 @@
    * as the ring road every city has, and blocks nothing.
    */
   function buildFlyovers(roads) {
-    const DECK_Y = 4.6;
     const decks = [];
     const parts = new Bucket();
     const kerbs = new Bucket();
@@ -1791,10 +1881,11 @@
        * The lot was already widened for this shape, so the width almost
        * always allows the full height; the exception is a shape wider than
        * the cap, which comes out shorter. */
-      const proportions = shapeBox(shape);
-      const allowance = span * LOT * MONUMENT_INSET;
-      const scale = Math.min(allowance / proportions.ground, MONUMENT_H / proportions.h);
-      const standing = proportions.h * scale;
+      const fit = monumentFit(building);
+      const proportions = fit.box;
+      const allowance = fit.allowance;
+      const scale = fit.scale;
+      const standing = fit.standing;
 
       /* The terrace.
        *
@@ -1803,10 +1894,7 @@
        * wide to reach full height in the lot it was given: the pyramids are
        * half as tall as they are wide, so they stand on a plateau, and every
        * monument still finishes clear of every plain tower. */
-      const terrace = Math.max(
-        TERRACE_MIN,
-        PLAIN_CEILING + MONUMENT_CLEAR - 0.62 - standing
-      );
+      const terrace = fit.terrace;
       const foot = Math.min(proportions.ground * scale + 0.6, allowance);
       const step = Math.min(0.26, terrace / 2);
       plates.add(x, 0.62 + step / 2, z, foot + 0.5, step, foot + 0.5, STONE);
@@ -3812,7 +3900,21 @@
     },
     /* The ground plate, so a check can confirm nothing stands off the edge. */
     plate() {
-      return { w: baseW, d: baseD, tallest: TALLEST, clearance: CLEARANCE };
+      return {
+        w: baseW,
+        d: baseD,
+        tallest: TALLEST,
+        clearance: CLEARANCE,
+        /* How far back a unit of height is thrown by this projection, per
+         * ground axis. Reported rather than left to be inferred from the
+         * clearance: the clearance is the shortfall left over after every
+         * lot's own inset, so dividing it by the tallest assembly no longer
+         * recovers this and a check doing that would be measuring against a
+         * number it invented. */
+        behind: BEHIND,
+        flyover: FLYOVER_TOP,
+        flyoverOut: FLYOVER_OUT,
+      };
     },
     /* Roll the journey score up over a named set of categories.
 

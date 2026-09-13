@@ -42,14 +42,23 @@ on a vest is reflective and is drawn unlit.
 
 **2 and 8. Landmark scale against the buildings.**
 A monument replaces the building rather than standing on it, on a lot widened
-to the ground its shape needs, up to two and a half cells. All nine shapes are
-drawn to one height so the set reads as one class of object, and the assembly
-always clears the tallest plain tower by construction rather than by luck of
-the data.
+to the ground its shape needs, up to two and a half cells. Every assembly
+clears the tallest plain tower by construction rather than by luck of the
+data.
+
+The shapes are sized to a common **silhouette area**, not a common height.
+One height was the first rule and it did not work: the shapes are nowhere
+near a common proportion, so Big Ben at the same height as the Parthenon
+occupied a seventh of the screen and both towers read as splinters that had
+to be looked for. Equal area alone is no good either, since the clocktower
+would have to stand fifteen units to match a colonnade's mass. So area,
+bounded by a height band: a tower is allowed to be tall, because being tall
+is what a tower is. What makes the set read as one class is the stone and the
+terrace, which every one of them has.
 *Check:* find any monument at the default zoom. It is taller than every plain
-building and stands on visibly more ground. Then compare two: Big Ben is a
-needle on one cell, the pyramids are a range on two and a half, and both
-finish at the same height.
+building and stands on visibly more ground. Big Ben and the Berlin TV Tower
+are now the tallest things in the city at about 12.5 units against 7.5 for
+the wide shapes and 6.4 for the tallest plain tower.
 
 **8, second half. A221 was the tallest on markets adopted.**
 Height is the journey score now, so A221 is a five-floor block at 40 out of
@@ -125,8 +134,17 @@ and only some of that plate is plots.
 The dead space was real and is now much smaller: the gap between plots was
 halved, districts pack deepest-first with each row centred, and the margin
 round the whole city is sized from the tallest thing that actually stands
-rather than from the tallest the tiers allow. The plate went from 171 × 189 to
-132 × 160.
+rather than from the tallest the tiers allow, and per lot rather than as
+though every lot stood on the boundary. The plate came down from 171 × 189.
+
+It then went back up to 142 × 170, because the margin turned out to be too
+small rather than too large. It is there so a tall object near the edge has
+ground behind it under this projection, and it had been sized from the
+buildings alone: the tram viaducts are taller than most of them and run on
+the ring road *outside* the districts, so their distance from the block
+counts against them rather than for them. They were five units short and
+their overhead wire was standing against the void. A check now measures every
+lot and the viaducts against the plate.
 *Check:* look at any district. Kerb, then plots, then the street outside. The
 remaining grey inside a district is genuinely unused ground, and the
 explanation says so.
