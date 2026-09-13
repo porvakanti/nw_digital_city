@@ -61,11 +61,11 @@ Four properties of this topology are material to a deployment review:
 
 | Option | Produces | Inference | Applicability |
 | --- | --- | --- | --- |
-| 1. Single document | `run.cmd package` writes `NW Digital City.html`, the application inlined into one file. No infrastructure, no accounts. | Local rules only | Initial review rounds. No approvals required. |
+| 1. Single document | `py run.py package` writes `NW Digital City.html`, the application inlined into one file. No infrastructure, no accounts. | Local rules only | Initial review rounds. No approvals required. |
 | 2. Static host | The `renderer` folder served from any static host, including a Cloud Storage bucket with website hosting enabled. | Local rules only | Circulation to a team. |
 | 3. Cloud Run | A URL with the inference service behind it. | Vertex AI | Pilot and corporate deployment. Specified in section 6. |
 
-`run.cmd package` also writes `nw-digital-city.zip`, the application as separate
+`py run.py package` also writes `nw-digital-city.zip`, the application as separate
 files. `renderer/index.html` is not distributable on its own: it loads four
 sibling files and renders an empty page without them.
 

@@ -10,7 +10,7 @@ can either click **Next** eight times or drive it yourself.
 animations, the builder and the agent all work with no server and no network.
 This is the fallback path: it runs with no network available.
 
-**To send to somebody else**, `run.cmd package` writes `NW Digital City.html`,
+**To send to somebody else**, `py run.py package` writes `NW Digital City.html`,
 which is the same thing folded into one file they can double-click. index.html
 on its own is a shell that loads four other files, so it opens as a blank page
 and is not the artefact to distribute.
@@ -165,7 +165,7 @@ blank page. Android will usually manage it, awkwardly.
 The way in is a URL. The quickest one is the local host:
 
 ```
-run.cmd serve lan
+.\run.cmd serve lan
 ```
 
 It prints two addresses. The second, something like
@@ -210,7 +210,7 @@ stays true.
   `NW_MODEL=gemini-3.5-flash-lite` in `.env`. Otherwise the daily count resets
   at midnight Pacific. The demo itself is one request per question and is
   nowhere near the limit.
-- **Every eval question fails.** Run `run.cmd models`. It makes one small
+- **Every eval question fails.** Run `.\run.cmd models`. It makes one small
   request and tells you which of three things it is: a network that cannot
   reach Google, a key that is refused, or a model name that no longer exists.
   A timeout is the network: on a managed network that usually means a proxy
