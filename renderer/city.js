@@ -1076,6 +1076,9 @@
   let streetMaterial = null;
   const lampHeads = [];
   const walkers = [];
+  // Standing clusters. Kept apart from `walkers` because they do not travel:
+  // a cluster holds a fixed point on a pavement and only sways.
+  const groups = [];
   const vehicles = [];
   const headlights = [];
 
@@ -1144,6 +1147,11 @@
       }
     }
 
+    // Built here rather than in buildTraffic: the markings need the same
+    // activity the movers are allocated from, and the roads are painted
+    // before anything is placed on them.
+    const lanePlan = streetPlan(roads);
+
     for (const r of roads) {
       roadBucket.add(r.x, 0.02, r.z, r.w, 0.16, r.d, 0x3b414b);
 
@@ -1158,18 +1166,30 @@
         );
       }
 
-      // centre line
+      /* Lane markings. The centre line always, and on a road serving a busy
+       * district a divider either side of it, so the street reads as four
+       * lanes rather than two. The asphalt is not widened: road width comes
+       * from the district grid, and changing it would move every plate and
+       * every clearance measured against the ground plate. */
       const length = r.vertical ? r.d : r.w;
       const steps = Math.max(1, Math.floor(length / 3.2));
-      for (let i = 0; i < steps; i++) {
-        const t = (i + 0.5) / steps - 0.5;
-        const dx = r.vertical ? 0 : t * r.w;
-        const dz = r.vertical ? t * r.d : 0;
-        dashBucket.add(
-          r.x + dx, 0.11, r.z + dz,
-          r.vertical ? 0.16 : 1.1, 0.04, r.vertical ? 1.1 : 0.16,
-          0xd6d2c4
-        );
+      const carriageway = (r.vertical ? r.w : r.d) - PAVEMENT * 2;
+      const offsets = lanePlan.lanesFor(r) === 4
+        ? [0, carriageway / 4, -carriageway / 4]
+        : [0];
+      for (const off of offsets) {
+        for (let i = 0; i < steps; i++) {
+          const t = (i + 0.5) / steps - 0.5;
+          const dx = r.vertical ? off : t * r.w;
+          const dz = r.vertical ? t * r.d : off;
+          dashBucket.add(
+            r.x + dx, 0.11, r.z + dz,
+            r.vertical ? 0.16 : 1.1, 0.04, r.vertical ? 1.1 : 0.16,
+            // The dividers sit a shade duller than the centre line, which is
+            // what keeps the centre of the road readable as the centre.
+            off === 0 ? 0xd6d2c4 : 0xb9b5a8
+          );
+        }
       }
 
       // Lamp posts, alternating kerbs rather than facing each other. Lamps on
@@ -1400,14 +1420,166 @@
 
   // People, and a few dogs. Small, slow and never in the way. They keep the
   // streets from reading as deserted.
+  /* People, and where they are.
+   *
+   * Two changes from a flat scatter of walkers. The count on a street follows
+   * the same district activity the traffic does, so a district that has got
+   * somewhere is populated and one that has not is empty. And a share of them
+   * stand still in twos and threes facing each other, which is what reads as
+   * a place being occupied rather than merely driven through: fifty figures
+   * all walking in straight lines reads as a conveyor.
+   *
+   * Nothing is encoded in the behaviour mix. The count carries the meaning.
+   */
+  /* How busy a district is, from how far along it is.
+   *
+   * Shared by the traffic and the people, so the two layers cannot disagree
+   * about which part of the city is awake. Computed once: the scores and the
+   * district bounds do not change after the layout is built.
+   */
+  /* How busy each district is, and which streets carry it.
+   *
+   * Bound to the district's journey score. Every other encoding in the city
+   * is per category and is read close up, one lot at a time; this one is read
+   * at the wide view before anything has been clicked, and the journey had no
+   * channel there at all. Traffic was spend, which was already the lot area
+   * and the houses, and which put the heaviest traffic around the smallest
+   * block.
+   *
+   * Allocation is per district, not per road, and that is the whole of why
+   * this now reads. Weighting each road by its own length times its district's
+   * score let geometry swamp the measure: the number of long roads nearest a
+   * district varies by an order of magnitude, so Energy on 22.2 drew 29
+   * vehicles while Managed Services and Outsourcing on 19.0 drew none. The
+   * same flaw was in the spend binding before it, which is why that never
+   * read as spend either.
+   *
+   * So each district is given a share of the movers in proportion to its
+   * score, and that share is then spread across the streets around it by
+   * length. The district counts follow the measure by construction, and a
+   * street between two districts draws from both, in inverse proportion to
+   * its distance from each, so the gradient across a boundary is continuous
+   * rather than a step at the midpoint.
+   *
+   * The binding is in config/metrics.yaml under `street_life`.
+   */
+  let streetPlanCache = null;
+  function streetPlan(roads) {
+    if (streetPlanCache) return streetPlanCache;
+    const LIFE = CONFIG.street_life || {};
+    const metric = LIFE.metric || "total";
+    const scoreOf = (d) => {
+      const j = (d && d.totals && d.totals.journey) || {};
+      return Number(j[metric]) || 0;
+    };
+
+    /* District scores occupy a narrow band of the nominal 0 to 100, so the
+     * observed range is stretched rather than the nominal one. Stretching a
+     * narrow range would manufacture contrast, so the gain is scaled by how
+     * wide the spread actually is as a share of the top score: eight
+     * districts within a point of each other come out uniformly busy, which
+     * is the truth about them. */
+    const quiet = LIFE.quiet === undefined ? 0.4 : LIFE.quiet;
+    const busy = LIFE.busy === undefined ? 2.4 : LIFE.busy;
+    const scores = layout.districts.map(scoreOf);
+    const lowest = Math.min(...scores);
+    const highest = Math.max(...scores);
+    const spread = highest > 0 ? (highest - lowest) / highest : 0;
+    const mid = (quiet + busy) / 2;
+    const activity = (d) => {
+      if (highest <= lowest) return mid;
+      const norm = (scoreOf(d) - lowest) / (highest - lowest);
+      return mid + (quiet + norm * (busy - quiet) - mid) * spread;
+    };
+
+    const gapTo = (road, d) => {
+      const dx = Math.max(d.cx - road.x, 0, road.x - (d.cx + d.w));
+      const dz = Math.max(d.cz - road.z, 0, road.z - (d.cz + d.d));
+      return Math.hypot(dx, dz);
+    };
+
+    /* How much of a road belongs to each district, summing to one per road.
+     * Inverse square of the gap, so the nearest two dominate and a district
+     * on the far side of the map contributes nothing measurable. */
+    const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
+    const pool = usable.length ? usable : roads;
+    const membership = new Map();
+    for (const r of pool) {
+      const weights = layout.districts.map(
+        (d) => 1 / Math.max(gapTo(r, d), 1) ** 2);
+      const sum = weights.reduce((a, b) => a + b, 0) || 1;
+      membership.set(r, weights.map((w) => w / sum));
+    }
+
+    const length = (r) => Math.max(1, Math.max(r.w, r.d) / 12);
+
+    /* One bag of roads per district, each road repeated in proportion to how
+     * much of it belongs to that district and how long it is. Drawing from a
+     * district's bag puts a mover on a street around that district. */
+    const bags = layout.districts.map((d, i) => {
+      const bag = [];
+      for (const r of pool) {
+        const share = membership.get(r)[i] * length(r);
+        for (let n = 0; n < Math.round(share * 6); n++) bag.push(r);
+      }
+      return bag.length ? bag : pool.slice();
+    });
+
+    const total = layout.districts.reduce((sum, d) => sum + activity(d), 0) || 1;
+
+    /* Hand out `count` movers across the districts in proportion to activity.
+     * Largest remainder, so the shares add to exactly `count` and a quiet
+     * district is not rounded out of existence. */
+    const allocate = (count, rnd) => {
+      const exact = layout.districts.map((d) => (activity(d) / total) * count);
+      const given = exact.map((n) => Math.floor(n));
+      let left = count - given.reduce((a, b) => a + b, 0);
+      const order = exact
+        .map((n, i) => ({ i, frac: n - Math.floor(n) }))
+        .sort((a, b) => b.frac - a.frac);
+      for (let k = 0; k < left; k++) given[order[k % order.length].i] += 1;
+      const out = [];
+      layout.districts.forEach((d, i) => {
+        const bag = bags[i];
+        for (let n = 0; n < given[i]; n++) {
+          out.push({ district: d, road: bag[Math.floor(rnd() * bag.length)] });
+        }
+      });
+      return out;
+    };
+
+    /* Four lanes where the district is busy enough to justify them.
+     *
+     * A road takes the highest lane count of the districts it belongs to: a
+     * street on the boundary of a busy district is one of that district's
+     * approaches, and narrowing it on the quiet side would read as the road
+     * changing character halfway along. */
+    const laneCut = LIFE.four_lane_above === undefined ? 0.55 : LIFE.four_lane_above;
+    const threshold = quiet + (busy - quiet) * laneCut;
+    const lanesFor = (road) => {
+      const shares = membership.get(road);
+      if (!shares) return 2;
+      let best = 0;
+      layout.districts.forEach((d, i) => {
+        if (shares[i] > 0.12) best = Math.max(best, activity(d));
+      });
+      return best >= threshold ? 4 : 2;
+    };
+
+    streetPlanCache = {
+      activity, allocate, membership, pool, length, metric, scoreOf, lanesFor,
+    };
+    return streetPlanCache;
+  }
+
+
   function buildPedestrians(roads, rnd) {
+    const LIFE = CONFIG.street_life || {};
     const COATS = [0xd94f4f, 0x3f7fd0, 0xe0b53c, 0x46a06a, 0xb35fb0, 0xdd8a3a];
     const group = new THREE.Group();
-    const longRoads = roads.filter((r) => Math.max(r.w, r.d) > 14);
+    const plan = streetPlan(roads);
 
-    for (let i = 0; i < 52; i++) {
-      const r = longRoads[Math.floor(rnd() * longRoads.length)] || roads[0];
-      const coat = COATS[Math.floor(rnd() * COATS.length)];
+    const figure = (coat) => {
       const person = new THREE.Group();
       const body = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: coat }));
       body.scale.set(0.42, 0.8, 0.36);
@@ -1419,7 +1591,107 @@
       head.position.y = 0.96;
       person.add(head);
       group.add(person);
+      return person;
+    };
 
+    /* The same allocation the traffic uses, so the two layers cannot
+     * disagree about which part of the city is awake.
+     *
+     * On top of it, a bias toward streets with something standing along
+     * them, so a run of bare ground reads as deserted at close range. Not an
+     * exclusion: 89 of the 145 lots are empty, and emptying their pavements
+     * entirely would take most of the movement out of the city and lose the
+     * district signal the count is carrying. `built_bias` at 0 ignores what
+     * is built; at 1 nobody stands on a street with nothing along it.
+     *
+     * Applied by re-drawing rather than by re-weighting: a figure allocated
+     * to a bare street is offered another draw from the same district, which
+     * moves it toward a built street without changing how many people that
+     * district gets. Re-weighting would have moved people between districts
+     * and broken the binding the count carries. */
+    // A lane on the pavement, one side or the other, never down the middle.
+    const pavement = (r) => {
+      const short = r.vertical ? r.w : r.d;
+      const side = rnd() < 0.5 ? -1 : 1;
+      return { side, lane: side * (short / 2 - 0.6 + (rnd() - 0.5) * 0.5) };
+    };
+
+    const bias = LIFE.built_bias === undefined ? 0.7 : LIFE.built_bias;
+    const built = (layout.buildings || []).filter(
+      (b) => b.category && b.category.blueprint_state === "active");
+    const overlooked = new Map();
+    const hasBuilding = (r) => {
+      if (overlooked.has(r)) return overlooked.get(r);
+      /* A street is overlooked if a standing lot is within reach of it,
+       * measured to the lot centre: the question is whether this stretch of
+       * pavement has anything to look at, not which lot owns it. */
+      const across = (r.vertical ? r.w : r.d) / 2 + 4;
+      const along = (r.vertical ? r.d : r.w) / 2;
+      let found = false;
+      for (const b of built) {
+        const dx = Math.abs(b.x - r.x);
+        const dz = Math.abs(b.z - r.z);
+        if ((r.vertical ? dx : dz) <= across && (r.vertical ? dz : dx) <= along) {
+          found = true;
+          break;
+        }
+      }
+      overlooked.set(r, found);
+      return found;
+    };
+    const preferBuilt = (slots) => slots.map((slot) => {
+      if (hasBuilding(slot.road) || rnd() > bias) return slot;
+      const retry = plan.allocate(1, rnd).find((s2) => s2.district === slot.district);
+      return retry && hasBuilding(retry.road) ? retry : slot;
+    });
+
+    const total = LIFE.people === undefined ? 54 : LIFE.people;
+    const standingShare = LIFE.standing === undefined ? 0.55 : LIFE.standing;
+    const clusterMax = Math.max(2, LIFE.cluster_max === undefined ? 3 : LIFE.cluster_max);
+    let placed = 0;
+
+    /* The standing figures first, in clusters.
+     *
+     * A cluster is two or three on the same stretch of pavement, turned to
+     * face the middle of the group. Facing matters more than position: two
+     * figures a step apart both pointing along the street read as queueing,
+     * and turned inwards they read as talking. */
+    const standingTarget = Math.round(total * standingShare);
+    /* Allocated as individuals and then gathered into clusters on the street
+     * each was given, so a district's count still matches the measure
+     * however the clusters happen to fall. */
+    const standingSlots = preferBuilt(plan.allocate(standingTarget, rnd));
+    while (placed < standingTarget) {
+      const slot = standingSlots[placed];
+      if (!slot) break;
+      const r = slot.road;
+      const spot = pavement(r);
+      const size = Math.min(2 + Math.floor(rnd() * (clusterMax - 1)), standingTarget - placed);
+      if (size < 2) break;
+      const t = 0.08 + rnd() * 0.84;
+      const members = [];
+      for (let n = 0; n < size; n++) {
+        members.push({
+          person: figure(COATS[Math.floor(rnd() * COATS.length)]),
+          // Spread along the kerb, and a little across it, so a cluster of
+          // three is a huddle rather than a row.
+          offset: (n - (size - 1) / 2) * 0.62,
+          across: (rnd() - 0.5) * 0.5,
+        });
+      }
+      groups.push({
+        road: r, lane: spot.lane, t, members,
+        owner: slot.district && slot.district.name,
+        sway: rnd() * Math.PI * 2,
+      });
+      placed += size;
+    }
+
+    // The rest walk.
+    for (const slot of preferBuilt(plan.allocate(Math.max(0, total - placed), rnd))) {
+      const r = slot.road;
+      const spot = pavement(r);
+      const person = figure(COATS[Math.floor(rnd() * COATS.length)]);
       let dog = null;
       if (rnd() < 0.28) {
         dog = new THREE.Mesh(box, new THREE.MeshLambertMaterial({ color: 0x8a6b4a }));
@@ -1427,16 +1699,12 @@
         dog.position.y = 0.15;
         group.add(dog);
       }
-
-      // On the pavement, on one side or the other, not down the middle of the road.
-      const short = r.vertical ? r.w : r.d;
-      const side = rnd() < 0.5 ? -1 : 1;
-      const lane = side * (short / 2 - 0.6 + (rnd() - 0.5) * 0.5);
       walkers.push({
         person,
         dog,
+        owner: slot.district && slot.district.name,
         road: r,
-        lane,
+        lane: spot.lane,
         t: rnd(),
         speed: (0.05 + rnd() * 0.05) * (rnd() < 0.5 ? 1 : -1),
       });
@@ -1519,51 +1787,13 @@
     const group = new THREE.Group();
     const usable = roads.filter((r) => Math.max(r.w, r.d) > 14);
 
-    /* Traffic follows money.
-     *
-     * "Anything that moves has to mean something" is the right rule, and
-     * until now these were ambience: weighted by road length, which is a fact
-     * about the drawing rather than about Networks. Each road is now assigned
-     * to the district it runs closest to, and a district's share of the €760m
-     * decides how busy its streets are. Managed Services and Outsourcing
-     * carries 37.7% of the spend from ten categories, so its roads are the
-     * busiest on the map, and Network Revenue Platforms at 1.7% is quiet.
-     *
-     * Length still counts for something, so a long avenue does not end up
-     * emptier than the short link beside it. */
-    const spendShare = new Map();
-    let citySpend = 0;
-    for (const district of layout.districts) {
-      const spend = district.totals ? district.totals.spend_eur : 0;
-      spendShare.set(district, spend);
-      citySpend += spend;
-    }
-    const nearestDistrict = (road) => {
-      let best = null, bestDistance = Infinity;
-      for (const district of layout.districts) {
-        const dx = road.x - (district.cx + district.w / 2);
-        const dz = road.z - (district.cz + district.d / 2);
-        const distance = dx * dx + dz * dz;
-        if (distance < bestDistance) { bestDistance = distance; best = district; }
-      }
-      return best;
-    };
+    const LIFE = CONFIG.street_life || {};
+    const plan = streetPlan(roads);
 
-    const weighted = [];
-    for (const r of usable) {
-      const length = Math.max(1, Math.round(Math.max(r.w, r.d) / 12));
-      const district = nearestDistrict(r);
-      const share = citySpend && district
-        ? (spendShare.get(district) || 0) / citySpend : 0;
-      // A floor of one keeps every street alive: an empty district should
-      // look quiet, not abandoned, and zooming anywhere should find movement.
-      const busy = Math.max(1, Math.round(length * (0.35 + share * 5.2)));
-      for (let n = 0; n < busy; n++) weighted.push(r);
-    }
-    const pickRoad = () => weighted[Math.floor(rnd() * weighted.length)] || roads[0];
-
-    for (let i = 0; i < 58; i++) {
-      const road = pickRoad();
+    const vehicleCount = LIFE.vehicles === undefined ? 58 : LIFE.vehicles;
+    for (const slot of plan.allocate(vehicleCount, rnd)) {
+      const road = slot.road;
+      const owner = slot.district;
       const roll = rnd();
       const kind = roll < 0.62 ? "car" : roll < 0.84 ? "truck" : "bus";
       const forward = rnd() < 0.5;
@@ -1571,6 +1801,10 @@
       group.add(vehicle);
       vehicles.push({
         object: vehicle,
+        // Which district's share this mover came out of. The allocation is
+        // what carries the measure, and a road shared between districts
+        // means the nearest district is not the one that paid for it.
+        owner: owner && owner.name,
         road,
         // keep right, so the lane offset follows the direction of travel
         lane: (forward ? 1 : -1) * 0.85,
@@ -1580,14 +1814,19 @@
     }
 
     // A few cyclists, keeping in close to the kerb where a cycle lane would be.
-    for (let i = 0; i < 20; i++) {
-      const road = pickRoad();
+    const cyclistCount = LIFE.cyclists === undefined ? 20 : LIFE.cyclists;
+    for (const slot of plan.allocate(cyclistCount, rnd)) {
+      const road = slot.road;
       const forward = rnd() < 0.5;
       const short = road.vertical ? road.w : road.d;
       const bike = cycle([0x46a06a, 0xd94f4f, 0x3f7fd0, 0xe0b53c][Math.floor(rnd() * 4)]);
       group.add(bike);
       vehicles.push({
         object: bike,
+        // Flagged so the counts can tell a cyclist from a car: they share
+        // the mover list because they move the same way.
+        rider: true,
+        owner: slot.district && slot.district.name,
         road,
         lane: (forward ? 1 : -1) * (short / 2 - 1.55),
         t: rnd(),
@@ -1709,6 +1948,30 @@
           z + (r.vertical ? trail : 0.45)
         );
         w.dog.rotation.y = w.person.rotation.y;
+      }
+    }
+
+    /* The standing clusters.
+     *
+     * They hold their spot and turn to face the middle of the group, which is
+     * what makes a pair read as two people talking rather than two people
+     * queueing. The sway is small and out of phase per cluster: in step it
+     * looked mechanical, which is worse than standing perfectly still.
+     */
+    for (const g of groups) {
+      const r = g.road;
+      const along = (g.t - 0.5) * (r.vertical ? r.d : r.w);
+      for (const m of g.members) {
+        const shift = m.offset;
+        const x = r.x + (r.vertical ? g.lane + m.across : along + shift);
+        const z = r.z + (r.vertical ? along + shift : g.lane + m.across);
+        const sway = Math.sin(now * 1.4 + g.sway + m.offset) * 0.035;
+        m.person.position.set(x, PAVEMENT_TOP, z);
+        // Face the centre of the cluster: the sign of the offset decides
+        // which way round, and a figure at the middle of three faces along.
+        const inward = shift === 0 ? 1 : -Math.sign(shift);
+        m.person.rotation.y = (r.vertical ? Math.PI / 2 : 0)
+          + (inward > 0 ? 0 : Math.PI) + sway;
       }
     }
   }
@@ -4129,6 +4392,67 @@
   window.NWCity = {
     data: CITY,
     config: CONFIG,
+    /* What the street life came out as, for the checks.
+     *
+     * The counts and the distribution are decided at build time from the
+     * journey score, and nothing on screen states them. A layer bound to a
+     * measure has to be verifiable against that measure, or the binding is a
+     * claim rather than a fact.
+     *
+     * Attribution is by nearest district, not by containment: the roads run
+     * between the district plates rather than through them, so no road is
+     * inside one. The weighting itself blends the districts a road runs
+     * between, which is the point of it; this is only for counting.
+     */
+    life() {
+      const metric = (CONFIG.street_life || {}).metric || "total";
+      const scoreOf = (d) => (d.totals && d.totals.journey
+        ? Number(d.totals.journey[metric]) || 0 : 0);
+      const nearest = (r) => {
+        let best = null, least = Infinity;
+        for (const d of layout.districts) {
+          const dx = Math.max(d.cx - r.x, 0, r.x - (d.cx + d.w));
+          const dz = Math.max(d.cz - r.z, 0, r.z - (d.cz + d.d));
+          const gap = Math.hypot(dx, dz);
+          if (gap < least) { least = gap; best = d; }
+        }
+        return best;
+      };
+      const tally = {};
+      for (const d of layout.districts) {
+        tally[d.name] = {
+          score: scoreOf(d), vehicles: 0, riders: 0, walking: 0, standing: 0,
+        };
+      }
+      /* By the district the mover was allocated to, not the one its street
+       * happens to be nearest. The allocation is what carries the measure;
+       * a street between two districts is drawn by both, so its nearest
+       * district is not the one whose share paid for the mover on it. */
+      const bump = (owner, road, key) => {
+        const name = owner || (nearest(road) || {}).name;
+        if (name && tally[name]) tally[name][key] += 1;
+      };
+      let riders = 0, trams = 0;
+      for (const v of vehicles) {
+        if (v.tram) { trams += 1; continue; }
+        if (v.rider) { riders += 1; bump(v.owner, v.road, "riders"); continue; }
+        bump(v.owner, v.road, "vehicles");
+      }
+      for (const w of walkers) bump(w.owner, w.road, "walking");
+      for (const g of groups) {
+        for (let n = 0; n < g.members.length; n++) bump(g.owner, g.road, "standing");
+      }
+      return {
+        metric,
+        movers: vehicles.length,
+        riders,
+        trams,
+        walking: walkers.length,
+        clusters: groups.length,
+        standing: groups.reduce((n, g) => n + g.members.length, 0),
+        byDistrict: tally,
+      };
+    },
     focus(code) {
       const category = byCode.get(String(code || "").toUpperCase());
       if (!category) return false;
