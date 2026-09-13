@@ -35,83 +35,260 @@ used is the entire point of writing them, that was the wrong thing to discard.
 
 ---
 
-## The score
+## Stage 1: the score for one category
 
-> **40% for how far the blueprint itself has got, 35% for anyone actually
-> using it, 25% for doing it with AI.**
+> **40 points for how far the blueprint itself has got, 35 for anyone
+> actually using it, 25 for doing it with AI.**
 
-### Blueprint, 40 points
+Three components, scored independently and added. Each is a fixed rung: there
+is no partial credit between rungs and no interpolation.
 
-| | Points | Categories |
-| --- | --- | --- |
-| Nothing | 0 | 89 |
-| Drafted, not live | 10 | 12 |
-| Active in one market | 25 | 20 |
-| Active in two or more markets | 40 | 24 |
+```
+category total = blueprint + usage + AI
 
-Drafting is the cheap step and is priced that way. Going live is worth more
-than writing it, and going live in more than one market is worth more again,
-because a blueprint that only works in one place has not been proved.
+                 where each term is the points of the rung the
+                 category's own measure falls on
+```
 
-### Usage, 35 points
+### Step 1: blueprint, 40 points
 
-| `CBP used` | Points | Categories |
-| --- | --- | --- |
-| 0 | 0 | 141 |
-| 1 | 20 | 2 |
-| 2 or more | 35 | 2 |
+Read from the blueprint records held for the category.
 
-More than a third of the total, and deliberately so. A blueprint nobody uses
-is paperwork. This is the behaviour the whole exercise exists to produce, and
-weighting it at 35 says so out loud.
+| Rung | Condition | Points | Categories |
+| --- | --- | --- | --- |
+| Nothing | no record of any kind | 0 | 89 |
+| Drafted | a draft exists, none active | 10 | 12 |
+| Live | one active record | 25 | 23 |
+| Connected | active, and two or more records | 40 | 21 |
 
-### AI, 25 points
+The condition on the top rung counts blueprint *records*, not markets.
+Adoption is defined as one blueprint per category per market, so the two
+figures agree for 143 of the 145 categories; D403 holds 3 records across 2
+markets and D212 holds 2 records across 3.
 
-| AI RFPs | Points | Categories |
-| --- | --- | --- |
-| 0 | 0 | 137 |
-| 1 | 15 | 4 |
-| 2 or more | 25 | 4 |
+Drafting is the cheap step and is priced as one. Going live is worth more than
+writing it, and going live more than once is worth more again, because a
+blueprint that has only ever been applied in one place has not been proved.
 
-**One category reaches 100:** A251 Network Professional Services. Active in
-eight markets, used twice, two AI-generated RFPs. It is the only category in
-Networks that has done the whole journey.
+### Step 2: usage, 35 points
 
-### The arc, made countable
+Read from `cbp_used`, the count of sourcing events run through the blueprint.
 
-Blueprint 10 to 25 is **Traditional**: the blueprint exists and works in one
-place. Blueprint 40 is **Connected**: one blueprint, several markets. The AI
-component is **Smart**. **Autonomous** is above 100 and nobody is there, which
-is stated rather than implied.
+| Rung | `cbp_used` | Points | Categories |
+| --- | --- | --- | --- |
+| Never used | 0 | 0 | 141 |
+| Used once | 1 | 20 | 2 |
+| Used repeatedly | 2 or more | 35 | 2 |
 
-One definition now drives the narrative, the visuals and the leaderboard.
+More than a third of the total, deliberately. A blueprint nobody uses is
+paperwork. This is the behaviour the exercise exists to produce, and weighting
+it at 35 states that rather than implying it.
 
-## Rolling it up: weight by the square root of spend
+### Step 3: AI, 25 points
 
-Two obvious choices both fail, and the failures are worth keeping because
-somebody will ask.
+Read from `ai_rfps`, the count of requests for proposal generated from the
+category's own rules.
 
-**Count every category equally?** Correlation of **−0.46** with portfolio size.
-It punishes whoever holds fourteen categories.
+| Rung | `ai_rfps` | Points | Categories |
+| --- | --- | --- | --- |
+| None | 0 | 0 | 137 |
+| Started | 1 | 15 | 4 |
+| Several | 2 or more | 25 | 4 |
 
-**Weight by spend directly?** One big category drowns the rest. Concretely:
+### Step 4: add the three
 
-> **Fixed** has 12 categories. **Eleven are at zero.** One, D408 at €62.5m, has
-> a used blueprint. Weighted by raw spend, Fixed comes **top of all eight
-> districts**.
+| Category | Blueprint | Usage | AI | Total |
+| --- | --- | --- | --- | --- |
+| A251 Network Professional Services | 40 | 35 | 25 | **100** |
+| A213 Global Testing | 40 | 20 | 25 | **85** |
+| D506 Construction Services/Civil Works | 40 | 20 | 15 | **75** |
+| A314 Access Transmission Services | 25 | 0 | 25 | **50** |
+| D504 Batteries | 40 | 0 | 0 | **40** |
+| A311 Field Maintenance | 0 | 0 | 0 | **0** |
 
-A district that has done nothing on 92% of its estate cannot be the winner.
+**A251 is the only category at 100.** Active in 8 markets, used twice, two
+generated RFPs. It is the only category in Networks that has completed every
+stage the data can record.
 
-**So: the square root of spend**, with a floor of €1m so the 89 zero-spend
-categories still count. A €75m category weighs about nine times a €1m one, not
-seventy-five times. Fixed lands fifth, where eleven of twelve at zero belongs.
+### Why the components are independent rather than sequential
+
+A single ladder would require each stage to precede the next. The data refutes
+that ordering: **five categories have started a generated RFP without ever
+using their blueprint**, and one has used its blueprint with no AI activity at
+all. A251 above is the only category where all three happen together.
+
+Scoring them independently means a category is credited for what it has
+actually done, in whatever order it did it.
+
+### Where a category total can land
+
+Four blueprint rungs by three usage rungs by three AI rungs gives 36
+combinations and **18 distinct totals**. Eleven occur in the current extract:
+
+| Total | 0 | 10 | 25 | 40 | 50 | 55 | 60 | 65 | 75 | 85 | 100 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Categories | 89 | 12 | 20 | 16 | 1 | 2 | 1 | 1 | 1 | 1 | 1 |
+
+This matters for reading the interface: **a category total is always one of
+those eighteen values.** A figure such as 23 or 28 cannot be a category.
+
+---
+
+## Stage 2: the score for a district, a manager or the organisation
+
+A group holds no blueprint of its own, so its score is a weighted average of
+the scores of the categories in it. The weight is the square root of spend,
+floored at €1m.
+
+```
+                  Σ ( category total  ×  √( max(spend, €1m) ) )
+group score  =   ───────────────────────────────────────────────
+                        Σ √( max(spend, €1m) )
+```
+
+The same expression is applied separately to each component, so a group carries
+a blueprint, usage and AI figure as well as a total.
+
+Note the order of operations in the denominator: **the square root is taken per
+category and the results are summed.** Rooting the sum instead would rescale
+the total and leave every category's relative weight exactly as raw spend,
+which is the behaviour the transform exists to avoid.
+
+### Step 1: convert each category's spend into a weight
+
+Floor the spend at €1m, then take the square root.
+
+### Step 2: multiply each category's score by its weight, and sum
+
+### Step 3: divide by the sum of the weights
+
+### Worked example: Transmission Infrastructure
+
+Ten categories, €105.2m.
+
+| Code | Spend | Floored | Weight = √ | Weight share | Total | Score × weight |
+| --- | --- | --- | --- | --- | --- | --- |
+| D409 | 44,045,408 | 44,045,408 | 6,636.67 | 24.8% | 25 | 165,916.79 |
+| D208 | 29,600,000 | 29,600,000 | 5,440.59 | 20.3% | 25 | 136,014.71 |
+| A259 | 12,157,340 | 12,157,340 | 3,486.74 | 13.0% | 40 | 139,469.51 |
+| A313 | 12,157,340 | 12,157,340 | 3,486.74 | 13.0% | 0 | 0.00 |
+| D414 | 7,230,657 | 7,230,657 | 2,688.99 | 10.1% | 40 | 107,559.52 |
+| A314 | 19,643 | **1,000,000** | 1,000.00 | 3.7% | 50 | 50,000.00 |
+| A260 | 0 | **1,000,000** | 1,000.00 | 3.7% | 0 | 0.00 |
+| D206 | 0 | **1,000,000** | 1,000.00 | 3.7% | 0 | 0.00 |
+| D422 | 0 | **1,000,000** | 1,000.00 | 3.7% | 25 | 25,000.00 |
+| D423 | 0 | **1,000,000** | 1,000.00 | 3.7% | 0 | 0.00 |
+| | | | **26,739.72** | 100% | | **623,960.52** |
+
+```
+623,960.52 / 26,739.72 = 23.335   ->   23.3
+```
+
+A313 is the row that shows what the weighting does. It has the same spend as
+A259 and therefore the same weight, and contributes nothing, because it has no
+blueprint. Weight decides how loudly a category speaks; the score decides what
+it says.
+
+Weighting every category equally would give this district 20.5, the plain mean
+of its ten totals. It reaches 23.3 because the four categories with real spend
+behind them are also the ones holding blueprints.
+
+### Why the square root
+
+Two simpler choices both fail, and the failures are recorded because they will
+be asked about.
+
+**Count every category equally.** Correlation of **−0.42** with portfolio size
+across the 30 qualifying managers: it penalises whoever holds the most
+categories.
+
+**Weight by spend directly.** One large category carries a group that has done
+nothing on the rest of it:
+
+> **Fixed** holds 12 categories. **Eleven score zero.** The twelfth, D408 at
+> €62.5m, is 71% of the district's spend and scores 60. Weighted by raw spend,
+> Fixed rises to **2nd of the eight districts**.
+
+A district that has done nothing on eleven of twelve cannot rank second.
+
+**The square root sits between them.** A €75m category weighs about nine times
+a €1m one rather than seventy-five times. Fixed lands **4th**, which is where
+eleven of twelve at zero belongs.
 
 | | Equal | **Square root** | Raw spend |
 | --- | --- | --- | --- |
-| Correlation with portfolio size | −0.46 | **−0.35** | −0.25 |
-| Correlation with portfolio spend | +0.04 | **+0.16** | +0.22 |
+| Correlation with portfolio size | −0.42 | **−0.37** | −0.31 |
+| Correlation with portfolio spend | +0.05 | **+0.15** | +0.20 |
 
-Neither size nor spend decides the answer. That is the whole requirement.
+Neither the size of a portfolio nor its spend decides the answer. That is the
+requirement.
+
+### Why the floor
+
+A weight of zero is not a small weight. It removes the category from both the
+numerator and the denominator, so the group score describes only the categories
+that happen to have a spend figure recorded.
+
+**89 of the 145 categories have no recorded spend, and 20 of those hold a
+blueprint**, scoring 10, 25, 40 and in one case 85. Without the floor all 89
+would be discarded. Transmission Infrastructure would read 25.4 instead of
+23.3, computed from six categories while describing ten.
+
+The floor does a second job that is less obvious. It compresses the bottom of
+the distribution:
+
+| | Weight without floor | Weight with floor |
+| --- | --- | --- |
+| D409, €44.0m | 6,636.67 | 6,636.67 |
+| A314, €19,643 | 140.15 | **1,000.00** |
+
+Unfloored, D409 outweighs A314 by 47 times; floored, by 6.6. The floor asserts
+that below €1m spend is no longer a meaningful measure of how much a category
+matters, and that €19,643 and €0 are the same fact. Without it A314 would count
+for almost nothing, and A314 carries the entire AI component of its district:
+0.9 of its 23.3.
+
+### Consequence: a group score is not a rung
+
+Stage 1 produces one of eighteen values. Stage 2 produces a weighted average of
+them, which lands anywhere.
+
+**This is why Access Radio/Fixed scores 28.0 and no category within it scores
+28.** The same applies to every district, every manager and the organisation's
+19.4. A score that is not a round figure is a group; a score that is one of the
+eighteen is a category.
+
+### Where each value is declared
+
+| Value | Declared in | Current |
+| --- | --- | --- |
+| Component weights | `score.weights` | 40 / 35 / 25 |
+| Blueprint rungs | `score.blueprint` | 0 / 10 / 25 / 40 |
+| Usage rungs | `score.usage` | 0 / 20 / 35 |
+| AI rungs | `score.ai` | 0 / 15 / 25 |
+| Measure the weight is taken from | `score.rollup.weight_by` | `spend_eur` |
+| Transform applied to it | `score.rollup.transform` | `sqrt` |
+| Floor applied before the transform | `score.rollup.floor_eur` | 1,000,000 |
+| Minimum portfolio to appear on the manager board | `score.minimum_categories` | 3 |
+
+All of it is in `config/metrics.yaml`. Changing any line changes the
+scoreboard, the building heights, the arc and the monuments at the next build,
+with no code change.
+
+### The arc
+
+The four stages on the rail are bands of the total, declared in
+`score.stages`:
+
+| Stage | From | Meaning |
+| --- | --- | --- |
+| Traditional | 0 | Short of a blueprint live in more than one place. Nothing in this band has ever been used: one use is worth 20 and would carry all but the emptiest category out of it. |
+| Connected | 40 | The rules are written and live in several places, and nothing more. Every mark available for writing things down, none for acting on it. |
+| Smart | 54 | The blueprint plus something real on top: a sourcing event run through it, worth 20, or a generated brief, worth 15. |
+| Autonomous | 75 | Written, in repeated use, and generating its own briefs, on the same category. |
+
+A251 at 100 is in Autonomous. The organisation at 19.4 is in Traditional, near
+the start of it.
 
 ---
 
