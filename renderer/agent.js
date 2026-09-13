@@ -1063,7 +1063,7 @@
     },
     {
       title: "Four measures, in the order they are built.",
-      body: "The foundation is whether the blueprint exists. The height of the building is how widely it has been adopted. The green houses and the red hotel are the spend behind it, exactly as in Monopoly. The light on the roof is AI readiness. The panel on the right is every tool the agent called to get here, in order.",
+      body: "The foundation is whether the blueprint exists. The height is the journey score: 40 points for writing the blueprint, 35 for anybody using it, 25 for doing it with AI. The green houses and the red hotel are the spend behind it, exactly as in Monopoly. The light on the roof is AI readiness. The panel on the right is every tool the agent called to get here, in order.",
       run: () => {},
     },
     {

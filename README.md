@@ -17,7 +17,9 @@ renders it.
 | [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md) | The composite score: components, weights, roll-up method |
 | [docs/TESTING.md](docs/TESTING.md) | Verification: the automated stages, and a manual walkthrough |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Deployment and agent catalogue registration |
+| [docs/GCP-SETUP.md](docs/GCP-SETUP.md) | Standing up the model on a GCP project, and handing that over |
 | [docs/DEMO.md](docs/DEMO.md) | Feature walkthrough and troubleshooting |
+| [docs/PRESENTING.md](docs/PRESENTING.md) | The walkthrough script: what to say at each beat, and the answer to every question it provokes |
 | [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) | First-time setup on a Windows host |
 
 ## The metaphor
@@ -142,8 +144,8 @@ tests/                 the rest: data, the plan parser, the model ladder
 tests/smoke.js         the browser pass, on a desktop and on a phone
 ```
 
-The renderer is deliberately dependency-free at runtime. It is the on-stage
-fallback path: with no network available, the model still opens from a local file.
+The renderer is deliberately dependency-free at runtime. It is the fallback
+path: with no network available, the city still opens from a local file.
 
 ## Running it
 
@@ -196,8 +198,10 @@ again at phone size. It ends with one verdict naming whatever failed.
 checks, and a numbered walkthrough for checking by hand the thing no suite can
 judge, which is whether the city reads as a city.
 
-[docs/DEMO.md](docs/DEMO.md) is the on-stage script: what to type, in what
+[docs/DEMO.md](docs/DEMO.md) is the operating manual: what to type, in what
 order, and what should happen at each step.
+[docs/PRESENTING.md](docs/PRESENTING.md) is the script that goes with it, beat
+by beat, with the questions it provokes and the answers to them.
 
 ### Without Python
 
@@ -260,7 +264,9 @@ PROJECT=your-gcp-project ./deploy/cloudrun.sh
 
 [docs/DEPLOY.md](docs/DEPLOY.md) covers the deploy, what is needed from
 whoever owns the environment, and how this gets listed in the VP&C Agent
-Marketplace.
+Marketplace. [docs/GCP-SETUP.md](docs/GCP-SETUP.md) covers the model side: the
+project, the one IAM role, the call that proves the model answers, and what to
+ask for when the environment is somebody else's.
 
 ## Status
 

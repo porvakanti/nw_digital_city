@@ -1,5 +1,43 @@
 # Deploying it, and putting it in the Agent Marketplace
 
+For standing up the model itself, on a personal project or an internal one,
+see [GCP-SETUP.md](GCP-SETUP.md). This file is about where the application
+runs and how the marketplace reaches it.
+
+## The shape of it, in one page
+
+```
+   Agent Marketplace (Foundry, Streamlit)
+        |  a row in data/agents.json, and either
+        |   - a button that opens the city in its own tab   <- do this first
+        |   - an iframe of the same URL                      <- later, if wanted
+        v
+   Cloud Run: one container, one URL
+     +-- the page          static: renderer/, ~1MB, no state
+     +-- the service       FastAPI, /plan and /health only
+             |
+             |  names only: codes, titles, districts, plots, markets.
+             |  no spend, no score, no owner.
+             v
+        Vertex AI, Gemini as a publisher model
+        called with the runtime service account. No API key anywhere.
+```
+
+Four properties follow from that shape, and they are the four a deployment
+review asks about:
+
+- **One artefact.** The page and the service are the same container, so there
+  is one thing to roll out, one URL to allow-list and one revision to roll
+  back. No database, no session store, no state at all.
+- **No key in the deployment.** `NW_PROVIDER=vertex` authenticates with the
+  Cloud Run service account, which holds exactly one role,
+  `roles/aiplatform.user`. There is nothing to rotate and nothing to leak.
+- **No sensitive value reaches the model.** The prompt carries names. The
+  figures are resolved in the browser from a file that shipped with the page.
+- **It degrades to working.** If the model is unreachable or unapproved, the
+  browser answers from its own rules and the badge says so. The deployment is
+  not a precondition for the application being usable.
+
 ## Distribution options
 
 Three, in order of effort.
@@ -125,11 +163,24 @@ be reverted afterwards.
 
 1. A GCP project, and the ability to deploy a container to Cloud Run in it.
 2. Vertex AI enabled, and which Gemini models are available in the region.
+   Ask for the result of the test call in
+   [GCP-SETUP.md](GCP-SETUP.md#step-3-prove-the-model-answers-before-deploying-anything)
+   rather than for a model name from memory: names change, Google retires them,
+   and a wrong one produces a service where every question returns 404.
 3. Whether unauthenticated access is allowed, or whether it has to sit behind
    IAP or the standard reverse proxy. The script uses
    `--allow-unauthenticated`; if that is not permitted, drop the flag and put
    it behind whatever fronts internal apps.
 4. The origin the Agent Marketplace is served from, for `FRAME_ANCESTORS`.
+5. Whether egress from Cloud Run to `*-aiplatform.googleapis.com` is open. On a
+   locked-down VPC it may need Private Google Access or a Serverless VPC
+   connector, and that is a network request rather than a change here.
+
+There is no model to provision and no endpoint to create: Gemini on Vertex AI
+is a publisher model that exists in any project with the API enabled. If the
+environment offers a dedicated endpoint instead, that works and needs a
+two-line change, and the trade is set out at the end of
+[GCP-SETUP.md](GCP-SETUP.md#if-you-are-given-a-real-endpoint-instead).
 
 ## Putting it in the Agent Marketplace
 
