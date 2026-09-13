@@ -73,7 +73,7 @@ winget install Git.Git
 
 ## 3. Node.js, optional
 
-Only needed to run the browser test (`run.cmd test` runs it if it is there and
+Only needed to run the browser test (`.\run.cmd test` runs it if it is there and
 skips it politely if not). Skip this unless you want the full check.
 
 ```powershell
@@ -139,7 +139,7 @@ JavaScript and HTML out of the box.
 VS Code needs to know which Python to use, and you want the one in the
 project's `.venv`, not the system one.
 
-1. Run `run.cmd` once first, so `.venv` exists.
+1. Run `.\run.cmd` once first, so `.venv` exists.
 2. In VS Code press **Ctrl+Shift+P**, type `Python: Select Interpreter`, press
    Enter.
 3. Choose the one whose path contains `.venv`. It is usually top of the list
@@ -151,7 +151,7 @@ this, the code still runs; you just lose the useful red squiggles.
 ### The terminal inside VS Code
 
 **Ctrl+`** (the backtick, above Tab) opens a terminal already sitting in the
-project folder. That is where you type `run.cmd`. It is the same terminal as
+project folder. That is where you type `.\run.cmd`. It is the same terminal as
 any other, just conveniently placed.
 
 If it opens PowerShell and `run.cmd` misbehaves, type `.\run.cmd` instead:
@@ -170,7 +170,7 @@ NW_PROVIDER=gemini
 NW_API_KEY=paste-your-key-here
 ```
 
-Save, then run `run.cmd` again. The badge on the ask bar will name the model
+Save, then run `.\run.cmd` again. The badge on the ask bar will name the model
 instead of saying "local rules, no model".
 
 **Leave `NW_MODEL` alone unless you have a reason.** Model names get retired:
@@ -180,7 +180,7 @@ your key what it can actually call and picks a live one. To see that list
 yourself:
 
 ```powershell
-run.cmd models
+.\run.cmd models
 ```
 
 **`.env` is git-ignored on purpose**, so the credential stays on this host and never
@@ -195,7 +195,7 @@ winget install Python.Python.3.12
 winget install Microsoft.VisualStudioCode
 # close and reopen the terminal
 cd C:\path\to\nw_digital_city
-run.cmd
+.\run.cmd
 ```
 
 First run takes a minute or two while it builds the virtual environment. After
@@ -206,15 +206,19 @@ that it starts in a couple of seconds and opens your browser at
 
 ## The commands, and what they do
 
+**The leading `.\` is required.** PowerShell does not run a command from the
+current directory without it, and VS Code opens PowerShell by default. It is
+accepted by the old command prompt as well, so it is the form to use in both.
+
 | Command | What it does |
 | --- | --- |
-| `run.cmd` | Starts the city with the agent behind it and opens a browser |
-| `run.cmd serve lan` | The same, but reachable from a phone on the same wifi |
-| `run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
-| `run.cmd eval` | Asks the model six questions and prints what it decided for each |
-| `run.cmd eval all` | All 32, which needs more than a free key's daily allowance |
-| `run.cmd models` | Lists the models your key can actually call |
-| `run.cmd package` | Writes `NW Digital City.html`, one file safe to email |
+| `.\run.cmd` | Starts the city with the agent behind it and opens a browser |
+| `.\run.cmd serve lan` | The same, but reachable from a phone on the same wifi |
+| `.\run.cmd test` | Runs every check: unit tests, the agent's question set, the browser |
+| `.\run.cmd eval` | Asks the model six questions and prints what it decided for each |
+| `.\run.cmd eval all` | All 32, which needs more than a free key's daily allowance |
+| `.\run.cmd models` | Lists the models your key can actually call |
+| `py run.py package` | Writes `NW Digital City.html`, one file safe to email. Needs no virtual environment and no installed packages, because packaging only reads `renderer/` |
 
 ## When something does not work
 
@@ -226,9 +230,9 @@ that it starts in a couple of seconds and opens your browser at
 | `run.cmd : The term is not recognized` | You are in the wrong folder, or PowerShell wants `.\run.cmd`. |
 | Badge says "local rules, no model" | No key in `.env`, or it was not restarted after you added one. |
 | Port already in use | Something is on 8099. `set NW_PORT=8100` then `run.cmd`. |
-| An HTML file will not open on an iPhone | iOS does not let a browser open a file saved on the device, and the Files preview does not run JavaScript. Use `run.cmd serve lan` and open the address it prints. |
-| The phone cannot reach `run.cmd serve lan` | Windows Firewall. It asks on the first run; allow it on private networks. Both devices must be on the same wifi, and a guest network usually blocks devices from seeing each other. |
+| An HTML file will not open on an iPhone | iOS does not let a browser open a file saved on the device, and the Files preview does not run JavaScript. Use `.\run.cmd serve lan` and open the address it prints. |
+| The phone cannot reach `.\run.cmd serve lan` | Windows Firewall. It asks on the first run; allow it on private networks. Both devices must be on the same wifi, and a guest network usually blocks devices from seeing each other. |
 | `npm.ps1 cannot be loaded ... not digitally signed` | PowerShell's script policy. Use `npm.cmd` instead of `npm`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
-| Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
+| Every eval question returns `404 Not Found` | The model name has been retired by the provider. Run `.\run.cmd models` to see what your key can call. Clearing `NW_MODEL` in `.env` lets one be chosen for you. |
 | 429, 503, or timeouts after a few good answers | The free tier's rate limit: about 5 requests a minute and 20 a day, **per model**. Set `NW_MODEL=gemini-3.5-flash-lite` in `.env` for a fresh allowance, or wait for the reset at midnight Pacific. Usage at <https://aistudio.google.com/apikey>. |
-| Every question times out | The network cannot reach Google. `run.cmd models` says which of the three it is. A corporate proxy needs `setx HTTPS_PROXY http://your-proxy:port`, and a proxy that re-signs certificates also needs `setx SSL_CERT_FILE` pointing at the company root certificate. |
+| Every question times out | The network cannot reach Google. `.\run.cmd models` says which of the three it is. A corporate proxy needs `setx HTTPS_PROXY http://your-proxy:port`, and a proxy that re-signs certificates also needs `setx SSL_CERT_FILE` pointing at the company root certificate. |

@@ -184,7 +184,7 @@ answers with its own rules.
 ./run.sh models     # which models the configured key can actually call
 ```
 
-On Windows the same six are `run.cmd test`, `run.cmd eval`, and so on.
+On Windows the same six are `.\run.cmd test`, `.\run.cmd eval`, and so on.
 
 `run.sh test` is the whole thing in one command: 127 data, privacy, document
 and security assertions, the agent's question set, then the renderer driven in a real
