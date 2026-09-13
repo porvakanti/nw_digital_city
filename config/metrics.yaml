@@ -34,6 +34,85 @@ city:
 # LAYER BINDINGS. What each visible thing in the city is driven by.
 # Each value must name a key from `metrics:` below.
 # ---------------------------------------------------------------------------
+# STREET LIFE
+#
+# Vehicles and pedestrians, bound to a district-level measure. Every other
+# encoding in this file is per category and is read close up, one lot at a
+# time. This one is read at the wide view, before anything is clicked, and it
+# was the only visual channel computed inline in the renderer rather than
+# declared here.
+#
+# `metric` names a key under a district's `totals.journey`, so `total`,
+# `blueprint`, `usage` or `ai`. The default is the whole score: a district
+# that has written its blueprints, had them used and generated briefs from
+# them is busy, and one that has done none of it is quiet.
+#
+# Alternatives, both previously used and both rejected:
+#
+#   spend_share    what this was. Spend is already the lot area and the
+#                  houses, so traffic made it a third encoding of one
+#                  measure while the journey had none at the wide view. It
+#                  also put the busiest streets around the smallest block:
+#                  Managed Services and Outsourcing holds 37.7% of the money
+#                  in ten categories, so a small block had heavy traffic
+#                  beside a large quiet one, which reads as a fault.
+#   road_length    ambience. A fact about the drawing, not about Networks.
+#
+street_life:
+  metric: total
+
+  # District scores occupy 9 to 28 out of 100, so mapping the full 0 to 100
+  # range leaves every district looking the same. The observed range is
+  # stretched across `quiet` to `busy` instead.
+  #
+  # Stretching a narrow range manufactures contrast, though: eight districts
+  # within a point of each other would still show a 6x difference in traffic.
+  # So the gain is scaled by how wide the spread actually is, as a share of
+  # the highest score. At the current spread of 0.68 the stretch is close to
+  # full; a converged estate would correctly look uniformly busy.
+  quiet: 0.40
+  busy: 2.40
+
+  # Length still counts for something, so a long avenue is not emptier than
+  # the short link beside it.
+  vehicles: 58
+  cyclists: 20
+
+  # People on the pavement strip between a district's kerb and its first
+  # plot. Standing figures in twos and threes read as conversation, which is
+  # what makes the district look occupied rather than merely driven through.
+  #
+  # Nothing is encoded in the mix of behaviours. The count carries the
+  # meaning; the behaviour is life. A viewer asking what two people talking
+  # signifies should be told "nothing, that district is busy" rather than
+  # given a strained answer.
+  # 54 was too few to see. Spread across eight districts and 31 plots, a
+  # third of them standing still, it came to one or two clusters a district,
+  # and a stationary figure has no motion to catch the eye at the default
+  # camera. The layer is only worth having if it is legible without zooming.
+  people: 140
+  standing: 0.55        # of those, the share in stationary clusters
+  cluster_max: 4        # people in the largest cluster
+
+  # A district busy enough to warrant four lanes gets a second lane marking
+  # either side of the centre line, and its vehicles use both lanes in each
+  # direction. Expressed as a share of the way up the quiet-to-busy range, so
+  # it follows the scores rather than a fixed point on them: at 0.55 the
+  # districts above the middle of the observed spread are dual-lane.
+  #
+  # The carriageway is not widened. Road width is set by the district grid,
+  # and widening it would move every plate and every margin that has been
+  # measured against the ground plate. Four lanes of paint on the same asphalt
+  # is what a busier road looks like from this camera anyway.
+  four_lane_above: 0.55
+
+  # Placement bias toward lots that have something standing on them, so a
+  # plot of bare ground reads as deserted at close range. At 1.0 nobody
+  # stands near an empty lot, which is too stark when 89 of 145 are bare; at
+  # 0 placement ignores what is built.
+  built_bias: 0.7
+
+# ---------------------------------------------------------------------------
 # Each layer carries two pieces of copy. `caption` is one line, and it is what
 # the legend shows: five measures and a paragraph each is a wall of text in a
 # corner panel, which nobody reads. `detail` is the full explanation, and it is
