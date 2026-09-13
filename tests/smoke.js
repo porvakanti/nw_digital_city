@@ -760,29 +760,44 @@ async function onAPhone(browser) {
   /* Nothing may stand off the edge of the ground plate.
    *
    * Under this projection a point at height h lands where the ground point
-   * h * hypot(dx,dz)/dy behind it would, so a tall object near the city's edge
-   * appears above the plate's horizon with nothing behind it and reads as
-   * floating. A monument at the western edge did exactly that.
+   * h * hypot(dx,dz)/dy behind it would, so a tall object near the city's
+   * edge appears above the plate's horizon with nothing behind it and reads
+   * as floating. A monument at the western edge did exactly that, and so
+   * later did the tram viaducts, which the margin had been sized without.
+   *
+   * Every lot, not only the monuments: the margin is now the shortfall left
+   * after each lot's own inset, so it is no longer a single figure that a
+   * check can satisfy itself about by looking at the tallest thing.
    */
   const grounded = await page.evaluate(() => {
     const plate = window.NWCity.plate();
     const L = window.NWCity.layout;
-    // The same shift the renderer derives the margin from, per ground axis.
-    const shift = plate.clearance / plate.tallest;
     const off = [];
-    for (const code of window.NWCity.monuments()) {
-      const b = L.buildings.find((x) => x.category.code === code);
-      const back = (b.top || 0) * shift;
-      if (b.x - back < -plate.w / 2 || b.z - back < -plate.d / 2) {
-        off.push(`${code} at x${b.x.toFixed(0)} z${b.z.toFixed(0)} top${(b.top || 0).toFixed(0)}`);
+    const clears = (name, x, z, height) => {
+      const back = height * plate.behind;
+      if (x - back < -plate.w / 2 || z - back < -plate.d / 2) {
+        off.push(`${name} top ${height.toFixed(1)} at x${x.toFixed(0)} z${z.toFixed(0)}`);
       }
-    }
-    return { off, plate: `${plate.w.toFixed(0)}x${plate.d.toFixed(0)}`, tallest: plate.tallest.toFixed(1) };
+    };
+    for (const b of L.buildings) clears(b.category.code, b.x, b.z, b.top || 0);
+    // And the viaducts, which run along the ring road outside the districts,
+    // so they start beyond the block rather than inside it.
+    clears("viaduct",
+      -L.size.w / 2 - plate.flyoverOut,
+      -L.size.d / 2 - plate.flyoverOut,
+      plate.flyover);
+    return {
+      off,
+      plate: `${plate.w.toFixed(0)}x${plate.d.toFixed(0)}`,
+      tallest: plate.tallest.toFixed(1),
+      lots: L.buildings.length,
+    };
   });
-  check("no monument stands off the edge of the ground",
+  check("nothing stands off the edge of the ground",
     grounded.off.length === 0,
-    grounded.off.length ? grounded.off.join("; ")
-      : `plate ${grounded.plate}, tallest assembly ${grounded.tallest}`);
+    grounded.off.length ? grounded.off.slice(0, 4).join("; ")
+      : `${grounded.lots} lots and the viaducts, on a plate ${grounded.plate},`
+        + ` tallest assembly ${grounded.tallest}`);
 
   /* A monument has to be taller than every plain tower.
    *
