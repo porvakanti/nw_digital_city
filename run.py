@@ -193,10 +193,11 @@ def single_file() -> Path:
 def package() -> int:
     """Two things to send: one file to open, and a zip of the folder.
 
-    Both are built from a named list rather than by walking a folder. data/raw
-    holds the source workbook with blueprint owner names and email addresses in
-    it, and the surest way that never reaches anyone is for the thing you send
-    to be assembled from names you can read.
+    Both are assembled from renderer/ alone, never from the repository root.
+    data/raw holds the source workbook with blueprint owner names and email
+    addresses in it, and the surest way that never reaches anyone is for the
+    thing you send to be built from one folder that has never held it. The
+    single file goes further and names each part it inlines.
     """
     import zipfile
 
