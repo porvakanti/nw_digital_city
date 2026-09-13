@@ -520,5 +520,69 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
             )
 
 
+class TestTheStreetLifeBinding(unittest.TestCase):
+    """The on-screen words against the measure they describe.
+
+    The legend and the explainer both stated that the busiest streets are
+    where the money is. That was true of the previous binding and survived the
+    change to the journey score, so two places on screen described an encoding
+    the renderer had stopped using. Copy that names a measure has to be
+    checkable against the measure.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.config = yaml.safe_load(
+            (REPO / "config" / "metrics.yaml").read_text(encoding="utf-8"))
+        cls.legend = (REPO / "renderer" / "index.html").read_text(encoding="utf-8")
+        cls.ground = cls.config["explainer"]["ground"]
+
+    def test_the_block_exists_and_names_a_component_of_the_score(self):
+        life = self.config.get("street_life")
+        self.assertIsNotNone(life, "street_life is the binding; it must be declared")
+        self.assertIn(
+            life["metric"], ("total", "blueprint", "usage", "ai"),
+            "street_life.metric names a key under a district's journey totals",
+        )
+
+    def test_neither_the_legend_nor_the_explainer_still_says_spend(self):
+        stale = "the busiest streets are where the money is"
+        self.assertTrue(stale not in self.legend,
+                        "the legend still describes the old spend binding")
+        self.assertNotIn("traffic follows the same figure", self.ground,
+                         "the explainer still describes the old spend binding")
+
+    def test_both_say_what_the_streets_actually_follow(self):
+        # assertTrue, not assertIn: the built-in message for a missing
+        # substring prints the whole haystack, and the haystack here is a
+        # 90KB HTML file.
+        self.assertTrue(
+            "journey score" in self.ground,
+            "the explainer's ground text must name the measure the street "
+            "life is bound to",
+        )
+        self.assertTrue(
+            "journey score" in self.legend,
+            "the legend must name the measure the street life is bound to",
+        )
+
+    def test_the_counts_are_declared_rather_than_hardcoded(self):
+        life = self.config["street_life"]
+        for key in ("vehicles", "cyclists", "people", "standing", "cluster_max",
+                    "built_bias", "on_streets", "four_lane_above", "quiet", "busy"):
+            self.assertIn(key, life, f"{key} belongs in config, not in the renderer")
+        self.assertGreater(life["people"], 100,
+                           "54 figures could not be seen across eight districts")
+        for share in ("standing", "built_bias", "on_streets", "four_lane_above"):
+            self.assertTrue(0 <= life[share] <= 1, f"{share} is a share of one")
+
+    def test_the_renderer_reads_the_block_rather_than_its_own_numbers(self):
+        city = (REPO / "renderer" / "city.js").read_text(encoding="utf-8")
+        self.assertTrue("CONFIG.street_life" in city,
+                        "the renderer must read the declared binding")
+        self.assertTrue("spendShare" not in city,
+                        "the spend-weighted traffic should be gone, not dormant")
+
+
 if __name__ == "__main__":
     unittest.main()

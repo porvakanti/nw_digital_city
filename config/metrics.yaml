@@ -218,9 +218,16 @@ explainer:
     follows the average spend per category in the plot, square-root
     compressed: the largest plot is 400 times the smallest, so drawn
     literally the small end would be a single pixel. Lots stay uniform inside
-    a plot, so an empty one is still countable as an empty one. Street
-    traffic follows the same figure, which is why the busiest roads are in
-    the districts that spend most.
+    a plot, so an empty one is still countable as an empty one.
+
+    Street life is the one thing here measured per district rather than per
+    lot. Traffic, the people on a district's own ground, and whether its
+    streets are marked for two lanes or four all follow the district's
+    journey score, so a district that has written its blueprints, had them
+    used and generated briefs from them is busy, and one that has done none
+    of it is quiet. It was spend until it became clear that spend already
+    had the lot area and the houses, and that the journey had nothing at all
+    at the wide view.
   caveats:
     - title: There is no time in this data
       body: >-
