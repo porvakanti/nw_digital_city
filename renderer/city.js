@@ -2029,8 +2029,9 @@
       pieces.ghosts.push({ bucket: "ghostSolid", i: ghostSolid.add(x, 0.62 + h / 2, z, FOOT, h, FOOT) });
     }
 
-    // Houses and hotel along the front of the lot. On an undeveloped plot they
-    // are ghosted, because the value is real but the development is not.
+    // Houses and hotel along the front of the lot, drawn whatever the blueprint
+    // state is. The reasoning is with the `front` constant below, where the
+    // decision to stop ghosting them was made.
     if (pieceCount > 0) {
       // Houses and a hotel have to be told apart at a glance, so they differ in
       // silhouette rather than only in colour: a house is a small cube under a

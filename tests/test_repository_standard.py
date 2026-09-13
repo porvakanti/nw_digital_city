@@ -74,15 +74,32 @@ FORBIDDEN: dict[str, tuple[str, str]] = {
 }
 
 
+# Gitignored working documents. They are held to the same writing standard as
+# everything else when the checkout has them: a document that stops being
+# tracked must not quietly stop being edited, and these are the ones most
+# likely to be read aloud or pasted into a message.
+ALSO = (
+    "docs/PRESENTING.md",
+    "docs/REVIEW-LOG.md",
+    "docs/DESIGN.md",
+)
+
+
 def tracked() -> list[pathlib.Path]:
     listing = subprocess.run(
         ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
     )
-    return [
+    files = [
         REPO / name
         for name in listing.stdout.split("\0")
         if name and not any(part in name for part in EXCLUDED)
     ]
+    seen = {path.resolve() for path in files}
+    for name in ALSO:
+        extra = REPO / name
+        if extra.is_file() and extra.resolve() not in seen:
+            files.append(extra)
+    return files
 
 
 class TestRepositoryStandard(unittest.TestCase):

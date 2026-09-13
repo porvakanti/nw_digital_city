@@ -11,9 +11,9 @@ This document describes the component structure, the interfaces between
 components, the runtime interactions, the data pipeline, the security controls
 and the deployment topology in both its current and target states.
 
-Design rationale is in [DESIGN.md](DESIGN.md). Measure definitions are in
-[JOURNEY-SCORE.md](JOURNEY-SCORE.md). Operational procedures are in [DEPLOY.md](DEPLOY.md)
-and [TESTING.md](TESTING.md).
+Measure definitions are in [JOURNEY-SCORE.md](JOURNEY-SCORE.md). Operational
+procedures are in [DEPLOY.md](DEPLOY.md), [GCP-SETUP.md](GCP-SETUP.md) and
+[TESTING.md](TESTING.md).
 
 ## 2. Architectural drivers
 

@@ -24,5 +24,22 @@ nw-digital-city.zip
 # a 0.9 MB generated file in every diff would bury the changes that matter.
 NW Digital City.html
 
-# Generated for sharing, rebuilt from docs/FEEDBACK-CLASSIFICATION.md.
+# Generated for sharing. Rebuilt from its source, never committed.
 NW Digital City - Feedback Review.xlsx
+
+# Internal working documents. The repository is handed to whoever deploys it,
+# and these three are not theirs to read: the walkthrough script is written to
+# be spoken by one person, the review log is a working trail of findings, and
+# the design rationale records what was rejected and why. Everything an
+# environment owner or a maintainer needs is in the documents that remain.
+#
+# Untracked from this commit onward rather than purged from history: the
+# repository is private, and rewriting history would break the merged pull
+# request links for no gain.
+#
+# tests/test_repository_standard.py still holds these to the writing standard
+# when they are present, so an untracked document does not become an unedited
+# one. tests/test_docs.py skips the checks that need one that is absent.
+docs/PRESENTING.md
+docs/REVIEW-LOG.md
+docs/DESIGN.md
