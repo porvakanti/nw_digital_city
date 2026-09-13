@@ -71,6 +71,46 @@ function findChromium() {
  */
 const NAVIGATION = 90000;
 
+/* Convex hull of a handful of points, and point-in-hull.
+ *
+ * Used to test whether the speech bubble covers the lot it describes. A lot
+ * projects to a hexagon under this camera, so its bounding box is half empty
+ * corner and a box test answers the wrong question.
+ */
+function convexHull(points) {
+  const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (pts.length < 3) return pts;
+  const cross = (o, a, c) =>
+    (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]);
+  const half = (list) => {
+    const out = [];
+    for (const p of list) {
+      while (out.length >= 2 && cross(out[out.length - 2], out[out.length - 1], p) <= 0) {
+        out.pop();
+      }
+      out.push(p);
+    }
+    return out;
+  };
+  const lower = half(pts);
+  const upper = half(pts.slice().reverse());
+  return lower.slice(0, -1).concat(upper.slice(0, -1));
+}
+
+function insideHull(hull, x, y) {
+  if (hull.length < 3) return false;
+  let sign = 0;
+  for (let i = 0; i < hull.length; i++) {
+    const a = hull[i], b = hull[(i + 1) % hull.length];
+    const side = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
+    if (Math.abs(side) < 1e-9) continue;
+    const now = side > 0 ? 1 : -1;
+    if (sign === 0) sign = now;
+    else if (now !== sign) return false;
+  }
+  return true;
+}
+
 let failures = 0;
 const check = (name, ok, detail) => {
   if (!ok) failures++;
@@ -818,6 +858,59 @@ async function onAPhone(browser) {
   check("every monument stands above every plain tower",
     heights.shortestMonument > heights.tallestPlain,
     `shortest monument ${heights.shortestMonument.toFixed(1)} vs tallest plain tower ${heights.tallestPlain.toFixed(1)}`);
+
+  /* The pin goes over what is selected; the bubble goes beside it.
+   *
+   * The pin used to ride above the figure's head, and the figure stands at
+   * the foot of whatever was selected, so on anything tall the pin sat
+   * halfway up the thing it was pointing at and the bubble landed on the
+   * roof: "The Parthenon stands here" printed across the Parthenon.
+   *
+   * Measured in screen space, because that is where both are placed and
+   * where the fault was. Checked on a monument, a plain tower and an empty
+   * lot, because the three have very different heights and the tall ones are
+   * what broke.
+   */
+  const marked = [];
+  for (const code of ["A251", "D408", "A221", "A311"]) {
+    await page.evaluate((c) => window.NWCity.focus(c), code);
+    await page.waitForTimeout(1700);
+    const seen = await page.evaluate(() => window.NWCity.spotlightBox());
+    if (!seen) { marked.push({ code, missing: true }); continue; }
+    /* Against the silhouette, not its bounding box.
+     *
+     * A lot projects to a hexagon and its bounding box is half empty corner,
+     * so a box test reports the bubble as covering the monument when it is
+     * sitting in the gap beside it. The bubble's rectangle is sampled on a
+     * grid and each sample tested against the hull of the lot's projected
+     * corners, which is the shape a viewer actually sees. */
+    const hull = convexHull(seen.corners);
+    const b = seen.bubble;
+    let inside = 0;
+    for (let i = 0; i <= 24; i++) {
+      for (let j = 0; j <= 8; j++) {
+        const x = b.left + (b.width * i) / 24;
+        const y = b.top + (b.height * j) / 8;
+        if (insideHull(hull, x, y)) inside++;
+      }
+    }
+    marked.push({
+      code,
+      // The pin stands over the lot, at or above whatever is built on it.
+      onLot: Math.abs(seen.pin.x - seen.lot.x) < 0.01
+        && Math.abs(seen.pin.z - seen.lot.z) < 0.01
+        && seen.pin.y > seen.lot.top,
+      inside,
+    });
+  }
+  check("the pin stands over the lot that is selected",
+    marked.every((m) => m.onLot),
+    marked.map((m) => `${m.code} ${m.missing ? "no spotlight" : m.onLot}`).join(", "));
+  check("the bubble does not cover what it is describing",
+    marked.every((m) => m.inside === 0),
+    marked.map((m) => `${m.code} ${m.inside} of 225 samples on the lot`).join(", "));
+  await page.evaluate(() => window.NWCity.reset());
+  await page.waitForTimeout(800);
 
   /* A panel that scrolls takes the pointer, and scrolling it does not pan.
    *

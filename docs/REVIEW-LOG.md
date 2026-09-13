@@ -206,6 +206,13 @@ had nothing to read at a distance: a disc under a unit across disappears at
 the default camera, and the city looked as though four categories had AI
 activity when eight do. A first attempt now gets a short beam and repeated use
 a tall one, which keeps both facts and keeps them in order.
+
+The beam also tapers, narrow at the roof and full at the top. A straight
+cylinder is the same width thirteen units up as it is at the roofline, which
+reads as a bar rather than as light leaving something, and it puts the widest
+part where there is nothing behind it to compete with. Not too narrow at the
+base: at a fifth of the top width the two thin beams came to a point and
+looked broken.
 *Check:* press **N**. Eight rooftop lights: tall beams on A212, A251, A213 and
 A314, which have two generated briefs each, and short ones on D506, D303, D513
 and D333, which have one.
@@ -277,11 +284,29 @@ footprint against every other and fails on any overlap.
 *Check:* look at each of the eight. None is behind or inside anything.
 
 **28. The speech bubble covered the marker pin.**
-The bubble is anchored above the pin rather than above the head, and it tracks
-the figure's live scale rather than a constant, so the two no longer drift
-apart as the camera pulls back.
-*Check:* ask any question. The yellow pin stays visible under the bubble at
-every zoom.
+The bubble was anchored above the figure's head, and it tracked a constant
+scale while the pin tracked the live one, so the two drifted apart as the
+camera pulled back.
+
+Fixed twice. The bubble moved above the pin, which uncovered the pin and left
+the bubble over the building instead: the figure stands at the foot of
+whatever is selected, so on anything tall the words landed on the roof, and
+"The Parthenon stands here" was printed across the Parthenon.
+
+Now the pin marks the **lot** while one is selected, sitting above whatever is
+built on it, and the bubble goes **beside** that lot rather than above it,
+cleared of the lot's own width on screen with the tail pointing back at the
+pin. It picks the side with less in the way and can slide up or down to dodge
+a panel, because the title deed opens on the right the moment a lot is
+selected and the legend holds the left; the tail is drawn wherever the pin
+ends up relative to the bubble, so it keeps pointing at the right thing. With
+nothing selected the pin goes back over the figure's head, because then the
+figure is the thing worth finding.
+*Check:* click a monument, a plain tower and an empty lot. The pin is on top
+of each; the bubble is beside it and covers neither the lot nor a panel. A
+check measures this against the lot's projected silhouette rather than its
+bounding box, because a lot projects to a hexagon and half of its bounding
+box is empty corner.
 
 ---
 
