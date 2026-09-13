@@ -78,9 +78,12 @@ street_life:
   vehicles: 58
   cyclists: 20
 
-  # People on the pavement strip between a district's kerb and its first
-  # plot. Standing figures in twos and threes read as conversation, which is
-  # what makes the district look occupied rather than merely driven through.
+  # People on a district's own free ground, which is 44% to 66% of each plate.
+  # They were on the street pavements, and the streets run between the plates
+  # rather than through them, so every figure stood outside the coloured
+  # ground it was describing and a district read as deserted however busy its
+  # approaches were. Standing figures in twos and threes read as conversation,
+  # which is what makes a district look occupied rather than driven past.
   #
   # Nothing is encoded in the mix of behaviours. The count carries the
   # meaning; the behaviour is life. A viewer asking what two people talking
@@ -105,6 +108,11 @@ street_life:
   # measured against the ground plate. Four lanes of paint on the same asphalt
   # is what a busier road looks like from this camera anyway.
   four_lane_above: 0.55
+
+  # The share left on the street pavements rather than inside a district. A
+  # city with busy interiors and empty streets reads as odd, and the streets
+  # are where the vehicles already are.
+  on_streets: 0.2
 
   # Placement bias toward lots that have something standing on them, so a
   # plot of bare ground reads as deserted at close range. At 1.0 nobody
