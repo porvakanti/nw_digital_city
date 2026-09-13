@@ -533,6 +533,15 @@
   // Low segment counts: these appear on at most a handful of monuments, and a
   // sphere is the one shape the brick vocabulary cannot fake.
   const sphere = new THREE.SphereGeometry(0.5, 14, 10);
+  /* The reactor beam, tapered.
+   *
+   * A straight cylinder is the same width at the roof as it is thirteen units
+   * up, which reads as a bar rather than as light leaving something. Narrow at
+   * the bottom and full at the top is what a beam does, and it puts the widest
+   * part where there is nothing behind it to compete with. Not too narrow at
+   * the base: at a fifth of the top the two thin beams came to a point and
+   * looked broken. */
+  const flare = new THREE.CylinderGeometry(0.5, 0.27, 1, 12);
 
   /* Warm sandstone against a city of cool blues and greys. The first pass
    * used a pale stone that vanished into the pale district buildings behind
@@ -2120,7 +2129,7 @@
   };
   const poolMesh = lightPools.mesh(disc, matPool, false, false);
   if (poolMesh) scene.add(poolMesh);
-  const beamMesh = beams.mesh(cyl, matBeam, false, false);
+  const beamMesh = beams.mesh(flare, matBeam, false, false);
   if (beamMesh) scene.add(beamMesh);
   Object.values(BUCKETS).forEach((entry) => entry.mesh && scene.add(entry.mesh));
 
@@ -2591,12 +2600,22 @@
     return gaps.length ? gaps.join(" · ") : "Nothing. This one is the whole journey.";
   }
 
+  /* The lot the city is currently talking about, or null.
+   *
+   * The marker pin and the speech bubble both follow this rather than the
+   * figure: the figure stands at the foot of whatever was selected, so a pin
+   * over its head sits halfway up the thing it is pointing at and the bubble
+   * lands on the roof. */
+  let spotlight = null;
+
   function showCategory(category) {
     showOnArc(category);
     if (!category) {
+      spotlight = null;
       inspector.classList.remove("on");
       return;
     }
+    spotlight = positionOf.get(category.code) || null;
     const m = category.metrics;
     const heightTier = tierOf(layerMetric("height"), valueFor(category, "height"));
     const valueTier = tierOf(layerMetric("value"), valueFor(category, "value"));
@@ -3201,13 +3220,28 @@
       figure.rotation.y += turn * Math.min(1, delta * 3);
     }
 
-    const lift = 4.1 * figure.scale.y / FIGURE_SCALE;
-    marker.position.set(
-      figure.position.x,
-      figure.position.y + lift + Math.sin(now * 2.4) * 0.16,
-      figure.position.z
-    );
-    marker.scale.setScalar(figure.scale.y / FIGURE_SCALE);
+    /* The pin marks what is being talked about.
+     *
+     * Over the figure while it wanders, because then the figure is the thing
+     * worth finding. Over the lot once one is selected, because then the lot
+     * is: a pin at the figure's own head height sits halfway up a monument
+     * and points at nothing in particular. */
+    const scale = figure.scale.y / FIGURE_SCALE;
+    const bob = Math.sin(now * 2.4) * 0.16;
+    if (spotlight) {
+      marker.position.set(
+        spotlight.x,
+        (spotlight.top || 0) + 1.5 * scale + bob,
+        spotlight.z
+      );
+    } else {
+      marker.position.set(
+        figure.position.x,
+        figure.position.y + 4.1 * scale + bob,
+        figure.position.z
+      );
+    }
+    marker.scale.setScalar(scale);
     marker.rotation.y = now * 1.1;
 
     // Arms swing when moving, and go up when the building lands.
@@ -3317,24 +3351,135 @@
     captionEl.classList.add("on");
   }
 
-  /* Anchored above the marker pin, not above the head.
+  /** A world point in screen pixels. */
+  function toScreen(point) {
+    const p = point.clone().project(camera);
+    return {
+      x: (p.x * 0.5 + 0.5) * window.innerWidth,
+      y: (-p.y * 0.5 + 0.5) * window.innerHeight,
+      infront: p.z < 1,
+    };
+  }
+
+  /* The bubble goes beside what is being talked about, never over it.
    *
-   * The pin is how the figure is found in a wide shot, and the bubble was
-   * pinned at head height with a 12px lift, which put it straight over the
-   * pin. Clearing the pin also fixes a second fault: the old anchor used the
-   * constant FIGURE_SCALE while the pin uses the live scale, so the two drifted
-   * apart as the camera pulled back and the figure grew. */
+   * It used to sit above the figure's head, which is above the foot of the
+   * selected lot, so on anything tall it covered the thing it was describing:
+   * the words "The Parthenon stands here" printed across the Parthenon.
+   *
+   * With a lot selected it is pushed clear of that lot's own width on screen
+   * and set at the marker's height, with the tail on the side pointing back
+   * at it. To the right by preference, to the left when the right would run
+   * off the screen, because a bubble half off the edge is worse than one on
+   * the other side. While the figure wanders there is nothing to clear, so it
+   * goes back over its head with the tail underneath.
+   */
   function placeBubble() {
     if (!bubbleText) return;
-    const head = figure.position.clone();
-    head.y += (4.1 * figure.scale.y / FIGURE_SCALE) + 1.1;
-    head.project(camera);
-    const x = (head.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-head.y * 0.5 + 0.5) * window.innerHeight - 12;
-    const onScreen = head.z < 1 && x > 0 && x < window.innerWidth;
-    bubbleEl.style.left = `${x}px`;
-    bubbleEl.style.top = `${y}px`;
-    bubbleEl.classList.toggle("on", onScreen);
+    const scale = figure.scale.y / FIGURE_SCALE;
+
+    if (!spotlight) {
+      const head = figure.position.clone();
+      head.y += 4.1 * scale + 1.1;
+      const at = toScreen(head);
+      bubbleEl.classList.remove("beside", "flip");
+      bubbleEl.style.left = `${at.x}px`;
+      bubbleEl.style.top = `${at.y - 12}px`;
+      bubbleEl.classList.toggle("on",
+        at.infront && at.x > 0 && at.x < window.innerWidth);
+      return;
+    }
+
+    const top = spotlight.top || 0;
+    const pin = toScreen(new THREE.Vector3(spotlight.x, top + 1.5 * scale, spotlight.z));
+    /* Half the lot's own width where it stands, in pixels.
+     *
+     * Measured at the x-plus, z-minus corner. The x-plus, z-plus corner is
+     * the intuitive choice and it is the one corner that cannot answer this:
+     * under this camera the two ground axes go to opposite sides of the
+     * screen, so that corner sits directly above the centre and measures a
+     * gap of nothing. The bubble was placed 24 pixels out from every lot and
+     * sat on the wide ones. */
+    const half = (spotlight.span || 1) * (spotlight.cell || CELL) / 2;
+    const side = toScreen(new THREE.Vector3(spotlight.x + half, top, spotlight.z - half));
+    const clear = Math.max(24, Math.abs(side.x - pin.x) + 18);
+
+    /* Which side, decided by what is actually free.
+     *
+     * Going right by default put the bubble straight over the title deed,
+     * which opens on the right the moment a lot is selected: one thing
+     * covered traded for another. Both sides are measured against the panels
+     * that are on screen and the edges of the window, and the one with less
+     * in the way wins. */
+    const width = bubbleEl.offsetWidth || 220;
+    const height = bubbleEl.offsetHeight || 50;
+    const obstacles = bubbleObstacles();
+    /* Both sides and a few heights, scored, best wins.
+     *
+     * Either side alone is often partly occupied: the title deed opens on the
+     * right the moment a lot is selected and the legend holds the left. Given
+     * somewhere to slide vertically the placer can usually find a clear spot,
+     * and the tail is drawn wherever the pin ended up relative to the bubble
+     * so it still points at the thing it belongs to.
+     *
+     * The vertical nudge is scored slightly against itself, so the bubble
+     * stays level with the pin unless moving earns it something. */
+    let best = null;
+    for (const flip of [false, true]) {
+      const left = flip ? pin.x - clear - width : pin.x + clear;
+      for (const dy of [0, -64, 64, -132, 132]) {
+        const top = pin.y + dy - height / 2;
+        const box = { left, right: left + width, top, bottom: top + height };
+        const off = Math.max(0, -box.left) + Math.max(0, box.right - window.innerWidth)
+          + Math.max(0, -box.top) + Math.max(0, box.bottom - window.innerHeight);
+        const cost = covered(box, obstacles) + off * width + Math.abs(dy) * 30;
+        if (!best || cost < best.cost) best = { cost, flip, dy, top };
+      }
+    }
+
+    bubbleEl.classList.add("beside");
+    bubbleEl.classList.toggle("flip", best.flip);
+    bubbleEl.style.left = `${pin.x + (best.flip ? -clear : clear)}px`;
+    bubbleEl.style.top = `${pin.y + best.dy}px`;
+    // Where the tail sits inside the bubble, so it keeps pointing at the pin
+    // however far the bubble has slid to get out of the way.
+    bubbleEl.style.setProperty("--tail", `${pin.y - best.top}px`);
+    bubbleEl.classList.toggle("on",
+      pin.infront && pin.x > -clear && pin.x < window.innerWidth + clear);
+  }
+
+  /* The panels the bubble should not land on.
+   *
+   * Read live rather than listed as rectangles, because they move: the deed
+   * only exists while a lot is selected, the trace only while the agent has
+   * spoken, and any of them can be dragged somewhere else. */
+  const BUBBLE_AVOID = [
+    "masthead", "stats", "legend", "journey", "inspector",
+    "arc", "trace", "chips", "ask", "caption", "hint", "touchbar",
+  ];
+
+  function bubbleObstacles() {
+    const out = [];
+    for (const id of BUBBLE_AVOID) {
+      const el = document.getElementById(id);
+      if (!el || el.hidden) continue;
+      const style = getComputedStyle(el);
+      if (style.display === "none" || Number(style.opacity) === 0) continue;
+      const box = el.getBoundingClientRect();
+      if (box.width > 0 && box.height > 0) out.push(box);
+    }
+    return out;
+  }
+
+  /** How much of a box the given rectangles cover, in square pixels. */
+  function covered(box, rects) {
+    let sum = 0;
+    for (const r of rects) {
+      const w = Math.min(box.right, r.right) - Math.max(box.left, r.left);
+      const h = Math.min(box.bottom, r.bottom) - Math.max(box.top, r.top);
+      if (w > 0 && h > 0) sum += w * h;
+    }
+    return sum;
   }
 
   // -------------------------------------------------------------- controls
@@ -3897,6 +4042,40 @@
         lit: districtNames[i] ? districtNames[i].userData.lit.visible : null,
         stone: districtNames[i] ? districtNames[i].userData.stone.visible : null,
       }));
+    },
+    /* Where the marker pin is, and the screen box of what it marks.
+     *
+     * The pin belongs over the thing being talked about and the bubble beside
+     * it, never over it. Both are placed in screen space from a projection, so
+     * a check that read world coordinates would be checking a different
+     * calculation than the one that can go wrong. */
+    spotlightBox() {
+      if (!spotlight) return null;
+      const half = (spotlight.span || 1) * (spotlight.cell || CELL) / 2;
+      const top = spotlight.top || 0;
+      /* The eight corners of the lot's own volume, in screen pixels.
+       *
+       * Returned as points rather than as a bounding box. Under this
+       * projection a lot is a hexagon on screen and its bounding box is half
+       * empty corner, so a box overlap says the bubble is over the monument
+       * when it is sitting in the gap beside it. */
+      const corners = [];
+      for (const dx of [-half, half]) {
+        for (const dz of [-half, half]) {
+          for (const dy of [0, top]) {
+            const at = toScreen(new THREE.Vector3(spotlight.x + dx, dy, spotlight.z + dz));
+            corners.push([+at.x.toFixed(1), +at.y.toFixed(1)]);
+          }
+        }
+      }
+      const pin = marker.position;
+      return {
+        code: spotlight.category.code,
+        corners,
+        pin: { x: +pin.x.toFixed(2), y: +pin.y.toFixed(2), z: +pin.z.toFixed(2) },
+        lot: { x: +spotlight.x.toFixed(2), z: +spotlight.z.toFixed(2), top: +top.toFixed(2) },
+        bubble: document.getElementById("bubble").getBoundingClientRect(),
+      };
     },
     /* The ground plate, so a check can confirm nothing stands off the edge. */
     plate() {

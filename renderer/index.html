@@ -369,6 +369,28 @@
     pointer-events: none;
   }
   #bubble.on { opacity: 1; }
+  /* Beside the thing it describes, rather than over it, with the tail on the
+     side. `.flip` is the same bubble on the other side, for when the right
+     would run off the screen. */
+  #bubble.beside { transform: translate(0, -50%); }
+  #bubble.beside.flip { transform: translate(-100%, -50%); }
+  #bubble.beside::after {
+    left: -7px;
+    /* Set from the placer, so the tail keeps pointing at the pin however far
+       the bubble has slid up or down to get clear of a panel. */
+    top: var(--tail, 50%);
+    bottom: auto;
+    margin-left: 0;
+    margin-top: -7px;
+    border-top-color: transparent;
+    border-right-color: #f7f4ec;
+  }
+  #bubble.beside.flip::after {
+    left: auto;
+    right: -7px;
+    border-right-color: transparent;
+    border-left-color: #f7f4ec;
+  }
   #bubble::after {
     content: "";
     position: absolute;
