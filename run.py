@@ -357,7 +357,7 @@ STAGES = [
      lambda python: subprocess.call(
          [str(python), "-m", "unittest", "discover", "-s", "tests"], cwd=ROOT)),
     ("the agent's question set",
-     "the questions from the stage script, end to end, against whatever .env"
+     "the questions from the walkthrough, end to end, against whatever .env"
      " names",
      lambda python: subprocess.call([str(python), "-m", "app.eval"], cwd=ROOT)),
     ("the renderer from a file",

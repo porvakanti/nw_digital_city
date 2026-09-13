@@ -60,10 +60,12 @@ layers:
     metric: spend_eur
     caption: Commercial scale of sourcing activity
     detail: >-
-      Houses, then a hotel, in the Monopoly ladder. The thresholds are
-      rescaled for this estate: the largest single category is worth
-      €75m, so the original ">€100m = hotel" rung could never be reached
-      and 84% of categories collapsed into the bottom one.
+      Houses on the front of the lot, then a hotel, on the Monopoly ladder.
+      Four houses become one hotel, and the hotel is the same width as the
+      four it replaces, so the upgrade reads as an upgrade. This is the one
+      layer that has nothing to do with progress: the money is recorded
+      whether or not a blueprint exists, so a lot can carry a hotel on bare
+      ground. A311 does, and it is the largest empty lot in the estate.
   occupancy:
     metric: cbp_used
     caption: Whether anybody has used the blueprint
@@ -95,10 +97,33 @@ layers:
 # ---------------------------------------------------------------------------
 explainer:
   opening: >-
-    Every category in the blueprint estate is a lot of land. What stands on
-    the lot is how that category is doing. Nothing is decoration: if you can
-    see it, it came from the extract, and this page says which field it came
-    from.
+    Every Level 4 category in the blueprint estate is one lot of land. What
+    stands on the lot is what the extract says about that category: whether
+    the rules have been written, whether anybody has run a sourcing event
+    through them, what is being spent, and whether a brief has been generated
+    from them.
+  # What each of the three people who will be asked to act on this comes here
+  # to find out. Written as questions because that is how they arrive, and
+  # answered with where to look rather than with a conclusion.
+  audiences:
+    - who: If you own categories
+      body: >-
+        Find your lots and read what is missing from each. A tall building
+        with dark windows is a blueprint you have written and nobody has
+        used. Bare ground with a hotel on it is spend with no blueprint
+        behind it at all, and there are 89 of those.
+    - who: If you own adoption
+      body: >-
+        The card on every lot lists the markets that have taken the
+        blueprint, and the monuments are drawn from those markets. Ask about
+        a market by name to get its score, its rank and how many of its
+        blueprints anybody has actually used.
+    - who: If you own the AI agenda
+      body: >-
+        The reactors mark the eight categories where the rules are already
+        structured enough for a brief to be generated. Press N to see only
+        those eight against the rest of the estate, and read the AI component
+        on the scoreboard to see how little of the available credit that is.
   ground: >-
     The geography is the category tree. A district is a Level 2 area inside
     its own coloured kerb, a plot is a Level 3 group on the paler slab inside
@@ -132,6 +157,21 @@ explainer:
         Nobody chose the categories they hold. A manager carrying three
         untouched categories scores lower than one carrying three that were
         already live, and that is a fact about the portfolio.
+    - title: A category at 100 is not an autonomous category
+      body: >-
+        Autonomous is the top band of a four-band scale measuring three
+        things: a blueprint live across markets, repeated use, and briefs
+        generated from the rules. A category at 100 has every mark this data
+        can award. It is the end of what the extract can see, not the end of
+        the ambition, and the one category there is proof the three things can
+        happen together rather than proof the work is finished.
+    - title: Monuments move, and they are capped
+      body: >-
+        Assignment is recomputed at every build. A category that crosses the
+        threshold takes a monument and one that falls below loses it, so the
+        set will not be the same set in six months. The cap on how many exist
+        is what keeps them worth having: without it, scores only rise and
+        eventually every high scorer has one.
 
 # ---------------------------------------------------------------------------
 # THE JOURNEY SCORE
@@ -260,6 +300,16 @@ landmarks:
   # markets and used by none of them is not an achievement, and until this
   # threshold moved it was the thing a monument marked.
   min_score: 50
+
+  # And a hard cap, however many clear the threshold.
+  #
+  # Assignment is computed from the data at every build, so a category that
+  # crosses 50 next month takes a monument without anybody tracking it. That
+  # is the point, and it is also the risk: scores only go up, and thirty
+  # monuments would mean nothing. The threshold controls who is eligible and
+  # this controls how many there are, which is the number that matters. The
+  # highest scorers keep them.
+  max_landmarks: 10
 
   # Shown in the legend, so a viewer can name what they are looking at without
   # having to click the lot.

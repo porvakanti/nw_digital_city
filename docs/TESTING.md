@@ -23,7 +23,7 @@ than five summaries to interpret.
 | Stage | What it proves | Fails if |
 | --- | --- | --- |
 | **1. Data and privacy** | 127 assertions over `city.json`, the figures every document quotes, the plan parser, the model ladder and the service, including the whole security suite | a figure quoted in a document no longer matches the data, or a name, a contact detail or an API key could reach anyone |
-| **2. The agent's question set** | the questions from the stage script, end to end, against whatever `.env` names | a question that worked yesterday now resolves to the wrong place, or to nowhere |
+| **2. The agent's question set** | the questions from the walkthrough, end to end, against whatever `.env` names | a question that worked yesterday now resolves to the wrong place, or to nowhere |
 | **3. The renderer from a file** | the city opens, draws, answers and stays usable on a phone screen | a lot overlaps another, a plot contradicts its spend, a control lands off-screen, or the console throws |
 | **4. The renderer against the service** | the served page finds its own endpoint, asks for a plan and acts on the answer | the deployed path is broken, which the file path cannot see |
 | **5. The file we send** | the inlined single file does all of the above on its own | inlining broke something, and the file in somebody's inbox is a blank page |

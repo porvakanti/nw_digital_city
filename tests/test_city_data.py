@@ -420,6 +420,47 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
         self.assertEqual(8, len(lit))
         self.assertEqual(2, max(c["metrics"]["ai_rfps"] for c in lit))
 
+    def test_the_monument_count_is_capped(self):
+        """However many qualify, only so many monuments exist.
+
+        Assignment is recomputed at every build, and scores only rise, so the
+        threshold alone does not keep a monument scarce: it decides who is
+        eligible, and the cap decides how many there are. Nobody tracks this
+        by hand, which is the point and also the risk.
+        """
+        rules = load_config()["landmarks"]
+        cap = rules.get("max_landmarks")
+        self.assertIsNotNone(cap, "no cap means the count drifts with the data")
+        named = [c for c in self.cats if c.get("landmark")]
+        self.assertLessEqual(len(named), cap)
+
+        # And it is the highest scorers who keep them: nobody below the cut
+        # outscores anybody above it.
+        floor = rules["min_score"]
+        qualifying = sorted(
+            (c for c in self.cats
+             if c["blueprint_state"] == "active" and c["journey"]["total"] >= floor),
+            key=lambda c: -c["journey"]["total"],
+        )
+        if len(qualifying) > cap:
+            lowest_with = min(c["journey"]["total"] for c in named)
+            highest_without = max(
+                c["journey"]["total"] for c in qualifying if not c.get("landmark"))
+            self.assertGreaterEqual(lowest_with, highest_without)
+
+    def test_no_category_carries_a_stage_that_disagrees_with_its_score(self):
+        """The published data must not label a category with a stage.
+
+        It used to carry the blueprint rung's own stage, which is a different
+        thing from the category's: A251 at 100 out of 100 came out labelled
+        "connected" and A213 at 85 came out "traditional". A category's stage
+        is a band of the total, computed from the config where the rail is
+        drawn, and nothing read the field. A number in the published data that
+        contradicts the screen is worse than no number.
+        """
+        for category in self.cats:
+            self.assertNotIn("stage", category["journey"], category["code"])
+
     def test_no_config_value_was_truncated_by_an_unquoted_comma(self):
         """A comma inside a {curly} mapping ends the value.
 

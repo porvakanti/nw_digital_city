@@ -2375,9 +2375,16 @@
   }
 
   // ------------------------------------------------------------------- HUD
-  const euro = (n) =>
-    n >= 1e6 ? `€${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}m`
-      : n > 0 ? `€${Math.round(n / 1e3)}k` : "Not recorded";
+  /* Money, short. A whole number of millions loses its decimal, because
+   * "€1.0m" next to "€20m" in the same column reads as a different level of
+   * precision rather than as the same. */
+  const euro = (n) => {
+    if (n >= 1e6) {
+      const m = (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, "");
+      return `€${m}m`;
+    }
+    return n > 0 ? `€${Math.round(n / 1e3)}k` : "Not recorded";
+  };
 
   function renderStats() {
     const t = CITY.totals;
@@ -2608,6 +2615,21 @@
    * lands on the roof. */
   let spotlight = null;
 
+  /* The spend band behind a property tier, in brackets, or nothing.
+   *
+   * Read from the metric's own tiers, so it cannot disagree with what the
+   * lot is carrying. The bottom tier gets nothing: "No recorded spend
+   * (nothing recorded)" is not an explanation. */
+  function spendBand(tier) {
+    const tiers = metricDef(layerMetric("value")).tiers || [];
+    const at = tiers.indexOf(tier);
+    if (at < 0 || tier.max === 0) return "";
+    const under = tiers[at - 1];
+    const from = under && under.max !== null ? under.max : 0;
+    if (tier.max === null) return ` (above ${euro(from)})`;
+    return from === 0 ? ` (up to ${euro(tier.max)})` : ` (${euro(from)} to ${euro(tier.max)})`;
+  }
+
   function showCategory(category) {
     showOnArc(category);
     if (!category) {
@@ -2628,7 +2650,12 @@
         : category.blueprint_state === "active" ? "Never used" : "Not yet"],
       [metricDef(layerMetric("height")).label, `${heightTier.label} (${valueFor(category, "height")})`],
       ["Spend FY26/27", euro(m.spend_eur)],
-      ["Property", valueTier.label],
+      /* The property, and the band it is in.
+       *
+       * "Hotel" on its own invites the question the next row already answers,
+       * and the two are only linked if you know the ladder. This is the card
+       * somebody is looking at when they ask why this lot has a hotel. */
+      ["Property", `${valueTier.label}${spendBand(valueTier)}`],
       ["Blueprints", `${m.cbp_active} active · ${m.cbp_draft} draft`],
       ["Markets", category.markets.length ? category.markets.join(", ") : "None yet"],
     ];
@@ -3748,6 +3775,17 @@
    * picture. */
   const explainer = document.getElementById("explainer");
 
+  /* A tier label dropped into the middle of a sentence.
+   *
+   * Only the first letter, and only when the word is not an acronym:
+   * lowercasing the whole label turned "Several AI-generated RFPs" into
+   * "several ai-generated rfps". */
+  function soften(label) {
+    const text = String(label || "");
+    if (/^[A-Z]{2}/.test(text)) return text;
+    return text[0] ? text[0].toLowerCase() + text.slice(1) : text;
+  }
+
   function renderExplainer() {
     const copy = CONFIG.explainer || {};
     const counts = CITY.meta.counts;
@@ -3791,6 +3829,63 @@
     const built = CITY.categories.filter((c) => c.blueprint_state !== "none").length;
     const used = CITY.categories.filter((c) => (c.metrics.cbp_used || 0) > 0).length;
 
+    /* The three components, rung by rung.
+     *
+     * The single most asked question about this city was how a category gets
+     * to a number, and the answer was nowhere on screen: the weights were
+     * there, the rungs were not. There is no partial credit between rungs, so
+     * a category's total is always one of a small set of sums, and printing
+     * the rungs is the only way that is knowable from the interface.
+     */
+    const rungs = ["blueprint", "usage", "ai"].map((part) => {
+      const rows = (CONFIG.score[part] || []).map((rung) =>
+        `<tr><td>${rung.points}</td><td>${rung.label}</td></tr>`).join("");
+      const name = COMPONENT_LABEL[part];
+      return `<div class="pair">
+        <div class="name">${name[0].toUpperCase()}${name.slice(1)},
+          out of ${WEIGHTS[part]}</div>
+        <table class="rungs"><tbody>${rows}</tbody></table>
+      </div>`;
+    }).join("");
+
+    /* Two worked examples, chosen from the data rather than invented.
+     *
+     * The top scorer and the category that leads on reach and has never been
+     * used. Between them they show that the total is the three components
+     * added up and nothing else. */
+    const ranked = CITY.categories.slice()
+      .sort((a, b) => b.journey.total - a.journey.total);
+    const widest = CITY.categories.slice()
+      .sort((a, b) => (b.metrics.market_reach || 0) - (a.metrics.market_reach || 0))[0];
+    const worked = [ranked[0], widest].filter(Boolean).map((c) => {
+      const j = c.journey;
+      return `<tr><td>${c.code}</td>
+        <td>${Math.round(j.blueprint)} + ${Math.round(j.usage)} + ${Math.round(j.ai)}</td>
+        <td>${Math.round(j.total)}</td>
+        <td>${soften(j.labels.blueprint)}, ${soften(j.labels.usage)},
+          ${soften(j.labels.ai)}</td></tr>`;
+    }).join("");
+
+    /* The spend ladder, with the thresholds on it.
+     *
+     * "Houses, then a hotel" is not a rule anybody can apply. The numbers
+     * come from the metric's own tiers, so the table cannot disagree with
+     * what is drawn on the lots. */
+    const spendDef = metricDef(layerMetric("value"));
+    const money = (spendDef.tiers || []).map((tier, i, all) => {
+      const under = all[i - 1];
+      const from = under && under.max !== null ? under.max : 0;
+      /* Four cases, and the middle two are easy to get wrong. The bottom
+       * tier is nought, so its band is not a range; the tier above it starts
+       * at nought, so euro() renders its lower bound as "Not recorded" and
+       * the row read "Not recorded to €1m". */
+      const band = tier.max === null ? `above ${euro(from)}`
+        : tier.max === 0 ? "nothing recorded"
+          : from === 0 ? `up to ${euro(tier.max)}`
+            : `${euro(from)} to ${euro(tier.max)}`;
+      return `<tr><td>${tier.label}</td><td>${band}</td></tr>`;
+    }).join("");
+
     const monuments = landmarks
       .map((mark) => byCode.get(mark.code))
       .filter(Boolean)
@@ -3812,6 +3907,9 @@
       <section>
         <h3>What you are looking at</h3>
         <p>${copy.opening || ""}</p>
+        <div class="pairs">${(copy.audiences || []).map((a) => `<div class="pair">
+          <div class="name">${a.who}</div>
+          <div class="what">${a.body}</div></div>`).join("")}</div>
       </section>
 
       <section>
@@ -3825,34 +3923,83 @@
       </section>
 
       <section>
-        <h3>The score</h3>
-        <p>${WEIGHTS.blueprint} points for the blueprint, ${WEIGHTS.usage} for
-          anybody using it, ${WEIGHTS.ai} for doing it with AI.
-          ${COMPONENT_LABEL.usage[0].toUpperCase()}${COMPONENT_LABEL.usage.slice(1)}
+        <h3>How a category gets to a number</h3>
+        <p>Three components added together, out of 100. Each has fixed rungs
+          and there is no partial credit between them, so a category's total
+          is always one of a small set of sums.</p>
+        <div class="pairs three">${rungs}</div>
+        <p>${COMPONENT_LABEL.usage[0].toUpperCase()}${COMPONENT_LABEL.usage.slice(1)}
           is the heaviest single component on purpose: a blueprint nobody uses
           is paperwork, and the score should say so.</p>
-        <p>For a group of categories the score is rolled up weighted by the
-          square root of spend, floored at
-          ${euro((CONFIG.score.rollup || {}).floor_eur || 1e6)}, so one large category
-          cannot carry a group that has done nothing else. A grouping holding
-          fewer than ${CONFIG.score.minimum_categories} categories is left off
-          the scoreboard, because below that a score is a coin toss rather
-          than a track record.</p>
+        <table><thead><tr><th>Lot</th><th>Adds up as</th><th>Total</th>
+          <th>Because</th></tr></thead><tbody>${worked}</tbody></table>
+      </section>
+
+      <section>
+        <h3>Why a district scores 28 and no category does</h3>
+        <p>A district, a category manager and the whole of Networks have no
+          blueprint of their own, so their score is not on the rungs. It is
+          the average of the categories they hold, weighted by the square root
+          of spend and floored at
+          ${euro((CONFIG.score.rollup || {}).floor_eur || 1e6)} so one large
+          category cannot carry a group that has done nothing else.</p>
+        <p>That is the whole reason the organisation reads
+          ${Math.round(CITY.totals.journey.total)} out of 100 while single
+          categories read 0, 25, 40 or 100. Networks is low because 89 of its
+          ${counts.categories} lots are at nought. A grouping holding fewer
+          than ${CONFIG.score.minimum_categories} categories is left off the
+          scoreboard entirely, because below that a score is a coin toss
+          rather than a track record.</p>
         <table class="stages"><thead><tr><th>Stage</th><th>Score</th>
           <th>Lots</th><th>What it means</th></tr></thead>
           <tbody>${stages}</tbody></table>
       </section>
 
       <section>
+        <h3>Spend, houses and the hotel</h3>
+        <p>${CONFIG.layers.value.detail}</p>
+        <table><thead><tr><th>On the lot</th><th>Spend FY26/27</th></tr></thead>
+          <tbody>${money}</tbody></table>
+      </section>
+
+      <section>
         <h3>The monuments</h3>
-        <p>A category scoring ${CONFIG.landmarks.min_score} or more out of 100
-          has its building replaced by a monument, on a lot widened to hold it.
-          The shape comes from a market that has actually adopted the
-          blueprint, so it is recognisable and it is earned twice over. A
-          market may supply more than one, because a market carrying several
-          high scorers would otherwise leave the lower ones with nothing.</p>
+        <p>A monument replaces the <b>building</b>, which is the score. It does
+          not replace the houses or the hotel: those are spend, and they stay
+          where they are. The Parthenon stands on D408 with D408's hotel in
+          front of it.</p>
+        <p>Assignment is computed from the data at every build. The highest
+          scorers above ${CONFIG.landmarks.min_score} take a monument from a
+          market that has adopted their blueprint, highest first, and nothing
+          is tracked by hand: a category that crosses the threshold next month
+          takes one at the next build, and one that falls below it loses it.</p>
+        <p>Two settings keep them scarce, because scores only go up and thirty
+          monuments would mean nothing. The threshold decides who is eligible.
+          ${CONFIG.landmarks.max_landmarks !== undefined
+            && CONFIG.landmarks.max_landmarks !== null
+            ? `A cap of ${CONFIG.landmarks.max_landmarks} decides how many
+               exist, which is the number that matters; past that, the lowest
+               scorers of the qualifying set go without.`
+            : "There is no cap on the number, so the threshold is the only lever."}</p>
         <table><thead><tr><th>Monument</th><th>Lot</th><th>Earned</th></tr></thead>
           <tbody>${monuments}</tbody></table>
+      </section>
+
+      <section>
+        <h3>What could we build</h3>
+        <p>Press P. The light drops, everything already built desaturates to
+          grey, and the only thing left with colour in it is what is not there
+          yet. It is drawn in a different material for that reason: it can
+          never be mistaken for the built city.</p>
+        <p>A lot with a drafted blueprint rises to the height its own score
+          already earns, because the work is done and not switched on. A lot
+          with no blueprint rises to the height its <b>spend</b> would justify,
+          which is the argument for writing one. A lot with neither a blueprint
+          nor spend stays an outline, because nothing on record justifies a
+          building there.</p>
+        <p>It is a projection of the record, not a forecast, and no figure in
+          it is invented: every height is a tier of a measure already on the
+          card.</p>
       </section>
 
       <section>
