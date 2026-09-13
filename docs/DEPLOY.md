@@ -8,7 +8,7 @@ runs and how the marketplace reaches it.
 
 ```
    Agent Marketplace (Foundry, Streamlit)
-        |  a row in data/agents.json, and either
+        |  a row in Foundry's data/agents.json, and either
         |   - a button that opens the city in its own tab   <- do this first
         |   - an iframe of the same URL                      <- later, if wanted
         v
@@ -185,9 +185,10 @@ two-line change, and the trade is set out at the end of
 ## Putting it in the Agent Marketplace
 
 Foundry, the VP&C Agent Marketplace, is a Streamlit app. Every agent on it is a
-row in `data/agents.json`: name, tagline, what it does, who owns it, some sample
-prompts, and a link. The detail page is rendered from that row. Adding an agent
-to the marketplace is, in the normal case, **adding an entry to a JSON file**.
+row in its own `data/agents.json`: name, tagline, what it does, who owns it,
+some sample prompts, and a link. The detail page is rendered from that row.
+Adding an agent to the marketplace is, in the normal case, **adding an entry to
+a JSON file**.
 
 There is one wrinkle. Foundry expects an agent to be a chat: a *playground*
 adapter takes a message and returns reply text, and the page draws a chat panel.
@@ -198,7 +199,7 @@ This agent is not a chat. The answer is a city moving, not a paragraph. So it
 takes the second shape: sample transcript in the marketplace, button that opens
 the real thing. That needs no code in Foundry at all.
 
-### 1. An entry in `data/agents.json`
+### 1. An entry in Foundry's `data/agents.json`
 
 ```json
 {
@@ -256,7 +257,7 @@ playground contract earns its place at two users, not one.
 
 | To do this | You change |
 | --- | --- |
-| List it in the marketplace | one entry in `data/agents.json` |
+| List it in the marketplace | one entry in Foundry's `data/agents.json` |
 | Make the button work | `deep_link`, from the Cloud Run URL |
 | Show it inside the page instead | ~10 lines in `foundry/pages/agent.py`, and set `NW_FRAME_ANCESTORS` here |
 

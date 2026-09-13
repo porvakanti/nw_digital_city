@@ -4,10 +4,6 @@ Two ways to open it, one sequence to walk it, and a checklist of what should
 happen at each step. The sequence is the same one the guided tour runs, so you
 can either click **Next** eight times or drive it yourself.
 
-For the words that go with each step, and the answers to the questions the
-walkthrough provokes, see [PRESENTING.md](PRESENTING.md). This file is what
-should happen; that one is what to say.
-
 ## Opening it
 
 **No installs.** Open `renderer/index.html` in Chrome. The city, the

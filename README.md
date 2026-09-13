@@ -12,14 +12,12 @@ renders it.
 | Read | For |
 | --- | --- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, interfaces, runtime views, data pipeline, security controls, and the current and target deployment topologies |
-| [docs/DESIGN.md](docs/DESIGN.md) | Why the design is what it is, and what was considered and rejected |
 | [docs/READING-THE-CITY.md](docs/READING-THE-CITY.md) | How to interpret the visualisation, and where the data is soft |
 | [docs/JOURNEY-SCORE.md](docs/JOURNEY-SCORE.md) | The composite score: components, weights, roll-up method |
 | [docs/TESTING.md](docs/TESTING.md) | Verification: the automated stages, and a manual walkthrough |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Deployment and agent catalogue registration |
 | [docs/GCP-SETUP.md](docs/GCP-SETUP.md) | Standing up the model on a GCP project, and handing that over |
 | [docs/DEMO.md](docs/DEMO.md) | Feature walkthrough and troubleshooting |
-| [docs/PRESENTING.md](docs/PRESENTING.md) | The walkthrough script: what to say at each beat, and the answer to every question it provokes |
 | [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) | First-time setup on a Windows host |
 
 ## The metaphor
@@ -200,8 +198,6 @@ judge, which is whether the city reads as a city.
 
 [docs/DEMO.md](docs/DEMO.md) is the operating manual: what to type, in what
 order, and what should happen at each step.
-[docs/PRESENTING.md](docs/PRESENTING.md) is the script that goes with it, beat
-by beat, with the questions it provokes and the answers to them.
 
 ### Without Python
 
@@ -278,7 +274,7 @@ ask for when the environment is somebody else's.
 - [x] Night mode, lit windows, lamplight and reactor beams
 - [x] Model layer: provider adapter, service, eval set, one-command start
 - [x] Streets that read as streets, flyovers, the closing ask
-- [x] Checked against the deck, the narrative and the workbook (docs/DESIGN.md §9)
+- [x] Checked against the deck, the narrative and the workbook
 - [x] Guided tour, first-run welcome, demo script, shareable bundle
 - [x] Cloud Run deploy, Vertex AI on a service account, no key in the deployment
 - [x] Real AI-RFP data, replacing the generated stand-in

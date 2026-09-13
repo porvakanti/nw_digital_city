@@ -37,6 +37,22 @@ def load(name: str) -> str:
     return (DOCS / name).read_text(encoding="utf-8")
 
 
+# Working documents, gitignored: a walkthrough script written to be spoken by
+# one person, a trail of review findings, and the record of what was rejected.
+# They are not part of the handover, so a checkout may or may not have them.
+UNPUBLISHED = ("PRESENTING.md", "REVIEW-LOG.md", "DESIGN.md")
+
+
+def published() -> list[pathlib.Path]:
+    """The documents the repository actually hands over.
+
+    A rule enforced over whatever happens to be on disk is not a rule: it
+    would pass or fail depending on whose checkout ran it. Anything asserted
+    about the documentation as a set is asserted about this list.
+    """
+    return [doc for doc in sorted(DOCS.glob("*.md")) if doc.name not in UNPUBLISHED]
+
+
 def flat(text: str) -> str:
     """One space for any run of whitespace.
 
@@ -298,7 +314,7 @@ class TestTheDiagrams(DocumentFigures):
         # assertTrue rather than assertNotIn: the built-in message for a
         # missing substring prints the whole haystack, and a haystack here is
         # a 300-line document.
-        for doc in sorted(DOCS.glob("*.md")):
+        for doc in published():
             self.assertTrue(
                 "```mermaid" not in doc.read_text(encoding="utf-8"),
                 f"docs/{doc.name} draws a diagram in mermaid, which VS Code "
@@ -307,7 +323,7 @@ class TestTheDiagrams(DocumentFigures):
 
     def test_every_referenced_diagram_exists(self):
         import re
-        for doc in sorted(DOCS.glob("*.md")):
+        for doc in published():
             body = doc.read_text(encoding="utf-8")
             for target in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", body):
                 if target.startswith(("http://", "https://")):
@@ -320,7 +336,7 @@ class TestTheDiagrams(DocumentFigures):
     def test_every_internal_link_resolves(self):
         """A reference to a document that was moved or renamed is a dead end."""
         import re
-        for doc in sorted(DOCS.glob("*.md")) + [REPO / "README.md"]:
+        for doc in published() + [REPO / "README.md"]:
             body = doc.read_text(encoding="utf-8")
             for target in re.findall(r"(?<!!)\[[^\]]+\]\(([^)#]+)[^)]*\)", body):
                 if target.startswith(("http://", "https://", "mailto:")):
@@ -331,7 +347,7 @@ class TestTheDiagrams(DocumentFigures):
                 )
 
     def test_every_committed_diagram_is_shown_somewhere(self):
-        shown = " ".join(d.read_text(encoding="utf-8") for d in DOCS.glob("*.md"))
+        shown = " ".join(d.read_text(encoding="utf-8") for d in published())
         for svg in sorted((DOCS / "diagrams").glob("*.svg")):
             self.assertIn(
                 f"diagrams/{svg.name}", shown,
@@ -378,6 +394,20 @@ class TestTheWalkthroughScript(DocumentFigures):
              89: "Eighty nine"}
 
     DOC = "PRESENTING.md"
+
+    @classmethod
+    def setUpClass(cls):
+        """Skip the class when the script is not in the checkout.
+
+        PRESENTING.md is gitignored: it is a working document for one person
+        and not part of what the repository hands over. Present, every figure
+        in it is held to the data by the checks below. Absent, there is
+        nothing to check, and a fresh clone must not fail for the lack of a
+        document it was never given.
+        """
+        if not (DOCS / cls.DOC).is_file():
+            raise unittest.SkipTest(f"docs/{cls.DOC} is not in this checkout")
+        super().setUpClass()
 
     def spoken(self) -> str:
         """The script with its blockquote markers dropped.
