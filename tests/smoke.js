@@ -797,6 +797,52 @@ async function onAPhone(browser) {
     rollup.drift.length ? rollup.drift.join("; ")
       : `${rollup.groups} groupings agree to one decimal`);
 
+  /* The worked example in the explanation must produce the published score.
+   *
+   * The explanation now prints the roll-up arithmetic: four rows, a bucket
+   * for the rest, a total weight and a numerator, then the division. Those
+   * are computed in the panel rather than read from the data, so they are
+   * capable of disagreeing with the district they claim to describe. A worked
+   * example that does not reach the published figure is worse than no worked
+   * example, because it will be checked. */
+  const arithmetic = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll("#explainerBody table.rollup tbody tr")];
+    const foot = document.querySelector("#explainerBody table.rollup tfoot tr");
+    const sum = document.querySelector("#explainerBody p.sum");
+    const num = (cell) => Number((cell ? cell.textContent : "").replace(/[^\d.-]/g, ""));
+    const named = (document.querySelector("#explainerBody table.rollup")
+      .closest("section").textContent.match(/([^.]+?) worked through/) || [])[1];
+    const district = (window.NWCity.data.districts || [])
+      .find((d) => named && named.trim().endsWith(d.name));
+    return {
+      district: district ? district.name : null,
+      published: district ? district.totals.journey.total : null,
+      weight: num(foot && foot.children[2]),
+      numerator: num(foot && foot.children[4]),
+      printed: Number(((sum ? sum.textContent : "").match(/=\s*([\d.]+)/) || [])[1]),
+      rowWeights: rows.map((r) => num(r.children[2])),
+      rowProducts: rows.map((r) => num(r.children[4])),
+    };
+  });
+
+  check("the explanation names a real district for its worked example",
+    arithmetic.district !== null,
+    arithmetic.district || "no district matched the sentence above the table");
+
+  check("the rows of the worked example add up to its own total",
+    Math.abs(arithmetic.rowWeights.reduce((a, b) => a + b, 0) - arithmetic.weight) <= 2
+    && Math.abs(arithmetic.rowProducts.reduce((a, b) => a + b, 0) - arithmetic.numerator) <= 2,
+    `weights ${arithmetic.rowWeights.reduce((a, b) => a + b, 0)} vs ${arithmetic.weight}, `
+    + `products ${arithmetic.rowProducts.reduce((a, b) => a + b, 0)} vs ${arithmetic.numerator}`);
+
+  check("the worked example divides out to the score it is explaining",
+    Math.abs(arithmetic.numerator / arithmetic.weight - arithmetic.published) < 0.06
+    && Math.abs(arithmetic.printed - arithmetic.published) < 0.06,
+    `${arithmetic.district}: printed ${arithmetic.printed}, `
+    + `${arithmetic.numerator} / ${arithmetic.weight} = `
+    + `${(arithmetic.numerator / arithmetic.weight).toFixed(2)}, `
+    + `published ${arithmetic.published}`);
+
   /* Nothing may stand off the edge of the ground plate.
    *
    * Under this projection a point at height h lands where the ground point

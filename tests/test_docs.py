@@ -43,6 +43,18 @@ def load(name: str) -> str:
 UNPUBLISHED = ("PRESENTING.md", "REVIEW-LOG.md", "DESIGN.md")
 
 
+def unquoted(name: str) -> str:
+    """A document with its blockquote markers dropped, whitespace collapsed.
+
+    Prose is wrapped at 79 columns, so a blockquoted sentence that runs over a
+    line carries a `>` in the middle of it. Comparing what the sentence says
+    means removing the marker before collapsing the whitespace.
+    """
+    import re
+    lines = load(name).splitlines()
+    return flat("\n".join(re.sub(r"^\s*>\s?", "", line) for line in lines))
+
+
 def published() -> list[pathlib.Path]:
     """The documents the repository actually hands over.
 
@@ -129,6 +141,274 @@ class TestTheHeadlineFigures(DocumentFigures):
         lit = sorted(c["code"] for c in self.cats if c["metrics"]["ai_rfps"] > 0)
         self.quotes("READING-THE-CITY.md", f"**{t['ai_started']} of 145 rooftops are lit**")
         self.quotes("TESTING.md", f"Eight, and only eight: {', '.join(lit)}")
+
+
+class TestHowTheScoreIsExplained(DocumentFigures):
+    """The arithmetic in JOURNEY-SCORE.md, against the code that performs it.
+
+    Six claims in the previous version were wrong: Fixed's rank under two
+    weightings, two of the four blueprint rung counts, the four correlations,
+    and an arc description from a superseded banding that put Autonomous above
+    100 when the config starts it at 75. A document explaining a calculation
+    is the one place where an unchecked figure is certain to be quoted back.
+    """
+
+    DOC = "JOURNEY-SCORE.md"
+
+    FLOOR_KEY = "floor_eur"
+
+    def quotes(self, doc: str, text: str, why: str = ""):
+        """As the base class, but blind to blockquote markers.
+
+        Two of the claims checked here are inside a blockquote, which is
+        where this document puts the sentence somebody will read out.
+        """
+        if flat(text) in unquoted(doc):
+            return
+        super().quotes(doc, text, why)
+
+    def weight(self, category, floor=None):
+        import math
+        rules = self.config["score"]["rollup"]
+        if floor is None:
+            floor = rules[self.FLOOR_KEY]
+        value = max(category["metrics"][rules["weight_by"]] or 0, floor)
+        return math.sqrt(value) if rules["transform"] == "sqrt" else value
+
+    def roll(self, categories, mode="sqrt"):
+        pick = {"equal": lambda c: 1.0,
+                "sqrt": self.weight,
+                "raw": lambda c: max(c["metrics"]["spend_eur"], 1_000_000)}[mode]
+        total = sum(pick(c) for c in categories)
+        return sum(c["journey"]["total"] * pick(c) for c in categories) / total
+
+    def district(self, name):
+        return [c for c in self.cats if c["district"] == name]
+
+    def test_the_component_rungs_and_how_many_categories_sit_on_each(self):
+        """Every rung of all three components, with its count."""
+        score = self.config["score"]
+        points = {r["id"]: r["points"] for r in score["blueprint"]}
+
+        def step(category):
+            m = category["metrics"]
+            if m["cbp_active"] > 0 and m["cbp_total"] >= 2:
+                return "connected"
+            if m["cbp_active"] > 0:
+                return "live"
+            return "drafted" if m["cbp_draft"] > 0 else "none"
+
+        for rung, label in (("none", "no record of any kind"),
+                            ("drafted", "a draft exists, none active"),
+                            ("live", "one active record"),
+                            ("connected", "active, and two or more records")):
+            count = sum(1 for c in self.cats if step(c) == rung)
+            self.quotes(self.DOC, f"| {label} | {points[rung]} | {count} |")
+
+        for key, rows in (("usage", (("0", "0"), ("1", "1"), ("2 or more", "2 or more"))),
+                          ("ai", (("0", "0"), ("1", "1"), ("2 or more", "2 or more")))):
+            field = "cbp_used" if key == "usage" else "ai_rfps"
+            for band in score[key]:
+                shown = str(band["max"]) if band["max"] is not None else "2 or more"
+                if band["max"] is None:
+                    count = sum(1 for c in self.cats if (c["metrics"][field] or 0) >= 2)
+                else:
+                    count = sum(1 for c in self.cats
+                                if (c["metrics"][field] or 0) == band["max"])
+                self.quotes(self.DOC, f"| {shown} | {band['points']} | {count} |")
+
+    def test_the_two_figures_describing_where_a_total_can_land(self):
+        score = self.config["score"]
+        possible = {b["points"] + u["points"] + a["points"]
+                    for b in score["blueprint"]
+                    for u in score["usage"]
+                    for a in score["ai"]}
+        combinations = len(score["blueprint"]) * len(score["usage"]) * len(score["ai"])
+        self.quotes(
+            self.DOC,
+            f"Four blueprint rungs by three usage rungs by three AI rungs gives "
+            f"{combinations} combinations and **{len(possible)} distinct totals**.",
+        )
+        observed = sorted({c["journey"]["total"] for c in self.cats})
+        self.quotes(self.DOC, f"Eleven occur in the current extract:")
+        self.assertEqual(11, len(observed))
+        header = "| Total | " + " | ".join(str(shown(v)) for v in observed) + " |"
+        self.quotes(self.DOC, header)
+        counts = [sum(1 for c in self.cats if c["journey"]["total"] == v) for v in observed]
+        self.quotes(self.DOC, "| Categories | " + " | ".join(str(n) for n in counts) + " |")
+        spelled = {18: "eighteen"}
+        self.assertIn(len(possible), spelled,
+                      f"{len(possible)} has no spelling, so the sentence cannot state it")
+        self.quotes(self.DOC, f"always one of those {spelled[len(possible)]} values")
+
+    def test_the_worked_example_row_by_row(self):
+        """Every cell of the Transmission Infrastructure table."""
+        mine = sorted(self.district("Transmission Infrastructure"),
+                      key=lambda c: -c["metrics"]["spend_eur"])
+        total_weight = sum(self.weight(c) for c in mine)
+        floor = self.config["score"]["rollup"][self.FLOOR_KEY]
+        self.quotes(self.DOC, f"Ten categories, €{shown(sum(c['metrics']['spend_eur'] for c in mine) / 1e6)}.2m"
+                    .replace(".2m", "m") if False else
+                    f"Ten categories, €{sum(c['metrics']['spend_eur'] for c in mine) / 1e6:.1f}m.")
+        for c in mine:
+            spend = c["metrics"]["spend_eur"]
+            used = max(spend, floor)
+            w = self.weight(c)
+            emphasis = "**" if spend < floor else ""
+            self.quotes(
+                self.DOC,
+                f"| {c['code']} | {spend:,.0f} | {emphasis}{used:,.0f}{emphasis} | "
+                f"{w:,.2f} | {w / total_weight * 100:.1f}% | {c['journey']['total']} | "
+                f"{c['journey']['total'] * w:,.2f} |",
+            )
+        numerator = sum(c["journey"]["total"] * self.weight(c) for c in mine)
+        self.quotes(self.DOC, f"| | | | **{total_weight:,.2f}** | 100% | | **{numerator:,.2f}** |")
+        self.quotes(self.DOC,
+                    f"{numerator:,.2f} / {total_weight:,.2f} = {numerator / total_weight:.3f}")
+        self.quotes(self.DOC, f"-> {round(numerator / total_weight, 1)}")
+        equal = self.roll(mine, "equal")
+        self.quotes(self.DOC, f"would give this district {round(equal, 1)}, the plain mean")
+
+    def test_the_claim_about_fixed_under_each_weighting(self):
+        """The rank, not a remembered one.
+
+        The previous version said raw spend put Fixed top of all eight. It
+        puts Fixed second; Access Radio/Fixed is top. The mechanism was right
+        and the figure was not.
+        """
+        def rank(mode):
+            board = sorted(({"name": d["name"], "score": self.roll(self.district(d["name"]), mode)}
+                            for d in self.city["districts"]),
+                           key=lambda row: -row["score"])
+            return [row["name"] for row in board].index("Fixed") + 1
+
+        ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th"}
+        self.quotes(self.DOC, f"Fixed rises to **{ordinal[rank('raw')]} of the eight districts**.")
+        self.quotes(self.DOC, f"Fixed lands **{ordinal[rank('sqrt')]}**")
+
+        fixed = self.district("Fixed")
+        zero = sum(1 for c in fixed if c["journey"]["total"] == 0)
+        biggest = max(fixed, key=lambda c: c["metrics"]["spend_eur"])
+        share = biggest["metrics"]["spend_eur"] / sum(c["metrics"]["spend_eur"] for c in fixed)
+        self.quotes(self.DOC, f"holds {len(fixed)} categories. **{self.word(zero)} score zero.**")
+        self.quotes(
+            self.DOC,
+            f"The twelfth, {biggest['code']} at "
+            f"€{biggest['metrics']['spend_eur'] / 1e6:.1f}m, is {shown(share * 100)}% of the "
+            f"district's spend and scores {biggest['journey']['total']}.",
+        )
+
+    WORDS = {6: "Six", 10: "Ten", 11: "Eleven", 12: "Twelve"}
+
+    def word(self, count):
+        self.assertIn(count, self.WORDS, f"{count} has no spelling in WORDS")
+        return self.WORDS[count]
+
+    def test_the_correlations_the_document_publishes(self):
+        """Recomputed, because all four had drifted from the data."""
+        import statistics
+        held: dict[str, list] = {}
+        for category in self.cats:
+            for person in category.get("owners", []):
+                held.setdefault(person, []).append(category)
+        floor = self.config["score"]["minimum_categories"]
+        qualifying = [m for m in held.values() if len(m) >= floor]
+        self.quotes(self.DOC, f"across the {len(qualifying)} qualifying managers")
+
+        sizes = [len(m) for m in qualifying]
+        spends = [sum(c["metrics"]["spend_eur"] for c in m) for m in qualifying]
+
+        def pair(mode):
+            scores = [self.roll(m, mode) for m in qualifying]
+            return (statistics.correlation(sizes, scores),
+                    statistics.correlation(spends, scores))
+
+        def signed(value):
+            """Minus sign as the document prints it, which is not a hyphen."""
+            return f"{'−' if value < 0 else '+'}{abs(value):.2f}"
+
+        equal, sqrt, raw = pair("equal"), pair("sqrt"), pair("raw")
+        self.quotes(self.DOC, f"Correlation of **{signed(equal[0])}** with portfolio size")
+        self.quotes(
+            self.DOC,
+            f"| Correlation with portfolio size | {signed(equal[0])} | "
+            f"**{signed(sqrt[0])}** | {signed(raw[0])} |",
+        )
+        self.quotes(
+            self.DOC,
+            f"| Correlation with portfolio spend | {signed(equal[1])} | "
+            f"**{signed(sqrt[1])}** | {signed(raw[1])} |",
+        )
+
+    def test_the_floor_is_explained_with_the_numbers_it_changes(self):
+        mine = self.district("Transmission Infrastructure")
+        floored = self.roll(mine, "sqrt")
+        # Floor of zero: a category with no recorded spend then weighs nothing
+        # and leaves the calculation, which is the behaviour being described.
+        live = [c for c in mine if c["metrics"]["spend_eur"] > 0]
+        bare = sum(self.weight(c, floor=0) for c in live)
+        unfloored = sum(c["journey"]["total"] * self.weight(c, floor=0)
+                        for c in live) / bare
+        self.quotes(self.DOC,
+                    f"would read {round(unfloored, 1)} instead of {round(floored, 1)}")
+        dropped = sum(1 for c in mine if c["metrics"]["spend_eur"] == 0)
+        self.quotes(
+            self.DOC,
+            f"computed from {self.word(len(mine) - dropped).lower()} categories "
+            f"while describing {self.word(len(mine)).lower()}",
+        )
+
+        zero = [c for c in self.cats if c["metrics"]["spend_eur"] == 0]
+        with_blueprint = [c for c in zero if c["blueprint_state"] != "none"]
+        self.quotes(
+            self.DOC,
+            f"**{len(zero)} of the {len(self.cats)} categories have no recorded spend, "
+            f"and {len(with_blueprint)} of those hold a blueprint**",
+        )
+        self.quotes(self.DOC, f"Without the floor all {len(zero)} would be discarded.")
+
+        import math
+        floor = self.config["score"]["rollup"][self.FLOOR_KEY]
+        big = max(mine, key=lambda c: c["metrics"]["spend_eur"])
+        small = min((c for c in mine if 0 < c["metrics"]["spend_eur"] < floor),
+                    key=lambda c: c["metrics"]["spend_eur"])
+        raw_ratio = math.sqrt(big["metrics"]["spend_eur"]) / math.sqrt(small["metrics"]["spend_eur"])
+        cut_ratio = self.weight(big) / self.weight(small)
+        self.quotes(self.DOC,
+                    f"| {small['code']}, €{small['metrics']['spend_eur']:,.0f} | "
+                    f"{math.sqrt(small['metrics']['spend_eur']):,.2f} | "
+                    f"**{self.weight(small):,.2f}** |")
+        self.quotes(self.DOC,
+                    f"{big['code']} outweighs {small['code']} by {shown(raw_ratio)} times; "
+                    f"floored, by {cut_ratio:.1f}.")
+
+    def test_the_arc_bands_match_the_configuration(self):
+        """The previous version put Autonomous above 100, where nobody could
+        reach it. The configuration starts it at 75 and one category is in it."""
+        for stage in self.config["score"]["stages"]:
+            self.quotes(self.DOC, f"| {stage['label']} | {stage['from']} |")
+        best = max(self.cats, key=lambda c: c["journey"]["total"])
+        top = max(self.config["score"]["stages"], key=lambda s: s["from"])
+        self.assertGreaterEqual(best["journey"]["total"], top["from"])
+        self.quotes(self.DOC,
+                    f"{best['code']} at {shown(best['journey']['total'])} is in {top['label']}.")
+        org = shown(self.city["totals"]["journey"]["total"])
+        first = min(self.config["score"]["stages"], key=lambda s: s["from"])
+        self.quotes(self.DOC,
+                    f"The organisation at {self.city['totals']['journey']['total']} is in "
+                    f"{first['label']}")
+
+    def test_the_declaration_table_names_the_real_configuration_keys(self):
+        rules = self.config["score"]["rollup"]
+        self.quotes(self.DOC, f"| `score.rollup.weight_by` | `{rules['weight_by']}` |")
+        self.quotes(self.DOC, f"| `score.rollup.transform` | `{rules['transform']}` |")
+        self.quotes(self.DOC,
+                    f"| `score.rollup.floor_eur` | {rules[self.FLOOR_KEY]:,} |")
+        self.quotes(self.DOC,
+                    f"| `score.minimum_categories` | {self.config['score']['minimum_categories']} |")
+        w = self.config["score"]["weights"]
+        self.quotes(self.DOC,
+                    f"| `score.weights` | {w['blueprint']} / {w['usage']} / {w['ai']} |")
 
 
 class TestTheDistrictTables(DocumentFigures):

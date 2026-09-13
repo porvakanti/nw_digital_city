@@ -3867,6 +3867,57 @@
           ${soften(j.labels.ai)}</td></tr>`;
     }).join("");
 
+    /* The roll-up, worked through on the smallest district.
+     *
+     * The formula on its own does not settle it: the question people
+     * actually ask is where a figure like 23.3 came from when no category
+     * scores it. So the three steps are carried out here on real rows, with
+     * the same weight function the build uses, and the arithmetic is printed
+     * rather than described. The smallest district keeps the table short. */
+    const rollFloor = (CONFIG.score.rollup || {}).floor_eur || 1e6;
+    const rollWeight = (c) => Math.sqrt(Math.max(c.metrics.spend_eur || 0, rollFloor));
+    const smallest = layout.districts
+      .map((d) => ({
+        name: d.name,
+        members: CITY.categories.filter((c) => c.district === d.name),
+      }))
+      .sort((a, b) => a.members.length - b.members.length)[0];
+    const rollRows = smallest
+      ? smallest.members.slice().sort((a, b) =>
+          (b.metrics.spend_eur || 0) - (a.metrics.spend_eur || 0))
+      : [];
+    const rollTotalWeight = rollRows.reduce((sum, c) => sum + rollWeight(c), 0) || 1;
+    const rollNumerator = rollRows.reduce(
+      (sum, c) => sum + c.journey.total * rollWeight(c), 0);
+    /* Four rows and a summary, not ten: the panel is already long, and the
+     * point is made by the largest contributor, a row with the same weight
+     * and no score beside it, and the floored rows counted together. */
+    const rollShown = rollRows.slice(0, 4);
+    const rollRest = rollRows.slice(4);
+    const group = (n) => n.toLocaleString("en-GB", { maximumFractionDigits: 0 });
+    const rollBody = rollShown.map((c) => {
+      const w = rollWeight(c);
+      const capped = (c.metrics.spend_eur || 0) < rollFloor;
+      return `<tr><td>${c.code}</td>
+        <td>${euro(c.metrics.spend_eur || 0)}${capped ? " *" : ""}</td>
+        <td>${group(w)}</td>
+        <td>${Math.round(c.journey.total)}</td>
+        <td>${group(c.journey.total * w)}</td></tr>`;
+    }).join("") + (rollRest.length
+      ? `<tr class="rest"><td>${rollRest.length} more${
+           rollRest.some((c) => (c.metrics.spend_eur || 0) < rollFloor) ? " *" : ""}</td>
+         <td></td>
+         <td>${group(rollRest.reduce((sum, c) => sum + rollWeight(c), 0))}</td>
+         <td></td>
+         <td>${group(rollRest.reduce(
+             (sum, c) => sum + c.journey.total * rollWeight(c), 0))}</td></tr>`
+      : "");
+    /* The footnote belongs to the rows that carry the marker, and on the
+     * districts the table is drawn from the floored lots all land in the
+     * "N more" bucket rather than in the four shown. Keying the footnote to
+     * the bucket's length printed a footnote with nothing referring to it. */
+    const rollFloored = rollRows.some((c) => (c.metrics.spend_eur || 0) < rollFloor);
+
     /* The spend ladder, with the thresholds on it.
      *
      * "Houses, then a hotel" is not a rule anybody can apply. The numbers
@@ -3951,6 +4002,29 @@
           than ${CONFIG.score.minimum_categories} categories is left off the
           scoreboard entirely, because below that a score is a coin toss
           rather than a track record.</p>
+        <div class="formula">
+          <b>group score</b> =
+          <span class="frac"><span class="num">&#931; ( category total &times;
+            &radic;( max(spend, ${euro(rollFloor)}) ) )</span><span
+            class="den">&#931; &radic;( max(spend, ${euro(rollFloor)}) )</span></span>
+        </div>
+        <p>The square root is taken on each category and the results are
+          added. Rooting the sum instead would leave every category weighted
+          exactly as raw spend, which is the thing the square root is there to
+          prevent.</p>
+        <p>${smallest ? smallest.name : ""} worked through, smallest district
+          first because the table stays short:</p>
+        <table class="rollup"><thead><tr><th>Lot</th><th>Spend</th>
+          <th>Weight</th><th>Score</th><th>Score &times; weight</th></tr></thead>
+          <tbody>${rollBody}</tbody>
+          <tfoot><tr><td>total</td><td></td><td>${group(rollTotalWeight)}</td>
+            <td></td><td>${group(rollNumerator)}</td></tr></tfoot></table>
+        <p class="sum">${group(rollNumerator)} &divide;
+          ${group(rollTotalWeight)} =
+          <b>${(rollNumerator / rollTotalWeight).toFixed(1)}</b>
+          ${rollFloored ? "<span>* spend floored to " + euro(rollFloor)
+            + " before the square root, so a lot with nothing recorded still"
+            + " counts for something</span>" : ""}</p>
         <table class="stages"><thead><tr><th>Stage</th><th>Score</th>
           <th>Lots</th><th>What it means</th></tr></thead>
           <tbody>${stages}</tbody></table>

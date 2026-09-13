@@ -867,6 +867,71 @@
   /* The three score components side by side, because they are read as a set
      and each is only a few rows. */
   .sheet-body .pairs.three { grid-template-columns: repeat(3, 1fr); gap: 14px 20px; }
+  /* The roll-up formula, set as a fraction.
+     
+     Written as a stacked numerator and denominator rather than with a
+     division slash: the expression repeats the same floored square root on
+     both lines, and on one line that reads as a much longer expression than
+     it is. A real rule between them, so the two halves cannot be misread as
+     a sum. */
+  .sheet-body .formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 12px 0 10px;
+    padding: 10px 12px;
+    background: var(--panel-2, rgba(127, 127, 127, 0.08));
+    border-radius: 6px;
+    font: 500 11.5px ui-monospace, monospace;
+    color: var(--ink-2);
+    overflow-x: auto;
+  }
+  .sheet-body .formula b { color: var(--ink); font-weight: 650; white-space: nowrap; }
+  .sheet-body .formula .frac {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .sheet-body .formula .num { padding: 0 6px 4px; }
+  .sheet-body .formula .den {
+    padding: 4px 6px 0;
+    border-top: 1px solid var(--line, currentColor);
+  }
+  .sheet-body table.rollup { margin: 6px 0 2px; }
+  .sheet-body table.rollup td, .sheet-body table.rollup th {
+    padding: 3px 6px 3px 0;
+    font-size: 11.5px;
+    text-align: right;
+  }
+  .sheet-body table.rollup td:first-child,
+  .sheet-body table.rollup th:first-child { text-align: left; }
+  .sheet-body table.rollup td:first-child {
+    font: 600 11.5px ui-monospace, monospace;
+    color: var(--ink);
+  }
+  .sheet-body table.rollup td:nth-child(3),
+  .sheet-body table.rollup td:last-child {
+    font: 500 11.5px ui-monospace, monospace;
+  }
+  .sheet-body table.rollup tr.rest td { color: var(--ink-muted); font-style: italic; }
+  .sheet-body table.rollup tfoot td {
+    border-top: 1px solid var(--line, rgba(127, 127, 127, 0.3));
+    font-weight: 650;
+    color: var(--ink);
+  }
+  .sheet-body p.sum {
+    font: 500 12px ui-monospace, monospace;
+    color: var(--ink-2);
+  }
+  .sheet-body p.sum b { color: var(--ink); font-size: 13px; }
+  .sheet-body p.sum span {
+    display: block;
+    margin-top: 4px;
+    font: 400 11px system-ui, sans-serif;
+    color: var(--ink-muted);
+  }
   .sheet-body table.rungs { margin-top: 4px; }
   .sheet-body table.rungs td { padding: 3px 8px 3px 0; font-size: 11.5px; }
   .sheet-body table.rungs td:first-child {
