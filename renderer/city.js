@@ -780,10 +780,68 @@
     return { shape, box, allowance, scale, standing, terrace, top: 0.62 + terrace + standing };
   }
 
+  /* Lot furniture, and how tall each prop stands.
+   *
+   * A crane has to clear the outline it stands over, or it reads as scaffold
+   * rather than as a crane lifting something into place. Its height is
+   * derived from that outline rather than fixed, so a draft lot that scores
+   * higher gets a taller crane and the two stay in proportion.
+   */
+  /* Blueprint state by category code.
+   *
+   * The district builder runs before the lookup the rest of the file uses,
+   * so the dormancy test needs its own. Declared here with the furniture it
+   * serves rather than beside a lookup it cannot reach.
+   */
+  const stateOf = new Map(CITY.categories.map((c) => [c.code, c.blueprint_state]));
+
+  const SLEEP_COATS = [0x3f7fd0, 0xb35fb0, 0x46a06a, 0xdd8a3a];
+  // Counted as they are drawn, for the reader below.
+  let dormantPlots = 0;
+  /* A crane has to be unmistakably a crane and not a lamp post.
+   *
+   * The first attempt was a slim pale mast with a short yellow bar on top,
+   * which is the exact silhouette of the street lamps: thin post, small
+   * bright head. Twelve of them went onto the drafted lots and read as
+   * lighting. Slimming the mast to stop it competing with the buildings is
+   * what caused it.
+   *
+   * What separates the two shapes is structure no lamp has: a lattice mast
+   * rather than a smooth pole, a jib long enough to overhang the lot, a
+   * counter-jib with a counterweight on the other side, and a hook on a
+   * cable. Orange rather than yellow, because the drafted lot it stands on
+   * is already marked out in yellow.
+   */
+  const CRANE_COLOUR = 0xdd5f12;
+  const CRANE_DARK = 0x3a4048;
+  const CRANE_LIFT = 2.0;        // how far the jib clears the outline
+  const BOARD_POST = 0x6d737d;
+  const BOARD_FACE = 0xf1eee4;
+  const BOARD_EDGE = 0xd94f4f;
+
+  function ghostTop(category) {
+    const tier = tierIndex(layerMetric("height"), valueFor(category, "height"));
+    const floors = FLOORS[Math.min(Math.max(tier, 1), FLOORS.length - 1)];
+    return 0.62 + floors * FLOOR_H;
+  }
+
+  function craneTop(category) {
+    return ghostTop(category) + CRANE_LIFT + 0.5;
+  }
+
   /** What stands on this lot, whichever kind of thing it is. */
   function assemblyTop(building) {
     const fit = monumentFit(building);
-    return fit ? fit.top : towerTop(building.category);
+    if (fit) return fit.top;
+    /* A drafted lot carries a crane, which stands taller than the outline
+     * under it and taller than several of the buildings. Left out of this,
+     * the ground margin would be sized without it and a crane on a lot at
+     * the edge of the city would project over the void, which is the one
+     * fault the margin exists to prevent. */
+    if (building.category && building.category.blueprint_state === "draft") {
+      return Math.max(towerTop(building.category), craneTop(building.category));
+    }
+    return towerTop(building.category);
   }
 
   // The tallest thing that actually stands in this city. Reported, and used
@@ -900,6 +958,12 @@
   const beams = new Bucket();
   const ghostHouses = new Bucket();
   const reactors = new Bucket();
+  /* Lot furniture: one prop per blueprint state.
+   *
+   * Instanced like everything else, and coloured per instance, so 12 cranes
+   * and 52 boards cost two draw calls rather than sixty-four. */
+  const props = new Bucket();
+  const propTips = new Bucket();
 
   // A Lego baseplate is a grid of studs. Cheaper as a repeating texture than as
   // thousands of cylinders, and the plates are few enough to each own one.
@@ -1030,6 +1094,21 @@
         plot.cx + plot.w / 2, 0.22, plot.cz + plot.d / 2,
         plot.w, 0.34, plot.d, C.plotPlate, 0x4a5563
       );
+      /* A sleeper on a plot where nothing is built and nothing is drafted.
+       *
+       * Per plot rather than per bare lot. 89 lots are bare, and a figure on
+       * each would be more sleepers than there are people walking, leaving a
+       * city that reads as uniformly asleep. A whole plot with no blueprint
+       * activity of any kind is a different claim and a much stronger one:
+       * twelve of the thirty-one are in that state, one of them holding
+       * €22m across seven categories.
+       */
+      const stirring = plot.codes.some(
+        (code) => (stateOf.get(code) || "none") !== "none");
+      if (!stirring) {
+        sleeper(plot);
+        dormantPlots += 1;
+      }
     }
     /* The district name, cut into the district's own ground.
      *
@@ -1650,6 +1729,55 @@
   }
 
 
+  /* A sleeping figure, for a plot with no blueprint activity at all.
+   *
+   * Lying down is the whole of the signal, so the figure is built flat: a
+   * bedroll, a body along it, a head at one end, and three marks rising
+   * above. Standing figures already mean something else in this city, so a
+   * sleeper has to be unmistakably horizontal at a glance.
+   */
+  function sleeper(plot) {
+    // On the plot's own slab, in a back corner, so it does not sit where a
+    // lot would be built if somebody wrote a blueprint for it.
+    const x = plot.cx + plot.w - 1.5;
+    const z = plot.cz + 1.4;
+    const top = 0.39;
+    const coat = SLEEP_COATS[Math.abs(Math.round(plot.cx + plot.cz)) % SLEEP_COATS.length];
+    const put = (bucket, cx, cy, cz, sx, sy, sz, colour) =>
+      bucket.add(cx, cy, cz, sx, sy, sz, colour);
+    /* Bedroll, body, head. Scaled up from the first attempt: there are only
+     * twelve of these in the city and each one is a claim about a whole
+     * plot, so a figure that has to be hunted for is not doing the job. */
+    put(props, x, top + 0.09, z, 2.0, 0.18, 0.82, 0x6d737d);
+    put(props, x + 0.14, top + 0.34, z, 1.4, 0.34, 0.58, coat);
+    put(props, x - 0.82, top + 0.36, z, 0.42, 0.38, 0.38, 0xf3c85c);
+    /* Two letter Z rising away from the head.
+     *
+     * Plain squares were the first attempt and said nothing: a stack of
+     * rising blocks over a body is as likely to read as smoke or as a
+     * balloon. A Z is the only mark that means sleep without a caption, so
+     * it is built as one: a top bar, a bar at the foot, and a diagonal of
+     * small cubes between them. Drawn in the vertical plane facing the
+     * camera, which under this projection is what keeps the letter legible
+     * rather than foreshortened into a bracket. */
+    const zed = (zx, zy, size, zz) => {
+      const bar = size;
+      const thick = size * 0.22;
+      // Top and bottom strokes.
+      put(propTips, zx, zy + size / 2, zz, bar, thick, thick, 0xf1eee4);
+      put(propTips, zx, zy - size / 2, zz, bar, thick, thick, 0xf1eee4);
+      // The diagonal, as three cubes stepping between the two strokes. A
+      // single rotated box would need a rotation this bucket does not carry.
+      for (let i = 0; i < 3; i++) {
+        const t = (i + 0.5) / 3;
+        put(propTips, zx + bar / 2 - bar * t, zy + size / 2 - size * t, zz,
+          thick, thick, thick, 0xf1eee4);
+      }
+    };
+    zed(x - 0.58, top + 1.0, 0.4, z - 0.52);
+    zed(x - 0.06, top + 1.72, 0.58, z - 0.86);
+  }
+
   function buildPedestrians(roads, rnd) {
     const LIFE = CONFIG.street_life || {};
     const COATS = [0xd94f4f, 0x3f7fd0, 0xe0b53c, 0x46a06a, 0xb35fb0, 0xdd8a3a];
@@ -2232,7 +2360,7 @@
     // plot and rattles around inside an expensive one.
     const LOT = building.cell || CELL;
     const FOOT = (LOT / CELL) * 2.4;
-    const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null };
+    const pieces = { foundation: null, floors: [], studs: [], houses: [], ghosts: [], reactor: null, props: [] };
     building.pieces = pieces;
     const x = building.x, z = building.z;
     const active = state === "active";
@@ -2397,6 +2525,77 @@
       pieces.ghosts.push({ bucket: "ghostSolid", i: ghostSolid.add(x, 0.62 + h / 2, z, FOOT, h, FOOT) });
     }
 
+    /* A crane over a drafted outline.
+     *
+     * A tower crane is a mast, a jib that reaches out over the work, a
+     * shorter counter-jib the other way to balance it, and a hook hanging
+     * from the jib. Four boxes and the silhouette is unmistakable; drop any
+     * one of them and it reads as scaffolding.
+     */
+    if (state === "draft") {
+      const lift = ghostTop(category) + CRANE_LIFT;
+      const put = (bucket, name, cx, cy, cz, sx, sy, sz, colour) =>
+        pieces.props.push({ bucket: name, i: bucket.add(cx, cy, cz, sx, sy, sz, colour) });
+      // The mast stands at a back corner of the lot, so the jib reaches out
+      // over the outline rather than through it.
+      const mx = x - FOOT / 2 + 0.34;
+      const mz = z - FOOT / 2 + 0.34;
+      const leg = 0.1;
+      const span = 0.3;          // across the lattice
+
+      /* The mast, as two legs with rungs between them. A lattice is the one
+       * thing that tells a crane from a pole at any distance, and four rungs
+       * is the fewest that still reads as bracing rather than as decoration. */
+      for (const dx of [-span / 2, span / 2]) {
+        put(props, "props", mx + dx, 0.62 + lift / 2, mz, leg, lift, leg, CRANE_COLOUR);
+      }
+      const rungs = 4;
+      for (let r = 1; r <= rungs; r++) {
+        put(props, "props", mx, 0.62 + (lift * r) / (rungs + 1), mz,
+          span, 0.07, 0.07, CRANE_COLOUR);
+      }
+
+      /* The jib reaches well past the lot, and the counter-jib carries a
+       * counterweight. The asymmetry is the second thing no lamp has. */
+      const jib = FOOT * 1.25;
+      const back = jib * 0.38;
+      put(props, "props", mx + jib / 2, 0.62 + lift + 0.1, mz, jib, 0.12, 0.13, CRANE_COLOUR);
+      // A shallow tie above the jib, which is what stops a long bar reading
+      // as a plank balanced on a post.
+      put(props, "props", mx + jib * 0.34, 0.62 + lift + 0.42, mz,
+        jib * 0.5, 0.06, 0.07, CRANE_COLOUR);
+      put(props, "props", mx + 0.02, 0.62 + lift + 0.42, mz, 0.07, 0.62, 0.07, CRANE_COLOUR);
+      put(props, "props", mx - back / 2, 0.62 + lift + 0.1, mz, back, 0.12, 0.13, CRANE_COLOUR);
+      put(props, "props", mx - back, 0.62 + lift + 0.1, mz, 0.3, 0.34, 0.34, CRANE_DARK);
+      // The cab, at the joint.
+      put(props, "props", mx + 0.26, 0.62 + lift - 0.16, mz, 0.26, 0.28, 0.28, CRANE_DARK);
+
+      // The hook, on a cable long enough to be seen against the lot.
+      const hookX = mx + jib * 0.78;
+      const drop = Math.min(1.5, lift * 0.42);
+      put(propTips, "propTips", hookX, 0.62 + lift + 0.1 - drop / 2, mz,
+        0.06, drop, 0.06, CRANE_DARK);
+      put(propTips, "propTips", hookX, 0.62 + lift + 0.1 - drop, mz,
+        0.24, 0.26, 0.24, CRANE_DARK);
+    }
+
+    /* A to let board on a lot built and never used.
+     *
+     * Small on purpose. The drained facade already carries this state at a
+     * distance, so the board's job is to name it at close range rather than
+     * to compete with the wall behind it. */
+    if (active && (category.metrics.cbp_used || 0) === 0) {
+      const put = (bucket, name, cx, cy, cz, sx, sy, sz, colour) =>
+        pieces.props.push({ bucket: name, i: bucket.add(cx, cy, cz, sx, sy, sz, colour) });
+      const bx = x + FOOT / 2 - 0.2;
+      const bz = z + FOOT / 2 + 0.34;
+      put(props, "props", bx, 0.62 + 0.42, bz, 0.09, 0.84, 0.09, BOARD_POST);
+      put(props, "props", bx, 0.62 + 1.02, bz, 0.7, 0.44, 0.07, BOARD_FACE);
+      // A red band along the top, which is what makes a white panel read as a
+      // board rather than as a blank plate catching the light.
+      put(props, "props", bx, 0.62 + 1.2, bz, 0.7, 0.1, 0.08, BOARD_EDGE);
+    }
+
     // Houses and hotel along the front of the lot, drawn whatever the blueprint
     // state is. The reasoning is with the `front` constant below, where the
     // decision to stop ghosting them was made.
@@ -2493,6 +2692,10 @@
     potential: { bucket: potential, mesh: potential.mesh(box, matPotential, false, false) },
     potentialCaps: { bucket: potentialCaps, mesh: potentialCaps.mesh(box, matRiseCap, false, false) },
     riseBeams: { bucket: riseBeams, mesh: riseBeams.mesh(cyl, matRiseBeam, false, false) },
+    props: { bucket: props, mesh: props.mesh(box, matSolid, true, true) },
+    // The hook block and the sleeper's rising marks, which read better
+    // unshadowed: a shadow under a floating mark makes it look like a solid.
+    propTips: { bucket: propTips, mesh: propTips.mesh(box, matSolid, false, false) },
     roofs: { bucket: roofs, mesh: roofs.mesh(pyramid, matSolid, true, false) },
     ghostRoofs: { bucket: ghostRoofs, mesh: ghostRoofs.mesh(pyramid, matGhostSolid, false, false) },
   };
@@ -2553,6 +2756,11 @@
       schedule(p.reactor, t, 0.45 * k);
       t += 0.45 * k;
     }
+    /* The furniture last. A crane that arrives before the outline it stands
+     * over reads as a crane building itself, and the board belongs on a
+     * finished building rather than on a rising one. */
+    p.props.forEach((pr, i) => schedule(pr, t + i * 0.05 * k, 0.3 * k));
+    t += (p.props.length * 0.05 + 0.3) * k;
     return t;
   }
 
@@ -2578,7 +2786,8 @@
     const p = building.pieces;
     if (p.foundation === ref || p.reactor === ref) return true;
     return p.floors.includes(ref) || p.studs.includes(ref)
-      || p.houses.includes(ref) || p.ghosts.includes(ref);
+      || p.houses.includes(ref) || p.ghosts.includes(ref)
+      || p.props.includes(ref);
   }
 
   function stepBuild() {
@@ -4563,8 +4772,20 @@
           if (g.ground === DISTRICT_FLOOR) bump(g.owner, g.road, "indoors");
         }
       }
+      /* The furniture, counted from what was actually built rather than from
+       * the data it came from. A prop bound to a state has to be checkable
+       * against that state. */
+      const propCount = { cranes: 0, boards: 0, sleepers: dormantPlots };
+      for (const b of layout.buildings) {
+        const state = b.category && b.category.blueprint_state;
+        if (state === "draft") propCount.cranes += 1;
+        else if (state === "active" && !(b.category.metrics.cbp_used > 0)) {
+          propCount.boards += 1;
+        }
+      }
       return {
         metric,
+        props: propCount,
         movers: vehicles.length,
         riders,
         trams,

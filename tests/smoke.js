@@ -811,7 +811,13 @@ async function onAPhone(browser) {
     const sum = document.querySelector("#explainerBody p.sum");
     const num = (cell) => Number((cell ? cell.textContent : "").replace(/[^\d.-]/g, ""));
     const named = (document.querySelector("#explainerBody table.rollup")
-      .closest("section").textContent.match(/([^.]+?) worked through/) || [])[1];
+      /* Matched against the sentence the panel actually prints. It read
+       * "X worked through, the smallest district" until that line was
+       * tightened to "X, the smallest district", and this check is what
+       * caught the rename. Kept loose enough to survive either wording and
+       * specific enough to fail if the sentence stops naming a district. */
+      .closest("section").textContent
+      .match(/([A-Z][^.]*?),? (?:worked through|the smallest district)/) || [])[1];
     const district = (window.NWCity.data.districts || [])
       .find((d) => named && named.trim().endsWith(d.name));
     return {
@@ -842,6 +848,36 @@ async function onAPhone(browser) {
     + `${arithmetic.numerator} / ${arithmetic.weight} = `
     + `${(arithmetic.numerator / arithmetic.weight).toFixed(2)}, `
     + `published ${arithmetic.published}`);
+
+  /* The furniture matches the states it is bound to.
+   *
+   * A prop that means "this blueprint is being written" has to appear on
+   * exactly the lots where that is true, or it is decoration. Counted from
+   * the scene rather than from the data, then checked against the data. */
+  const furniture = await page.evaluate(() => {
+    const cats = window.NWCity.data.categories;
+    const plots = [];
+    for (const d of window.NWCity.data.districts) {
+      for (const p of d.plots) plots.push(p);
+    }
+    const state = new Map(cats.map((c) => [c.code, c.blueprint_state]));
+    return {
+      built: window.NWCity.life().props,
+      wanted: {
+        cranes: cats.filter((c) => c.blueprint_state === "draft").length,
+        boards: cats.filter((c) => c.blueprint_state === "active"
+          && !(c.metrics.cbp_used > 0)).length,
+        sleepers: plots.filter((p) => p.codes.every(
+          (code) => (state.get(code) || "none") === "none")).length,
+      },
+    };
+  });
+
+  for (const kind of ["cranes", "boards", "sleepers"]) {
+    check(`the ${kind} are on the lots the data says`,
+      furniture.built[kind] === furniture.wanted[kind],
+      `${furniture.built[kind]} drawn, ${furniture.wanted[kind]} in the data`);
+  }
 
   /* Nothing may stand off the edge of the ground plate.
    *
