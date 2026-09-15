@@ -71,13 +71,26 @@ district doing the most drafting as the quietest on the map.
 | --- | --- | --- |
 | A crane over the outline | A drafted lot | 12 |
 | A to let board | An active blueprint nobody has used | 40 |
-| A sleeper, with two Z | A plot with nothing built and nothing drafted | 12 |
+| A sleeper, with Z rising | A plot with nothing built and nothing drafted | 12 |
 
 The sleeper is per plot rather than per lot. 89 lots are bare, and a figure
 on each would outnumber the people walking and leave a city that reads as
 uniformly asleep. A whole plot with no blueprint activity of any kind is the
 rarer claim: twelve of the thirty-one, one of them holding €22m across seven
 categories.
+
+The crane stands on a wheeled carrier: an engine housing at the counter-jib
+end, a deck in the crane's own colour and six wheels under it. A lattice mast
+on bare ground reads as a mast, and the point of the prop is a machine that
+was driven onto the lot and will be driven off again.
+
+The Z over a sleeper climb and dissipate on a loop rather than standing
+still. Twelve sleepers across eight districts were the only thing on a screen
+of moving traffic, walking people and flickering reactors that did not move,
+and they had to be hunted for. Motion is what the eye finds without being
+told where to look. Each mark grows out of nothing at the head, leans away as
+it climbs, and shrinks back to nothing: an instance in a shared material
+cannot fade, and dissipating by shrinking is what smoke does anyway.
 
 The boards count 40 rather than the 52 drained facades. Those 52 are every
 lot with a building standing and nobody in it, which includes the drafts, and
