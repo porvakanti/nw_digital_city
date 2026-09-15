@@ -63,7 +63,9 @@ input devices that emit the page keys also work.
 *What should happen.* The city assembles itself, district by district. Eight
 coloured blocks, roads between them, traffic moving, two red trams on the
 raised lines at the back. People stand and walk on the open ground inside each
-district, more of them in the districts that are further along. Top left reads
+district, more of them in the districts that are further along. A crane
+stands on each drafted lot, a to let board on each built lot nobody has used,
+and a sleeper on each plot with neither. Top left reads
 56 developed, 89 empty lots, 21 markets, €760m. Top right reads 4 blueprints
 in use.
 

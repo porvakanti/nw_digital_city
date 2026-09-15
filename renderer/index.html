@@ -932,6 +932,11 @@
     font: 400 11px system-ui, sans-serif;
     color: var(--ink-muted);
   }
+  /* The lot furniture in the legend. One line each, because a crane, a board
+     and a sleeper are three separate claims rather than rungs on a ladder. */
+  #legend .swatches.props { margin-top: 6px; gap: 3px 0; flex-direction: column; }
+  #legend .sw.prop { align-items: baseline; line-height: 1.45; }
+  #legend .sw.prop b { margin-right: 4px; color: var(--ink); font-weight: 620; }
   .sheet-body table.rungs { margin-top: 4px; }
   .sheet-body table.rungs td { padding: 3px 8px 3px 0; font-size: 11.5px; }
   .sheet-body table.rungs td:first-child {

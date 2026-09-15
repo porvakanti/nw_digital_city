@@ -165,6 +165,7 @@ to be changed by configuration alone.
 | `people` | Whether category owners are identified by name, by initials, or not at all |
 | `landmarks` | Journey-score threshold, legend copy, and per-market assignment |
 | `street_life` | The district-level measure behind the traffic, the pedestrians and the lane markings, with the counts, the standing share, the placement bias and the four-lane threshold |
+| `props` | Which prop marks which blueprint state, with the label and caption each carries in the legend. A crane on a drafted lot, a to let board on an active lot nobody has used, a sleeper on a plot with neither |
 | `explainer` | The framing and the caveats behind the in-app explanation. Everything else on that page is generated from the blocks above it |
 | `disclosure` | Whether provisional and placeholder measures are annotated in the interface. No layer currently rests on either, and a test asserts that a layer cannot rest on one with its badge switched off |
 
