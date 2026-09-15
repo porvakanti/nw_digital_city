@@ -879,7 +879,7 @@ async function onAPhone(browser) {
         lift((c) => c.blueprint_state === "active" && !((c.metrics.ai_rfps || 0) > 0), 15),
       ].map((v) => Number(v.toFixed(1))),
       best: (card.querySelector(".worth.best") || {}).textContent || "",
-      lever: (card.querySelector(".lever") || {}).textContent || "",
+      sign: (card.querySelector(".sign") || {}).textContent || "",
     };
   });
 
@@ -891,9 +891,13 @@ async function onAPhone(browser) {
     JSON.stringify(asks.shown) === JSON.stringify(asks.wanted),
     `shown ${asks.shown.join(", ")} · recomputed ${asks.wanted.join(", ")}`);
 
-  check("the largest step is marked, and it is the largest",
-    asks.best.includes(String(Math.max(...asks.wanted))) && /largest single step/.test(asks.lever),
+  check("the largest impact is the one marked",
+    asks.best.includes(String(Math.max(...asks.wanted))),
     `marked ${asks.best.trim().replace(/\s+/g, " ")}, highest is ${Math.max(...asks.wanted)}`);
+
+  check("the card closes on the sign-off",
+    /Blueprints today/.test(asks.sign),
+    asks.sign.trim() || "no sign-off on the card");
 
   /* The furniture matches the states it is bound to.
    *

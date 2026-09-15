@@ -231,8 +231,9 @@ first rung of a ladder, not a poor mark against a target.
 | and generating its own briefs | **100** |
 
 Today it is 19.4, because 89 of the 145 are on none of these rungs at all.
-The screen behind `K` carries the same ladder, built from the same rungs, so
-re-weighting the score rewrites both.
+
+This is interpretation rather than an ask, so it is recorded here and not on
+the closing screen, which carries the four asks and nothing else.
 
 ## Where the data is soft
 

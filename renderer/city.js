@@ -4427,48 +4427,6 @@
     return { scoreNow, items, best };
   }
 
-  /* What it would take to score 100.
-   *
-   * The organisation's score is a weighted average of its categories, so if
-   * every category reached the same rung the organisation would score exactly
-   * that rung. That makes the answer to "how do we get to 100" unusually
-   * concrete, and it reframes the four asks above: 19 is not a poor mark, it
-   * is the first rung of a ladder whose every step is listed here.
-   *
-   * Built from the same rungs the asks are, so re-weighting the score
-   * rewrites this too.
-   */
-  function roadTo100(scoreNow) {
-    const rung = (part, id) => {
-      const row = (CONFIG.score[part] || []).find((r) => r.id === id);
-      return row ? row.points : 0;
-    };
-    const bpLive = rung("blueprint", "live");
-    const bpFull = rung("blueprint", "connected");
-    const steps = [
-      { at: rung("blueprint", "drafted"), what: "drafted" },
-      { at: bpLive, what: "live in one market" },
-      { at: bpFull, what: "live in several" },
-      { at: bpFull + rung("usage", "once"), what: "and used once" },
-      { at: bpFull + rung("usage", "repeated"), what: "and used repeatedly" },
-      {
-        at: bpFull + rung("usage", "repeated") + rung("ai", "several"),
-        what: "and generating its own briefs",
-      },
-    ];
-    const cells = steps.map((step) => `<span class="rung${
-      step.at >= 100 ? " top" : ""}"><b>${step.at}</b>${step.what}</span>`).join("");
-    return `<div class="road">
-      <div class="road-head">Networks scores the average category, so if every
-        one of the ${CITY.meta.counts.categories} reached the same rung the
-        organisation would score exactly that rung. That is the road to 100.</div>
-      <div class="rungs-row">${cells}</div>
-      <div class="road-foot">Today it is ${scoreNow.toFixed(1)}, because
-        ${CITY.categories.filter((c) => c.journey.total === 0).length} of the
-        ${CITY.meta.counts.categories} are on none of these rungs at all.</div>
-    </div>`;
-  }
-
   function paintAsks() {
     const card = document.querySelector("#asks .card");
     if (!card || !CONFIG.asks) return;
@@ -4492,11 +4450,6 @@
     card.innerHTML = `<h2>${CONFIG.asks.title}</h2>
       <p class="lede">${CONFIG.asks.lede}</p>
       <ol class="asks-list">${rows}</ol>
-      ${roadTo100(scoreNow)}
-      ${best ? `<p class="lever">The largest single step is the
-        ${["first", "second", "third", "fourth"][items.indexOf(best)]}:
-        ${best.lots} lots, and ${best.gain.toFixed(1)} points of the
-        ${(100 - scoreNow).toFixed(1)} Networks has left to earn.</p>` : ""}
       <p class="sign">${CONFIG.asks.sign}</p>
       <p class="close">Press <kbd>K</kbd> or click anywhere to go back to the city.</p>`;
   }

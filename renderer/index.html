@@ -978,55 +978,6 @@
     color: var(--ink);
   }
   #asks .worth b { color: var(--ink); }
-  /* The road to 100. One rung per step, so the ladder is read across rather
-     than as a paragraph about a ladder. */
-  #asks .road {
-    margin-top: 18px;
-    padding: 12px 14px;
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.04);
-  }
-  #asks .road-head, #asks .road-foot {
-    font-size: 0.8em;
-    line-height: 1.55;
-    color: var(--ink-2);
-  }
-  #asks .road-foot { color: var(--ink-muted); }
-  /* A grid rather than a wrapping flex row: six rungs at a flex minimum came
-     out five and one, which reads as a mistake rather than as a ladder. At
-     this minimum six fit the card, and a narrow screen folds them evenly. */
-  #asks .rungs-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-    gap: 6px;
-    margin: 10px 0;
-  }
-  #asks .rung {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding: 6px 8px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    font-size: 0.72em;
-    line-height: 1.35;
-    color: var(--ink-muted);
-  }
-  #asks .rung b {
-    font: 600 1.5em/1.1 ui-monospace, monospace;
-    color: var(--ink-2);
-  }
-  #asks .rung.top { background: rgba(12, 163, 12, 0.18); }
-  #asks .rung.top b { color: var(--good); }
-
-  #asks .lever {
-    margin-top: 2px;
-    padding-top: 12px;
-    border-top: 1px solid var(--hairline);
-    font-size: 0.86em;
-    line-height: 1.55;
-    color: var(--ink-2);
-  }
   .sheet-body table.rungs { margin-top: 4px; }
   .sheet-body table.rungs td { padding: 3px 8px 3px 0; font-size: 11.5px; }
   .sheet-body table.rungs td:first-child {
