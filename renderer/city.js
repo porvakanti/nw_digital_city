@@ -542,6 +542,15 @@
    * the base: at a fifth of the top the two thin beams came to a point and
    * looked broken. */
   const flare = new THREE.CylinderGeometry(0.5, 0.27, 1, 12);
+  /* A wheel, lying on its side.
+   *
+   * A bucket writes scale and position and no rotation, so a wheel that has
+   * to stand upright has to come out of the geometry already turned. Rotating
+   * the cylinder about X puts its axle along Z, which is across the crane's
+   * carrier, the same trick the ground disc and the pyramid already use. Ten
+   * segments: these are drawn a few pixels across and read as round from
+   * eight upward. */
+  const wheel = new THREE.CylinderGeometry(0.5, 0.5, 1, 10).rotateX(Math.PI / 2);
 
   /* Warm sandstone against a city of cool blues and greys. The first pass
    * used a pale stone that vanished into the pale district buildings behind
@@ -798,6 +807,10 @@
   const SLEEP_COATS = [0x3f7fd0, 0xb35fb0, 0x46a06a, 0xdd8a3a];
   // Counted as they are drawn, for the reader below.
   let dormantPlots = 0;
+  /* One entry per rising mark over a sleeper, each holding the instances the
+   * mark is made of and where in its climb it starts. Written every frame by
+   * updateSleepers() rather than once at build time. */
+  const sleepMarks = [];
   /* A crane has to be unmistakably a crane and not a lamp post.
    *
    * The first attempt was a slim pale mast with a short yellow bar on top,
@@ -964,6 +977,8 @@
    * and 52 boards cost two draw calls rather than sixty-four. */
   const props = new Bucket();
   const propTips = new Bucket();
+  // Its own bucket because it is the one prop piece that is not a box.
+  const propWheels = new Bucket();
 
   // A Lego baseplate is a grid of studs. Cheaper as a repeating texture than as
   // thousands of cylinders, and the plates are few enough to each own one.
@@ -1751,7 +1766,7 @@
     put(props, x, top + 0.09, z, 2.0, 0.18, 0.82, 0x6d737d);
     put(props, x + 0.14, top + 0.34, z, 1.4, 0.34, 0.58, coat);
     put(props, x - 0.82, top + 0.36, z, 0.42, 0.38, 0.38, 0xf3c85c);
-    /* Two letter Z rising away from the head.
+    /* Letter Z, leaving the head and climbing away like smoke.
      *
      * Plain squares were the first attempt and said nothing: a stack of
      * rising blocks over a body is as likely to read as smoke or as a
@@ -1759,23 +1774,92 @@
      * it is built as one: a top bar, a bar at the foot, and a diagonal of
      * small cubes between them. Drawn in the vertical plane facing the
      * camera, which under this projection is what keeps the letter legible
-     * rather than foreshortened into a bracket. */
-    const zed = (zx, zy, size, zz) => {
-      const bar = size;
-      const thick = size * 0.22;
-      // Top and bottom strokes.
-      put(propTips, zx, zy + size / 2, zz, bar, thick, thick, 0xf1eee4);
-      put(propTips, zx, zy - size / 2, zz, bar, thick, thick, 0xf1eee4);
-      // The diagonal, as three cubes stepping between the two strokes. A
-      // single rotated box would need a rotation this bucket does not carry.
-      for (let i = 0; i < 3; i++) {
-        const t = (i + 0.5) / 3;
-        put(propTips, zx + bar / 2 - bar * t, zy + size / 2 - size * t, zz,
-          thick, thick, thick, 0xf1eee4);
+     * rather than foreshortened into a bracket.
+     *
+     * Two of them, standing still, were still hard to find: twelve sleepers
+     * across eight districts, each a couple of marks a few pixels across on
+     * a screen where everything else that matters is moving. So they move.
+     * Each mark is recorded here with its pieces and its place in the cycle,
+     * and updateSleepers() flies it every frame.
+     */
+    const RISE = ((CONFIG.props || {}).sleeper || {}).rise || {};
+    const count = RISE.count === undefined ? 3 : RISE.count;
+    const size = RISE.size === undefined ? 0.62 : RISE.size;
+    const bar = size;
+    const thick = size * 0.22;
+    /* The pieces of one Z, as offsets from the mark's own origin, so the
+     * whole letter can be flown and scaled as one thing. */
+    const shape = [
+      { dx: 0, dy: size / 2, dz: 0, sx: bar, sy: thick, sz: thick },
+      { dx: 0, dy: -size / 2, dz: 0, sx: bar, sy: thick, sz: thick },
+    ];
+    for (let i = 0; i < 3; i++) {
+      const t = (i + 0.5) / 3;
+      shape.push({
+        dx: bar / 2 - bar * t, dy: size / 2 - size * t, dz: 0,
+        sx: thick, sy: thick, sz: thick,
+      });
+    }
+    /* Staggered evenly, and offset again by where the plot is, so twelve
+     * sleepers do not breathe in unison across the city. */
+    const stagger = Math.abs(plot.cx * 0.37 + plot.cz * 0.11) % 1;
+    for (let n = 0; n < count; n++) {
+      sleepMarks.push({
+        x: x - 1.15,
+        y: top + 0.62,
+        z: z - 0.4,
+        phase: (n / count + stagger) % 1,
+        pieces: shape.map((piece) => ({
+          ...piece,
+          i: put(propTips, x, top + 0.62, z, piece.sx, piece.sy, piece.sz, 0xf1eee4),
+        })),
+      });
+    }
+  }
+
+  /* The marks over every sleeper, flown one frame at a time.
+   *
+   * Written straight into the instance matrices rather than through
+   * setPiece(), which places a piece at its own recorded position: these
+   * pieces have no fixed position, only an offset from a mark that is
+   * somewhere different every frame. Nothing else touches these instances,
+   * because a sleeper is not part of the build sequence and appears with the
+   * ground it stands on.
+   */
+  function updateSleepers(nowSec) {
+    if (!sleepMarks.length) return;
+    const entry = BUCKETS.propTips;
+    if (!entry || !entry.mesh) return;
+    const RISE = ((CONFIG.props || {}).sleeper || {}).rise || {};
+    const period = RISE.period === undefined ? 3.4 : RISE.period;
+    const climb = RISE.rise === undefined ? 4.0 : RISE.rise;
+    const drift = RISE.drift === undefined ? 1.6 : RISE.drift;
+    const swell = RISE.swell === undefined ? 1.7 : RISE.swell;
+    for (const mark of sleepMarks) {
+      const t = ((nowSec / period) + mark.phase) % 1;
+      /* Out of nothing, up to full size, and away to nothing again. The
+       * root broadens the middle of that curve, so a mark spends most of
+       * its climb readable instead of only the instant it passes its peak. */
+      const scale = Math.pow(Math.sin(Math.PI * t), 0.55) * swell;
+      /* A curve away from the head rather than a straight line up.
+       *
+       * The lean grows faster than the climb does, so a mark leaves the head
+       * going more or less straight up and is drifting sideways by the time
+       * it dissipates. A constant lean, or a sine, put every mark on the same
+       * near-vertical line and the plume read as a ladder of Zs stacked over
+       * a body rather than as something leaving it. */
+      const lean = drift * Math.pow(t, 1.6);
+      const px = mark.x - lean;
+      const py = mark.y + climb * t;
+      const pz = mark.z - lean * 0.45;
+      for (const piece of mark.pieces) {
+        MATRIX.makeScale(piece.sx * scale, piece.sy * scale, piece.sz * scale);
+        MATRIX.setPosition(px + piece.dx * scale, py + piece.dy * scale,
+          pz + piece.dz * scale);
+        entry.mesh.setMatrixAt(piece.i, MATRIX);
       }
-    };
-    zed(x - 0.58, top + 1.0, 0.4, z - 0.52);
-    zed(x - 0.06, top + 1.72, 0.58, z - 0.86);
+    }
+    entry.mesh.instanceMatrix.needsUpdate = true;
   }
 
   function buildPedestrians(roads, rnd) {
@@ -2555,6 +2639,52 @@
           span, 0.07, 0.07, CRANE_COLOUR);
       }
 
+      /* The carrier under the mast: a deck, an engine housing behind it, and
+       * wheels down both sides.
+       *
+       * The mast's bottom sits inside the housing rather than the housing
+       * being stacked under the mast, which is how a mobile crane is put
+       * together and which keeps craneTop() and the ground margin it feeds
+       * unchanged. The engine is at the counter-jib end, so the heavy end of
+       * the machine is the heavy end of the load. */
+      const BASE = ((CONFIG.props || {}).crane || {}).base || {};
+      const wheels = BASE.wheels === undefined ? 6 : BASE.wheels;
+      if (wheels > 0) {
+        const bl = BASE.length === undefined ? 1.45 : BASE.length;
+        const bw = BASE.width === undefined ? 0.74 : BASE.width;
+        const bh = BASE.height === undefined ? 0.32 : BASE.height;
+        const rad = BASE.wheel_radius === undefined ? 0.17 : BASE.wheel_radius;
+        /* The deck rides on the wheels, so it starts a wheel's diameter up,
+         * and it is the crane's own colour rather than the dark of the
+         * wheels. Dark on dark was the first attempt and the wheels read as
+         * four loose blobs under the mast; an orange body on black wheels is
+         * a machine at any distance. */
+        const deck = 0.62 + rad * 2;
+        put(props, "props", mx, deck + bh / 2, mz, bl, bh, bw, CRANE_COLOUR);
+        /* The engine housing, standing on the deck at the counter-jib end, so
+         * the carrier has a front and a back at a glance. On the deck and not
+         * sunk into it: at its first height only a fifth of it cleared the
+         * deck top and it read as a bulge in the bodywork. */
+        const hh = bh * 1.15;
+        put(props, "props", mx - bl * 0.29, deck + bh + hh / 2, mz,
+          bl * 0.34, hh, bw * 0.84, CRANE_DARK);
+        /* Wheels in pairs down each side. An odd count would leave one
+         * wheel on its own on a machine whose axles come in pairs, so the
+         * count is halved and rounded to give the pairs per side. */
+        const perSide = Math.max(1, Math.round(wheels / 2));
+        for (let w = 0; w < perSide; w++) {
+          const along = perSide === 1 ? 0
+            : -bl / 2 + rad * 1.2 + (w * (bl - rad * 2.4)) / (perSide - 1);
+          for (const side of [-1, 1]) {
+            pieces.props.push({
+              bucket: "propWheels",
+              i: propWheels.add(mx + along, 0.62 + rad, mz + side * (bw / 2),
+                rad * 2, rad * 2, rad * 0.9, CRANE_DARK),
+            });
+          }
+        }
+      }
+
       /* The jib reaches well past the lot, and the counter-jib carries a
        * counterweight. The asymmetry is the second thing no lamp has. */
       const jib = FOOT * 1.25;
@@ -2693,6 +2823,7 @@
     potentialCaps: { bucket: potentialCaps, mesh: potentialCaps.mesh(box, matRiseCap, false, false) },
     riseBeams: { bucket: riseBeams, mesh: riseBeams.mesh(cyl, matRiseBeam, false, false) },
     props: { bucket: props, mesh: props.mesh(box, matSolid, true, true) },
+    propWheels: { bucket: propWheels, mesh: propWheels.mesh(wheel, matSolid, true, false) },
     // The hook block and the sleeper's rising marks, which read better
     // unshadowed: a shadow under a floating mark makes it look like a solid.
     propTips: { bucket: propTips, mesh: propTips.mesh(box, matSolid, false, false) },
@@ -5242,6 +5373,7 @@
     stepBuild();
     updateWalkers(nowSec, delta);
     updateTraffic(delta);
+    updateSleepers(nowSec);
     updateFigure(nowSec, delta);
     applyCamera();
     placeBubble();
@@ -5274,6 +5406,9 @@
   for (const mesh of dirty) mesh.instanceMatrix.needsUpdate = true;
   dirty.clear();
   applyCamera();
+  /* Before the first frame, because every mark is added at the same point and
+   * would be seen stacked there for one frame otherwise. */
+  updateSleepers(clockNow());
   cityRise();
   tick();
 })();

@@ -92,6 +92,23 @@ props:
     label: Crane
     caption: A blueprint being written
 
+    # The carrier the mast stands on.
+    #
+    # A lattice mast on bare ground reads as a mast. An engine housing on
+    # wheels under it reads as a machine that was driven onto the lot and will
+    # be driven off again, which is the difference between work in progress
+    # and part of the scenery.
+    #
+    # `length` runs along the jib, so the counterweight end and the engine end
+    # are the same end, which is what a mobile crane does. Set `wheels: 0` for
+    # a mast with no carrier.
+    base:
+      length: 1.45
+      width: 0.74
+      height: 0.32
+      wheels: 6
+      wheel_radius: 0.17
+
   # Built, and nobody has moved in. The drained facade says this too, so the
   # board is deliberately small: it names the state at close range without
   # competing with the wall colour that carries it at distance.
@@ -110,6 +127,34 @@ props:
     state: dormant
     label: Asleep
     caption: A plot with nothing built and nothing drafted
+
+    # The marks over a sleeper drift up and dissipate, on a loop.
+    #
+    # A static mark beside a static figure was the one thing on this screen
+    # with no motion at all, on a screen where traffic moves, people walk and
+    # reactors flicker. Twelve of them across eight districts had to be
+    # hunted for. Motion is what the eye finds without being told where to
+    # look, so the marks are the moving part now and the figure under them
+    # can stay still.
+    #
+    # `count` marks per sleeper, each taking `period` seconds to climb
+    # `rise` units, evenly staggered so one is always mid-flight. An instance
+    # in a shared material cannot fade, so a mark dissipates by growing out
+    # of nothing and shrinking back to it, which is what smoke does anyway.
+    rise:
+      count: 3
+      period: 3.4         # seconds for one mark to complete its climb
+      # Tall enough that three marks a third of the climb apart do not
+      # overlap: at 3.4 they touched and the plume read as one corkscrew
+      # rather than as letters.
+      rise: 4.0           # units climbed
+      drift: 1.6          # sideways lean by the top of the climb
+      # Sized for the default camera rather than for a close-up. At 0.46 the
+      # marks were legible from a lot away and a few pixels across at the
+      # opening view, which is the view the complaint was about. A mark at
+      # its peak is now about half a lot wide.
+      size: 0.62          # the mark at full size
+      swell: 1.7          # its size multiplier at the peak of the climb
 
 # ---------------------------------------------------------------------------
 # STREET LIFE
