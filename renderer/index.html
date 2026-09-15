@@ -937,6 +937,40 @@
   #legend .swatches.props { margin-top: 6px; gap: 3px 0; flex-direction: column; }
   #legend .sw.prop { align-items: baseline; line-height: 1.45; }
   #legend .sw.prop b { margin-right: 4px; color: var(--ink); font-weight: 620; }
+  /* The asks, each with its evidence and what it is worth. */
+  #asks .asks-list li { margin-bottom: 14px; }
+  #asks .asks-list b { color: var(--ink); }
+  #asks .why {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.82em;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  #asks .worth {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.07);
+    font: 500 0.76em ui-monospace, monospace;
+    color: var(--ink-muted);
+  }
+  /* The largest step is marked rather than just listed, because the point of
+     computing all four is knowing which one to do first. */
+  #asks .worth.best {
+    background: rgba(230, 0, 0, 0.16);
+    color: var(--ink);
+  }
+  #asks .worth b { color: var(--ink); }
+  #asks .lever {
+    margin-top: 2px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+    font-size: 0.86em;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
   .sheet-body table.rungs { margin-top: 4px; }
   .sheet-body table.rungs td { padding: 3px 8px 3px 0; font-size: 11.5px; }
   .sheet-body table.rungs td:first-child {
@@ -1267,16 +1301,11 @@
 
   <div class="hud" id="asks">
     <div class="card">
-      <h2>Develop your district</h2>
-      <p class="lede">Four things to take away.</p>
-      <ol>
-        <li>Complete and maintain your category blueprint.</li>
-        <li>Put it to work through AVA Sourcing.</li>
-        <li>Use it for meaningful sourcing events.</li>
-        <li>Structure the knowledge and rules that power what comes next.</li>
-      </ol>
-      <p class="sign">Blueprints today. Smart procurement tomorrow.</p>
-      <p class="close">Press <kbd>K</kbd> or click anywhere to go back to the city.</p>
+      <!-- Written by paintAsks() from config/metrics.yaml and the data: the
+           four asks are strategy and live in the config, and what each one is
+           worth is computed. Left empty rather than holding a copy of the
+           asks, because two copies of the same four sentences is the
+           arrangement where one of them goes stale. -->
     </div>
   </div>
 
