@@ -34,6 +34,49 @@ city:
 # LAYER BINDINGS. What each visible thing in the city is driven by.
 # Each value must name a key from `metrics:` below.
 # ---------------------------------------------------------------------------
+# LOT FURNITURE
+#
+# One prop per blueprint state, so the state reads as an activity rather than
+# as a shade of ground. The count of people and vehicles in a district
+# already follows its journey score, but a count is the weakest thing the eye
+# reads: 26 figures against 8 is not a distinction anybody makes at a glance,
+# where a crane against no crane is instant.
+#
+# Each prop is bound to a fact rather than to a band of the score. Binding
+# them to the score would have been wrong as well as vague: Network Revenue
+# Platforms scores lowest of the eight districts and holds seven of the
+# estate's twelve draft blueprints, more than the other seven districts
+# together. Under a busy-to-quiet banding it would have been the sleepiest
+# district on the map while being the one doing the most drafting.
+props:
+  # A drafted lot already carries a faint outline of the building that could
+  # stand there. A crane over that outline is the most exact reading available:
+  # the building is under construction and is not finished.
+  crane:
+    state: draft
+    label: Crane
+    caption: A blueprint being written
+
+  # Built, and nobody has moved in. The drained facade says this too, so the
+  # board is deliberately small: it names the state at close range without
+  # competing with the wall colour that carries it at distance.
+  board:
+    state: active_unused
+    label: To let
+    caption: A blueprint live and never used
+
+  # Per dormant plot, not per bare lot. There are 89 bare lots and a figure on
+  # each would be more sleepers than there are figures already walking,
+  # leaving a city that reads as uniformly asleep. 12 of the 31 plots have nothing built
+  # and nothing drafted, which is a whole neighbourhood with no blueprint
+  # activity of any kind, and that is the thing worth marking.
+  sleeper:
+    scope: plot
+    state: dormant
+    label: Asleep
+    caption: A plot with nothing built and nothing drafted
+
+# ---------------------------------------------------------------------------
 # STREET LIFE
 #
 # Vehicles and pedestrians, bound to a district-level measure. Every other
@@ -133,8 +176,10 @@ layers:
     detail: >-
       A lot with no blueprint is bare ground. A drafted one is marked out in
       yellow and carries a faint outline of the building that could stand
-      there. An active one has foundations laid, and only then can anything be
-      built on it.
+      there, with a crane over it. An active one has foundations laid, and
+      only then can anything be built on it; if nobody has ever run a
+      sourcing event through it, it carries a to let board. A plot where
+      nothing is built and nothing is drafted has somebody asleep on it.
   height:
     metric: journey_score     # alternatives: market_reach, cbp_total, ava_adoption
     caption: How far along the journey it has got
