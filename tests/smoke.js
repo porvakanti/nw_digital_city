@@ -849,6 +849,52 @@ async function onAPhone(browser) {
     + `${(arithmetic.numerator / arithmetic.weight).toFixed(2)}, `
     + `published ${arithmetic.published}`);
 
+  /* The asks carry figures, and the figures are the right ones.
+   *
+   * The screen was static markup and the only one in the application with no
+   * evidence on it. Now every line is computed, which means it can be wrong,
+   * so the rollup is redone here from the data and compared. */
+  const asks = await page.evaluate(() => {
+    document.body.classList.add("checking-asks");
+    const card = document.querySelector("#asks .card");
+    const rows = [...card.querySelectorAll(".asks-list li")];
+    const floor = 1e6;
+    const cats = window.NWCity.data.categories;
+    const w = (c) => Math.sqrt(Math.max(c.metrics.spend_eur || 0, floor));
+    const total = cats.reduce((s, c) => s + w(c), 0);
+    const now = cats.reduce((s, c) => s + c.journey.total * w(c), 0) / total;
+    const lift = (pick, pts) =>
+      now + cats.filter(pick).reduce((s, c) => s + pts * w(c), 0) / total;
+    return {
+      rows: rows.length,
+      withFigures: rows.filter((li) => li.querySelector(".worth")).length,
+      shown: rows.map((li) => {
+        const worth = li.querySelector(".worth b");
+        return worth ? Number(worth.textContent) : null;
+      }),
+      wanted: [
+        lift((c) => c.blueprint_state === "none", 10),
+        lift((c) => c.blueprint_state === "draft", 15),
+        lift((c) => c.blueprint_state === "active" && !(c.metrics.cbp_used > 0), 20),
+        lift((c) => c.blueprint_state === "active" && !((c.metrics.ai_rfps || 0) > 0), 15),
+      ].map((v) => Number(v.toFixed(1))),
+      best: (card.querySelector(".worth.best") || {}).textContent || "",
+      lever: (card.querySelector(".lever") || {}).textContent || "",
+    };
+  });
+
+  check("every ask carries a figure",
+    asks.rows === 4 && asks.withFigures === 4,
+    `${asks.withFigures} of ${asks.rows} asks have one`);
+
+  check("the asks are worth what the data says they are worth",
+    JSON.stringify(asks.shown) === JSON.stringify(asks.wanted),
+    `shown ${asks.shown.join(", ")} · recomputed ${asks.wanted.join(", ")}`);
+
+  check("the largest step is marked, and it is the largest",
+    asks.best.includes(String(Math.max(...asks.wanted))) && /largest single step/.test(asks.lever),
+    `marked ${asks.best.trim().replace(/\s+/g, " ")}, highest is ${Math.max(...asks.wanted)}`);
+
   /* The furniture matches the states it is bound to.
    *
    * A prop that means "this blueprint is being written" has to appear on

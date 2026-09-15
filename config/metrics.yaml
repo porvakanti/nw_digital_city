@@ -34,6 +34,41 @@ city:
 # LAYER BINDINGS. What each visible thing in the city is driven by.
 # Each value must name a key from `metrics:` below.
 # ---------------------------------------------------------------------------
+# THE ASKS
+#
+# The closing screen, behind K. The four asks are the strategy and are
+# written here; what each one is worth is computed from the data at build
+# time, because an ask with no figure beside it is an assertion and this was
+# the only screen in the application carrying none.
+#
+# `evidence` names a calculation in the renderer rather than a number. Each
+# one answers the same question: if this were the only step taken, what would
+# it move the organisation's score to. The largest is found by comparing them
+# rather than being nominated here, so the screen cannot end up pointing at
+# the wrong one after a refreshed extract.
+asks:
+  title: Develop your district
+  # Rendered as the headline: the existing card styles the title small and
+  # the lede large, so this is the line that carries the screen.
+  lede: >-
+    Four things to take away, and what each one is worth.
+  sign: Blueprints today. Smart procurement tomorrow.
+
+  # The gains do not add up, and the screen does not imply that they do.
+  # Drafting a bare lot and then taking that draft live are two of these asks
+  # landing on the same category, so acting on all four compounds rather than
+  # sums.
+  items:
+    - ask: Complete and maintain your category blueprint.
+      evidence: draft_the_bare
+    - ask: Put it to work through AVA Sourcing.
+      evidence: activate_the_drafts
+    - ask: Use it for meaningful sourcing events.
+      evidence: use_the_live
+    - ask: Structure the knowledge and rules that power what comes next.
+      evidence: brief_the_live
+
+# ---------------------------------------------------------------------------
 # LOT FURNITURE
 #
 # One prop per blueprint state, so the state reads as an activity rather than

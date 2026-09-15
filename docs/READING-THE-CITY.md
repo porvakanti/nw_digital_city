@@ -190,6 +190,30 @@ writing the blueprints, 5% of the way through using them.
 The second thing to know: **Fixed has 12 categories, €88m of spend, and one
 built.** It is the most exposed district on the map.
 
+## The asks, and what each is worth
+
+The closing screen behind `K` carries four asks and, beside each, the score
+the organisation would reach if that step alone were taken. Every figure is
+computed from the extract, so a refreshed one moves them without anybody
+editing the screen.
+
+| Ask | Lots | Networks would reach |
+| --- | --- | --- |
+| Write a blueprint for every lot without one | 89 | 23.9 |
+| Take every written draft live in a market | 12 | 20.7 |
+| **Run one sourcing event through every live blueprint** | **40** | **27.3** |
+| Generate one brief for every live blueprint | 36 | 25.0 |
+
+**The largest single step is using what already exists.** Forty live
+blueprints have never been used, and one event through each is worth more
+than drafting all 89 missing blueprints. That is the finding the estate does
+not expect: the fastest route is not writing more, it is using what is
+written.
+
+The four do not add up. Drafting a bare lot and then taking that draft live
+are two of the asks landing on the same category, so acting on all four
+compounds rather than sums.
+
 ## Where the data is soft
 
 Say these before someone finds them.

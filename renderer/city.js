@@ -4342,6 +4342,113 @@
 
   // The closing ask. It is the point of the whole session, so it takes the
   // screen; a click anywhere puts the city back.
+  /* The asks, with what each one is worth.
+   *
+   * Four sentences of strategy from the config, and beside each the score the
+   * organisation would reach if that step alone were taken. This was the only
+   * screen in the application with no figure on it, which made it the one
+   * place a viewer was asked to accept a claim rather than read the evidence.
+   *
+   * Each gain is the same calculation the build uses, run over a modified
+   * copy of the estate: move every category in the tier up by the rungs that
+   * step earns, roll it up by the square root of spend, and take the
+   * difference. So the figures follow a refreshed extract without anybody
+   * editing this screen, and the largest is found by comparing them rather
+   * than being named in the config.
+   *
+   * They do not add up, and the screen does not imply that they do. Drafting
+   * a bare lot and then taking that draft live are two of these asks landing
+   * on the same category, so acting on all four compounds.
+   */
+  function askEvidence() {
+    const rules = CONFIG.score.rollup || {};
+    const floor = rules.floor_eur || 1e6;
+    const weigh = (c) => Math.sqrt(Math.max(c.metrics.spend_eur || 0, floor));
+    const total = CITY.categories.reduce((sum, c) => sum + weigh(c), 0) || 1;
+    const scoreNow = CITY.categories.reduce(
+      (sum, c) => sum + c.journey.total * weigh(c), 0) / total;
+
+    // What one rung is worth, read from the config rather than assumed.
+    const rung = (part, id) => {
+      const row = (CONFIG.score[part] || []).find((r) => r.id === id);
+      return row ? row.points : 0;
+    };
+    const lift = (pick, points) => {
+      const tier = CITY.categories.filter(pick);
+      const gain = tier.reduce((sum, c) => sum + points * weigh(c), 0) / total;
+      return { lots: tier.length, gain, to: scoreNow + gain, tier };
+    };
+
+    const bare = (c) => c.blueprint_state === "none";
+    const drafted = (c) => c.blueprint_state === "draft";
+    const live = (c) => c.blueprint_state === "active";
+    const euroOf = (list) => list.reduce((sum, c) => sum + (c.metrics.spend_eur || 0), 0);
+
+    const builders = {
+      draft_the_bare() {
+        const step = rung("blueprint", "drafted") - rung("blueprint", "none");
+        const out = lift(bare, step);
+        const funded = out.tier.filter((c) => (c.metrics.spend_eur || 0) > 0);
+        out.text = `${out.lots} lots have no blueprint, and ${funded.length} of them
+          carry ${euro(euroOf(funded))} between them with nothing governing it.`;
+        return out;
+      },
+      activate_the_drafts() {
+        const step = rung("blueprint", "live") - rung("blueprint", "drafted");
+        const out = lift(drafted, step);
+        out.text = `${out.lots} blueprints are written and live in no market, so
+          nothing can be run through them yet.`;
+        return out;
+      },
+      use_the_live() {
+        const step = rung("usage", "once");
+        const out = lift((c) => live(c) && !(c.metrics.cbp_used > 0), step);
+        out.text = `${out.lots} blueprints are live and have never been used. One
+          sourcing event through each is worth ${step} of the
+          ${CONFIG.score.weights.usage} usage marks.`;
+        return out;
+      },
+      brief_the_live() {
+        const step = rung("ai", "started");
+        const out = lift((c) => live(c) && !((c.metrics.ai_rfps || 0) > 0), step);
+        const started = CITY.categories.filter((c) => (c.metrics.ai_rfps || 0) > 0).length;
+        out.text = `${started} of ${CITY.meta.counts.categories} categories have
+          generated a brief. ${out.lots} live blueprints have not.`;
+        return out;
+      },
+    };
+
+    const items = (CONFIG.asks.items || []).map((row) => {
+      const build = builders[row.evidence];
+      return build ? Object.assign({ ask: row.ask }, build()) : { ask: row.ask };
+    });
+    const best = items.reduce(
+      (most, row) => (row.gain > (most ? most.gain : -1) ? row : most), null);
+    return { scoreNow, items, best };
+  }
+
+  function paintAsks() {
+    const card = document.querySelector("#asks .card");
+    if (!card || !CONFIG.asks) return;
+    const { scoreNow, items, best } = askEvidence();
+    const rows = items.map((row) => `<li>
+      <b>${row.ask}</b>
+      ${row.text ? `<span class="why">${row.text}</span>` : ""}
+      ${row.gain === undefined ? "" : `<span class="worth${row === best ? " best" : ""}">
+        on its own, ${scoreNow.toFixed(1)} &rarr;
+        <b>${row.to.toFixed(1)}</b></span>`}
+    </li>`).join("");
+    card.innerHTML = `<h2>${CONFIG.asks.title}</h2>
+      <p class="lede">${CONFIG.asks.lede}</p>
+      <ol class="asks-list">${rows}</ol>
+      ${best ? `<p class="lever">The largest single step is the
+        ${["first", "second", "third", "fourth"][items.indexOf(best)]}:
+        ${best.lots} lots, and ${best.gain.toFixed(1)} points of the
+        ${(100 - scoreNow).toFixed(1)} Networks has left to earn.</p>` : ""}
+      <p class="sign">${CONFIG.asks.sign}</p>
+      <p class="close">Press <kbd>K</kbd> or click anywhere to go back to the city.</p>`;
+  }
+
   const asksEl = document.getElementById("asks");
   let showingAsks = false;
 
@@ -4352,6 +4459,7 @@
   }
 
   asksEl.addEventListener("click", () => setAsks(false));
+  paintAsks();
 
   /* Single-key shortcuts are for the person driving the city, not for the
    * person typing a question into it. Typing "reset the view" used to reset
