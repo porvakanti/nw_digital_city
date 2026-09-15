@@ -59,6 +59,30 @@ Networks. That mismatch is worth pointing at.
 
 61% of Networks is bare ground.
 
+**The furniture on the lot says the same thing a second way.** The colour of
+the ground carries the state, and a colour has to be learned; a crane does
+not. Each prop is bound to the state rather than to a district's score,
+which matters: Network Revenue Platforms scores lowest of the eight districts
+and holds seven of the twelve drafts, more than the other seven districts
+together. Anything keyed to how a district scores would have shown the
+district doing the most drafting as the quietest on the map.
+
+| Prop | On | Count |
+| --- | --- | --- |
+| A crane over the outline | A drafted lot | 12 |
+| A to let board | An active blueprint nobody has used | 40 |
+| A sleeper, with two Z | A plot with nothing built and nothing drafted | 12 |
+
+The sleeper is per plot rather than per lot. 89 lots are bare, and a figure
+on each would outnumber the people walking and leave a city that reads as
+uniformly asleep. A whole plot with no blueprint activity of any kind is the
+rarer claim: twelve of the thirty-one, one of them holding €22m across seven
+categories.
+
+The boards count 40 rather than the 52 drained facades. Those 52 are every
+lot with a building standing and nobody in it, which includes the drafts, and
+a draft has no building to let.
+
 ### 2. The height: how far the category has got
 
 The composite score, 0 to 100. 40 points for the blueprint itself, 35 for

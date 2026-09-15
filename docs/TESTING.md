@@ -22,7 +22,7 @@ than five summaries to interpret.
 
 | Stage | What it proves | Fails if |
 | --- | --- | --- |
-| **1. Data and privacy** | 127 assertions over `city.json`, the figures every document quotes, the plan parser, the model ladder and the service, including the whole security suite | a figure quoted in a document no longer matches the data, or a name, a contact detail or an API key could reach anyone |
+| **1. Data and privacy** | 180 assertions over `city.json`, the figures every document quotes, the plan parser, the model ladder and the service, including the whole security suite | a figure quoted in a document no longer matches the data, or a name, a contact detail or an API key could reach anyone |
 | **2. The agent's question set** | the questions from the walkthrough, end to end, against whatever `.env` names | a question that worked yesterday now resolves to the wrong place, or to nowhere |
 | **3. The renderer from a file** | the city opens, draws, answers and stays usable on a phone screen | a lot overlaps another, a plot contradicts its spend, a control lands off-screen, or the console throws |
 | **4. The renderer against the service** | the served page finds its own endpoint, asks for a plan and acts on the answer | the deployed path is broken, which the file path cannot see |
@@ -62,7 +62,7 @@ at the time could not see it.
 
 ### The document check, specifically
 
-18 of those assertions read the documents and rebuild each figure they quote
+53 of those assertions read the documents and rebuild each figure they quote
 out of `city.json`. A stale number in a document is worse than a stale number
 in code: nothing fails, the error is not surfaced, and the figure gets repeated. Six
 were wrong when the check was written, left over from before the category

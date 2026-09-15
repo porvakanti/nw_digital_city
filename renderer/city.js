@@ -3008,10 +3008,39 @@
         <div class="name">${i + 1}. ${def.label}${badge}</div>
         <div class="by">${CONFIG.layers[layer].caption}</div>
         <div class="swatches">${swatches}</div>
+        ${layer === "foundation" ? propNote() : ""}
         ${layer === "height" ? landmarkNote() : ""}
         ${layer === "occupancy" ? occupancyNote() : ""}
       </div>`;
     }).join("");
+  }
+
+  /* The furniture, in the legend, inside the blueprint block.
+   *
+   * The explanation behind H already described all three, but the legend is
+   * the panel that stays on screen, and a viewer who has not opened the
+   * explanation has no way to know that a crane means a draft rather than
+   * decoration. It belongs to the blueprint block because all three are
+   * bound to blueprint state, and counted from what is actually standing so
+   * the note cannot claim a prop the city is not drawing.
+   */
+  function propNote() {
+    const declared = CONFIG.props || {};
+    const counts = {
+      crane: CITY.categories.filter((c) => c.blueprint_state === "draft").length,
+      board: CITY.categories.filter((c) => c.blueprint_state === "active"
+        && !(c.metrics.cbp_used > 0)).length,
+      sleeper: dormantPlots,
+    };
+    const rows = Object.keys(declared)
+      .filter((key) => counts[key] !== undefined)
+      .map((key) => {
+        const prop = declared[key] || {};
+        return `<span class="sw prop"><b>${prop.label || key}</b>
+          ${prop.caption || ""} · ${counts[key]}</span>`;
+      }).join("");
+    if (!rows) return "";
+    return `<div class="swatches props">${rows}</div>`;
   }
 
   /* The monuments, in the legend, inside the height block.
