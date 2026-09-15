@@ -214,6 +214,26 @@ The four do not add up. Drafting a bare lot and then taking that draft live
 are two of the asks landing on the same category, so acting on all four
 compounds rather than sums.
 
+### The road to 100
+
+The organisation's score is a weighted average of its categories, so if every
+category reached the same rung the organisation would score exactly that rung.
+That makes the ceiling unusually concrete, and it reframes the 19: it is the
+first rung of a ladder, not a poor mark against a target.
+
+| If every category were | Networks scores |
+| --- | --- |
+| drafted | 10 |
+| live in one market | 25 |
+| live in several | 40 |
+| and used once | 60 |
+| and used repeatedly | 75 |
+| and generating its own briefs | **100** |
+
+Today it is 19.4, because 89 of the 145 are on none of these rungs at all.
+The screen behind `K` carries the same ladder, built from the same rungs, so
+re-weighting the score rewrites both.
+
 ## Where the data is soft
 
 Say these before someone finds them.
