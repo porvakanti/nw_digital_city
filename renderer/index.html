@@ -937,10 +937,24 @@
     color: var(--ink-muted);
   }
   /* The lot furniture in the legend. One line each, because a crane, a board
-     and a sleeper are three separate claims rather than rungs on a ladder. */
-  #legend .swatches.props { margin-top: 6px; gap: 3px 0; flex-direction: column; }
+     and a sleeper are three separate claims rather than rungs on a ladder.
+
+     align-items has to be restated here. `.swatches` centres its items, which
+     is right for a row of swatches and wrong the moment the direction turns
+     to a column: the cross axis becomes horizontal, so the three rows were
+     each centred on their own width and the labels stepped in and out down
+     the block instead of starting at one margin. */
+  #legend .swatches.props {
+    margin-top: 6px; gap: 3px 0;
+    flex-direction: column; align-items: flex-start;
+  }
   #legend .sw.prop { align-items: baseline; line-height: 1.45; }
-  #legend .sw.prop b { margin-right: 4px; color: var(--ink); font-weight: 620; }
+  /* A column for the labels, so the captions start at one margin too. Without
+     it each caption began wherever its own label ended, and three labels of
+     three different widths put the descriptions in three places. */
+  #legend .sw.prop b {
+    min-width: 46px; margin-right: 6px; color: var(--ink); font-weight: 620;
+  }
   /* The asks, each with its evidence and what it is worth. */
   #asks .asks-list b { color: var(--ink); }
   #asks .body { min-width: 0; }
