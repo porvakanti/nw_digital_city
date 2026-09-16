@@ -278,6 +278,11 @@
   .rows { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 12px; }
   .rows dt { color: var(--ink-muted); }
   .rows dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  /* The score's own breakdown, under the value it belongs to. The deed's
+     values are right-aligned, so the bar spans the value column and the three
+     components stack against the same right edge as everything above them. */
+  .rows dd .bar { margin-top: 5px; }
+  .rows dd .parts { flex-direction: column; align-items: flex-end; margin-top: 4px; gap: 1px; }
 
   /* ---- what is under the pointer ----
      Clicking to find out what a building is means committing to it. Hovering
@@ -775,27 +780,33 @@
   .jRow .who { font-size: 12px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .jRow .num { font: 600 12px ui-monospace, monospace; color: var(--ink); }
   /* Three segments, never one number: the leader leads on usage and that is
-     invisible in a total. */
-  .jRow .bar { grid-column: 1 / -1; display: flex; height: 5px; border-radius: 3px; overflow: hidden;
-               background: rgba(255,255,255,0.07); }
-  .jRow .bar i { display: block; height: 100%; }
-  /* Named for the journey panel alone: `.sw` is already the legend's swatch,
-     and taking it over collapsed every row in there. */
-  .jRow .bar .bp, .jRow .parts .bp { color: #93aee2; background: #6f8fd0; }
-  .jRow .bar .use, .jRow .parts .use { color: #79d49b; background: #4fbf7d; }
-  .jRow .bar .ai, .jRow .parts .ai { color: #dcbc4e; background: #c9a227; }
+     invisible in a total.
+
+     Not scoped to the scoreboard. The title deed breaks the same score into
+     the same three components, and two sets of colours for one measure is the
+     arrangement where one of them drifts. `bar` and `parts` are written by
+     scoreBar() and scoreParts() and by nothing else, so the bare class is
+     safe; `.sw` is not, because that is already the legend's swatch and
+     taking it over collapsed every row in there. */
+  .bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden;
+         background: rgba(255,255,255,0.07); }
+  .bar i { display: block; height: 100%; }
+  .bar .bp, .parts .bp { color: #93aee2; background: #6f8fd0; }
+  .bar .use, .parts .use { color: #79d49b; background: #4fbf7d; }
+  .bar .ai, .parts .ai { color: #dcbc4e; background: #c9a227; }
   /* The three components, named in their own colour, which is what the colour
      key at the foot of the panel used to be for. Text, so `background` from
      the rule above is overridden back to transparent. */
-  .jRow .parts {
-    grid-column: 1 / -1;
+  .parts {
     display: flex;
     flex-wrap: wrap;
     gap: 2px 9px;
     margin-top: 1px;
     font-size: 10px;
   }
-  .jRow .parts .part { background: none; }
+  .parts .part { background: none; }
+  /* The scoreboard's rows are a two-column grid, so both run the full width. */
+  .jRow .bar, .jRow .parts { grid-column: 1 / -1; }
   .jRow .sub { grid-column: 1 / -1; font-size: 10px; color: var(--ink-muted); }
 
   /* ---- the explanation ----

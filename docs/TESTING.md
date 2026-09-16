@@ -108,56 +108,63 @@ open a browser. Chrome or Edge. Give it a couple of seconds to draw.
     100 out of 100, and the only category that has done the whole journey. Then
     type **A221**: live in 16 markets, never used, and a five-floor block.
     Height is progress now, not spread.
-10. **Houses and hotels.** Six red hotels only: A206, A310, A311, D408, D403,
+10. **The score, broken down.** With **A251** selected, the title deed's
+    **Journey progress** row reads `Skyscraper (100)` with a bar filled end to
+    end and `blueprint 40 of 40`, `used 35 of 35`, `AI 25 of 25` beneath it.
+    Then type **D513**: the same number of components, `blueprint 40 of 40`,
+    `used 0 of 35`, `AI 15 of 25`, and a bar with no green in it. The card and
+    the scoreboard must agree on both, because they are drawn by the same two
+    functions. A total with no split is the fault this step exists to catch.
+11. **Houses and hotels.** Six red hotels only: A206, A310, A311, D408, D403,
     A308. If you can find a seventh, that is a bug.
-11. **Rooftop lights.** Eight, and only eight: A212, A213, A251, A314, D303,
+12. **Rooftop lights.** Eight, and only eight: A212, A213, A251, A314, D303,
     D333, D506, D513.
 
 ### C. Occupancy, the newest layer
 
-12. Most built buildings look drained towards grey with dark windows.
-13. Four do not: **A213**, **A251**, **D408**, **D506**. Full district colour,
+13. Most built buildings look drained towards grey with dark windows.
+14. Four do not: **A213**, **A251**, **D408**, **D506**. Full district colour,
     lit windows.
-14. Press **N** for night. The city goes dark and those four stay lit. That
+15. Press **N** for night. The city goes dark and those four stay lit. That
     contrast is the point of the layer, so it has to read clearly: if it is hard
     to see, say so.
-15. Press **N** again to come back.
+16. Press **N** again to come back.
 
 ### D. The arc
 
-16. Bottom of the screen: Traditional, Connected, Smart, Autonomous, with a
+17. Bottom of the screen: Traditional, Connected, Smart, Autonomous, with a
     marker on the rail.
-17. It reads **Networks 19 / 100 · 40% written, 5% used, 7% with AI**.
-18. The marker sits early on the rail, in Traditional. Nothing is anywhere near
+18. It reads **Networks 19 / 100 · 40% written, 5% used, 7% with AI**.
+19. The marker sits early on the rail, in Traditional. Nothing is anywhere near
     Autonomous, and that is honest.
-19. Click any lot. A second marker appears showing where that category sits
+20. Click any lot. A second marker appears showing where that category sits
     against the whole.
 
 ### E. The scoreboard, three views
 
-20. **Districts.** Eight rows, highest first. Access Radio/Fixed 28,
+21. **Districts.** Eight rows, highest first. Access Radio/Fixed 28,
     Transmission Infrastructure 23, Energy 22, Fixed 20, Managed Services and
     Outsourcing 19, Leased Lines 13, Software and Core 12, Network Revenue
     Platforms 9.
-21. Five of the eight have **nothing** on the usage bar. That is the finding.
-22. **Categories.** 145 rows. A251 at the top on 100, the only category in
+22. Five of the eight have **nothing** on the usage bar. That is the finding.
+23. **Categories.** 145 rows. A251 at the top on 100, the only category in
     Networks that has done the whole journey. A213 85, D506 75, D408 60.
-23. **People.** 30 rows out of 38 people. The eight below three categories are
+24. **People.** 30 rows out of 38 people. The eight below three categories are
     withheld on purpose: one category and one blueprint is a coin toss, not a
     track record.
-24. Every row shows three bars and names all three components against the
+25. Every row shows three bars and names all three components against the
     ceiling each is scored out of, never just a total. The leader reads
     **blueprint 28 of 40 · used 19 of 35 · AI 14 of 25**. Check that split
     against second place: the leader is first because of real usage, and that
     is visible in the components and invisible in the total.
-25. Click any row. The camera should fly to the relevant place.
+26. Click any row. The camera should fly to the relevant place.
 
 **This is the view to look at hardest.** It puts colleagues in an order. If
 anything about it feels wrong to show, that is the finding worth reporting.
 
 ### F. The landmarks
 
-26. 8 monuments, one per category scoring 50 or more on the journey. The
+27. 8 monuments, one per category scoring 50 or more on the journey. The
     monument marks progress; the shape says which market it travelled to:
 
 | Code | Category | Monument | From |
@@ -171,35 +178,35 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | D333 | TV Software | Rozafa Castle | Albania, score 55 |
 | A314 | Access Transmission Services | Palace of the Parliament | Romania, score 50 |
 
-27. Each stands **in place of** its building, on the ground, on a low stone
+28. Each stands **in place of** its building, on the ground, on a low stone
     terrace. The lot underneath is widened to the ground the shape needs, so a
     monument lot is visibly larger than its neighbours as well as taller:
     every monument clears every plain tower. All eight are drawn to one
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
-28. Each monument comes from a market that actually adopted that blueprint.
+29. Each monument comes from a market that actually adopted that blueprint.
     Hover one and the tooltip names it; click it and the card carries the name
     beside the category and the reason it was earned lower down.
-29. Germany supplies two, because it carries two high scorers and 23 of the
+30. Germany supplies two, because it carries two high scorers and 23 of the
     112 blueprint records, more than any other market.
-30. A221 has **no** monument, though it is live in 16 markets. It has never
+31. A221 has **no** monument, though it is live in 16 markets. It has never
     been used, and the threshold is progress now. That is the intended
     consequence, not a fault.
 
 ### G. Land follows money
 
-31. The largest place in the city is **FLM & Field Operations**, at €283m.
-32. Compare **Managed Services and Outsourcing** (10 lots, €286m) against
+32. The largest place in the city is **FLM & Field Operations**, at €283m.
+33. Compare **Managed Services and Outsourcing** (10 lots, €286m) against
     **Access Radio/Fixed** (37 lots, €86m). The small district with the money
     should be obviously dense with large lots.
-33. No lot should ever overlap another. The suite checks all 145, but trust
+34. No lot should ever overlap another. The suite checks all 145, but trust
     your eyes too.
-34. Roads are busier near expensive districts. Subtle by design. Check it is
+35. Roads are busier near expensive districts. Subtle by design. Check it is
     not so subtle as to be invisible.
 
 ### H. The agent
 
-35. Type each of these into the box and check where it lands:
+36. Type each of these into the box and check where it lands:
 
 | Type this | Should go to |
 | --- | --- |
@@ -212,7 +219,7 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `Germany` | every lot Germany has adopted |
 | `banana bread` | nothing, gracefully |
 
-36. Leaderboard questions. The scoreboard should open on the named board,
+37. Leaderboard questions. The scoreboard should open on the named board,
     and the spoken answer should name whoever is at the top of it:
 
 | Type this | Should open | And say |
@@ -226,15 +233,15 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | `the category leaderboard` | Categories | A251 on 100 |
 | `which category is doing best` | flies to a lot | A251, 100 out of 100 |
 
-37. Two things to watch on those. The sentence must name the same thing that
+38. Two things to watch on those. The sentence must name the same thing that
     is top of the board it opened, and a ranking must quote the measure it
     actually sorted on. Both used to be wrong: every one of these answered
     with A221, which leads on blueprint reach and has never been used, and
     asking for a category *manager* named a category.
-38. `which category leads on spend` and `biggest category by value` should
+39. `which category leads on spend` and `biggest category by value` should
     still rank by money, not by the score.
 
-39. Market questions answer about markets, which is a dimension the
+40. Market questions answer about markets, which is a dimension the
     scoreboard does not have a view for:
 
 | Type this | Should say |
@@ -250,29 +257,29 @@ anything about it feels wrong to show, that is the finding worth reporting.
     a rank would be a league table nobody could defend, so it is withheld the
     same way a manager below three categories is.
 
-40. A district answer carries its score and its place, not only its size:
+41. A district answer carries its score and its place, not only its size:
     `how is Energy doing` reads **Energy scores 22 out of 100, 3rd of the
     eight districts**.
 
-41. Start typing a category name. Suggestions should appear.
-42. Hover any lot. A label names it with its status and spend, and on one of
+42. Start typing a category name. Suggestions should appear.
+43. Hover any lot. A label names it with its status and spend, and on one of
     the eight monument lots it names the monument and the market it came from.
-43. Ask something awkward on purpose. It should decline rather than invent.
+44. Ask something awkward on purpose. It should decline rather than invent.
 
 ### I. The explanation
 
-44. Every district name is cut into the ground along the near edge of its own
+45. Every district name is cut into the ground along the near edge of its own
     plate, not floating over it. All eight are set at the same size, so the
     three long ones are on two lines: the constraint is width, not the strip,
     and one line of "Managed Services and Outsourcing" across a district 33
     units wide cannot be set any larger. Press **N** and they light up in
     their own district colour, the same colour the kerb carries.
-45. Click **The full explanation** at the foot of the legend, or press **H**.
-46. The sheet is generated from `config/metrics.yaml`, so it is the one place
+46. Click **The full explanation** at the foot of the legend, or press **H**.
+47. The sheet is generated from `config/metrics.yaml`, so it is the one place
     to check that the words and the drawing still agree. Every layer is listed
     with the measure behind it, in `layer <- metric` form. If a binding was
     changed and this page was not, the page is wrong and a test will say so.
-47. The last section is **What this does not tell you**: no time dimension,
+48. The last section is **What this does not tell you**: no time dimension,
     adoption depth unmeasured, a score is a summary, and the people view ranks
     portfolios rather than people. Read it as a reviewer who has been handed
     the conclusion and not the data. If any of it reads as an excuse rather
@@ -280,30 +287,30 @@ anything about it feels wrong to show, that is the finding worth reporting.
 
 ### J. The keys
 
-48. **T** guided tour. Watch it end to end. The Close button must be reachable.
-49. **N** night. **P** what we could build. **K** the ask. **R** resets.
+49. **T** guided tour. Watch it end to end. The Close button must be reachable.
+50. **N** night. **P** what we could build. **K** the ask. **R** resets.
     **H** opens the full explanation, and Escape closes it.
-50. Every one of these should also work as a button, because not everybody
+51. Every one of these should also work as a button, because not everybody
     knows the keys.
 
 ### K. On a phone
 
-51. `py run.py serve lan`, then open the address it prints on a phone on the
+52. `py run.py serve lan`, then open the address it prints on a phone on the
     same wifi. **You cannot do this by sending the HTML file: iOS will not open
     a downloaded HTML file in a browser.** The URL is the only way in.
-52. Buttons replace the keyboard shortcuts.
-53. Nothing is laid over anything else, and the page does not scroll sideways.
-54. Pinch to zoom, drag to rotate.
-55. Open the tour. The Close button must be on the screen.
-56. Type a question. It should still work.
+53. Buttons replace the keyboard shortcuts.
+54. Nothing is laid over anything else, and the page does not scroll sideways.
+55. Pinch to zoom, drag to rotate.
+56. Open the tour. The Close button must be on the screen.
+57. Type a question. It should still work.
 
 ### L. Try to break it
 
-57. Resize the window to something narrow and tall, then very wide.
-58. Zoom all the way in, then all the way out.
-59. Click a lot, then another, then the same one twice.
-60. Press every key during the tour.
-61. Open the browser console (F12) and look for red. There should be none.
+58. Resize the window to something narrow and tall, then very wide.
+59. Zoom all the way in, then all the way out.
+60. Click a lot, then another, then the same one twice.
+61. Press every key during the tour.
+62. Open the browser console (F12) and look for red. There should be none.
 
 ---
 
