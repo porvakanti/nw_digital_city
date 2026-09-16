@@ -340,6 +340,15 @@ eight districts have **zero** on usage, which is the finding.
 first because they are the only one with real usage, and that is visible in
 the split and invisible in the total.
 
+Four surfaces carry a score, and all four carry the split: the arc across the
+top of the screen, the scoreboard, the agent's answers, and the title deed for
+one category. The deed was the last to get it. It printed the total in
+brackets after the building name, which cannot distinguish a category that has
+written its blueprint and never used it from one that has done the reverse,
+and those two sit at the same number. The deed and the scoreboard draw the bar
+and name the components from the same two functions, so they cannot disagree
+about one category.
+
 ## How to use it
 
 Asked for from the question box: "who is doing best" opens the People board,

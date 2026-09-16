@@ -3386,7 +3386,25 @@
       ["In use", used
         ? `Yes, ${used} sourcing event${used === 1 ? "" : "s"}`
         : category.blueprint_state === "active" ? "Never used" : "Not yet"],
-      [metricDef(layerMetric("height")).label, `${heightTier.label} (${valueFor(category, "height")})`],
+      /* The score, and what it is made of.
+       *
+       * The number in brackets was the only figure on the card that could not
+       * be read: 55 out of 100 says nothing about whether this category has
+       * written its blueprint and never used it or the other way round, and
+       * that difference is the whole finding. The same bar and the same three
+       * named components the scoreboard carries, from the same two functions,
+       * so the card and the scoreboard cannot disagree about one category.
+       *
+       * Only when height is bound to the score. The breakdown is a breakdown
+       * of this row's own number, so pointing the layer at market reach or at
+       * spend has to take the split with it rather than leave three journey
+       * components sitting under a figure that is not the journey. */
+      [metricDef(layerMetric("height")).label,
+        `${heightTier.label} (${valueFor(category, "height")})`
+        + (layerMetric("height") === "journey_score"
+          ? scoreBar(category.journey)
+            + `<span class="parts">${scoreParts(category.journey)}</span>`
+          : "")],
       ["Spend FY26/27", euro(m.spend_eur)],
       /* The property, and the band it is in.
        *
