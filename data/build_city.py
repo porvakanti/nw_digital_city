@@ -556,12 +556,13 @@ def write_renderer_data(city: dict) -> None:
 def roll_up(categories, config) -> dict:
     """One score for a group of categories.
 
-    Weighted by the square root of spend. Raw spend lets one large category
-    carry a district that has done nothing on everything else: Fixed has
-    eleven of its twelve at zero and raw weighting puts it top of all eight.
-    Equal weighting instead punishes anyone holding a big portfolio. The
-    square root sits between them, and the floor keeps zero-spend categories
-    counting for something.
+    Weighted by the square root of spend, which sits between two failure
+    modes. Raw spend lets one large category carry a district that has done
+    nothing on everything else; equal weighting punishes anyone holding a big
+    portfolio. Fixed shows both: eleven of its twelve categories score zero
+    and the twelfth scores 60 on EUR 62.5m, so it ranks 2nd of the eight
+    districts under raw spend, 8th under equal weighting, and 4th under the
+    square root. The floor keeps zero-spend categories counting for something.
     """
     if not categories:
         return {"total": 0, "blueprint": 0, "usage": 0, "ai": 0}
