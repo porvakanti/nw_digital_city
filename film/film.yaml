@@ -1,0 +1,186 @@
+# The product film, in one file.
+#
+# Everything the film is made of is here: what the browser is asked to do for
+# each recording, which part of each recording is used, how long each beat
+# runs, and what the three text frames say. `python3 run.py film` reads this
+# and writes one MP4.
+#
+# The figures on the cards are not typed in. Each names a path into
+# data/city.json and is resolved when the card is drawn, so a refreshed
+# extract cannot leave a wrong number burnt into a picture that nobody will
+# think to check.
+
+output:
+  file: film/out/NW-Digital-City.mp4
+  width: 1920
+  height: 1080
+  fps: 25
+  crf: 18
+  preset: slow
+  # Each recording is encoded once so the cut can seek into it frame
+  # accurately, and each beat is encoded again from that. The intermediate is
+  # near lossless and fast, so the second encode is the only one that shows.
+  intermediate: {crf: 16, preset: veryfast}
+  # A blank stereo track. The film is delivered without sound so a voiceover
+  # and a music bed can be laid over it, and a file with no audio stream at
+  # all is refused by some editors and by PowerPoint.
+  silent_audio: true
+
+record:
+  dir: film/out/clips
+  # The renderer opened from disk. file:// is the strictest environment the
+  # city runs in, and it is the one the recordings should show.
+  url: null
+  # A Chromium to drive. Left empty, the recorder takes playwright's own and
+  # falls back to a browser installed out of band, the same way tests do.
+  chromium: null
+  settle_ms: 9000        # the city finishes building
+  after_dismiss_ms: 1500 # and settles again once the dialog is gone
+  ready_timeout_ms: 60000
+  # Hidden in every recording. These carry reading instructions, keyboard
+  # hints and touch controls, none of which belong in a film.
+  hide_ids: [legend, journey, trace, hint, chips, touchbar]
+  # Without an endpoint the badge reads as an unfinished product rather than
+  # as the development affordance it is.
+  hide_model_badge: true
+
+  # Where the usable footage starts.
+  #
+  # The welcome dialog is on screen for the first seconds of every recording,
+  # and the shoot cannot say when it clears: the recording clock and the wall
+  # clock do not agree when the frames come from a software renderer, so a
+  # head trim timed by the shoot leaves the dialog in the picture. It is
+  # measured from the frames instead. The dialog's button is the only
+  # saturated red in the middle of an unfocused city, so counting red pixels
+  # in that window finds the last frame that still has it.
+  trim:
+    probe_fps: 4
+    window: {x: 660, y: 380, w: 260, h: 320}
+    red: {r_above: 170, g_below: 70, b_below: 70}
+    dialog_above: 4000
+    margin_s: 0.4
+
+# One recording each. `do` is run once the city has settled; the seconds it
+# takes are the only part of the recording the cut draws on.
+#
+#   focus            fly to one category
+#   focus_district   fly to one district
+#   reset            fly back to the whole city
+#   key              press a key the renderer binds
+#   ask              type a question into the agent and send it
+#   wait_ms          hold before the next step
+#
+# `panels: false` hides every interface element, which is the register for the
+# beats that carry no explanation. `panels: true` keeps the masthead and the
+# title deed and hides the rest, plus anything named in `keep`.
+shots:
+  - id: wide
+    panels: false
+    hold_ms: 11000
+    do: []
+
+  - id: pushin
+    panels: false
+    hold_ms: 11000
+    do: [{focus_district: Access Radio/Fixed}]
+
+  - id: a251
+    panels: true
+    hold_ms: 9000
+    do: [{focus: A251}]
+
+  - id: a311
+    panels: true
+    hold_ms: 10000
+    do: [{focus: A311}]
+
+  # The trace panel is kept: the tool calls arriving one by one are the shot.
+  - id: ask
+    panels: true
+    keep: [trace]
+    hold_ms: 13000
+    do: [{ask: "Where are the biggest gaps?"}]
+
+  - id: night
+    panels: false
+    hold_ms: 9000
+    do: [{key: n}]
+
+  - id: potential
+    panels: false
+    hold_ms: 13000
+    do: [{key: p}]
+
+  - id: asks
+    panels: true
+    hold_ms: 10000
+    do: [{key: k}]
+
+  # Close on one district first, so the flight back reads as a pull-back
+  # rather than as a cut to a wide shot.
+  - id: pullback
+    panels: false
+    hold_ms: 14000
+    do: [{focus: D513}, {wait_ms: 3500}, {reset: true}]
+
+# The cut. `start` is measured from the first usable frame of the shot, not
+# from the head of the recording, so a re-record with different timings does
+# not move the cut. Beats run back to back in this order.
+beats:
+  - {id: open,      shot: wide,      start: 0.00, length: 9.6,
+     card: title, card_in: 1.2, card_out: 6.4, fade_in: 1.0}
+  - {id: pushin,    shot: pushin,    start: 0.00, length: 7.8}
+  - {id: a251,      shot: a251,      start: 0.00, length: 7.8}
+  - {id: a311,      shot: a311,      start: 0.00, length: 8.3}
+  # Back to the opening framing, further into the same recording, so the
+  # figures land on a picture that has already been established.
+  - {id: stat,      shot: wide,      start: 1.35, length: 6.5,
+     card: stat, card_in: 0.4, card_out: 5.4}
+  - {id: ask,       shot: ask,       start: 0.00, length: 11.8}
+  - {id: night,     shot: night,     start: 0.00, length: 8.0}
+  - {id: potential, shot: potential, start: 0.00, length: 11.8}
+  - {id: asks,      shot: asks,      start: 0.00, length: 8.9}
+  - {id: pullback,  shot: pullback,  start: 1.95, length: 11.3, fade_out: 1.2}
+
+end_card:
+  card: end
+  length: 4.0
+  fade: 0.8
+
+cards:
+  title:
+    layout: lower-left
+    heading: NW Digital City
+    sub: The Networks category estate, rendered as a city
+
+  stat:
+    layout: figures
+    rows:
+      - {figure: totals.with_blueprint, label: categories have a blueprint, colour: white}
+      - {figure: totals.in_use,         label: have ever been used,         colour: red}
+
+  end:
+    layout: end
+    mark: renderer/vest-mark.png
+    heading: NW Digital City
+    sub: Find it on the Agent Marketplace
+
+style:
+  red: [230, 0, 0]
+  white: [255, 255, 255]
+  grey: [188, 194, 202]
+  scrim: 0.72          # how dark a text frame's backing band goes, 0 to 1
+  card_fade_s: 0.7
+  # Tried in order. Liberation is metric compatible with Arial, which is what
+  # the renderer asks for, so a host with either draws the same frame.
+  font:
+    Bold:
+      - /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf
+      - /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+      - /System/Library/Fonts/Supplemental/Arial Bold.ttf
+      - C:/Windows/Fonts/arialbd.ttf
+    Regular:
+      - /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf
+      - /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+      - /System/Library/Fonts/Supplemental/Arial.ttf
+      - C:/Windows/Fonts/arial.ttf

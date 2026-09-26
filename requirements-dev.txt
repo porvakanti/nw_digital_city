@@ -10,3 +10,11 @@
 # The warning is real, not noise: starlette will drop httpx support from the
 # test client. It only affects tests, which is why it lives here.
 httpx2>=2.12
+
+# The product film. Pillow draws the text frames, because the ffmpeg that
+# imageio-ffmpeg ships carries no drawtext filter, and reads the frames back
+# to find where each recording's usable footage starts. Neither library is
+# used by the service, which is why they are here and not in
+# app/requirements.txt.
+Pillow>=10.0
+imageio-ffmpeg>=0.5
