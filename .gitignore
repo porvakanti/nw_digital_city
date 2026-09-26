@@ -54,6 +54,3 @@ docs/DESIGN.md
 # it again once the rebuild costs less than carrying it in every clone.
 film/out/*
 !film/out/NW-Digital-City.mp4
-# The narrated reel, for the same reason: its rebuild is the better part of an
-# hour of software rendering.
-!film/out/NW-Digital-City-Reel.mp4

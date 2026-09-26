@@ -118,8 +118,9 @@ python3 run.py reel mux         join a picture and a mix already on disk
 ```
 
 It writes `film/out/NW-Digital-City-Reel.mp4`: 1920x1080, 30 fps, AAC
-stereo. Like the silent film, the finished file is tracked and everything
-under `film/out/reel/` is not.
+stereo. Unlike the silent film, it is not tracked: at over fifty megabytes
+it is past the size a repository should carry, so it is rebuilt with the
+command above or distributed outside the repository.
 
 ## What is in `film/reel/`
 
