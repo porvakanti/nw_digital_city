@@ -59,7 +59,8 @@ class TestReel(unittest.TestCase):
         self.spoken(round(self.city["totals"]["spend_eur"] / 1e6), "{} million euros of spend")
 
     def test_blueprints_written_and_used(self):
-        self.spoken(self.city["totals"]["active"], "written {} blueprints")
+        self.spoken(self.city["totals"]["with_blueprint"], "{} categories have a blueprint")
+        self.spoken(self.city["totals"]["active"], "{} are active")
         used = self.city["totals"]["in_use"]
         self.assertIn(f"{words(used)}. only {words(used)} have ever been used", self.said)
 
@@ -106,7 +107,7 @@ class TestReel(unittest.TestCase):
 
     def test_the_marks_are_in_order_and_inside_the_reel(self):
         order = ["reveal", "title", "climb", "stop0", "stop1", "stop2", "stop3", "stop4", "hero",
-                 "challenge", "lightsOff", "four", "score", "agent", "agentOut", "potential",
+                 "challenge", "blueprints", "active", "lightsOff", "four", "score", "agent", "agentOut", "potential",
                  "potentialOn", "lift", "cta1", "cta2", "cta3", "finale", "end"]
         marks = self.cues["marks"]
         self.assertEqual(sorted(marks), sorted(order))

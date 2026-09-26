@@ -938,15 +938,21 @@
     if (t < M.challenge || t > M.agent) return;
     const tot = f.totals;
     const out = M.agent - 0.8;
-    scrim(ctx, 'center', ramp(t, M.challenge, M.challenge + 0.4) * (1 - ramp(t, M.challenge + 2.2, M.challenge + 2.8)) * 0.8);
-    rise(ctx, 'So where is Networks today?', W / 2, 560, { t, tin: M.challenge + 0.5, tout: M.challenge + 2.4, size: 84, weight: 800, align: 'center', by: 'word', stagger: 0.07, ls: -2 });
+    scrim(ctx, 'center', ramp(t, M.challenge, M.challenge + 0.4) * (1 - ramp(t, M.blueprints - 0.8, M.blueprints - 0.2)) * 0.8);
+    rise(ctx, 'So where is Networks today?', W / 2, 560, { t, tin: M.challenge + 0.3, tout: M.blueprints - 0.75, size: 84, weight: 800, align: 'center', by: 'word', stagger: 0.07, ls: -2 });
     scrim(ctx, 'left', ramp(t, M.challenge + 2.4, M.challenge + 3.0) * (1 - ramp(t, out, out + 0.5)), 0.6);
 
-    const written = M.challenge + 3.0;
-    const n = Math.round(count(0, tot.active, t, written + 0.2, 1.6));
+    /* Every category with a blueprint first, drafts included, which is the
+     * figure the city's own top bar shows; then the number rolls down to the
+     * ones that are active, because only an active blueprint can be used. */
     const dim = t > M.lightsOff ? 0.35 : 1;
-    typed(ctx, 'BLUEPRINTS WRITTEN', 120, 350, t, written, { size: 20, tout: M.lightsOff - 0.2 });
-    rise(ctx, String(n), 110, 600, { t, tin: written, tout: M.four - 0.6, size: 300, weight: 800, ls: -10, alpha: dim });
+    const n = t < M.active + 0.2
+      ? Math.round(count(0, tot.with_blueprint, t, M.blueprints + 0.2, 1.6))
+      : Math.round(count(tot.with_blueprint, tot.active, t, M.active + 0.2, 1.0, eio));
+    typed(ctx, 'CATEGORIES WITH A BLUEPRINT', 120, 350, t, M.blueprints, { size: 20, tout: M.active - 0.1 });
+    typed(ctx, 'ACTIVE BLUEPRINTS', 120, 350, t, M.active + 0.1, { size: 20, tout: M.lightsOff - 0.2 });
+    typed(ctx, `+ ${tot.draft_only} STILL IN DRAFT`, 120, 680, t, M.active + 0.9, { size: 20, color: INK, alpha: 0.6, tout: M.lightsOff - 0.2 });
+    rise(ctx, String(n), 110, 600, { t, tin: M.blueprints + 0.1, tout: M.four - 0.6, size: 300, weight: 800, ls: -10, alpha: dim });
     flash(ctx, t, M.lightsOff - 0.04, 0.35);
     // The four that stay lit.
     f.used.forEach((c, i) => {
@@ -974,7 +980,7 @@
     });
     rise(ctx, String(tot.in_use), 110, 600, { t, tin: M.four, tout: M.score - 0.4, size: 300, weight: 800, ls: -10, color: RED });
     rise(ctx, `of ${tot.active}`, 330, 600, { t, tin: M.four + 0.35, tout: M.score - 0.4, size: 120, weight: 700 });
-    typed(ctx, 'EVER USED', 120, 680, t, M.four + 0.7, { size: 24, color: INK, tout: M.score - 0.4 });
+    typed(ctx, 'ACTIVE BLUEPRINTS EVER USED', 120, 680, t, M.four + 0.7, { size: 24, color: INK, tout: M.score - 0.4 });
 
     // Networks on the rail: the first rung.
     const s = count(0, f.scoreNow, t, M.score + 0.3, 1.6, eio);
