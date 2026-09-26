@@ -44,13 +44,8 @@ docs/PRESENTING.md
 docs/REVIEW-LOG.md
 docs/DESIGN.md
 
-# The film's recordings and its intermediate beats. Both are rebuilt by
-# `run.py film` from film/film.yaml, and together they are more than sixty
-# megabytes of footage that nothing downstream reads.
-#
-# The finished file is tracked, so it can be taken from the repository without
-# a twenty minute rebuild. It is the one derived artefact here that is: the
-# single-page build and the review workbook are both excluded above. Exclude
-# it again once the rebuild costs less than carrying it in every clone.
-film/out/*
-!film/out/NW-Digital-City.mp4
+# Everything the films are made into: the recordings, the intermediate beats
+# and the finished files. All of it is rebuilt by `run.py film` and
+# `run.py reel`, and a finished film is distributed outside the repository
+# rather than carried by every clone.
+film/out/

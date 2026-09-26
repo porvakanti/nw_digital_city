@@ -18,16 +18,10 @@ python3 run.py film record     re-record every shot, then cut
 python3 run.py film cut        cut from the recordings already on disk
 ```
 
-Everything is written to `film/out/`. The finished file,
-`NW-Digital-City.mp4`, is tracked, so it can be taken from the repository
-without a twenty minute rebuild. The recordings and the intermediate beats are
-not: together they are more than sixty megabytes of footage that nothing
-downstream reads.
-
-Tracking a derived file is a trade rather than a rule. Nothing else derived
-here is tracked, and this one is carried by every clone from the commit that
-adds it onward. Take it out of `.gitignore` when the rebuild costs less than
-the weight.
+Everything is written to `film/out/`, and none of it is tracked: the
+recordings and intermediate beats are more than sixty megabytes of footage
+that nothing downstream reads, and the finished `NW-Digital-City.mp4` is
+distributed outside the repository rather than carried by every clone.
 
 ## The three stages
 
@@ -118,8 +112,7 @@ python3 run.py reel mux         join a picture and a mix already on disk
 ```
 
 It writes `film/out/NW-Digital-City-Reel.mp4`: 1920x1080, 30 fps, AAC
-stereo. Unlike the silent film, it is not tracked: at over fifty megabytes
-it is past the size a repository should carry, so it is rebuilt with the
+stereo. Like the silent film, it is not tracked; it is rebuilt with the
 command above or distributed outside the repository.
 
 ## What is in `film/reel/`
