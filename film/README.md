@@ -93,3 +93,65 @@ repository hands over.
 for the rest. `run.py` installs the Python side into `.venv` on first use.
 Recording takes several minutes of browser and encoder time, which is why it
 is its own command and not a stage of `run.py test`.
+
+# The reel
+
+A narrated, scored two-minute cut, built as motion graphics over the live
+city rather than as a recording of it. One command rebuilds the whole thing:
+
+```
+python3 run.py reel             narration, score, picture, mix
+python3 run.py reel audio       narration, score and mix only
+python3 run.py reel picture     the picture only
+python3 run.py reel mux         join a picture and a mix already on disk
+```
+
+It writes `film/out/NW-Digital-City-Reel.mp4`: 1920x1080, 30 fps, AAC
+stereo. Like the silent film, the finished file is tracked and everything
+under `film/out/reel/` is not.
+
+## What is in `film/reel/`
+
+| File | What it does |
+| --- | --- |
+| `cues.json` | The timeline: every narration line with when it starts, and the marks each chapter, cut and hit is placed on. Picture and score both read it |
+| `clock.js` | Loaded into the page before anything else. Puts the page on a virtual clock the capture advances a frame at a time, and routes every render through a hook that can swap the camera |
+| `director.js` | One function of time that decides the frame: the camera, which state the city is in, and every piece of type and graphics drawn over it |
+| `capture.js` | Drives Chromium: loads the renderer from disk, advances the clock, screenshots each frame and pipes it to the encoder. Also renders single stills for review |
+| `voice.py` | Synthesises each narration line with a neural voice, cached by its text |
+| `music.py` | Synthesises the score from nothing: 120 bpm in D minor, cut to the same marks as the picture |
+| `build.py` | Runs the above, renders the picture in parts in parallel, mixes the narration over the score with the score ducked under it, and muxes |
+| `fonts/` | Inter Tight and JetBrains Mono, both under the SIL Open Font License |
+
+## Why a virtual clock
+
+A software renderer draws a 1080p frame of the city in about half a second,
+so a real-time recording of a moving camera stutters. On the virtual clock
+every frame is exactly one thirtieth of a second after the last, however long
+it took to draw, and any frame can be rendered on its own and comes out the
+same each time. The renderer is not modified: the camera, the city's states
+and the agent are all driven through `window.NWCity` and the hook in
+`clock.js`.
+
+## Figures
+
+Every figure drawn on screen is read from `data/city.json`, or from the asks
+screen the renderer computes, when the reel renders. The narration cannot be:
+it is spoken. `tests/test_reel.py` checks each figure the narration speaks
+against `city.json`, so a refreshed extract that moves one fails the suite
+rather than leaving a stale number in the voice-over.
+
+## Reviewing without a full render
+
+```
+node film/reel/capture.js --stills 23,48.5,101 --dir film/out/reel/stills
+```
+
+writes one JPEG per time given, each played into from a second before it so
+anything animated has its real history.
+
+## Requirements
+
+`node` and `playwright` for the picture; numpy, scipy and edge-tts for the
+sound; imageio-ffmpeg for encoding. The narration is synthesised by a network
+service the first time each line is built, and cached after that.

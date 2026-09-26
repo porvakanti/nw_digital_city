@@ -18,3 +18,9 @@ httpx2>=2.12
 # app/requirements.txt.
 Pillow>=10.0
 imageio-ffmpeg>=0.5
+
+# The narrated reel. numpy and scipy synthesise and mix the score, edge-tts
+# synthesises the narration. Build-time only, like the film's.
+numpy>=1.24
+scipy>=1.10
+edge-tts>=6.1

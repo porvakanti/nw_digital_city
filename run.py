@@ -9,6 +9,7 @@
     python3 run.py build      rebuild city.json from the workbook in data/raw/
     python3 run.py package    one .html file to send, and a zip, both safe
     python3 run.py film       rebuild the product film from film/film.yaml
+    python3 run.py reel       rebuild the narrated reel from film/reel/
     python3 run.py models     which models the configured key can actually call
 
 Run it from the repository root on your own machine. It makes a virtual
@@ -432,9 +433,9 @@ def check(python: Path) -> int:
 def main() -> int:
     command = sys.argv[1] if len(sys.argv) > 1 else "serve"
     if command not in ("serve", "test", "verify", "eval", "build", "package",
-                       "film", "models"):
+                       "film", "reel", "models"):
         print("usage: python3 run.py "
-              "[serve|test|eval|build|package|film|models]", file=sys.stderr)
+              "[serve|test|eval|build|package|film|reel|models]", file=sys.stderr)
         return 2
 
     # Packaging is pure standard library, so it should not make anyone wait for
@@ -451,6 +452,9 @@ def main() -> int:
         # Minutes of browser recording and encoding, so it is its own command
         # and not a stage of the suite.
         return subprocess.call([str(python), "film/make.py", *sys.argv[2:]], cwd=ROOT)
+    if command == "reel":
+        # Longer still: every frame is drawn by a software renderer.
+        return subprocess.call([str(python), "film/reel/build.py", *sys.argv[2:]], cwd=ROOT)
     if command == "models":
         return models(python)
     if command in ("test", "verify"):
