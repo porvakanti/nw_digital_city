@@ -286,6 +286,7 @@ The source workbook contains blueprint owner names and email addresses.
 run.py                 the only command anyone needs to run
 config/metrics.yaml    which metric drives which visual layer
 film/film.yaml         the product film: its shots, its cut, its text frames
+film/out/              the finished film; its footage is not tracked
 data/build_city.py     workbook to anonymised city.json
 data/city.json         the only data the renderer needs
 renderer/city.js       the brick city, the builder, the choreography

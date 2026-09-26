@@ -25,6 +25,7 @@ __pycache__/
 *.pyc
 tests/
 docs/
+film/
 deploy/
 *.zip
 NW Digital City.html

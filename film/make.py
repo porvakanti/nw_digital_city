@@ -103,13 +103,21 @@ def record(config: dict, only: list[str] | None = None) -> None:
 def head(config: dict, clip: Path) -> float:
     """Where the usable footage starts, measured from the frames.
 
-    The welcome dialog holds the only saturated red in the middle of an
-    unfocused city, so the last frame that still shows it is the last frame to
-    discard. A shot that never shows the dialog, which is what happens if the
-    renderer stops offering it, trims to nothing rather than guessing.
+    The welcome dialog holds a large block of saturated red in the middle of
+    an unfocused city, so counting red pixels inside a fixed window finds the
+    frames it is on. It is on screen from the moment the page draws until it
+    is dismissed, once, so what is wanted is the end of the first run of those
+    frames and not the last one anywhere in the recording.
+
+    The difference is not academic. Two shots fly to a category whose lot
+    carries a red hotel, which fills the same window with more red than the
+    dialog does, and taking the last frame above the threshold put the trim
+    past the end of the recording.
+
+    A shot that never shows the dialog, which is what happens if the renderer
+    stops offering it, trims to nothing rather than guessing.
     """
-    import numpy
-    from PIL import Image
+    from PIL import Image, ImageChops
 
     trim = config["record"]["trim"]
     window = trim["window"]
@@ -119,8 +127,8 @@ def head(config: dict, clip: Path) -> float:
              "-vf", f"fps={trim['probe_fps']},"
                     f"crop={window['w']}:{window['h']}:{window['x']}:{window['y']}",
              f"{work}/%05d.png"])
-        last = None
-        for index, frame in enumerate(sorted(Path(work).glob("*.png"))):
+        showing = []
+        for frame in sorted(Path(work).glob("*.png")):
             # Band arithmetic rather than a loop over pixels: a probe is
             # eighty thousand pixels and a recording is a few hundred probes,
             # which is the difference between a second and a minute.
@@ -130,11 +138,31 @@ def head(config: dict, clip: Path) -> float:
                                      (channels[2], red["b_below"])):
                 above = ImageChops.logical_and(
                     above, channel.point(lambda v, c=ceiling: 255 if v < c else 0, "1"))
-            if above.histogram()[255] > trim["dialog_above"]:
-                last = index
-    if last is None:
+            showing.append(above.histogram()[255] > trim["dialog_above"])
+
+    end = first_run(showing, trim["least_frames"])
+    if end is None:
         return 0.0
-    return (last + 1) / trim["probe_fps"] + trim["margin_s"]
+    return (end + 1) / trim["probe_fps"] + trim["margin_s"]
+
+
+def first_run(showing: list[bool], least: int) -> int | None:
+    """The index the first run of `least` or more true values ends at.
+
+    A shorter run is something else that happened to be red for a moment, not
+    a dialog somebody had to dismiss.
+    """
+    start = None
+    for index, present in enumerate(showing):
+        if present and start is None:
+            start = index
+        elif not present and start is not None:
+            if index - start >= least:
+                return index - 1
+            start = None
+    if start is not None and len(showing) - start >= least:
+        return len(showing) - 1
+    return None
 
 
 # --------------------------------------------------------------------- cutting

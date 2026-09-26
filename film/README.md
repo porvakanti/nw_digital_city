@@ -18,10 +18,16 @@ python3 run.py film record     re-record every shot, then cut
 python3 run.py film cut        cut from the recordings already on disk
 ```
 
-The finished file, the recordings and the intermediate beats are all written
-to `film/out/`, which is not tracked. A film is derived from the config and
-the data in the same way `city.json` is derived from the workbook, and a
-24 MB binary in the history would be carried by every clone for ever.
+Everything is written to `film/out/`. The finished file,
+`NW-Digital-City.mp4`, is tracked, so it can be taken from the repository
+without a twenty minute rebuild. The recordings and the intermediate beats are
+not: together they are more than sixty megabytes of footage that nothing
+downstream reads.
+
+Tracking a derived file is a trade rather than a rule. Nothing else derived
+here is tracked, and this one is carried by every clone from the commit that
+adds it onward. Take it out of `.gitignore` when the rebuild costs less than
+the weight.
 
 ## The three stages
 
@@ -77,9 +83,9 @@ The film is delivered silent, with a blank stereo track so it opens in an
 editor and in a slide deck without an audio error. The narration and the music
 go on afterwards.
 
-The narration itself is not tracked, for the same reason
-`docs/PRESENTING.md` is not: it is written to be spoken by one person on one
-occasion, and it is not part of what this repository hands over.
+The narration is not tracked, for the same reason `docs/PRESENTING.md` is
+not: it is written to be spoken by one person, and it is not part of what this
+repository hands over.
 
 ## Requirements
 

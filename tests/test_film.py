@@ -188,5 +188,43 @@ class TestFilm(unittest.TestCase):
                              f"record.js names the shot {shot} itself")
 
 
+class TestHeadTrim(unittest.TestCase):
+    """The run of frames the head trim is measured from.
+
+    Taking the last frame above the red threshold rather than the end of the
+    first run of them put the trim past the end of two recordings: both fly to
+    a lot carrying a red hotel, which fills the measured window with more red
+    than the dialog does.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import sys
+        sys.path.insert(0, str(REPO / "film"))
+        import make  # noqa: E402
+        cls.first_run = staticmethod(make.first_run)
+
+    def test_the_first_run_ends_where_the_dialog_is_dismissed(self):
+        #                   blank     dialog        city
+        showing = [False] * 3 + [True] * 6 + [False] * 40
+        self.assertEqual(8, self.first_run(showing, 4))
+
+    def test_red_later_in_the_recording_is_ignored(self):
+        showing = [False] * 3 + [True] * 6 + [False] * 5 + [True] * 30
+        self.assertEqual(8, self.first_run(showing, 4))
+
+    def test_a_moment_of_red_is_not_a_dialog(self):
+        showing = [True] * 2 + [False] * 4 + [True] * 8 + [False] * 10
+        self.assertEqual(13, self.first_run(showing, 4))
+
+    def test_a_recording_with_no_dialog_trims_to_nothing(self):
+        self.assertIsNone(self.first_run([False] * 40, 4))
+        self.assertIsNone(self.first_run([], 4))
+
+    def test_a_dialog_that_never_clears_still_reports_a_run(self):
+        """Not a trim anyone wants, but a defined one rather than an exception."""
+        self.assertEqual(9, self.first_run([False] * 4 + [True] * 6, 4))
+
+
 if __name__ == "__main__":
     unittest.main()
