@@ -60,6 +60,7 @@
 
   const reel = {
     hooks: [],                 // called with (seconds) before the frame renders
+    post: [],                  // called with (seconds) after it has rendered
     camera: (scene, cam) => cam,
     renderer: null,
     skip: false,               // true while fast-forwarding to a start time
@@ -72,6 +73,8 @@
       for (const h of reel.hooks) { try { h(now / 1000); } catch (e) { console.error(e); } }
       const batch = frames; frames = [];
       for (const f of batch) { try { f.fn(now); } catch (e) { console.error(e); } }
+      // After the frame is drawn, for anything composited from it.
+      for (const h of reel.post) { try { h(now / 1000); } catch (e) { console.error(e); } }
       return now;
     },
     realNow,

@@ -97,7 +97,18 @@ is its own command and not a stage of `run.py test`.
 # The reel
 
 A narrated, scored two-minute cut, built as motion graphics over the live
-city rather than as a recording of it. One command rebuilds the whole thing:
+city rather than as a recording of it. It is made to move people to act:
+write a blueprint, use it, and let AI build on it. Five acts:
+
+| Act | What it shows |
+| --- | --- |
+| The promise | One plot of land, then all 145 categories as a grid sized by spend, flown onto the plan as the city rises |
+| The climb | One street in one take: empty ground, a draft, a blueprint live across markets, one in use with AI, then the category at 100. Each lot rebuilds as the camera arrives, with the stage rail and the three parts of the score filling beneath it |
+| The challenge | Where Networks stands: 44 blueprints written, the lights out, 4 ever used, 19 out of 100 |
+| The agent | The product on a floating stage, asked which category is doing best |
+| The vision | The city it could be, the lift from using what is written, then write it, use it, let AI build on it |
+
+One command rebuilds the whole thing:
 
 ```
 python3 run.py reel             narration, score, picture, mix
@@ -116,10 +127,10 @@ under `film/out/reel/` is not.
 | --- | --- |
 | `cues.json` | The timeline: every narration line with when it starts, and the marks each chapter, cut and hit is placed on. Picture and score both read it |
 | `clock.js` | Loaded into the page before anything else. Puts the page on a virtual clock the capture advances a frame at a time, and routes every render through a hook that can swap the camera |
-| `director.js` | One function of time that decides the frame: the camera, which state the city is in, and every piece of type and graphics drawn over it |
+| `director.js` | One function of time that decides the frame: the camera, which state the city is in, and every piece of type and graphics drawn over it, composited over the rendered frame with a tilt-shift, a bloom and a motion smear |
 | `capture.js` | Drives Chromium: loads the renderer from disk, advances the clock, screenshots each frame and pipes it to the encoder. Also renders single stills for review |
 | `voice.py` | Synthesises each narration line with a neural voice, cached by its text |
-| `music.py` | Synthesises the score from nothing: 120 bpm in D minor, cut to the same marks as the picture |
+| `music.py` | Synthesises the score from nothing: 120 bpm in D minor, cut to the same marks as the picture, one layer added per rung of the climb |
 | `build.py` | Runs the above, renders the picture in parts in parallel, mixes the narration over the score with the score ducked under it, and muxes |
 | `fonts/` | Inter Tight and JetBrains Mono, both under the SIL Open Font License |
 
@@ -139,7 +150,8 @@ Every figure drawn on screen is read from `data/city.json`, or from the asks
 screen the renderer computes, when the reel renders. The narration cannot be:
 it is spoken. `tests/test_reel.py` checks each figure the narration speaks
 against `city.json`, so a refreshed extract that moves one fails the suite
-rather than leaving a stale number in the voice-over.
+rather than leaving a stale number in the voice-over. The same test checks
+that each lot on the climb still stands on the rung it is there to show.
 
 ## Reviewing without a full render
 

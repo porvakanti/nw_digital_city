@@ -165,7 +165,7 @@ def audio() -> Path:
 
 def parts() -> list[tuple[float, float]]:
     m = CUES["marks"]
-    cuts = [0.0, m["gap"], m["agent"], m["potential"], m["ask1"], CUES["length"]]
+    cuts = [0.0, m["challenge"], m["agent"], m["potential"], m["cta1"], CUES["length"]]
     return list(zip(cuts[:-1], cuts[1:]))
 
 

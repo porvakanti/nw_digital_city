@@ -53,7 +53,7 @@ class TestReel(unittest.TestCase):
                       f"the narration should say {text!r}; city.json now gives {n}")
 
     def test_the_estate_is_the_size_the_narration_says(self):
-        self.spoken(self.city["totals"]["categories"], "{} categories")
+        self.spoken(self.city["totals"]["categories"], "{} of them")
 
     def test_the_spend_is_the_spend(self):
         self.spoken(round(self.city["totals"]["spend_eur"] / 1e6), "{} million euros of spend")
@@ -63,20 +63,38 @@ class TestReel(unittest.TestCase):
         used = self.city["totals"]["in_use"]
         self.assertIn(f"{words(used)}. only {words(used)} have ever been used", self.said)
 
-    def test_the_biggest_gap(self):
-        bare = sorted((c for c in self.city["categories"]
-                       if c["blueprint_state"] == "none" and (c["metrics"]["spend_eur"] or 0) > 0),
-                      key=lambda c: -c["metrics"]["spend_eur"])
-        top = bare[0]
-        self.assertIn(top["name"].lower(), self.said)
-        self.spoken(round(top["metrics"]["spend_eur"] / 1e6), "{} million euros of spend, and no blueprint")
-        self.spoken(len(bare), "{} categories like it")
-        total = round(sum(c["metrics"]["spend_eur"] for c in bare) / 1e6)
-        # "a hundred and seventy-six", not "one hundred and ...", in speech.
-        self.assertIn(words(total).replace("one hundred", "a hundred") + " million", self.said)
-
     def test_the_score(self):
         self.spoken(round(self.city["totals"]["journey"]["total"]), "scores {} out of a hundred")
+
+    def test_the_one_category_at_the_top_is_the_one_named(self):
+        ranked = sorted(self.city["categories"], key=lambda c: -c["journey"]["total"])
+        top, second = ranked[0], ranked[1]
+        self.assertEqual(top["journey"]["total"], 100)
+        self.assertLess(second["journey"]["total"], 100, "the narration says only one has made the whole climb")
+        self.assertIn(top["name"].lower(), self.said)
+
+    def test_the_agent_is_called_what_the_city_calls_it(self):
+        config = (REPO / "config" / "metrics.yaml").read_text(encoding="utf-8")
+        name = re.search(r"agent_name:\s*(\w+)", config).group(1)
+        self.assertIn(f"ask {name.lower()}", self.said)
+
+    # ------------------------------------------------------------- the climb
+
+    def test_each_lot_on_the_climb_stands_on_its_rung(self):
+        """One lot per rung, in order, as the narration describes them."""
+        codes = re.search(r"const CLIMB = \[([^\]]+)\]", self.director).group(1)
+        codes = re.findall(r"'([A-Z]\d{3})'", codes)
+        by_code = {c["code"]: c for c in self.city["categories"]}
+        empty, draft, live, used = (by_code[c]["journey"] for c in codes)
+        self.assertEqual(empty["total"], 0, "the climb starts on empty ground")
+        self.assertEqual((draft["blueprint"], draft["usage"], draft["ai"]), (10, 0, 0), "then a draft")
+        self.assertEqual((live["blueprint"], live["usage"], live["ai"]), (40, 0, 0), "then live across markets")
+        self.assertGreater(used["usage"], 0, "then in use")
+        self.assertGreater(used["ai"], 0, "and with AI")
+        totals = [by_code[c]["journey"]["total"] for c in codes]
+        self.assertEqual(totals, sorted(totals))
+        # Side by side on one row, so one camera move passes them in order.
+        self.assertEqual(len({by_code[c]["plot"] for c in codes}), 1)
 
     # ------------------------------------------------------------- timeline
 
@@ -87,9 +105,9 @@ class TestReel(unittest.TestCase):
         self.assertLess(at[-1], self.cues["length"] - 3)
 
     def test_the_marks_are_in_order_and_inside_the_reel(self):
-        order = ["reveal", "title", "grammar", "tower", "hotel", "roof", "written", "lightsOff",
-                 "four", "gap", "gapWide", "agent", "agentOut", "potential", "potentialOn",
-                 "score", "lift", "ask1", "ask2", "ask3", "ask4", "finale", "end"]
+        order = ["reveal", "title", "climb", "stop0", "stop1", "stop2", "stop3", "stop4", "hero",
+                 "challenge", "lightsOff", "four", "score", "agent", "agentOut", "potential",
+                 "potentialOn", "lift", "cta1", "cta2", "cta3", "finale", "end"]
         marks = self.cues["marks"]
         self.assertEqual(sorted(marks), sorted(order))
         values = [marks[k] for k in order]

@@ -1,8 +1,10 @@
 """The score, synthesised from nothing, so there is no licence to clear.
 
-120 bpm in D minor, cut to the same marks as the picture (cues.json), with a
-hit on every chapter change, a riser into each, the lights going out on a
-switch and a silence, and a lift to a major chord at the end.
+120 bpm in D minor, cut to the same marks as the picture (cues.json). The
+climb adds one layer per rung, from a pulse on empty ground to the full groove
+on the lot in use, and lifts to the major side at the top; the lights go out
+on a switch and a heartbeat; every verb of the call to action lands on a hit;
+and it resolves to D major on the end card.
 
     python3 film/reel/music.py            writes film/out/reel/music.wav
 """
@@ -288,149 +290,170 @@ def compose() -> dict[str, np.ndarray]:
         place(drums, K, t, 0.9 * g)
         kicks.append(t)
 
-    # ---- intro: 0 to the reveal. A drone, and the data ticking.
-    place(pads, pad(["D2", "A2", "D3"], M["reveal"] - 0.4, cutoff=500, attack=4.0, release=1.5), 0.0, 0.8)
-    place(bass, sub("D1", M["reveal"] + 0.2, 0.35), 0.0)
-    for t in beats(2.6, M["reveal"] - 1.5, BEAT / 4):
-        g = 0.18 if (round(t / (BEAT / 4)) % 4) else 0.32
-        place(fx, tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
-    for t in (2.6, 8.0):
-        place(fx, boom(2.5), t, 0.35)
-    place(fx, riser(3.5), M["reveal"] - 3.5, 0.55)
-    place(fx, reverse_swell(1.6), M["reveal"] - 1.6, 0.6)
+    def hit(t, g=0.8, length=3.0, swell=1.2):
+        """An impact on a mark, with a reversed cymbal leading into it."""
+        place(fx, reverse_swell(swell), t - swell, 0.55 * g)
+        place(fx, boom(length), t, g)
 
-    # ---- the reveal and the title.
-    place(fx, boom(4.0), M["reveal"], 0.9)
-    place(pads, pad(["D3", "A3", "D4", "F4", "A4"], M["grammar"] - M["reveal"] - 0.2, cutoff=2600, attack=0.3), M["reveal"], 0.9)
-    place(bass, sub("D1", M["grammar"] - M["reveal"], 0.55), M["reveal"])
-    for t in beats(M["reveal"] + 2.0, M["grammar"] - 0.5, BEAT * 2):
-        add_kick(t, 0.8)
-    place(fx, reverse_swell(1.2), M["grammar"] - 1.2, 0.6)
-
-    def groove(a, b, intensity=1.0, clap_on=True, arp=True, hats16=False, origin=None):
-        origin = a if origin is None else origin
-        for t in beats(a, b, BEAT):
-            add_kick(t, intensity)
-            place(drums, hat(), t + BEAT / 2, 0.55 * intensity, pan=0.25)
-            if hats16:
-                place(drums, hat(), t + BEAT / 4, 0.25 * intensity, pan=-0.25)
-                place(drums, hat(), t + 3 * BEAT / 4, 0.25 * intensity, pan=-0.25)
-            beat_no = round((t - origin) / BEAT)
-            if clap_on and beat_no % 2 == 1:
-                place(drums, clap(), t, 0.55 * intensity)
-        for t in beats(a, b, BEAT / 2):
-            ch, sub_note, bass_note = chord_at(t, PROG_MINOR, origin)
-            place(bass, bassnote(bass_note, BEAT / 2 * 0.9), t, 0.55 * intensity)
-        for t in beats(a, b, 8 * BEAT):
-            ch, sub_note, _ = chord_at(t, PROG_MINOR, origin)
+    def pads_over(a, b, prog, origin, cutoff=2400, gain=0.55, octave_up=False):
+        for t in beats(a, b, 8 * BEAT, offset=origin % (8 * BEAT)):
+            if t < a - 1e-6:
+                continue
+            ch, sub_note, _ = chord_at(t, prog, origin)
+            if octave_up:
+                ch = ch + [ch[-1][:-1] + str(int(ch[-1][-1]) + 1)]
             L = min(8 * BEAT, b - t)
-            place(pads, pad(ch, L, cutoff=1800 + 1400 * intensity, attack=0.25, release=0.6), t, 0.55)
+            place(pads, pad(ch, L, cutoff=cutoff, attack=0.3, release=0.6), t, gain)
             place(bass, sub(sub_note, L, 0.35), t)
+
+    def layer(a, b, origin, *, kick_on=False, hats=False, hats16=False, clap_on=False,
+              pulse=0.0, arp=0.0, prog=PROG_MINOR, intensity=1.0):
+        """One section of the groove, with only the layers asked for."""
+        for t in beats(a, b, BEAT, offset=origin % BEAT):
+            if kick_on:
+                add_kick(t, intensity)
+            if hats:
+                place(drums, hat(), t + BEAT / 2, 0.5 * intensity, pan=0.25)
+            if hats16:
+                place(drums, hat(), t + BEAT / 4, 0.22 * intensity, pan=-0.25)
+                place(drums, hat(), t + 3 * BEAT / 4, 0.22 * intensity, pan=-0.25)
+            if clap_on and round((t - origin) / BEAT) % 2 == 1:
+                place(drums, clap(), t, 0.5 * intensity)
+        if pulse:
+            for t in beats(a, b, BEAT / 2, offset=origin % (BEAT / 2)):
+                _, _, bass_note = chord_at(t, prog, origin)
+                place(bass, bassnote(bass_note, BEAT / 2 * 0.9), t, 0.55 * pulse)
         if arp:
-            for t in beats(a, b, BEAT / 4):
-                ch, _, _ = chord_at(t, PROG_MINOR, origin)
-                root = ch[0][:-1]
-                seq = ARP_MINOR.get(root, ARP_MINOR["D"])
+            for t in beats(a, b, BEAT / 4, offset=origin % (BEAT / 4)):
+                ch, _, _ = chord_at(t, prog, origin)
+                seq = ARP_MINOR.get(ch[0][:-1], ARP_MINOR["D"])
                 step = round((t - origin) / (BEAT / 4))
-                place(keys, pluck(hz(seq[step % 8]), 0.3, 3000 + 2500 * intensity), t, 0.22 * intensity,
+                place(keys, pluck(hz(seq[step % 8]), 0.3, 2500 + 3000 * arp), t, 0.22 * arp,
                       pan=0.35 * np.sin(step * 0.7))
 
-    # ---- the language of the city.
-    place(fx, boom(3.0), M["grammar"], 0.7)
-    groove(M["grammar"], M["written"], 0.8, clap_on=False, origin=M["grammar"])
-    for t in (M["tower"], M["hotel"], M["roof"]):
-        place(fx, boom(1.5), t, 0.35)
-        place(fx, reverse_swell(0.8), t - 0.8, 0.35)
+    # ---- the promise: one plot, then all of them, then the city.
+    place(pads, pad(["D2", "A2", "D3"], M["reveal"] - 0.4, cutoff=500, attack=4.0, release=1.5), 0.0, 0.8)
+    place(bass, sub("D1", M["reveal"] + 0.2, 0.35), 0.0)
+    place(keys, bell(hz("A5"), 4.0), 1.0, 0.3)
+    for t in beats(5.0, M["reveal"] - 1.2, BEAT / 4):
+        g = 0.18 if (round(t / (BEAT / 4)) % 4) else 0.32
+        place(fx, tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
+    for t in (5.0, 7.3):
+        place(fx, boom(2.5), t, 0.4)
+    place(fx, riser(3.5), M["reveal"] - 3.5, 0.55)
+    hit(M["reveal"], 0.9, 4.0, 1.6)
 
-    # ---- forty-four written; then the lights go out.
-    place(pads, pad(["D3", "F3", "A3", "C4"], M["lightsOff"] - M["written"], cutoff=900, attack=0.4, release=0.2), M["written"], 0.8)
-    place(bass, sub("D1", M["lightsOff"] - M["written"], 0.45), M["written"])
-    for t in beats(M["written"], M["lightsOff"] - 0.5, BEAT / 2):
-        place(keys, pluck(hz("A4" if round(t / (BEAT / 2)) % 2 else "D5"), 0.2, 2000), t, 0.16)
-    place(fx, riser(3.2), M["lightsOff"] - 3.2, 0.5)
+    # ---- the title.
+    place(pads, pad(["D3", "A3", "D4", "E4", "A4"], M["climb"] - M["reveal"] - 0.2, cutoff=2600, attack=0.3), M["reveal"], 0.9)
+    place(bass, sub("D1", M["climb"] - M["reveal"], 0.55), M["reveal"])
+    for t in beats(M["reveal"] + 2.0, M["climb"] - 0.5, BEAT * 2):
+        add_kick(t, 0.8)
+
+    # ---- the climb: every rung adds a layer.
+    o = M["climb"]
+    hit(M["climb"], 0.6, 2.5)
+    pads_over(M["climb"], M["stop4"], PROG_MINOR, o, cutoff=1400, gain=0.5)
+    layer(M["stop0"], M["stop1"], o, pulse=0.5)
+    layer(M["stop1"], M["stop2"], o, pulse=0.6, hats=True, arp=0.4)
+    layer(M["stop2"], M["stop3"], o, pulse=0.8, hats=True, kick_on=True, arp=0.6, intensity=0.85)
+    layer(M["stop3"], M["stop4"], o, pulse=1.0, hats=True, hats16=True, kick_on=True, clap_on=True, arp=0.9, intensity=1.0)
+    for k in ("stop1", "stop2", "stop3", "stop4"):
+        place(fx, boom(1.6), M[k], 0.35)
+    # Up to the top: the drums drop to a roll and everything rises.
+    place(fx, riser(M["hero"] - M["stop4"]), M["stop4"], 0.6)
+    place(pads, pad(["D3", "A3", "D4", "E4"], M["hero"] - M["stop4"], cutoff=900, attack=1.0, release=0.1), M["stop4"], 0.6)
+    roll = 0
+    for t in beats(M["hero"] - 2.0, M["hero"], BEAT / 4):
+        roll += 1
+        place(drums, clap(), t, 0.12 + 0.4 * roll / 16)
+
+    # ---- the top: the whole journey. A lift to the major side.
+    hit(M["hero"], 1.0, 5.0, 1.4)
+    place(drums, hat(True), M["hero"], 0.7)
+    pads_over(M["hero"], M["challenge"] - 0.6, PROG_LIFT, M["hero"], cutoff=4200, gain=0.8, octave_up=True)
+    layer(M["hero"], M["challenge"] - 0.8, M["hero"], kick_on=True, hats=True, hats16=True, clap_on=True, pulse=0.9, intensity=1.05, prog=PROG_LIFT)
+    for t in beats(M["hero"], M["challenge"] - 1.0, BEAT / 2):
+        ch, _, _ = chord_at(t, PROG_LIFT, M["hero"])
+        notes = [n[:-1] + str(int(n[-1]) + 2) for n in ch[1:4]]
+        step = round((t - M["hero"]) / (BEAT / 2))
+        place(keys, bell(hz(notes[step % 3]), 1.2), t, 0.09, pan=0.5 * np.sin(step))
+
+    # ---- where we are: dark, then the lights go out.
+    hit(M["challenge"], 0.6, 3.0, 1.0)
+    place(pads, pad(["D2", "A2", "F3", "C4"], M["lightsOff"] - M["challenge"], cutoff=700, attack=0.8, release=0.2), M["challenge"], 0.8)
+    place(bass, sub("D1", M["lightsOff"] - M["challenge"], 0.45), M["challenge"])
+    for t in beats(M["challenge"] + 1.0, M["lightsOff"] - 0.5, BEAT * 2):
+        place(drums, kick(0.5), t, 0.55)
+        kicks.append(t)
+    place(fx, riser(2.6), M["lightsOff"] - 2.6, 0.45)
     place(fx, switch(), M["lightsOff"] - 0.02, 1.1)
     place(fx, boom(4.5), M["lightsOff"], 0.75)
-
-    # ---- in the dark: a heartbeat, and a bell for the four.
-    place(pads, pad(["D2", "A2", "E3"], M["gap"] - M["lightsOff"] - 1.0, cutoff=420, attack=2.5, release=1.0), M["lightsOff"] + 0.4, 0.9)
-    for t in beats(M["lightsOff"] + 1.0, M["gap"] - 1.5, 1.0):
+    place(pads, pad(["D2", "A2", "E3"], M["agent"] - M["lightsOff"] - 0.8, cutoff=420, attack=2.0, release=0.8), M["lightsOff"] + 0.4, 0.9)
+    for t in beats(M["lightsOff"] + 1.0, M["agent"] - 1.4, 1.0):
         place(drums, kick(0.55), t, 0.7)
         place(drums, kick(0.35), t + 0.22, 0.5)
         kicks.append(t)
     for i in range(4):
-        place(keys, bell(hz(["A5", "D6", "F5", "A5"][i]), 3.5), M["lightsOff"] + 0.8 + i * 0.45, 0.16, pan=[-0.4, 0.4, -0.2, 0.2][i])
+        place(keys, bell(hz(["A5", "D6", "F5", "A5"][i]), 3.5), M["lightsOff"] + 0.5 + i * 0.3, 0.16, pan=[-0.4, 0.4, -0.2, 0.2][i])
     place(keys, bell(hz("D5"), 5.0), M["four"], 0.35)
-    place(fx, riser(2.2), M["gap"] - 2.2, 0.6)
-    place(fx, reverse_swell(1.2), M["gap"] - 1.2, 0.6)
+    place(keys, bell(hz("D4"), 5.0), M["score"], 0.3)
+    place(fx, riser(2.0), M["agent"] - 2.0, 0.55)
 
-    # ---- where the money is: the full groove.
-    place(fx, boom(3.0), M["gap"], 0.9)
-    groove(M["gap"], M["agent"], 1.0, clap_on=True, hats16=True, origin=M["gap"])
-    place(fx, boom(2.0), M["gapWide"], 0.5)
-    place(fx, riser(2.5), M["agent"] - 2.5, 0.55)
-
-    # ---- ask the city: lighter, and the keys typing.
-    place(fx, boom(2.5), M["agent"], 0.6)
-    groove(M["agent"], M["potential"] - 0.5, 0.6, clap_on=False, origin=M["agent"])
-    q = "Where are the biggest gaps?"
+    # ---- the agent: lighter, and the keys typing.
+    hit(M["agent"], 0.6, 2.5, 1.0)
+    pads_over(M["agent"], M["potential"] - 0.4, PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
+    layer(M["agent"], M["potential"] - 0.5, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
+    q = "Which category is doing best?"
     for i in range(len(q)):
-        place(fx, keyclick(), M["agent"] + 0.9 + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+        place(fx, keyclick(), M["agent"] + 1.3 + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
     place(fx, riser(2.0), M["potential"] - 2.0, 0.55)
-    place(fx, reverse_swell(1.2), M["potential"] - 1.2, 0.55)
 
-    # ---- the city we could be: the lift.
-    place(fx, boom(4.0), M["potential"], 0.8)
-    for t in beats(M["potential"], M["ask1"], 8 * BEAT):
-        ch, sub_note, _ = chord_at(t, PROG_LIFT, M["potential"])
-        L = min(8 * BEAT, M["ask1"] - t)
-        bright = 1400 + 3200 * (t - M["potential"]) / (M["ask1"] - M["potential"])
-        place(pads, pad(ch + [ch[-1][:-1] + str(int(ch[-1][-1]) + 1)], L, cutoff=bright, attack=0.6, release=0.8), t, 0.75)
-        place(bass, sub(sub_note, L, 0.45), t)
-    for t in beats(M["potential"] + 0.5, M["ask1"], BEAT / 2):
+    # ---- the city we could be.
+    hit(M["potential"], 0.8, 4.0, 1.2)
+    pads_over(M["potential"], M["cta1"], PROG_LIFT, M["potential"], cutoff=3000, gain=0.75, octave_up=True)
+    for t in beats(M["potential"] + 0.5, M["cta1"], BEAT / 2):
         ch, _, _ = chord_at(t, PROG_LIFT, M["potential"])
         notes = [n[:-1] + str(int(n[-1]) + 2) for n in ch[1:4]]
         step = round((t - M["potential"]) / (BEAT / 2))
         place(keys, bell(hz(notes[step % 3]), 1.2), t, 0.07, pan=0.5 * np.sin(step))
-    for t in beats(M["score"], M["lift"] - 2.0, BEAT):
-        if round((t - M["score"]) / BEAT) % 2 == 0:
+    for t in beats(M["potentialOn"] + 2.5, M["lift"] - 2.0, BEAT):
+        if round((t - M["potential"]) / BEAT) % 2 == 0:
             add_kick(t, 0.75)
         else:
             place(drums, clap(), t, 0.4)
-    # A roll into the lift.
-    roll = 0.0
+    roll = 0
     for t in beats(M["lift"] - 2.0, M["lift"], BEAT / 4):
         roll += 1
         place(drums, clap(), t, 0.15 + 0.35 * roll / 16)
-    place(fx, boom(4.0), M["lift"], 0.8)
-    for t in beats(M["lift"], M["ask1"] - 0.4, BEAT):
-        add_kick(t, 0.85)
-        place(drums, hat(), t + BEAT / 2, 0.5)
-    place(fx, riser(2.0), M["ask1"] - 2.0, 0.6)
+    hit(M["lift"], 0.85, 4.0, 1.0)
+    layer(M["lift"], M["cta1"] - 0.4, M["lift"], kick_on=True, hats=True, pulse=0.8, intensity=0.9, prog=PROG_LIFT)
+    place(fx, riser(2.0), M["cta1"] - 2.0, 0.6)
 
-    # ---- four asks: the climax, a hit on every cut.
-    groove(M["ask1"], M["finale"], 1.15, clap_on=True, hats16=True, origin=M["ask1"])
-    for k in ("ask1", "ask2", "ask3", "ask4"):
-        place(fx, boom(2.0), M[k], 0.75)
+    # ---- your move: a hit on every verb.
+    for k in ("cta1", "cta2", "cta3"):
+        hit(M[k], 0.9, 2.5, 0.9)
         place(drums, hat(True), M[k], 0.6)
+    pads_over(M["cta1"], M["finale"], PROG_MINOR, M["cta1"], cutoff=3600, gain=0.6)
+    layer(M["cta1"], M["finale"], M["cta1"], kick_on=True, hats=True, hats16=True, clap_on=True, pulse=1.0, arp=1.0, intensity=1.15)
     place(fx, riser(2.0), M["finale"] - 2.0, 0.6)
-    place(fx, reverse_swell(1.4), M["finale"] - 1.4, 0.6)
 
     # ---- the sign-off, and the lift to D major.
-    place(fx, boom(4.0), M["finale"], 0.9)
-    place(pads, pad(["Bb2", "D3", "F3", "Bb3", "D4", "F4"], 2 * BEAT * 2 + 0.2, cutoff=3500, attack=0.1, release=0.4), M["finale"], 0.9)
-    place(pads, pad(["C3", "E3", "G3", "C4", "E4", "G4"], M["end"] - M["finale"] - 2 * BEAT * 2, cutoff=3800, attack=0.2, release=0.3), M["finale"] + 2 * BEAT * 2, 0.9)
-    place(bass, sub("Bb0", 2 * BEAT * 2, 0.5), M["finale"])
-    place(bass, sub("C1", M["end"] - M["finale"] - 2 * BEAT * 2, 0.5), M["finale"] + 2 * BEAT * 2)
+    hit(M["finale"], 0.9, 4.0, 1.4)
+    half = (M["end"] - M["finale"]) / 2
+    place(pads, pad(["Bb2", "D3", "F3", "Bb3", "D4", "F4"], half + 0.2, cutoff=3500, attack=0.1, release=0.4), M["finale"], 0.9)
+    place(pads, pad(["C3", "E3", "G3", "C4", "E4", "G4"], half, cutoff=3800, attack=0.2, release=0.3), M["finale"] + half, 0.9)
+    place(bass, sub("Bb0", half, 0.5), M["finale"])
+    place(bass, sub("C1", half, 0.5), M["finale"] + half)
     for t in beats(M["finale"], M["end"] - 0.1, BEAT):
         add_kick(t, 0.9)
         place(drums, hat(), t + BEAT / 2, 0.45)
-    place(fx, reverse_swell(1.4), M["end"] - 1.4, 0.7)
-    place(fx, boom(5.0), M["end"], 1.0)
+    hit(M["end"], 1.0, 5.0, 1.4)
     end_len = LENGTH - M["end"]
     place(pads, pad(["D3", "F#3", "A3", "D4", "F#4", "A4", "D5"], end_len - 0.5, cutoff=4200, attack=0.05, release=1.5), M["end"], 1.0)
     place(bass, sub("D1", end_len - 0.3, 0.6), M["end"])
     place(keys, bell(hz("F#5"), 4.0), M["end"] + 0.4, 0.25)
     place(keys, bell(hz("A5"), 4.0), M["end"] + 0.9, 0.2)
+    place(keys, bell(hz("D6"), 4.0), M["end"] + 1.4, 0.18)
 
     return {"drums": drums, "bass": bass, "pads": pads, "keys": keys, "fx": fx, "kicks": np.array(kicks)}
 
