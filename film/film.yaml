@@ -50,14 +50,17 @@ record:
   # and the shoot cannot say when it clears: the recording clock and the wall
   # clock do not agree when the frames come from a software renderer, so a
   # head trim timed by the shoot leaves the dialog in the picture. It is
-  # measured from the frames instead. The dialog's button is the only
-  # saturated red in the middle of an unfocused city, so counting red pixels
-  # in that window finds the last frame that still has it.
+  # measured from the frames instead, by counting red pixels in a window over
+  # the middle of the screen. The dialog is dismissed once, so what is taken
+  # is the end of the first run of frames showing it. Anything red later in
+  # the recording is the city: two shots fly to a lot carrying a red hotel,
+  # which fills the same window with more red than the dialog does.
   trim:
     probe_fps: 4
     window: {x: 660, y: 380, w: 260, h: 320}
     red: {r_above: 170, g_below: 70, b_below: 70}
     dialog_above: 4000
+    least_frames: 4     # shorter than this is a moment of red, not a dialog
     margin_s: 0.4
 
 # One recording each. `do` is run once the city has settled; the seconds it
