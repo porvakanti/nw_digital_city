@@ -3103,7 +3103,7 @@
       [t.with_blueprint, "developed"],
       [t.in_use, "in use", true],
       [t.empty_lots, "empty lots"],
-      [euro(t.spend_eur), "spend"],
+      [euro(t.spend_eur), "spend to date"],
     ];
     document.getElementById("stats").innerHTML = stats
       .map(([n, k, flag]) =>
@@ -3405,7 +3405,7 @@
           ? scoreBar(category.journey)
             + `<span class="parts">${scoreParts(category.journey)}</span>`
           : "")],
-      ["Spend FY26/27", euro(m.spend_eur)],
+      [metricDef("spend_eur").label, euro(m.spend_eur)],
       /* The property, and the band it is in.
        *
        * "Hotel" on its own invites the question the next row already answers,
@@ -4908,7 +4908,7 @@
       <section>
         <h3>Spend, houses and the hotel</h3>
         <p>${CONFIG.layers.value.detail}</p>
-        <table><thead><tr><th>On the lot</th><th>Spend FY26/27</th></tr></thead>
+        <table><thead><tr><th>On the lot</th><th>${metricDef("spend_eur").label}</th></tr></thead>
           <tbody>${money}</tbody></table>
       </section>
 
