@@ -19,6 +19,7 @@ renders it.
 | [docs/GCP-SETUP.md](docs/GCP-SETUP.md) | Standing up the model on a GCP project, and handing that over |
 | [docs/DEMO.md](docs/DEMO.md) | Feature walkthrough and troubleshooting |
 | [docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md) | First-time setup on a Windows host |
+| [film/README.md](film/README.md) | The product film: how it is recorded, cut and configured |
 
 ## The metaphor
 
@@ -284,6 +285,7 @@ The source workbook contains blueprint owner names and email addresses.
 ```
 run.py                 the only command anyone needs to run
 config/metrics.yaml    which metric drives which visual layer
+film/film.yaml         the product film: its shots, its cut, its text frames
 data/build_city.py     workbook to anonymised city.json
 data/city.json         the only data the renderer needs
 renderer/city.js       the brick city, the builder, the choreography
@@ -336,10 +338,11 @@ answers with its own rules.
 ./run.sh eval all   # the whole set, if the key allows it
 ./run.sh build      # rebuild city.json from the workbook in data/raw/
 ./run.sh package    # a zip of just the city, safe to send to anyone
+./run.sh film       # rebuild the product film from film/film.yaml
 ./run.sh models     # which models the configured key can actually call
 ```
 
-On Windows the same six are `.\run.cmd test`, `.\run.cmd eval`, and so on.
+On Windows the same seven are `.\run.cmd test`, `.\run.cmd eval`, and so on.
 
 `run.sh test` is the whole thing in one command: 127 data, privacy, document
 and security assertions, the agent's question set, then the renderer driven in a real
