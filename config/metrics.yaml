@@ -668,10 +668,16 @@ metrics:
       - {id: busy,     max: null, label: Used repeatedly,    detail: In real service.}
 
   spend_eur:
-    label: Spend FY26/27
+    # Year to date, not a full-year figure. The source column is named
+    # "Spend FY26/27", which reads as the whole year, and a reader seeing
+    # EUR 760m against it will hear an annual number unless the label says
+    # otherwise. The column name in data/build_city.py stays as the workbook
+    # spells it; this is what the interface calls it.
+    label: Spend FY26/27 to date
     description: >
-      Addressable spend for the category. Thresholds are rescaled from the
-      original deck to fit the Network distribution. Network's largest single
+      Addressable spend for the category, year to date rather than a full-year
+      figure. Thresholds are rescaled from the original deck to fit the Network
+      distribution. Network's largest single
       category is €75m, so the deck's ">€100m = hotel" rung was unreachable and
       84% of categories collapsed into the bottom rung.
     unit: eur

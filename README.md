@@ -110,6 +110,161 @@ no field with `sample` in its name may reach the output at all.
 The smart-city layer is a **readiness signal, not a claim that autonomous
 procurement is live.**
 
+## The journey score
+
+One number out of 100 for a category, and the same number for any group of
+categories: a plot, a district, a market, a category manager, or the whole of
+Networks. It is computed in two stages.
+
+### Stage 1: one category
+
+Three components, each a ladder of fixed rungs. A category lands on exactly
+one rung of each and the three are added.
+
+| Component | Out of | Rungs |
+| --- | --- | --- |
+| Blueprint | 40 | 0 nothing, 10 drafted, 25 live in one market, 40 live in several |
+| Usage | 35 | 0 never used, 20 used once, 35 used more than once |
+| AI | 25 | 0 no AI-generated RFP, 15 the first one, 25 several |
+
+```
+category score = blueprint + usage + ai        (0 to 100)
+```
+
+Because the rungs are fixed, only 18 totals are reachable and 11 occur in the
+current extract. Three worked examples, from `data/city.json`:
+
+| Category | Blueprint | Usage | AI | Total |
+| --- | --- | --- | --- | --- |
+| A251 Network Professional Services | 40 | 35 | 25 | **100** |
+| A221 Spring 2/R - SW/PS | 40 | 0 | 0 | **40** |
+| A311 Field Maintenance | 0 | 0 | 0 | **0** |
+
+A221 holds the whole argument for scoring stages rather than spread: it is
+live in 16 markets, more than any other category, and nobody has run a
+sourcing event through it.
+
+### Stage 2: a group of categories
+
+Every group score is a weighted mean of its categories, weighted by the square
+root of spend with spend floored at a minimum.
+
+```
+                  Σ ( category_component × √( max(spend, floor) ) )
+group component = -------------------------------------------------
+                       Σ √( max(spend, floor) )
+```
+
+Applied independently to each of the four figures: blueprint, usage, ai and
+total. The root is taken per category and then summed, never the root of the
+summed spend. Result rounded to one decimal.
+
+Governed by `config/metrics.yaml`:
+
+```yaml
+score:
+  rollup:
+    weight_by: spend_eur
+    transform: sqrt
+    floor_eur: 1000000
+  minimum_categories: 3
+```
+
+**Why weight by spend.** A manager holding one category worth EUR 75m and one
+worth EUR 50k has not done equal work on both. An unweighted mean lets a
+portfolio score well by completing only its smallest categories.
+
+**Why the square root.** It sits between two failure modes. Raw spend lets one
+large category carry a group that has done nothing on anything else; equal
+weighting punishes anyone holding a large portfolio. Fixed shows both: eleven
+of its twelve categories score zero, and the twelfth scores 60 on EUR 62.5m.
+
+| Weighting | Fixed scores | Rank of eight districts |
+| --- | --- | --- |
+| Raw spend | 41.2 | 2nd |
+| Square root of spend | 19.5 | 4th |
+| Equal | 5.0 | 8th |
+
+**Why the floor.** Without it a category with no recorded spend has a weight of
+zero and contributes nothing at all, including its score. The floor is the
+reason a high-scoring category with no spend against it still counts.
+
+**Why a minimum of three.** One category and one blueprint is a coin toss
+rather than a track record, so a manager below the minimum is not ranked on the
+people board.
+
+### Worked example: a category manager
+
+A manager holding seven categories. Every figure is from the current extract.
+
+| Category | Spend | Its score | √(max(spend, floor)) | Share of weight |
+| --- | --- | --- | --- | --- |
+| A206 | EUR 75.0m | 40 | 8,660 | 37.4% |
+| A310 | EUR 75.0m | 25 | 8,660 | 37.4% |
+| A232 | EUR 3.3m | 25 | 1,823 | 7.9% |
+| A213 | none | **85** | 1,000 | 4.3% |
+| D512 | none | 10 | 1,000 | 4.3% |
+| A230 | none | 0 | 1,000 | 4.3% |
+| D507 | none | 0 | 1,000 | 4.3% |
+| | | | **23,143** | 100% |
+
+```
+blueprint = (40×8660 + 25×8660 + 25×1823 + 25×1000 + 10×1000
+             + 0×1000 + 0×1000) / 23,143 = 27.8   of 40
+usage     = (0 + 0 + 0 + 35×1000 + 0 + 0 + 0)     / 23,143 =  1.5   of 35
+ai        = (0 + 0 + 0 + 25×1000 + 0 + 0 + 0)     / 23,143 =  1.1   of 25
+total     =                                                   30.4   of 100
+```
+
+The board shows **30**. Two observations the figures make plainly:
+
+- The 28 shown against blueprint is 28 of the 40 available for blueprint, not
+  28 of 100. It is 70% of that credit taken.
+- The manager's strongest category, A213 at 85 of 100, carries 4.3% of the
+  weight because it has no recorded spend against it. The measure is weighted
+  by commercial scale, and a category that is doing everything right on a
+  category with no recorded spend moves it very little. This is a known
+  limitation of weighting by spend rather than a defect in the calculation.
+
+### Networks as a whole
+
+The same Stage 2 formula over all 145 categories.
+
+| Component | Score | Of available | Reading |
+| --- | --- | --- | --- |
+| Blueprint | 16.1 | 40 | 40% of the credit for writing them down |
+| Usage | 1.6 | 35 | 5% of the credit for anybody acting on them |
+| AI | 1.7 | 25 | 7% of the credit for doing it with AI |
+| **Total** | **19.4** | **100** | Traditional, the first of four stages |
+
+The distribution behind that total is the more useful statement of it: 89 of
+the 145 categories score exactly 0, and of the 56 that score anything, 48 have
+taken only the blueprint component.
+
+| Total | Categories |
+| --- | --- |
+| 0 | 89 |
+| 10 | 12 |
+| 25 | 20 |
+| 40 | 16 |
+| 50 to 85 | 7 |
+| 100 | 1 |
+
+### Where it is implemented
+
+| Place | What |
+| --- | --- |
+| `data/build_city.py` → `roll_up()` | Stage 2 at build time, for the totals written into `data/city.json` |
+| `renderer/city.js` → `rollUp()` | Stage 2 in the browser, for groupings assembled on demand such as a market or a manager |
+| `config/metrics.yaml` → `score:` | Every weight, rung, threshold and stage boundary |
+
+Two implementations of one formula is a drift risk, so a browser check
+recomputes nine groupings against the build and fails if they disagree to one
+decimal place.
+
+`docs/JOURNEY-SCORE.md` carries the full derivation, the rung counts per
+component, and a district worked row by row.
+
 ## Privacy
 
 The source workbook contains blueprint owner names and email addresses.
