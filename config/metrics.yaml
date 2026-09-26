@@ -14,7 +14,7 @@
 city:
   name: NW Digital City
   scope_label: Vodafone Networks, Level 1 "Network"
-  agent_name: Crane           # the agent's display name; change freely
+  agent_name: Atlas           # the agent's display name; change freely
   # What the builder wears on the front of the vest.
   #
   #   a path       an image file in this repository, inlined by the build as

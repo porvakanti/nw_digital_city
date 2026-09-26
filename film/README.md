@@ -96,11 +96,17 @@ write a blueprint, use it, and let AI build on it. Five acts:
 
 | Act | What it shows |
 | --- | --- |
-| The promise | One plot of land, then all 145 categories as a grid sized by spend, flown onto the plan as the city rises |
+| The promise | Procurement as a city: one plot of land, then all 145 categories sized by spend, flown onto the plan while a blueprint is defined, as the city rises |
 | The climb | One street in one take: empty ground, a draft, a blueprint live across markets, one in use with AI, then the category at 100. Each lot rebuilds as the camera arrives, with the stage rail and the three parts of the score filling beneath it |
-| The challenge | Where Networks stands: 44 blueprints written, the lights out, 4 ever used, 19 out of 100 |
-| The agent | The product on a floating stage, asked which category is doing best |
-| The vision | The city it could be, the lift from using what is written, then write it, use it, let AI build on it |
+| The challenge | Where Networks stands: 56 with a blueprint, 44 active; in night mode, 8 roofs lit by AI and 4 sets of windows lit by use; 19 out of 100, the first of four stages |
+| The agent | The product on a floating stage: Atlas is asked what could be built, and raises it |
+| The vision | The lift from using what is written, then write it, use it, let AI build on it |
+
+Version 2 is what `film/reel/` builds now. Version 1 is commit `8ff73ad`:
+check it out and run the same command to rebuild it. Version 2 opens on the
+metaphor and defines a blueprint, shows night mode as it is (eight roofs lit
+by AI, four sets of windows lit by use), names the agent Atlas and lets it
+raise the city that could be, and says Network rather than NW.
 
 One command rebuilds the whole thing:
 

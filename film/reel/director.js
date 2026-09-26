@@ -207,9 +207,9 @@
     on(M.lightsOff, () => N.night(true));
     on(M.agent - 1.4, () => { N.night(false); N.reset(); });
     on(M.agent - 0.05, () => enterProduct());
-    on(M.agent + 1.3, () => typeQuestion('Which category is doing best?'));
-    on(M.potential - 0.05, () => { leaveProduct(); N.reset(); });
-    on(M.potentialOn, () => N.potential(true));
+    // The city it could be is asked for, not switched on: the agent raises it.
+    on(M.ask, () => typeQuestion('What could we build?'));
+    on(M.potential - 0.05, () => { leaveProduct(); N.reset(); N.potential(true); });
     on(M.cta1 - 0.05, () => N.potential(false));
     on(M.cta2 - 0.05, () => N.night(true));
     on(M.finale - 0.05, () => N.night(false));
@@ -321,7 +321,7 @@
     // The city it could be.
     S.push({ a: M.potential, b: M.cta1, ease: (u) => u, cam(u, tt) {
       const k = eio(u);
-      const shift = 360 * eio(ramp(tt, M.potentialOn + 2.2, M.potentialOn + 3.4));
+      const shift = 360;
       return { pos: orbit([0, 0, -4], lerp(95, 175, k), lerp(9, 120, k), lerp(0.35, 1.9, k)), look: [0, lerp(7, 0, k), -4], fov: lerp(42, 38, k), shift };
     } });
     // Write: the cranes over the drafts.
@@ -639,7 +639,7 @@
   function chapters() {
     const M = D.M;
     return [
-      [M.climb, '01', 'The climb'], [M.challenge, '02', 'Where we are'], [M.agent, '03', 'Ask the city'],
+      [M.climb, '01', 'The climb'], [M.challenge, '02', 'Where we are'], [M.agent, '03', 'Ask Atlas'],
       [M.potential, '04', 'The city we could be'], [M.cta1, '05', 'Your move'], [M.finale, null, null],
     ];
   }
@@ -657,7 +657,7 @@
     ctx.globalAlpha = a;
     ctx.fillStyle = RED;
     ctx.fillRect(64, 44, 14, 14);
-    label(ctx, 'NW DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
+    label(ctx, 'NETWORK DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
     const ch = chapters();
     for (let i = 0; i < ch.length - 1; i++) {
       const [at, num, name] = ch[i];
@@ -747,7 +747,7 @@
     ctx.restore();
 
     // The ground grid, through the camera that will reveal the city.
-    const gridA = ramp(t, 0.8, 3) * (1 - ramp(t, M.reveal - 0.6, M.reveal + 0.6)) * 0.2;
+    const gridA = ramp(t, 0.4, 2.5) * (1 - ramp(t, M.reveal - 0.6, M.reveal + 0.6)) * 0.2;
     if (gridA > 0) {
       ctx.save();
       ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.globalAlpha = gridA;
@@ -760,12 +760,16 @@
       ctx.restore();
     }
 
+    // The metaphor, stated before anything is drawn.
+    rise(ctx, 'Imagine Networks procurement', W / 2, 520, { t, tin: 0.8, tout: M.one - 0.5, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -2 });
+    rise(ctx, 'as a city.', W / 2, 610, { t, tin: 1.9, tout: M.one - 0.45, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -2, color: RED });
+
     /* One plot alone in the middle of the frame; then it takes its place in
      * a grid of all 145, which spreads out from it; they size by spend; and
      * each one flies to where it stands on the plan. */
     const cols = 15, gx0 = 1060, gy0 = 300, pitch = 50;
-    const one = back(ramp(t, 0.9, 1.4));
-    const toGrid = eio5(ramp(t, 4.6, 5.6));
+    const one = back(ramp(t, M.one + 0.2, M.one + 0.7));
+    const toGrid = eio5(ramp(t, M.many - 0.3, M.many + 0.6));
     const maxSpend = Math.max(...f.cats.map((c) => c.metrics.spend_eur || 0));
     const lotsA = 1 - ramp(t, M.reveal + 0.1, M.reveal + 1.0);
     ctx.save();
@@ -780,14 +784,14 @@
         size = lerp(120, 34, toGrid);
       } else {
         const d = Math.hypot(col, row);
-        appear = back(ramp(t, 5.0 + d * 0.06, 5.3 + d * 0.06));
+        appear = back(ramp(t, M.many + 0.1 + d * 0.05, M.many + 0.4 + d * 0.05));
       }
       if (appear <= 0) return;
       const spend = c.metrics.spend_eur || 0;
       const bySpend = spend > 0 ? 8 + 34 * Math.sqrt(spend / maxSpend) : 6;
-      size = lerp(size, bySpend, eio(ramp(t, 7.6 + col * 0.02, 8.8 + col * 0.02)));
+      size = lerp(size, bySpend, eio(ramp(t, M.spend + col * 0.02, M.spend + 1.2 + col * 0.02)));
       const di = f.districts.findIndex((x2) => x2.name === c.district);
-      const fly = eio5(ramp(t, 9.8 + di * 0.14 + (i % 7) * 0.012, 11.8 + di * 0.14 + (i % 7) * 0.012));
+      const fly = eio5(ramp(t, M.plan + di * 0.14 + (i % 7) * 0.012, M.plan + 2.0 + di * 0.14 + (i % 7) * 0.012));
       const half = (b.span || 1) * (b.cell || 3) / 2;
       const pc = proj([b.x, 0, b.z]), pe = proj([b.x + half, 0, b.z]);
       x = lerp(x, pc[0], fly); y = lerp(y, pc[1], fly);
@@ -809,18 +813,23 @@
       }
     });
     ctx.restore();
-    typed(ctx, '1 CATEGORY  =  1 PLOT OF LAND', W / 2, H / 2 + 110, t, 1.5, { size: 20, align: 'center', tout: 4.4 });
+    typed(ctx, '1 CATEGORY  =  1 PLOT OF LAND', W / 2, H / 2 + 110, t, M.one + 0.6, { size: 22, align: 'center', tout: M.many - 0.4 });
 
     const tot = f.totals;
-    const txtOut = M.reveal - 1.6;
-    typed(ctx, 'VODAFONE NETWORKS · CATEGORY ESTATE', 150, 340, t, 5.0, { size: 20, tout: txtOut });
-    const n1 = Math.round(count(0, tot.categories, t, 5.0, 1.8));
-    rise(ctx, String(n1), 142, 590, { t, tin: 5.0, tout: 7.1, size: 250, weight: 800, ls: -8, stagger: 0.05 });
-    rise(ctx, 'categories', 150, 670, { t, tin: 5.3, tout: 7.1, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
-    const n2 = Math.round(count(0, tot.spend_eur / 1e6, t, 7.3, 2.0));
-    rise(ctx, `€${n2}M`, 142, 590, { t, tin: 7.3, tout: txtOut, size: 250, weight: 800, ls: -8, stagger: 0.04 });
-    rise(ctx, 'of spend, this year', 150, 670, { t, tin: 7.6, tout: txtOut, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
-    typed(ctx, `${f.districts.length} DISTRICTS · ${f.plots} PLOTS · ${tot.categories} LOTS`, 150, 740, t, 8.8, { size: 20, color: INK, alpha: 0.6, tout: txtOut });
+    const txtOut = M.plan - 0.2;
+    typed(ctx, 'VODAFONE NETWORKS · CATEGORY ESTATE', 150, 340, t, M.many, { size: 20, tout: txtOut });
+    const n1 = Math.round(count(0, tot.categories, t, M.many, 1.6));
+    rise(ctx, String(n1), 142, 590, { t, tin: M.many, tout: M.spend - 0.2, size: 250, weight: 800, ls: -8, stagger: 0.05 });
+    rise(ctx, 'categories', 150, 670, { t, tin: M.many + 0.3, tout: M.spend - 0.2, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
+    const n2 = Math.round(count(0, tot.spend_eur / 1e6, t, M.spend, 2.0));
+    rise(ctx, `€${n2}M`, 142, 590, { t, tin: M.spend, tout: txtOut, size: 250, weight: 800, ls: -8, stagger: 0.04 });
+    rise(ctx, 'of spend, this year', 150, 670, { t, tin: M.spend + 0.3, tout: txtOut, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
+    typed(ctx, `${f.districts.length} DISTRICTS · ${f.plots} PLOTS · ${tot.categories} LOTS`, 150, 740, t, M.spend + 1.6, { size: 20, color: INK, alpha: 0.6, tout: txtOut });
+
+    // What a blueprint is, while the plots find their places.
+    const bOut = M.reveal + 0.3;
+    typed(ctx, 'BLUEPRINT', W / 2, 150, t, M.plan + 0.3, { size: 22, align: 'center', tout: bOut });
+    rise(ctx, 'The playbook for how we buy a category.', W / 2, 232, { t, tin: M.plan + 0.9, tout: bOut, size: 56, weight: 700, align: 'center', by: 'word', stagger: 0.06, ls: -1 });
   }
 
   function title(ctx, t) {
@@ -828,7 +837,7 @@
     const t0 = M.title, t1 = M.climb - 0.8;
     if (t < t0 - 0.5 || t > M.climb) return;
     scrim(ctx, 'center', ramp(t, t0 - 0.4, t0 + 0.4) * (1 - ramp(t, t1, t1 + 0.6)) * 0.9);
-    rise(ctx, 'NW DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 168, weight: 800, ls: -4, align: 'center', stagger: 0.035, dur: 0.9 });
+    rise(ctx, 'NETWORK DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 144, weight: 800, ls: -4, align: 'center', stagger: 0.03, dur: 0.9 });
     const bar = eio(ramp(t, t0 + 0.6, t0 + 1.4)) * (1 - eio(ramp(t, t1, t1 + 0.5)));
     ctx.fillStyle = RED;
     ctx.fillRect(W / 2 - 330 * bar, 604, 660 * bar, 8);
@@ -933,6 +942,32 @@
   }
 
   // ------------------------------------------------------------- act 3
+  // A ring on a lot, a line up from it, and its code beside the line.
+  function marker(ctx, t, b, c, tin, tout, i, colour, withName) {
+    if (t < tin || t > tout + 0.4) return;
+    const p = proj([b.x, b.top + 1.2, b.z]);
+    if (p[2] > 1) return;
+    const k = back(ramp(t, tin, tin + 0.4)) * (1 - ramp(t, tout, tout + 0.4));
+    const pulse = ((t - tin) % 1.6) / 1.6;
+    ctx.save();
+    ctx.strokeStyle = colour; ctx.lineWidth = 2; ctx.globalAlpha = clamp(k);
+    ctx.beginPath(); ctx.arc(p[0], p[1], 18 * k, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = clamp(k) * (1 - pulse);
+    ctx.beginPath(); ctx.arc(p[0], p[1], 18 + pulse * 34, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    if (!withName) return;
+    const lift = 60 + (i % 2) * 70, side = i % 2 ? -1 : 1;
+    ctx.save();
+    ctx.globalAlpha = clamp(k);
+    ctx.fillStyle = colour;
+    ctx.fillRect(p[0], p[1] - 18 - lift * k, 1.5, lift * k);
+    ctx.fillRect(p[0], p[1] - 18 - lift * k, 14 * side * k, 1.5);
+    ctx.restore();
+    const lx = p[0] + side * 22, align = side > 0 ? 'left' : 'right';
+    label(ctx, c.code, lx, p[1] - 12 - lift, { size: 16, color: INK, alpha: clamp(k), align });
+    label(ctx, c.name.toUpperCase().slice(0, 30), lx, p[1] + 8 - lift, { size: 13, color: INK, alpha: clamp(k) * 0.6, ls: 2, align });
+  }
+
   function challenge(ctx, t) {
     const M = D.M, f = D.facts;
     if (t < M.challenge || t > M.agent) return;
@@ -940,54 +975,36 @@
     const out = M.agent - 0.8;
     scrim(ctx, 'center', ramp(t, M.challenge, M.challenge + 0.4) * (1 - ramp(t, M.blueprints - 0.8, M.blueprints - 0.2)) * 0.8);
     rise(ctx, 'So where is Networks today?', W / 2, 560, { t, tin: M.challenge + 0.3, tout: M.blueprints - 0.75, size: 84, weight: 800, align: 'center', by: 'word', stagger: 0.07, ls: -2 });
-    scrim(ctx, 'left', ramp(t, M.challenge + 2.4, M.challenge + 3.0) * (1 - ramp(t, out, out + 0.5)), 0.6);
+    scrim(ctx, 'left', ramp(t, M.blueprints - 0.6, M.blueprints) * (1 - ramp(t, out, out + 0.5)), 0.6);
 
     /* Every category with a blueprint first, drafts included, which is the
      * figure the city's own top bar shows; then the number rolls down to the
      * ones that are active, because only an active blueprint can be used. */
-    const dim = t > M.lightsOff ? 0.35 : 1;
     const n = t < M.active + 0.2
       ? Math.round(count(0, tot.with_blueprint, t, M.blueprints + 0.2, 1.6))
       : Math.round(count(tot.with_blueprint, tot.active, t, M.active + 0.2, 1.0, eio));
     typed(ctx, 'CATEGORIES WITH A BLUEPRINT', 120, 350, t, M.blueprints, { size: 20, tout: M.active - 0.1 });
-    typed(ctx, 'ACTIVE BLUEPRINTS', 120, 350, t, M.active + 0.1, { size: 20, tout: M.lightsOff - 0.2 });
-    typed(ctx, `+ ${tot.draft_only} STILL IN DRAFT`, 120, 680, t, M.active + 0.9, { size: 20, color: INK, alpha: 0.6, tout: M.lightsOff - 0.2 });
-    rise(ctx, String(n), 110, 600, { t, tin: M.blueprints + 0.1, tout: M.four - 0.6, size: 300, weight: 800, ls: -10, alpha: dim });
-    flash(ctx, t, M.lightsOff - 0.04, 0.35);
-    // The four that stay lit.
-    f.used.forEach((c, i) => {
-      const b = f.lots.get(c.code);
-      const tin = M.lightsOff + 0.5 + i * 0.3;
-      const tout = M.score - 0.4;
-      if (t < tin || t > tout + 0.4) return;
-      const p = proj([b.x, b.top + 1.2, b.z]);
-      const k = back(ramp(t, tin, tin + 0.4)) * (1 - ramp(t, tout, tout + 0.4));
-      const pulse = ((t - tin) % 1.6) / 1.6;
-      const lift = 60 + (i % 2) * 70, side = i % 2 ? -1 : 1;
-      ctx.save();
-      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.globalAlpha = k;
-      ctx.beginPath(); ctx.arc(p[0], p[1], 22 * k, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = k * (1 - pulse);
-      ctx.beginPath(); ctx.arc(p[0], p[1], 22 + pulse * 40, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = k;
-      ctx.fillStyle = INK;
-      ctx.fillRect(p[0], p[1] - 22 - lift * k, 1.5, lift * k);
-      ctx.fillRect(p[0], p[1] - 22 - lift * k, 14 * side * k, 1.5);
-      ctx.restore();
-      const lx = p[0] + side * 22, align = side > 0 ? 'left' : 'right';
-      label(ctx, c.code, lx, p[1] - 16 - lift, { size: 16, color: INK, alpha: k, align });
-      label(ctx, c.name.toUpperCase().slice(0, 30), lx, p[1] + 4 - lift, { size: 13, color: INK, alpha: k * 0.6, ls: 2, align });
-    });
-    rise(ctx, String(tot.in_use), 110, 600, { t, tin: M.four, tout: M.score - 0.4, size: 300, weight: 800, ls: -10, color: RED });
-    rise(ctx, `of ${tot.active}`, 330, 600, { t, tin: M.four + 0.35, tout: M.score - 0.4, size: 120, weight: 700 });
-    typed(ctx, 'ACTIVE BLUEPRINTS EVER USED', 120, 680, t, M.four + 0.7, { size: 24, color: INK, tout: M.score - 0.4 });
+    typed(ctx, 'ACTIVE BLUEPRINTS', 120, 350, t, M.active + 0.1, { size: 20, tout: M.lightsOff - 0.4 });
+    typed(ctx, `+ ${tot.draft_only} STILL IN DRAFT`, 120, 680, t, M.active + 0.9, { size: 20, color: INK, alpha: 0.6, tout: M.lightsOff - 0.4 });
+    rise(ctx, String(n), 110, 600, { t, tin: M.blueprints + 0.1, tout: M.lightsOff - 0.4, size: 300, weight: 800, ls: -10 });
 
-    // Networks on the rail: the first rung.
+    // Night mode: the lamps, the lit roofs, the lit windows.
+    typed(ctx, 'NIGHT MODE', W - 110, 350, t, M.lightsOff - 0.6, { size: 20, color: INK, align: 'right', tout: M.score - 0.4 });
+    flash(ctx, t, M.lightsOff - 0.04, 0.3);
+    const ai = f.cats.filter((c) => (c.metrics.ai_rfps || 0) > 0);
+    ai.forEach((c, i) => marker(ctx, t, f.lots.get(c.code), c, M.ai + 0.2 + i * 0.12, M.used - 0.2, i, CYAN, false));
+    f.used.forEach((c, i) => marker(ctx, t, f.lots.get(c.code), c, M.used + 1.6 + i * 0.35, M.score - 0.4, i, INK, true));
+    rise(ctx, String(tot.ai_started), 110, 520, { t, tin: M.ai, tout: M.score - 0.4, size: 220, weight: 800, ls: -8, color: CYAN });
+    typed(ctx, 'ROOFTOPS LIT · USING AI', 124, 580, t, M.ai + 0.4, { size: 20, color: CYAN, tout: M.score - 0.4 });
+    rise(ctx, String(tot.in_use), 110, 820, { t, tin: M.four, tout: M.score - 0.4, size: 220, weight: 800, ls: -8, color: INK });
+    typed(ctx, `WINDOWS LIT · BLUEPRINT EVER USED · OF ${tot.active} ACTIVE`, 124, 880, t, M.four + 0.4, { size: 20, color: INK, tout: M.score - 0.4 });
+
+    // Networks on the rail: the first of four stages.
     const s = count(0, f.scoreNow, t, M.score + 0.3, 1.6, eio);
     typed(ctx, 'NETWORKS · JOURNEY SCORE', 116, 370, t, M.score + 0.2, { size: 18, tout: out });
     slam(ctx, f.scoreNow.toFixed(1), 104, 580, { t, tin: M.score, tout: out, size: 240, weight: 900, color: INK, ls: -10 });
     rail(ctx, 116, 700, 820, s, ramp(t, M.score + 0.3, M.score + 0.7) * (1 - ramp(t, out, out + 0.4)), 'NETWORKS TODAY');
-    rise(ctx, 'Still the first rung.', 116, 830, { t, tin: M.score + 1.6, tout: out, size: 48, weight: 700, by: 'word', stagger: 0.06, color: 'rgba(255,255,255,0.88)' });
+    rise(ctx, 'Still the first of four stages.', 116, 830, { t, tin: M.stages, tout: out, size: 48, weight: 700, by: 'word', stagger: 0.06, color: 'rgba(255,255,255,0.88)' });
   }
 
   // ------------------------------------------------------------- act 4
@@ -1019,12 +1036,11 @@
     D.stage.style.boxShadow = `0 40px 120px rgba(0,0,0,${0.7 * (1 - back2)}), 0 0 0 1px rgba(255,255,255,${0.12 * (1 - back2)})`;
 
     const out = M.agentOut - 0.3;
-    typed(ctx, 'MEET CRANE · THE CITY\'S AGENT', 90, 240, t, M.agent + 0.4, { size: 16, tout: out });
+    typed(ctx, 'MEET ATLAS · THE CITY\'S AI AGENT', 90, 240, t, M.agent + 0.4, { size: 16, tout: out });
     const lines = [
-      [M.agent + 1.4, 'Ask in plain', 'English.'],
-      [M.agent + 4.5, 'It finds', 'the answer.'],
-      [M.agent + 6.0, 'Reasons over', 'the data.'],
-      [M.agent + 7.4, 'And takes', 'you there.'],
+      [M.agent + 3.0, 'Ask in plain', 'English.'],
+      [M.ask + 0.2, 'What could', 'we build?'],
+      [M.potentialOn + 0.8, 'It shows you', 'the city we could be.'],
     ];
     lines.forEach(([tin, l1, l2], i) => {
       const y = 330 + i * 150;
@@ -1046,8 +1062,7 @@
     const M = D.M, f = D.facts;
     if (t < M.potential || t > M.cta1) return;
     const out = M.cta1 - 0.6;
-    rise(ctx, 'Now imagine every lot built.', W / 2, 200, { t, tin: M.potentialOn - 0.2, tout: M.potentialOn + 2.2, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.08, ls: -2 });
-    const score = M.potentialOn + 2.8;
+    const score = M.potential + 0.2;
     if (t < score - 0.3) return;
     scrim(ctx, 'left', ramp(t, score - 0.3, score + 0.3) * (1 - ramp(t, out, out + 0.5)), 0.7);
     const cx = 330, cy = 440, r = 170;
@@ -1086,7 +1101,7 @@
     label(ctx, 'OUT OF 100', cx, cy + 90, { size: 16, color: INK, alpha: a * 0.6, align: 'center' });
     label(ctx, 'NETWORKS · JOURNEY SCORE', cx, cy - r - 60, { size: 18, alpha: a, align: 'center' });
     const x = 110;
-    rise(ctx, 'Not writing more.', x, 790, { t, tin: M.lift - 2.6, tout: out, size: 64, weight: 700, by: 'word', stagger: 0.07, alpha: t > M.lift ? 0.4 : 1 });
+    rise(ctx, 'Not writing more.', x, 790, { t, tin: M.lift - 2.2, tout: out, size: 64, weight: 700, by: 'word', stagger: 0.07, alpha: t > M.lift ? 0.4 : 1 });
     const strike = eio(ramp(t, M.lift - 0.5, M.lift)) * (1 - ramp(t, out, out + 0.3));
     if (strike > 0) { ctx.fillStyle = RED; ctx.fillRect(x - 6, 768, 540 * strike, 6); }
     rise(ctx, 'Using what is written.', x, 880, { t, tin: M.lift + 0.1, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.07, color: '#bff3ff' });
@@ -1142,7 +1157,7 @@
       ctx.drawImage(D.mark, W / 2 - sz / 2, 360 - sz / 2, sz, sz);
       ctx.restore();
     }
-    rise(ctx, 'NW Digital City', W / 2, 580, { t, tin: M.end + 0.45, size: 104, weight: 800, align: 'center', ls: -3, stagger: 0.03 });
+    rise(ctx, 'Network Digital City', W / 2, 580, { t, tin: M.end + 0.45, size: 104, weight: 800, align: 'center', ls: -3, stagger: 0.03 });
     rise(ctx, 'Find it on the Agent Marketplace', W / 2, 650, { t, tin: M.end + 0.9, size: 34, weight: 500, align: 'center', by: 'word', color: 'rgba(255,255,255,0.75)' });
     const line = eio(ramp(t, M.end + 1.1, M.end + 1.8));
     ctx.fillStyle = RED;

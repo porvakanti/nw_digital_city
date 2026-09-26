@@ -53,7 +53,8 @@ class TestReel(unittest.TestCase):
                       f"the narration should say {text!r}; city.json now gives {n}")
 
     def test_the_estate_is_the_size_the_narration_says(self):
-        self.spoken(self.city["totals"]["categories"], "{} of them")
+        # Spoken as "a hundred and forty-five", not "one hundred and ...".
+        self.assertIn(words(self.city["totals"]["categories"]).replace("one hundred", "a hundred") + " of them", self.said)
 
     def test_the_spend_is_the_spend(self):
         self.spoken(round(self.city["totals"]["spend_eur"] / 1e6), "{} million euros of spend")
@@ -61,8 +62,10 @@ class TestReel(unittest.TestCase):
     def test_blueprints_written_and_used(self):
         self.spoken(self.city["totals"]["with_blueprint"], "{} categories have a blueprint")
         self.spoken(self.city["totals"]["active"], "{} are active")
-        used = self.city["totals"]["in_use"]
-        self.assertIn(f"{words(used)}. only {words(used)} have ever been used", self.said)
+        self.spoken(self.city["totals"]["in_use"], "that is {} buildings")
+
+    def test_the_rooftops_lit_by_ai(self):
+        self.spoken(self.city["totals"]["ai_started"], "{} rooftops light up")
 
     def test_the_score(self):
         self.spoken(round(self.city["totals"]["journey"]["total"]), "scores {} out of a hundred")
@@ -77,7 +80,7 @@ class TestReel(unittest.TestCase):
     def test_the_agent_is_called_what_the_city_calls_it(self):
         config = (REPO / "config" / "metrics.yaml").read_text(encoding="utf-8")
         name = re.search(r"agent_name:\s*(\w+)", config).group(1)
-        self.assertIn(f"ask {name.lower()}", self.said)
+        self.assertIn(f"{name.lower()}, the city's a.i. agent", self.said)
 
     # ------------------------------------------------------------- the climb
 
@@ -106,9 +109,10 @@ class TestReel(unittest.TestCase):
         self.assertLess(at[-1], self.cues["length"] - 3)
 
     def test_the_marks_are_in_order_and_inside_the_reel(self):
-        order = ["reveal", "title", "climb", "stop0", "stop1", "stop2", "stop3", "stop4", "hero",
-                 "challenge", "blueprints", "active", "lightsOff", "four", "score", "agent", "agentOut", "potential",
-                 "potentialOn", "lift", "cta1", "cta2", "cta3", "finale", "end"]
+        order = ["one", "many", "spend", "plan", "reveal", "title", "climb", "stop0", "stop1", "stop2",
+                 "stop3", "stop4", "hero", "challenge", "blueprints", "active", "lightsOff", "ai",
+                 "used", "four", "score", "stages", "agent", "ask", "potentialOn", "agentOut",
+                 "potential", "lift", "cta1", "cta2", "cta3", "finale", "end"]
         marks = self.cues["marks"]
         self.assertEqual(sorted(marks), sorted(order))
         values = [marks[k] for k in order]

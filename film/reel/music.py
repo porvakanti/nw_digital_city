@@ -334,11 +334,12 @@ def compose() -> dict[str, np.ndarray]:
     # ---- the promise: one plot, then all of them, then the city.
     place(pads, pad(["D2", "A2", "D3"], M["reveal"] - 0.4, cutoff=500, attack=4.0, release=1.5), 0.0, 0.8)
     place(bass, sub("D1", M["reveal"] + 0.2, 0.35), 0.0)
-    place(keys, bell(hz("A5"), 4.0), 1.0, 0.3)
-    for t in beats(5.0, M["reveal"] - 1.2, BEAT / 4):
+    place(keys, bell(hz("A4"), 4.0), 0.8, 0.22)
+    place(keys, bell(hz("A5"), 4.0), M["one"] + 0.2, 0.3)
+    for t in beats(M["many"], M["reveal"] - 1.2, BEAT / 4):
         g = 0.18 if (round(t / (BEAT / 4)) % 4) else 0.32
         place(fx, tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
-    for t in (5.0, 7.3):
+    for t in (M["many"], M["spend"]):
         place(fx, boom(2.5), t, 0.4)
     place(fx, riser(3.5), M["reveal"] - 3.5, 0.55)
     hit(M["reveal"], 0.9, 4.0, 1.6)
@@ -393,30 +394,32 @@ def compose() -> dict[str, np.ndarray]:
         place(drums, kick(0.55), t, 0.7)
         place(drums, kick(0.35), t + 0.22, 0.5)
         kicks.append(t)
-    for i in range(4):
-        place(keys, bell(hz(["A5", "D6", "F5", "A5"][i]), 3.5), M["lightsOff"] + 0.5 + i * 0.3, 0.16, pan=[-0.4, 0.4, -0.2, 0.2][i])
+    # A chime for each rooftop lit by AI, as each one is marked.
+    for i in range(8):
+        place(keys, bell(hz(["A5", "D6", "F5", "A5", "E6", "C6", "D6", "A6"][i]), 3.0), M["ai"] + 0.2 + i * 0.12, 0.12, pan=np.sin(i * 1.3) * 0.5)
     place(keys, bell(hz("D5"), 5.0), M["four"], 0.35)
     place(keys, bell(hz("D4"), 5.0), M["score"], 0.3)
     place(fx, riser(2.0), M["agent"] - 2.0, 0.55)
 
     # ---- the agent: lighter, and the keys typing.
     hit(M["agent"], 0.6, 2.5, 1.0)
-    pads_over(M["agent"], M["potential"] - 0.4, PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
-    layer(M["agent"], M["potential"] - 0.5, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
-    q = "Which category is doing best?"
+    pads_over(M["agent"], M["potentialOn"], PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
+    layer(M["agent"], M["potentialOn"] - 0.3, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
+    q = "What could we build?"
     for i in range(len(q)):
-        place(fx, keyclick(), M["agent"] + 1.3 + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+        place(fx, keyclick(), M["ask"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
     place(fx, riser(2.0), M["potential"] - 2.0, 0.55)
 
     # ---- the city we could be.
-    hit(M["potential"], 0.8, 4.0, 1.2)
-    pads_over(M["potential"], M["cta1"], PROG_LIFT, M["potential"], cutoff=3000, gain=0.75, octave_up=True)
-    for t in beats(M["potential"] + 0.5, M["cta1"], BEAT / 2):
-        ch, _, _ = chord_at(t, PROG_LIFT, M["potential"])
+    hit(M["potentialOn"], 0.7, 4.0, 1.2)
+    hit(M["potential"], 0.6, 3.0, 0.8)
+    pads_over(M["potentialOn"], M["cta1"], PROG_LIFT, M["potentialOn"], cutoff=3000, gain=0.75, octave_up=True)
+    for t in beats(M["potentialOn"] + 0.5, M["cta1"], BEAT / 2):
+        ch, _, _ = chord_at(t, PROG_LIFT, M["potentialOn"])
         notes = [n[:-1] + str(int(n[-1]) + 2) for n in ch[1:4]]
-        step = round((t - M["potential"]) / (BEAT / 2))
+        step = round((t - M["potentialOn"]) / (BEAT / 2))
         place(keys, bell(hz(notes[step % 3]), 1.2), t, 0.07, pan=0.5 * np.sin(step))
-    for t in beats(M["potentialOn"] + 2.5, M["lift"] - 2.0, BEAT):
+    for t in beats(M["potential"], M["lift"] - 2.0, BEAT):
         if round((t - M["potential"]) / BEAT) % 2 == 0:
             add_kick(t, 0.75)
         else:
