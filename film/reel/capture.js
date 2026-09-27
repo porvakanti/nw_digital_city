@@ -72,6 +72,7 @@ const b64 = (file) => fs.readFileSync(path.join(__dirname, file)).toString('base
   await page.evaluate(async (cfg) => { await window.__reel.director.setup(cfg); }, {
     marks: cues.marks,
     fps: FPS,
+    length: cues.length,
     mark,
     fonts: [
       { family: 'Inter Tight', data: b64('fonts/inter-tight-latin-wght-normal.woff2'), descriptors: { weight: '100 900' } },

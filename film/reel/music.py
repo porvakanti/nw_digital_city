@@ -389,29 +389,54 @@ def compose() -> dict[str, np.ndarray]:
     place(fx, riser(2.6), M["lightsOff"] - 2.6, 0.45)
     place(fx, switch(), M["lightsOff"] - 0.02, 1.1)
     place(fx, boom(4.5), M["lightsOff"], 0.75)
-    place(pads, pad(["D2", "A2", "E3"], M["agent"] - M["lightsOff"] - 0.8, cutoff=420, attack=2.0, release=0.8), M["lightsOff"] + 0.4, 0.9)
-    for t in beats(M["lightsOff"] + 1.0, M["agent"] - 1.4, 1.0):
-        place(drums, kick(0.55), t, 0.7)
-        place(drums, kick(0.35), t + 0.22, 0.5)
+
+    # ---- the night flight: a slow heartbeat under a cold pad, a chime that
+    # climbs with each lit roof, and a warm bell for each lit window.
+    night_end = M["score"]
+    place(pads, pad(["D2", "A2", "E3", "A3"], night_end - M["lightsOff"] - 0.8, cutoff=520, attack=2.0, release=1.0), M["lightsOff"] + 0.4, 0.9)
+    place(pads, pad(["A3", "D4", "E4"], M["dark"] - M["ai"], cutoff=1600, attack=3.0, release=2.0), M["ai"], 0.35)
+    for t in beats(M["lightsOff"] + 1.0, night_end - 1.0, 1.0):
+        place(drums, kick(0.5), t, 0.6)
+        place(drums, kick(0.3), t + 0.22, 0.42)
         kicks.append(t)
-    # A chime for each rooftop lit by AI, as each one is marked.
-    for i in range(8):
-        place(keys, bell(hz(["A5", "D6", "F5", "A5", "E6", "C6", "D6", "A6"][i]), 3.0), M["ai"] + 0.2 + i * 0.12, 0.12, pan=np.sin(i * 1.3) * 0.5)
-    place(keys, bell(hz("D5"), 5.0), M["four"], 0.35)
+    roofs = 8
+    ai_step = (M["used"] - 2.0 - M["ai"]) / roofs
+    chimes = ["D5", "E5", "F5", "A5", "C6", "D6", "E6", "A6"]
+    for i in range(roofs):
+        place(keys, bell(hz(chimes[i]), 3.5), M["ai"] + i * ai_step - 0.1, 0.2, pan=np.sin(i * 1.3) * 0.5)
+    lit = 4
+    used_step = (M["dark"] - 1.8 - M["used"]) / (lit - 1)
+    for i in range(lit):
+        place(keys, bell(hz(["D4", "F4", "A4", "D5"][i]), 5.0), M["used"] + i * used_step - 0.1, 0.32)
+        place(pads, pad([["D3", "A3"], ["F3", "C4"], ["A3", "E4"], ["D4", "A4"]][i], 1.6, cutoff=1200, attack=0.05, release=1.2), M["used"] + i * used_step - 0.1, 0.25)
     place(keys, bell(hz("D4"), 5.0), M["score"], 0.3)
     place(fx, riser(2.0), M["agent"] - 2.0, 0.55)
 
-    # ---- the agent: lighter, and the keys typing.
+    # ---- Atlas: the keys, then the flight, slowed, then the answer building.
     hit(M["agent"], 0.6, 2.5, 1.0)
-    pads_over(M["agent"], M["potentialOn"], PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
-    layer(M["agent"], M["potentialOn"] - 0.3, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
+    pads_over(M["agent"], M["fly"], PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
+    layer(M["agent"], M["fly"] - 0.2, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
+    for i in range(len("Batteries")):
+        place(fx, keyclick(), M["ask"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+    # The flight: everything drops to a long swell, and the landing hits.
+    flight = M["land"] - M["fly"]
+    place(fx, riser(flight + 0.2), M["fly"] - 0.2, 0.65)
+    place(pads, pad(["D3", "A3", "D4", "E4", "A4"], flight, cutoff=2600, attack=0.4, release=0.6), M["fly"], 0.7)
+    place(bass, sub("D1", flight, 0.4), M["fly"])
+    hit(M["land"], 0.9, 3.5, 0.6)
+    pads_over(M["land"], M["agent2"] - 0.3, PROG_LIFT, M["land"], cutoff=3000, gain=0.6)
+    layer(M["land"] + 0.5, M["agent2"] - 0.5, M["land"], kick_on=True, hats=True, pulse=0.7, arp=0.7, intensity=0.75, prog=PROG_LIFT)
+
+    hit(M["agent2"], 0.5, 2.0, 0.8)
+    layer(M["agent2"], M["potentialOn"] - 0.2, M["agent2"], hats=True, pulse=0.5, arp=0.4, intensity=0.55)
+    place(pads, pad(["D3", "A3", "D4"], M["potentialOn"] - M["agent2"], cutoff=1400, attack=0.4, release=0.3), M["agent2"], 0.5)
     q = "What could we build?"
     for i in range(len(q)):
-        place(fx, keyclick(), M["ask"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
-    place(fx, riser(2.0), M["potential"] - 2.0, 0.55)
+        place(fx, keyclick(), M["ask2"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
 
     # ---- the city we could be.
-    hit(M["potentialOn"], 0.7, 4.0, 1.2)
+    hit(M["potentialOn"], 0.8, 5.0, 1.2)
+    place(fx, riser(M["potential"] - M["potentialOn"]), M["potentialOn"], 0.35)
     hit(M["potential"], 0.6, 3.0, 0.8)
     pads_over(M["potentialOn"], M["cta1"], PROG_LIFT, M["potentialOn"], cutoff=3000, gain=0.75, octave_up=True)
     for t in beats(M["potentialOn"] + 0.5, M["cta1"], BEAT / 2):

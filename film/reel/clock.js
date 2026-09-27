@@ -17,10 +17,22 @@
   const realDate = Date.now;
   const epoch = realDate();
   let now = 0;                       // virtual ms since the page opened
+  let video = 0;                     // ms of film rendered, which slow motion does not stretch
   let seq = 1;
   const timers = new Map();          // id -> {due, fn, args, every}
   let frames = [];                   // pending rAF callbacks
   let nested = 0;                    // > 0 while a timer callback is running
+
+  /* Randomness the capture owns as well. The city's people and its guide
+   * figure wander by Math.random; seeded, every render of a frame puts them in
+   * the same place. */
+  let seed = 0x9e3779b9;
+  Math.random = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let r = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
 
   performance.now = () => now;
   Date.now = () => epoch + now;
@@ -59,22 +71,26 @@
   }
 
   const reel = {
-    hooks: [],                 // called with (seconds) before the frame renders
-    post: [],                  // called with (seconds) after it has rendered
+    hooks: [],                 // called with film seconds before the frame renders
+    post: [],                  // called with film seconds after it has rendered
+    rate: 1,                   // virtual seconds per film second; below 1 is slow motion
     camera: (scene, cam) => cam,
     renderer: null,
     skip: false,               // true while fast-forwarding to a start time
     scene: null,
     now: () => now / 1000,
+    video: () => video / 1000,
+    // One frame of film. The page's own clock moves by `rate` times as much.
     advance(ms) {
-      const until = now + ms;
+      video += ms;
+      const until = now + ms * reel.rate;
       runTimers(until);
       now = until;
-      for (const h of reel.hooks) { try { h(now / 1000); } catch (e) { console.error(e); } }
+      for (const h of reel.hooks) { try { h(video / 1000); } catch (e) { console.error(e); } }
       const batch = frames; frames = [];
       for (const f of batch) { try { f.fn(now); } catch (e) { console.error(e); } }
       // After the frame is drawn, for anything composited from it.
-      for (const h of reel.post) { try { h(now / 1000); } catch (e) { console.error(e); } }
+      for (const h of reel.post) { try { h(video / 1000); } catch (e) { console.error(e); } }
       return now;
     },
     realNow,

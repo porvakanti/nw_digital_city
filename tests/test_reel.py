@@ -62,10 +62,10 @@ class TestReel(unittest.TestCase):
     def test_blueprints_written_and_used(self):
         self.spoken(self.city["totals"]["with_blueprint"], "{} categories have a blueprint")
         self.spoken(self.city["totals"]["active"], "{} are active")
-        self.spoken(self.city["totals"]["in_use"], "that is {} buildings")
+        self.spoken(self.city["totals"]["in_use"], "just {} buildings")
 
     def test_the_rooftops_lit_by_ai(self):
-        self.spoken(self.city["totals"]["ai_started"], "{} rooftops light up")
+        self.spoken(self.city["totals"]["ai_started"], "{} rooftops are lit")
 
     def test_the_score(self):
         self.spoken(round(self.city["totals"]["journey"]["total"]), "scores {} out of a hundred")
@@ -100,6 +100,13 @@ class TestReel(unittest.TestCase):
         # Side by side on one row, so one camera move passes them in order.
         self.assertEqual(len({by_code[c]["plot"] for c in codes}), 1)
 
+    def test_atlas_is_asked_for_the_lot_it_flies_to(self):
+        """The category typed into the agent is the one the camera expects."""
+        ask = re.search(r"askFor: '([^']+)'", self.director).group(1)
+        answer = re.search(r"answer: '([A-Z]\d{3})'", self.director).group(1)
+        by_code = {c["code"]: c for c in self.city["categories"]}
+        self.assertIn(ask.lower(), by_code[answer]["name"].lower())
+
     # ------------------------------------------------------------- timeline
 
     def test_the_narration_is_in_order_and_inside_the_reel(self):
@@ -110,9 +117,9 @@ class TestReel(unittest.TestCase):
 
     def test_the_marks_are_in_order_and_inside_the_reel(self):
         order = ["one", "many", "spend", "plan", "reveal", "title", "climb", "stop0", "stop1", "stop2",
-                 "stop3", "stop4", "hero", "challenge", "blueprints", "active", "lightsOff", "ai",
-                 "used", "four", "score", "stages", "agent", "ask", "potentialOn", "agentOut",
-                 "potential", "lift", "cta1", "cta2", "cta3", "finale", "end"]
+                 "stop3", "stop4", "hero", "challenge", "blueprints", "active", "lightsOff", "nightFly",
+                 "ai", "used", "four", "dark", "score", "stages", "agent", "ask", "fly", "land", "agent2",
+                 "ask2", "potentialOn", "potential", "lift", "cta1", "cta2", "cta3", "finale", "end"]
         marks = self.cues["marks"]
         self.assertEqual(sorted(marks), sorted(order))
         values = [marks[k] for k in order]

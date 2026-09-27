@@ -93,6 +93,14 @@
       totals: city.totals, districts: city.districts, cats, byCode, lots, used, asks, scoreNow, top,
       plots: new Set(cats.map((c) => c.district + '|' + c.plot)).size,
       best: asks.reduce((m, a) => (a.to > (m ? m.to : -1) ? a : m), null),
+      // Atlas's demonstration: where it waits, what it is asked for, and the
+      // lot that answer is.
+      perch: 'A213',
+      askFor: 'Batteries',
+      answer: 'D504',
+      ai: cats.filter((c) => (c.metrics.ai_rfps || 0) > 0),
+      bareSpendCount: cats.filter((c) => c.blueprint_state === 'none' && (c.metrics.spend_eur || 0) > 0).length,
+      rising: N.layout.buildings.filter((b) => b.pieces && b.pieces.potential && b.pieces.potential.length).length,
       // The same stage boundaries the city's journey rail uses.
       stages: [
         { name: 'Traditional', from: 0 }, { name: 'Connected', from: 40 },
@@ -100,6 +108,8 @@
       ],
     };
   }
+
+  const money = (eur) => `€${Math.round(eur / 1e6)}M`;
 
   /* The climb: one lot per rung, side by side on one row of Access
    * Radio/Fixed, so a single camera move can pass them in order. Named here;
@@ -111,6 +121,7 @@
   D.setup = async function setup(cfg) {
     D.M = cfg.marks;
     D.fps = cfg.fps;
+    D.length = cfg.length;
     for (const f of cfg.fonts) {
       const bytes = Uint8Array.from(atob(f.data), (c) => c.charCodeAt(0));
       const face = new FontFace(f.family, bytes.buffer, f.descriptors || {});
@@ -156,11 +167,19 @@
     D.cam = new THREE.PerspectiveCamera(38, W / H, 0.3, 4000);
     D.none = new THREE.PerspectiveCamera(38, W / H, 0.3, 4000);
     D.none.layers.mask = 0;
+    D.figCam = new THREE.PerspectiveCamera(38, W / H, 0.3, 4000);
     R.camera = (scene, cam) => {
       if (D.mode === 'product') return cam;
-      // The renderer's second pass draws its guide figure alone, scaled for
-      // the isometric view. It has no place in a cinematic frame.
-      if (cam.layers.mask !== 1) return D.none;
+      /* The renderer's second pass draws its guide figure alone, over the
+       * finished city. Outside Atlas's own shots it has no place in a
+       * cinematic frame; in them it is the subject, drawn through the reel's
+       * camera. */
+      if (cam.layers.mask !== 1) {
+        if (!D.showFigure) return D.none;
+        D.figCam.copy(D.cam);
+        D.figCam.layers.mask = cam.layers.mask;
+        return D.figCam;
+      }
       return D.cam;
     };
 
@@ -192,7 +211,7 @@
   };
 
   // t = 0 falls on the first frame advanced after this.
-  D.start = function start(frameMs) { D.t0 = R.now() + frameMs / 1000; };
+  D.start = function start(frameMs) { D.t0 = R.video() + frameMs / 1000; };
 
   // ------------------------------------------------------------- events
   function buildEvents() {
@@ -205,11 +224,17 @@
     const stops = [M.stop0, M.stop1, M.stop2, M.stop3, M.stop4];
     [...CLIMB, D.facts.top.code].forEach((code, i) => on(stops[i] - 1.05, () => N.focus(code)));
     on(M.lightsOff, () => N.night(true));
-    on(M.agent - 1.4, () => { N.night(false); N.reset(); });
+    // Atlas waits on the far side of the city, so the flight to the answer
+    // crosses it.
+    on(M.agent - 1.4, () => { N.night(false); N.focus(D.facts.perch); });
     on(M.agent - 0.05, () => enterProduct());
+    on(M.ask, () => typeQuestion(D.facts.askFor));
+    on(M.fly - 0.05, () => leaveProduct());
+    on(M.agent2 - 0.4, () => N.reset());
+    on(M.agent2 - 0.05, () => enterProduct());
     // The city it could be is asked for, not switched on: the agent raises it.
-    on(M.ask, () => typeQuestion('What could we build?'));
-    on(M.potential - 0.05, () => { leaveProduct(); N.reset(); N.potential(true); });
+    on(M.ask2, () => typeQuestion('What could we build?'));
+    on(M.potentialOn - 0.05, () => leaveProduct());
     on(M.cta1 - 0.05, () => N.potential(false));
     on(M.cta2 - 0.05, () => N.night(true));
     on(M.finale - 0.05, () => N.night(false));
@@ -267,6 +292,112 @@
     return { pos: orbit([0, 0, -4], 205, lerp(165, 150, ramp(tt, M.challenge, M.agent)), a), look: [0, 0, -2], fov: 36, shift };
   }
 
+  /* The night flight. The camera drops into Access Radio/Fixed, where four
+   * of the eight lit roofs stand together, and glides from roof to roof in
+   * the order below, then past the four lit windows, then climbs out. Each
+   * stop is a moment on the timeline; the camera is splined through them,
+   * always looking at the stop it is heading for. */
+  function nightStops() {
+    if (D.nightPlan) return D.nightPlan;
+    const M = D.M, f = D.facts;
+    const roofs = ['D303', 'A212', 'D506', 'A251', 'D513', 'A314', 'D333', 'A213']
+      .filter((c) => f.byCode.get(c) && (f.byCode.get(c).metrics.ai_rfps || 0) > 0);
+    const used = ['A213', 'A251', 'D506', 'D408']
+      .filter((c) => f.byCode.get(c) && (f.byCode.get(c).metrics.cbp_used || 0) > 0);
+    const aiStep = (M.used - 2.0 - M.ai) / roofs.length;
+    const usedStep = (M.dark - 1.8 - M.used) / (used.length - 1);
+    const plan = [];
+    roofs.forEach((code, i) => plan.push({ code, at: M.ai + i * aiStep, kind: 'ai' }));
+    used.forEach((code, i) => plan.push({ code, at: M.used + i * usedStep, kind: 'used' }));
+    D.nightPlan = plan;
+    return plan;
+  }
+
+  function nightAt(tt) {
+    const M = D.M;
+    const plan = nightStops();
+    // Where the camera stands for each stop: up and back from the roof for
+    // the reactors, lower for the windows.
+    const pose = (p) => {
+      const c = lot(p.code);
+      return p.kind === 'ai'
+        ? { pos: [c[0] + 15, c[1] + 13, c[2] + 17], look: [c[0], c[1] + 3, c[2]] }
+        : { pos: [c[0] + 13, Math.max(6, c[1] * 0.8), c[2] + 13], look: [c[0], c[1] * 0.5, c[2]] };
+    };
+    const keys = [
+      { at: M.lightsOff, ...wideAt(M.nightFly) },
+      { at: M.ai - 0.6, pos: [-8, 34, -18], look: [-36, 6, -46] },
+      ...plan.map((p) => ({ at: p.at, ...pose(p) })),
+      { at: M.dark + 0.4, pos: [60, 90, 90], look: [0, 0, -4] },
+      { at: M.score, ...wideAt(M.score) },
+    ];
+    // Piecewise: ease between neighbouring keys, splined through the four
+    // around the segment so the path has no corners.
+    let i = 0;
+    while (i < keys.length - 2 && tt >= keys[i + 1].at) i++;
+    const a = keys[i], b = keys[i + 1];
+    const u = eio(ramp(tt, a.at, b.at));
+    const k0 = keys[Math.max(0, i - 1)], k3 = keys[Math.min(keys.length - 1, i + 2)];
+    const seg = (key) => spline([k0[key], a[key], b[key], k3[key]], (1 + u) / 3);
+    const shift = i === 0 ? a.shift * (1 - u) : i === keys.length - 2 ? b.shift * u : 0;
+    // A long hop between two stops arcs up over the roofs rather than
+    // flying through whatever stands between them.
+    const pos = seg('pos');
+    const hop = Math.hypot(b.pos[0] - a.pos[0], b.pos[2] - a.pos[2]);
+    pos[1] += Math.sin(Math.PI * u) * clamp((hop - 20) / 40) * 18;
+    return { pos, look: seg('look'), fov: 40, shift };
+  }
+
+  // The guide figure, found in the scene: a group on the figure layer.
+  function figure() {
+    if (!D.fig) D.fig = R.scene.children.find((o) => o.type === 'Group' && o.layers.mask === 2);
+    return D.fig;
+  }
+
+  /* Atlas's flight. Behind and above the figure, looking where it is going,
+   * until it lands; then round the lot while the answer builds. */
+  function chaseAt(tt) {
+    const M = D.M;
+    const fig = figure();
+    const c = lot(D.facts.answer);
+    const at = fig ? [fig.position.x, fig.position.y, fig.position.z] : c;
+    if (!D.chase) D.chase = { from: at.slice(), dir: [c[0] - at[0], 0, c[2] - at[2]] };
+    const d = D.chase.dir;
+    const len = Math.hypot(d[0], d[2]) || 1;
+    const dx = d[0] / len, dz = d[2] / len;
+    const behind = [at[0] - dx * 11 + dz * 4, at[1] + 4.5, at[2] - dz * 11 - dx * 4];
+    const ahead = [at[0] + dx * 8, at[1] * 0.7, at[2] + dz * 8];
+    const k = eio(ramp(tt, M.land - 0.3, M.land + 1.6));
+    // From the north, so the tower being built stands in front of the
+    // monument on the next lot rather than behind it.
+    const a = -1.95 + (tt - M.land) * 0.12;
+    const round = orbit(c, 16, 7.5, a);
+    return { pos: mix(behind, round, k), look: mix(ahead, [c[0], 3, c[2]], k), fov: 42 };
+  }
+
+  /* The city it could be, rising as a wave: start low among the drafts in
+   * Network Revenue Platforms, where most of the rising towers are, and
+   * climb out until the whole of it is in frame. */
+  function risingAt(tt) {
+    const M = D.M;
+    const k = eio(ramp(tt, M.potentialOn, M.potential));
+    const pos = spline([[48, 5, -18], [52, 16, 30], [20, 34, 80], [68.4, 40, 82.2]], k);
+    const look = spline([[28, 4, 2], [24, 6, 8], [4, 6, 0], [0, 6, -4]], k);
+    return { pos, look, fov: lerp(46, 40, k) };
+  }
+
+  /* Slow motion: the page's clock runs slower than the film for the two
+   * moments that happen faster than an eye can follow, Atlas's flight and
+   * the wave of the city it could be. */
+  function rateAt(t) {
+    const M = D.M;
+    const fly = lerp(1, 0.33, ramp(t, M.fly, M.fly + 0.2)) * 1;
+    if (t >= M.fly && t < M.land + 0.8) return fly;
+    if (t >= M.land + 0.8 && t < M.agent2 - 0.5) return lerp(0.33, 0.7, ramp(t, M.land + 0.8, M.land + 1.6));
+    if (t >= M.potentialOn && t < M.potential) return lerp(1, 0.4, ramp(t, M.potentialOn, M.potentialOn + 0.2));
+    return 1;
+  }
+
   function shotAt(t) {
     const M = D.M;
     const S = [];
@@ -314,15 +445,24 @@
     S.push({ a: M.stop4, b: M.challenge, ease: (u) => u, cam(u, tt) {
       return { ...heroPose(tt), bars: 1 - ramp(tt, M.challenge - 0.9, M.challenge - 0.1) };
     } });
-    // Where Networks is: the whole city, turning, while the lights go out.
-    S.push({ a: M.challenge, b: M.agent, ease: (u) => u, cam(u, tt) { return wideAt(tt); } });
+    // Where Networks is: the whole city, turning, until the lights go out.
+    S.push({ a: M.challenge, b: M.nightFly, ease: (u) => u, cam(u, tt) { return wideAt(tt); } });
+    // Night: down into the city and along the lit roofs, then the lit
+    // windows, then back out over the dark.
+    S.push({ a: M.nightFly, b: M.score, ease: (u) => u, cam(u, tt) { return nightAt(tt); } });
+    S.push({ a: M.score, b: M.agent, ease: (u) => u, cam(u, tt) { return wideAt(tt); } });
     // The agent: the product's own camera, so nothing here is set.
-    S.push({ a: M.agent, b: M.potential, cam() { return null; } });
+    S.push({ a: M.agent, b: M.fly, cam() { return null; } });
+    // Atlas flies: chase it, then watch the answer build.
+    S.push({ a: M.fly, b: M.agent2, ease: (u) => u, cam(u, tt) { return chaseAt(tt); } });
+    S.push({ a: M.agent2, b: M.potentialOn, cam() { return null; } });
+    // The city it could be, rising: from the street up through it.
+    S.push({ a: M.potentialOn, b: M.potential, ease: (u) => u, cam(u, tt) { return risingAt(tt); } });
     // The city it could be.
     S.push({ a: M.potential, b: M.cta1, ease: (u) => u, cam(u, tt) {
       const k = eio(u);
-      const shift = 360;
-      return { pos: orbit([0, 0, -4], lerp(95, 175, k), lerp(9, 120, k), lerp(0.35, 1.9, k)), look: [0, lerp(7, 0, k), -4], fov: lerp(42, 38, k), shift };
+      const shift = 360 * eio(ramp(tt, M.potential, M.potential + 1.2));
+      return { pos: orbit([0, 0, -4], lerp(110, 175, k), lerp(40, 120, k), lerp(0.9, 1.9, k)), look: [0, lerp(6, 0, k), -4], fov: lerp(40, 38, k), shift };
     } });
     // Write: the cranes over the drafts.
     S.push({ a: M.cta1, b: M.cta2, ease: (u) => u, cam(u) {
@@ -639,8 +779,8 @@
   function chapters() {
     const M = D.M;
     return [
-      [M.climb, '01', 'The climb'], [M.challenge, '02', 'Where we are'], [M.agent, '03', 'Ask Atlas'],
-      [M.potential, '04', 'The city we could be'], [M.cta1, '05', 'Your move'], [M.finale, null, null],
+      [M.climb, '01', 'The climb'], [M.challenge, '02', 'Where we are'], [M.agent, '03', 'Meet Atlas'],
+      [M.potentialOn, '04', 'The city we could be'], [M.cta1, '05', 'Your move'], [M.finale, null, null],
     ];
   }
 
@@ -657,7 +797,7 @@
     ctx.globalAlpha = a;
     ctx.fillStyle = RED;
     ctx.fillRect(64, 44, 14, 14);
-    label(ctx, 'NETWORK DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
+    label(ctx, 'NETWORKS DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
     const ch = chapters();
     for (let i = 0; i < ch.length - 1; i++) {
       const [at, num, name] = ch[i];
@@ -675,7 +815,7 @@
       ctx.fillRect(64, H - 46, W - 128, 2);
       ctx.globalAlpha = a;
       ctx.fillStyle = RED;
-      ctx.fillRect(64, H - 46, (W - 128) * clamp(t / 120), 2);
+      ctx.fillRect(64, H - 46, (W - 128) * clamp(t / D.length), 2);
       label(ctx, tc, W - 64, H - 62, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
     }
     ctx.restore();
@@ -837,7 +977,7 @@
     const t0 = M.title, t1 = M.climb - 0.8;
     if (t < t0 - 0.5 || t > M.climb) return;
     scrim(ctx, 'center', ramp(t, t0 - 0.4, t0 + 0.4) * (1 - ramp(t, t1, t1 + 0.6)) * 0.9);
-    rise(ctx, 'NETWORK DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 144, weight: 800, ls: -4, align: 'center', stagger: 0.03, dur: 0.9 });
+    rise(ctx, 'NETWORKS DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 144, weight: 800, ls: -4, align: 'center', stagger: 0.03, dur: 0.9 });
     const bar = eio(ramp(t, t0 + 0.6, t0 + 1.4)) * (1 - eio(ramp(t, t1, t1 + 0.5)));
     ctx.fillStyle = RED;
     ctx.fillRect(W / 2 - 330 * bar, 604, 660 * bar, 8);
@@ -991,13 +1131,54 @@
     // Night mode: the lamps, the lit roofs, the lit windows.
     typed(ctx, 'NIGHT MODE', W - 110, 350, t, M.lightsOff - 0.6, { size: 20, color: INK, align: 'right', tout: M.score - 0.4 });
     flash(ctx, t, M.lightsOff - 0.04, 0.3);
-    const ai = f.cats.filter((c) => (c.metrics.ai_rfps || 0) > 0);
-    ai.forEach((c, i) => marker(ctx, t, f.lots.get(c.code), c, M.ai + 0.2 + i * 0.12, M.used - 0.2, i, CYAN, false));
-    f.used.forEach((c, i) => marker(ctx, t, f.lots.get(c.code), c, M.used + 1.6 + i * 0.35, M.score - 0.4, i, INK, true));
-    rise(ctx, String(tot.ai_started), 110, 520, { t, tin: M.ai, tout: M.score - 0.4, size: 220, weight: 800, ls: -8, color: CYAN });
-    typed(ctx, 'ROOFTOPS LIT · USING AI', 124, 580, t, M.ai + 0.4, { size: 20, color: CYAN, tout: M.score - 0.4 });
-    rise(ctx, String(tot.in_use), 110, 820, { t, tin: M.four, tout: M.score - 0.4, size: 220, weight: 800, ls: -8, color: INK });
-    typed(ctx, `WINDOWS LIT · BLUEPRINT EVER USED · OF ${tot.active} ACTIVE`, 124, 880, t, M.four + 0.4, { size: 20, color: INK, tout: M.score - 0.4 });
+    const plan = nightStops();
+    const roofs = plan.filter((p) => p.kind === 'ai');
+    const lit = plan.filter((p) => p.kind === 'used');
+    // Each stop is marked as the camera reaches it, and stays marked.
+    plan.forEach((p, i) => {
+      const c = f.byCode.get(p.code);
+      const b = f.lots.get(p.code);
+      const colour = p.kind === 'ai' ? CYAN : INK;
+      const until = p.kind === 'ai' ? M.used - 0.4 : M.score - 0.4;
+      marker(ctx, t, b, c, p.at - 0.35, until, i, colour, false);
+      // The name of the one being passed.
+      const next = plan[i + 1];
+      const leave = next && next.kind === p.kind ? next.at - 0.45 : p.at + 1.4;
+      if (t > p.at - 0.35 && t < leave + 0.3) {
+        const q = proj([b.x, b.top + (p.kind === 'ai' ? 4.5 : 2.5), b.z]);
+        const k = ramp(t, p.at - 0.35, p.at) * (1 - ramp(t, leave, leave + 0.3));
+        if (q[2] < 1) {
+          label(ctx, c.code, q[0], q[1] - 30, { size: 18, color: colour, alpha: k, align: 'center' });
+          label(ctx, c.name.toUpperCase().slice(0, 34), q[0], q[1] - 8, { size: 14, color: INK, alpha: k * 0.8, align: 'center', ls: 2 });
+        }
+      }
+    });
+    const nRoof = roofs.filter((p) => t >= p.at - 0.2).length;
+    const nLit = lit.filter((p) => t >= p.at - 0.2).length;
+    const aiA = ramp(t, M.ai - 0.6, M.ai - 0.2) * (1 - ramp(t, M.score - 0.4, M.score));
+    if (aiA > 0) {
+      scrim(ctx, 'left', aiA * 0.8, 0.4);
+      font(ctx, 220, 800, SANS, -8);
+      ctx.globalAlpha = aiA;
+      ctx.fillStyle = CYAN;
+      ctx.shadowColor = CYAN; ctx.shadowBlur = 30;
+      ctx.fillText(String(nRoof), 110, 520);
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+      label(ctx, 'ROOFTOPS LIT · USING AI', 124, 580, { size: 20, color: CYAN, alpha: aiA });
+    }
+    const litA = ramp(t, M.used - 0.6, M.used - 0.2) * (1 - ramp(t, M.score - 0.4, M.score));
+    if (litA > 0) {
+      font(ctx, 220, 800, SANS, -8);
+      ctx.globalAlpha = litA;
+      ctx.fillStyle = INK;
+      ctx.shadowColor = GOLD; ctx.shadowBlur = 30;
+      ctx.fillText(String(nLit), 110, 820);
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+      label(ctx, `LIT UP · BLUEPRINT EVER USED · OF ${tot.active} ACTIVE`, 124, 880, { size: 20, color: INK, alpha: litA });
+    }
+    rise(ctx, 'The rest of the city stays dark.', W - 110, 980, { t, tin: M.dark, tout: M.score - 0.5, size: 44, weight: 700, by: 'word', stagger: 0.06, align: 'right', color: 'rgba(255,255,255,0.85)' });
 
     // Networks on the rail: the first of four stages.
     const s = count(0, f.scoreNow, t, M.score + 0.3, 1.6, eio);
@@ -1011,7 +1192,12 @@
   function agent(ctx, bg, t) {
     const M = D.M;
     bg.clearRect(0, 0, W, H);
-    if (t < M.agent - 0.1 || t > M.potential + 0.1) { D.stage.style.transform = ''; return; }
+    // Two windows onto the product: asking for a category, and asking what
+    // could be built. Each ends by filling the frame and cutting into the city.
+    const windows = [[M.agent, M.fly], [M.agent2, M.potentialOn]];
+    const w = windows.find(([a, b]) => t >= a - 0.1 && t < b + 0.05);
+    if (!w) { D.stage.style.transform = ''; return; }
+    const [a, b] = w;
     bg.fillStyle = BG;
     bg.fillRect(0, 0, W, H);
     const g = bg.createRadialGradient(W * 0.2, H * 0.3, 0, W * 0.2, H * 0.3, W * 0.8);
@@ -1025,36 +1211,75 @@
     for (let x = -off; x < W; x += 60) { bg.beginPath(); bg.moveTo(x, 0); bg.lineTo(x, H); bg.stroke(); }
     for (let y = -off; y < H; y += 60) { bg.beginPath(); bg.moveTo(0, y); bg.lineTo(W, y); bg.stroke(); }
 
-    const back2 = eio5(ramp(t, M.agentOut, M.potential - 0.1));
-    const into = eo5(ramp(t, M.agent - 0.1, M.agent + 0.9));
-    const sc = lerp(lerp(0.86, 0.7, into), 1, back2);
-    const tx = lerp(235, 0, back2);
-    const ry = lerp(lerp(13, 7, ramp(t, M.agent, M.agentOut)), 0, back2);
-    const rx = lerp(3, 0, back2);
+    const into = eo5(ramp(t, a - 0.1, a + 0.9));
+    const fill = ei(ramp(t, b - 0.55, b));
+    const sc = lerp(lerp(0.86, 0.7, into), 1.08, fill);
+    const tx = lerp(235, 0, fill);
+    const ry = lerp(lerp(13, 7, ramp(t, a, b)), 0, fill);
+    const rx = lerp(3, 0, fill);
     D.stage.style.transform = `perspective(2600px) translateX(${tx}px) rotateY(${ry}deg) rotateX(${rx}deg) scale(${sc})`;
-    D.stage.style.borderRadius = `${lerp(18, 0, back2)}px`;
-    D.stage.style.boxShadow = `0 40px 120px rgba(0,0,0,${0.7 * (1 - back2)}), 0 0 0 1px rgba(255,255,255,${0.12 * (1 - back2)})`;
+    D.stage.style.borderRadius = `${lerp(18, 0, fill)}px`;
+    D.stage.style.boxShadow = `0 40px 120px rgba(0,0,0,${0.7 * (1 - fill)}), 0 0 0 1px rgba(255,255,255,${0.12 * (1 - fill)})`;
 
-    const out = M.agentOut - 0.3;
-    typed(ctx, 'MEET ATLAS · THE CITY\'S AI AGENT', 90, 240, t, M.agent + 0.4, { size: 16, tout: out });
-    const lines = [
-      [M.agent + 3.0, 'Ask in plain', 'English.'],
-      [M.ask + 0.2, 'What could', 'we build?'],
-      [M.potentialOn + 0.8, 'It shows you', 'the city we could be.'],
-    ];
+    const out = b - 0.6;
+    typed(ctx, a === M.agent ? 'MEET ATLAS · THE CITY\'S AI AGENT' : 'ASK ATLAS', 90, 240, t, a + 0.4, { size: 16, tout: out });
+    const lines = a === M.agent
+      ? [[a + 3.0, 'Ask in plain', 'English.'], [M.ask + 0.1, `"${D.facts.askFor}"`, '']]
+      : [[M.ask2 + 0.1, 'What could', 'we build?']];
     lines.forEach(([tin, l1, l2], i) => {
       const y = 330 + i * 150;
-      const a = ramp(t, tin, tin + 0.3) * (1 - ramp(t, out, out + 0.3));
+      const al = ramp(t, tin, tin + 0.3) * (1 - ramp(t, out, out + 0.3));
       ctx.fillStyle = RED;
-      ctx.globalAlpha = a;
+      ctx.globalAlpha = al;
       ctx.fillRect(90, y - 38, 4, 88);
       ctx.globalAlpha = 1;
-      label(ctx, `0${i + 1}`, 110, y - 22, { size: 14, color: RED, alpha: a });
+      label(ctx, `0${i + 1}`, 110, y - 22, { size: 14, color: RED, alpha: al });
       if (t >= tin) {
         rise(ctx, l1, 110, y + 16, { t, tin, tout: out, size: 36, weight: 700, by: 'word', stagger: 0.05 });
-        rise(ctx, l2, 110, y + 56, { t, tin: tin + 0.1, tout: out, size: 36, weight: 700, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.7)' });
+        if (l2) rise(ctx, l2, 110, y + 56, { t, tin: tin + 0.1, tout: out, size: 36, weight: 700, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.7)' });
       }
     });
+  }
+
+  // Atlas in flight, named; then the answer, as the lot builds.
+  function atlas(ctx, t) {
+    const M = D.M, f = D.facts;
+    if (t < M.fly || t > M.agent2) return;
+    const fig = figure();
+    const out = M.agent2 - 0.5;
+    letterbox(ctx, ramp(t, M.fly, M.fly + 0.4) * (1 - ramp(t, out, M.agent2)));
+    if (fig && t < M.land + 0.6) {
+      const p = proj([fig.position.x, fig.position.y + 3.2, fig.position.z]);
+      const k = ramp(t, M.fly + 0.3, M.fly + 0.6) * (1 - ramp(t, M.land + 0.2, M.land + 0.6));
+      if (p[2] < 1 && k > 0) {
+        ctx.save();
+        ctx.globalAlpha = k;
+        ctx.strokeStyle = RED; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] + 40, p[1] - 40); ctx.lineTo(p[0] + 150, p[1] - 40); ctx.stroke();
+        ctx.restore();
+        label(ctx, 'ATLAS', p[0] + 46, p[1] - 50, { size: 20, color: INK, alpha: k });
+      }
+    }
+    const c = f.byCode.get(f.answer);
+    const tin = M.land + 0.2;
+    scrim(ctx, 'left', ramp(t, tin - 0.2, tin + 0.3) * (1 - ramp(t, out, out + 0.3)) * 0.9, 0.5);
+    typed(ctx, `${c.code} · ${c.district.toUpperCase()}`, 110, 420, t, tin, { size: 16, color: INK, alpha: 0.8, tout: out });
+    rise(ctx, c.name, 110, 490, { t, tin: tin + 0.1, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.06, ls: -1 });
+    const num = `${c.journey.total}`;
+    rise(ctx, num, 104, 640, { t, tin: tin + 0.3, tout: out, size: 150, weight: 800, ls: -6 });
+    font(ctx, 150, 800, SANS, -6);
+    rise(ctx, '/ 100', 110 + ctx.measureText(num).width + 10, 640, { t, tin: tin + 0.4, tout: out, size: 40, weight: 600, color: 'rgba(255,255,255,0.6)' });
+    meters(ctx, c, 110, 710, t, tin + 0.5, out);
+    typed(ctx, `LIVE IN ${(c.markets || []).length} MARKETS · ${money(c.metrics.spend_eur)} OF SPEND`, 110, 850, t, tin + 1.2, { size: 18, color: INK, alpha: 0.75, tout: out });
+  }
+
+  // The city it could be, as it rises.
+  function rising(ctx, t) {
+    const M = D.M, f = D.facts;
+    if (t < M.potentialOn || t > M.potential + 0.5) return;
+    const out = M.potential - 0.7;
+    rise(ctx, 'The city we could be.', W / 2, 190, { t, tin: M.potentialOn + 2.0, tout: out, size: 80, weight: 800, align: 'center', by: 'word', stagger: 0.08, ls: -2 });
+    typed(ctx, `${f.totals.draft_only} DRAFTS GO LIVE  ·  ${f.bareSpendCount} LOTS WITH SPEND GET A BLUEPRINT`, W / 2, 250, t, M.potentialOn + 3.0, { size: 18, color: CYAN, align: 'center', tout: out, per: 0.02 });
   }
 
   // ------------------------------------------------------------- act 5
@@ -1157,7 +1382,7 @@
       ctx.drawImage(D.mark, W / 2 - sz / 2, 360 - sz / 2, sz, sz);
       ctx.restore();
     }
-    rise(ctx, 'Network Digital City', W / 2, 580, { t, tin: M.end + 0.45, size: 104, weight: 800, align: 'center', ls: -3, stagger: 0.03 });
+    rise(ctx, 'Networks Digital City', W / 2, 580, { t, tin: M.end + 0.45, size: 104, weight: 800, align: 'center', ls: -3, stagger: 0.03 });
     rise(ctx, 'Find it on the Agent Marketplace', W / 2, 650, { t, tin: M.end + 0.9, size: 34, weight: 500, align: 'center', by: 'word', color: 'rgba(255,255,255,0.75)' });
     const line = eio(ramp(t, M.end + 1.1, M.end + 1.8));
     ctx.fillStyle = RED;
@@ -1169,7 +1394,7 @@
     const widths = words.map(([w]) => ctx.measureText(w).width);
     let x = W / 2 - (widths.reduce((s2, v) => s2 + v, 0) + gap * 2) / 2;
     words.forEach(([w, col], i) => { typed(ctx, w, x, 770, t, M.end + 1.6 + i * 0.3, { size: 20, color: col, ls: 4 }); x += widths[i] + gap; });
-    const fade = ramp(t, 119.1, 120);
+    const fade = ramp(t, D.length - 0.9, D.length);
     if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
   }
 
@@ -1181,6 +1406,8 @@
     runEvents(t);
     // Nothing of the city is visible under the cold open's matte.
     R.skip = D.ff || t < M.reveal - 0.1;
+    R.rate = rateAt(t + 1 / D.fps);
+    D.showFigure = within(t, M.fly - 0.1, M.agent2);
     if (D.mode === 'cine') placeCamera(t);
     if (D.sky) {
       D.sky.visible = D.mode === 'cine';
@@ -1208,6 +1435,8 @@
     ctx.clearRect(0, 0, W, H);
     composite(ctx, t);
     agent(ctx, D.bg, t);
+    atlas(ctx, t);
+    rising(ctx, t);
     climb(ctx, t);
     challenge(ctx, t);
     vision(ctx, t);
@@ -1216,7 +1445,9 @@
     title(ctx, t);
     coldOpen(ctx, t);
     chrome(ctx, t);
-    for (const at of [M.climb, M.challenge, M.agent, M.potential, M.cta1, M.finale]) wipe(ctx, t, at);
+    for (const at of [M.climb, M.challenge, M.agent, M.agent2, M.cta1, M.finale]) wipe(ctx, t, at);
+    flash(ctx, t, M.fly, 0.5);
+    flash(ctx, t, M.potentialOn, 0.5, '143,232,255');
     flash(ctx, t, M.reveal, 0.25, '230,0,0');
     finish(ctx, t);
   };
