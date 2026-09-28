@@ -137,6 +137,7 @@
       #welcome, #tour, #legend, #journey, #chips, #hint, #touchbar, #modelBadge,
       #explainer, #hover, #asks, #suggest { display: none !important; }
       body.reel-cine .hud, body.reel-cine #bubble, body.reel-cine #caption { display: none !important; }
+      body.reel-ask #bubble, body.reel-ask #caption { visibility: hidden !important; }
       #reelstage { position: fixed; inset: 0; transform-origin: 50% 50%; overflow: hidden; background: #05070d; }
       #reelbg, #reelfx { position: fixed; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
       #reelbg { z-index: 0; } #reelstage { z-index: 1; } #reelfx { z-index: 2; }
@@ -176,6 +177,7 @@
        * camera. */
       if (cam.layers.mask !== 1) {
         if (!D.showFigure) return D.none;
+        faceCamera();
         D.figCam.copy(D.cam);
         D.figCam.layers.mask = cam.layers.mask;
         return D.figCam;
@@ -248,9 +250,11 @@
     document.body.classList.add('reel-cine');
     D.stage.style.transform = ''; D.stage.style.borderRadius = ''; D.stage.style.boxShadow = '';
   }
+  // A key every 70 ms: quick enough to feel typed, slow enough to read.
+  const TYPE = 0.07;
   function typeQuestion(text) {
     const input = document.getElementById('askInput');
-    const start = D.now, per = 0.055;
+    const start = D.now, per = TYPE;
     const step = () => {
       const n = Math.min(text.length, Math.floor((D.now - start) / per) + 1);
       input.value = text.slice(0, n);
@@ -349,6 +353,22 @@
   }
 
   // The guide figure, found in the scene: a group on the figure layer.
+  /* In flight Atlas faces where it is going, and the camera rides behind.
+   * On landing it turns round to the reel's camera, not the product's, so
+   * its face is towards the viewer while the answer builds. Set here, in
+   * the render call, so it wins over the city's own turn to its camera. */
+  function faceCamera() {
+    const fig = figure();
+    const M = D.M;
+    if (!fig || D.now < M.land) { D.faceFrom = null; return; }
+    if (D.faceFrom == null) D.faceFrom = fig.rotation.y;
+    const want = Math.atan2(D.cam.position.x - fig.position.x, D.cam.position.z - fig.position.z);
+    let turn = want - D.faceFrom;
+    while (turn > Math.PI) turn -= Math.PI * 2;
+    while (turn < -Math.PI) turn += Math.PI * 2;
+    fig.rotation.y = D.faceFrom + turn * eio(ramp(D.now, M.land, M.land + 0.7));
+  }
+
   function figure() {
     if (!D.fig) D.fig = R.scene.children.find((o) => o.type === 'Group' && o.layers.mask === 2);
     return D.fig;
@@ -963,7 +983,7 @@
     rise(ctx, 'categories', 150, 670, { t, tin: M.many + 0.3, tout: M.spend - 0.2, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
     const n2 = Math.round(count(0, tot.spend_eur / 1e6, t, M.spend, 2.0));
     rise(ctx, `€${n2}M`, 142, 590, { t, tin: M.spend, tout: txtOut, size: 250, weight: 800, ls: -8, stagger: 0.04 });
-    rise(ctx, 'of spend, this year', 150, 670, { t, tin: M.spend + 0.3, tout: txtOut, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
+    rise(ctx, 'of spend, year to date', 150, 670, { t, tin: M.spend + 0.3, tout: txtOut, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
     typed(ctx, `${f.districts.length} DISTRICTS · ${f.plots} PLOTS · ${tot.categories} LOTS`, 150, 740, t, M.spend + 1.6, { size: 20, color: INK, alpha: 0.6, tout: txtOut });
 
     // What a blueprint is, while the plots find their places.
@@ -1211,21 +1231,34 @@
     for (let x = -off; x < W; x += 60) { bg.beginPath(); bg.moveTo(x, 0); bg.lineTo(x, H); bg.stroke(); }
     for (let y = -off; y < H; y += 60) { bg.beginPath(); bg.moveTo(0, y); bg.lineTo(W, y); bg.stroke(); }
 
+    // The question is the moment: the camera pushes in on the ask box while
+    // it is typed, and holds there until the cut into the city.
+    const zin = a === M.agent ? M.ask - 0.35 : a + 0.1;
+    const z = eio(ramp(t, zin, zin + 0.5));
+    const box = askBox();
+    const S = Math.min(2.6, 1250 / box.w);
+    const Tx = W / 2 - W / 2 - S * (box.x - W / 2);
+    // Centred, unless that would lift the stage's bottom edge into frame.
+    const Ty = Math.max(H * 0.56, H - S * (H - box.y)) - H / 2 - S * (box.y - H / 2);
+    // Only the question: the last answer's caption is about another lot.
+    document.body.classList.toggle('reel-ask', z > 0);
+
     const into = eo5(ramp(t, a - 0.1, a + 0.9));
     const fill = ei(ramp(t, b - 0.55, b));
     const sc = lerp(lerp(0.86, 0.7, into), 1.08, fill);
     const tx = lerp(235, 0, fill);
     const ry = lerp(lerp(13, 7, ramp(t, a, b)), 0, fill);
     const rx = lerp(3, 0, fill);
-    D.stage.style.transform = `perspective(2600px) translateX(${tx}px) rotateY(${ry}deg) rotateX(${rx}deg) scale(${sc})`;
-    D.stage.style.borderRadius = `${lerp(18, 0, fill)}px`;
-    D.stage.style.boxShadow = `0 40px 120px rgba(0,0,0,${0.7 * (1 - fill)}), 0 0 0 1px rgba(255,255,255,${0.12 * (1 - fill)})`;
+    D.stage.style.transform = `perspective(2600px) translate(${lerp(tx, Tx, z)}px, ${lerp(0, Ty, z)}px) rotateY(${lerp(ry, 0, z)}deg) rotateX(${lerp(rx, 0, z)}deg) scale(${lerp(sc, S, z)})`;
+    const edge = Math.max(fill, z);
+    D.stage.style.borderRadius = `${lerp(18, 0, edge)}px`;
+    D.stage.style.boxShadow = `0 40px 120px rgba(0,0,0,${0.7 * (1 - edge)}), 0 0 0 1px rgba(255,255,255,${0.12 * (1 - edge)})`;
 
-    const out = b - 0.6;
+    const out = Math.min(b - 0.6, zin);
     typed(ctx, a === M.agent ? 'MEET ATLAS · THE CITY\'S AI AGENT' : 'ASK ATLAS', 90, 240, t, a + 0.4, { size: 16, tout: out });
     const lines = a === M.agent
-      ? [[a + 3.0, 'Ask in plain', 'English.'], [M.ask + 0.1, `"${D.facts.askFor}"`, '']]
-      : [[M.ask2 + 0.1, 'What could', 'we build?']];
+      ? [[a + 3.0, 'Ask in plain', 'English.']]
+      : [];
     lines.forEach(([tin, l1, l2], i) => {
       const y = 330 + i * 150;
       const al = ramp(t, tin, tin + 0.3) * (1 - ramp(t, out, out + 0.3));
@@ -1239,6 +1272,18 @@
         if (l2) rise(ctx, l2, 110, y + 56, { t, tin: tin + 0.1, tout: out, size: 36, weight: 700, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.7)' });
       }
     });
+  }
+
+  // Where the ask box sits on the untransformed stage, measured once.
+  function askBox() {
+    if (!D.askBox) {
+      const keep = D.stage.style.transform;
+      D.stage.style.transform = '';
+      const r = document.getElementById('ask').getBoundingClientRect();
+      D.stage.style.transform = keep;
+      D.askBox = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.max(200, r.width) };
+    }
+    return D.askBox;
   }
 
   // Atlas in flight, named; then the answer, as the lot builds.

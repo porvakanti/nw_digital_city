@@ -417,7 +417,7 @@ def compose() -> dict[str, np.ndarray]:
     pads_over(M["agent"], M["fly"], PROG_MINOR, M["agent"], cutoff=2200, gain=0.45)
     layer(M["agent"], M["fly"] - 0.2, M["agent"], kick_on=True, hats=True, pulse=0.6, arp=0.5, intensity=0.6)
     for i in range(len("Batteries")):
-        place(fx, keyclick(), M["ask"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+        place(fx, keyclick(), M["ask"] + i * 0.07, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
     # The flight: everything drops to a long swell, and the landing hits.
     flight = M["land"] - M["fly"]
     place(fx, riser(flight + 0.2), M["fly"] - 0.2, 0.65)
@@ -432,7 +432,7 @@ def compose() -> dict[str, np.ndarray]:
     place(pads, pad(["D3", "A3", "D4"], M["potentialOn"] - M["agent2"], cutoff=1400, attack=0.4, release=0.3), M["agent2"], 0.5)
     q = "What could we build?"
     for i in range(len(q)):
-        place(fx, keyclick(), M["ask2"] + i * 0.055, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+        place(fx, keyclick(), M["ask2"] + i * 0.07, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
 
     # ---- the city we could be.
     hit(M["potentialOn"], 0.8, 5.0, 1.2)
