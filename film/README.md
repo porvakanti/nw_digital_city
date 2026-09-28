@@ -102,9 +102,11 @@ write a blueprint, use it, and let AI build on it. Five acts:
 | The agent | The product on a floating stage. Atlas is asked for Batteries and flies across the city to build it; then asked what could be built, and the city it could be rises |
 | The vision | The lift from using what is written, then write it, use it, let AI build on it |
 
-Version 3 is what `film/reel/` builds now: 150 seconds. Version 2 is commit
-`b5d118d` and version 1 is commit `8ff73ad`; check either out and run the
-same command to rebuild it. Version 3 says Networks Digital City, flies the
+Version 4 is what `film/reel/` builds now: 150 seconds. Version 3 is commit
+`64c7da2`, version 2 is commit `b5d118d` and version 1 is commit `8ff73ad`;
+check any of them out and run the same command to rebuild it. Version 4
+calls the spend year to date, pushes in on the ask box while each question
+is typed, and turns Atlas to face the camera once it lands. Version 3 says Networks Digital City, flies the
 night mode roof to roof past the eight reactors and the four lit landmarks,
 follows Atlas, the guide figure, as it is asked for Batteries and flies
 across the city to build it, and sweeps through the city it could be as it
