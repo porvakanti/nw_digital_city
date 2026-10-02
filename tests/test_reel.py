@@ -133,5 +133,45 @@ class TestReel(unittest.TestCase):
         self.assertEqual(named - codes, set(), "director.js names a lot city.json no longer has")
 
 
+class TestTeaser(unittest.TestCase):
+    """The teaser goes to leaders outside Networks: generic, and no spend."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.teaser = json.loads((REEL / "teaser.json").read_text(encoding="utf-8"))
+        cls.reel = json.loads((REEL / "cues.json").read_text(encoding="utf-8"))
+        cls.said = " ".join(line["text"] for line in cls.teaser["lines"]).lower()
+
+    def test_it_is_called_digital_city_not_networks(self):
+        self.assertIn("digital city", self.said)
+        self.assertNotIn("networks", self.said)
+
+    def test_it_never_mentions_the_spend(self):
+        for word in ("million", "euro", "spend", "€"):
+            self.assertNotIn(word, self.said)
+
+    def test_the_spend_is_cut_out_of_the_picture(self):
+        """The cold open shows the spend from its mark on; no cut may reach it."""
+        spend, reveal = self.reel["marks"]["spend"], self.reel["marks"]["reveal"]
+        for c in self.teaser["cuts"]:
+            self.assertFalse(c["from"] < reveal and c["to"] > spend,
+                             f"cut {c['id']} shows the spend")
+
+    def test_the_cuts_run_end_to_end_in_order(self):
+        cuts = self.teaser["cuts"]
+        self.assertEqual(cuts[0]["at"], 0)
+        for a, b in zip(cuts, cuts[1:]):
+            self.assertAlmostEqual(a["at"] + a["to"] - a["from"], b["at"], places=6)
+            self.assertLessEqual(a["to"], b["from"], "the reel only runs forwards")
+        last = cuts[-1]
+        self.assertAlmostEqual(last["at"] + last["to"] - last["from"], self.teaser["length"], places=6)
+        self.assertLessEqual(self.teaser["length"], 60)
+
+    def test_the_narration_is_in_order_and_inside_the_teaser(self):
+        at = [line["at"] for line in self.teaser["lines"]]
+        self.assertEqual(at, sorted(at))
+        self.assertLess(at[-1], self.teaser["length"] - 3)
+
+
 if __name__ == "__main__":
     unittest.main()

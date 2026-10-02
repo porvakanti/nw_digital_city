@@ -2,6 +2,12 @@
  *
  *   node film/reel/capture.js --from 0 --to 120 --out film/out/reel/picture.mp4
  *   node film/reel/capture.js --stills 5,17.5,48 --dir film/out/reel/stills
+ *   node film/reel/capture.js --teaser --cuts title,draft --out part.mp4
+ *   node film/reel/capture.js --teaser --stills 10,30 --dir stills
+ *
+ * With --teaser the frames are the spans listed in teaser.json, played in
+ * order with the gaps between them fast-forwarded; --stills then takes
+ * teaser times.
  *
  * The page runs on the virtual clock in clock.js, so each frame is exactly
  * 1/fps after the last however long the software renderer takes to draw it.
@@ -23,6 +29,15 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
   if (a.startsWith('--')) acc.push([a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : true]);
   return acc;
 }, []));
+
+const teaser = args.teaser ? JSON.parse(fs.readFileSync(path.join(__dirname, 'teaser.json'), 'utf8')) : null;
+const captionsFile = path.join(ROOT, 'film', 'out', 'teaser', 'captions.json');
+// Teaser time to reel time.
+function reelTime(T) {
+  const c = teaser.cuts.find((x) => T >= x.at - 1e-6 && T < x.at + x.to - x.from + 1e-6);
+  if (!c) throw new Error(`teaser time ${T} is in no cut`);
+  return c.from + (T - c.at);
+}
 
 function findChromium() {
   const bundled = (() => { try { return chromium.executablePath(); } catch { return null; } })();
@@ -73,6 +88,10 @@ const b64 = (file) => fs.readFileSync(path.join(__dirname, file)).toString('base
     marks: cues.marks,
     fps: FPS,
     length: cues.length,
+    cut: teaser ? {
+      cuts: teaser.cuts, marks: teaser.marks, length: teaser.length,
+      captions: fs.existsSync(captionsFile) ? JSON.parse(fs.readFileSync(captionsFile, 'utf8')) : [],
+    } : null,
     mark,
     fonts: [
       { family: 'Inter Tight', data: b64('fonts/inter-tight-latin-wght-normal.woff2'), descriptors: { weight: '100 900' } },
@@ -103,38 +122,47 @@ const b64 = (file) => fs.readFileSync(path.join(__dirname, file)).toString('base
   if (args.stills) {
     const dir = path.resolve(args.dir || path.join(ROOT, 'film', 'out', 'reel', 'stills'));
     fs.mkdirSync(dir, { recursive: true });
-    const times = String(args.stills).split(',').map(Number).sort((a, b) => a - b);
-    for (const t of times) {
+    const asked = String(args.stills).split(',').map(Number).sort((a, b) => a - b);
+    for (const shown of asked) {
+      const t = teaser ? reelTime(shown) : shown;
       const n = Math.round(t * FPS);
       // Fast-forward to a second before the still, then play into it, so
       // anything animated has its real history.
       await seek(Math.max(0, n - FPS), true);
       await seek(n, false);
       await step();
-      fs.writeFileSync(path.join(dir, `t${t.toFixed(2).padStart(6, '0')}.jpg`), await shoot());
-      console.log(`still ${t}`);
+      fs.writeFileSync(path.join(dir, `t${shown.toFixed(2).padStart(6, '0')}.jpg`), await shoot());
+      console.log(`still ${shown}`);
     }
     await browser.close();
     return;
   }
 
-  const from = Math.round(Number(args.from || 0) * FPS);
-  const to = Math.round(Number(args.to || cues.length) * FPS);
+  // The spans to render, in reel frames.
+  let spans = [[Math.round(Number(args.from || 0) * FPS), Math.round(Number(args.to || cues.length) * FPS)]];
+  if (teaser) {
+    const ids = args.cuts ? String(args.cuts).split(',') : teaser.cuts.map((c) => c.id);
+    spans = teaser.cuts.filter((c) => ids.includes(c.id)).map((c) => [Math.round(c.from * FPS), Math.round(c.to * FPS)]);
+  }
+  const total = spans.reduce((s, [a, b]) => s + b - a, 0);
   const out = path.resolve(args.out || path.join(ROOT, 'film', 'out', 'reel', 'picture.mp4'));
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  await seek(from, true);
   const enc = spawn(ffmpegPath(), ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS),
     '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '14',
     '-pix_fmt', 'yuv420p', '-r', String(FPS), out], { stdio: ['pipe', 'inherit', 'inherit'] });
   const started = Date.now();
-  for (let n = from; n < to; n++) {
-    await step();
-    const jpg = await shoot();
-    if (!enc.stdin.write(jpg)) await new Promise((r) => enc.stdin.once('drain', r));
-    if ((n - from) % 60 === 0) {
-      const done = n - from + 1;
-      const rate = (Date.now() - started) / done;
-      console.log(`frame ${n} (${(n / FPS).toFixed(1)}s) · ${(rate / 1000).toFixed(2)}s/frame · ~${Math.round((to - n) * rate / 60000)} min left`);
+  let done = 0;
+  for (const [from, to] of spans) {
+    await seek(from, true);
+    for (let n = from; n < to; n++) {
+      await step();
+      const jpg = await shoot();
+      if (!enc.stdin.write(jpg)) await new Promise((r) => enc.stdin.once('drain', r));
+      done++;
+      if ((done - 1) % 60 === 0) {
+        const rate = (Date.now() - started) / done;
+        console.log(`frame ${n} (${(n / FPS).toFixed(1)}s) · ${(rate / 1000).toFixed(2)}s/frame · ~${Math.round((total - done) * rate / 60000)} min left`);
+      }
     }
   }
   enc.stdin.end();

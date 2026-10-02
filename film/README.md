@@ -233,6 +233,27 @@ It writes `film/out/NW-Digital-City-Reel.mp4`: 1920x1080, 30 fps, AAC
 stereo. Like the silent film, it is not tracked; it is rebuilt with the
 command above or distributed outside the repository.
 
+## The teaser
+
+A 53-second cut of the reel for leaders outside Networks: it is called
+Digital City, never says Networks and never shows the spend. Its message is
+the game itself: the more a category adopts, the higher it climbs, from
+traditional to autonomous, and a district league turns that into a
+competition. `teaser.json` lists the spans of the reel it is cut from, its
+own narration and its marks; the city and the camera are the reel's, and the
+director draws the teaser's graphics, burned-in captions and transitions
+over them. The tests check that no span reaches the spend and that the
+narration never names Networks.
+
+```
+python3 film/reel/teaser.py             narration, captions, score, picture, mix
+python3 film/reel/teaser.py audio       narration, captions, score and mix only
+python3 film/reel/teaser.py picture     the picture only
+python3 film/reel/teaser.py mux         join a picture and a mix already on disk
+```
+
+It writes `film/out/Digital-City-Teaser.mp4`, small enough to send as it is.
+
 ## What is in `film/reel/`
 
 | File | What it does |
@@ -243,6 +264,7 @@ command above or distributed outside the repository.
 | `capture.js` | Drives Chromium: loads the renderer from disk, advances the clock, screenshots each frame and pipes it to the encoder. Also renders single stills for review |
 | `voice.py` | Synthesises each narration line with a neural voice, cached by its text |
 | `music.py` | Synthesises the score from nothing: 120 bpm in D minor, cut to the same marks as the picture, one layer added per rung of the climb |
+| `teaser.json`, `teaser.py` | The teaser's cut list, narration and marks, and its build: captions timed from the narration, its own score, the cuts rendered in parallel |
 | `build.py` | Runs the above, renders the picture in parts in parallel, mixes the narration over the score with the score ducked under it, and muxes |
 | `fonts/` | Inter Tight and JetBrains Mono, both under the SIL Open Font License |
 

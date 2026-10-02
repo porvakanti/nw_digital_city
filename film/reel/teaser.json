@@ -1,0 +1,49 @@
+{
+  "fps": 30,
+  "length": 53.0,
+  "bpm": 120,
+  "voice": "en-GB-SoniaNeural",
+  "rate": "-2%",
+  "pitch": "+0Hz",
+  "cuts": [
+    {"id": "promise", "at": 0.0,  "from": 0.4,   "to": 8.6,   "in": "none"},
+    {"id": "title",   "at": 8.2,  "from": 16.9,  "to": 21.9,  "in": "wipe"},
+    {"id": "draft",   "at": 13.2, "from": 27.9,  "to": 30.9,  "in": "wipe"},
+    {"id": "live",    "at": 16.2, "from": 31.5,  "to": 34.7,  "in": "flash"},
+    {"id": "used",    "at": 19.4, "from": 35.9,  "to": 39.5,  "in": "flash"},
+    {"id": "top",     "at": 23.0, "from": 45.2,  "to": 49.6,  "in": "flash"},
+    {"id": "league",  "at": 27.4, "from": 57.4,  "to": 64.4,  "in": "wipe"},
+    {"id": "night",   "at": 34.4, "from": 66.0,  "to": 72.2,  "in": "wipe"},
+    {"id": "rising",  "at": 40.6, "from": 112.0, "to": 118.4, "in": "flash"},
+    {"id": "end",     "at": 47.0, "from": 137.0, "to": 143.0, "in": "wipe"}
+  ],
+  "marks": {
+    "title": 9.5,
+    "draft": 13.2,
+    "live": 16.2,
+    "used": 19.4,
+    "top": 23.0,
+    "league": 27.4,
+    "race": 27.8,
+    "compete": 31.2,
+    "night": 34.4,
+    "rising": 40.6,
+    "end": 47.0,
+    "card": 47.5
+  },
+  "lines": [
+    {"id": "t01", "at": 0.8,  "text": "Imagine procurement as a city."},
+    {"id": "t02", "at": 3.9,  "text": "Every category we buy is a plot of land."},
+    {"id": "t03", "at": 8.6,  "text": "Welcome to Digital City, where adoption is a game."},
+    {"id": "t04", "at": 13.4, "text": "Write a blueprint, and you stake your claim."},
+    {"id": "t05", "at": 16.4, "text": "Take it live, and your building rises."},
+    {"id": "t06", "at": 19.6, "text": "Use it, let A.I. write the brief, and the lights come on."},
+    {"id": "t07", "at": 23.5, "text": "The more you adopt, the higher you climb, from traditional to autonomous."},
+    {"id": "t08", "at": 28.1, "text": "Every district sees exactly where it stands."},
+    {"id": "t09", "at": 31.2, "text": "And healthy competition drives adoption."},
+    {"id": "t10", "at": 34.7, "text": "Switch to night mode, and the leaders light up the skyline."},
+    {"id": "t11", "at": 40.8, "text": "As adoption spreads, the whole city rises."},
+    {"id": "t12", "at": 44.1, "text": "This is how we gamify adoption in V P and C."},
+    {"id": "t13", "at": 47.9, "text": "Digital City. Adoption, gamified."}
+  ]
+}

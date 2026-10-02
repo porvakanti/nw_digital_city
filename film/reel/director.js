@@ -24,6 +24,11 @@
  *
  * Figures are never typed in here. They are read from the city's own data
  * when the reel starts.
+ *
+ * The teaser (teaser.json) is a cut of the same film: a list of spans of the
+ * reel's own time, played in order. The city and the camera run on the reel's
+ * time as they always do; the teaser's graphics, captions and transitions
+ * run on the teaser's, and the reel's own words step aside for them.
  */
 (() => {
   const R = window.__reel;
@@ -122,6 +127,7 @@
     D.M = cfg.marks;
     D.fps = cfg.fps;
     D.length = cfg.length;
+    D.cut = cfg.cut || null;
     for (const f of cfg.fonts) {
       const bytes = Uint8Array.from(atob(f.data), (c) => c.charCodeAt(0));
       const face = new FontFace(f.family, bytes.buffer, f.descriptors || {});
@@ -264,6 +270,15 @@
     };
     step();
   }
+
+  // ------------------------------------------------------------- the teaser
+  // Where reel time t falls in the teaser, or null outside its spans.
+  function teaserAt(t) {
+    if (!D.cut) return null;
+    for (const c of D.cut.cuts) if (t >= c.from - 1e-6 && t < c.to + 1e-6) return c.at + (t - c.from);
+    return null;
+  }
+  const TEASER = () => !!D.cut;
 
   // ------------------------------------------------------------- camera
   const lot = (code) => { const b = D.facts.lots.get(code); return b ? [b.x, b.top, b.z] : [0, 0, 0]; };
@@ -807,7 +822,10 @@
   function chrome(ctx, t) {
     const M = D.M;
     if (t < M.climb - 0.2 || t > M.end) return;
-    const a = ramp(t, M.climb, M.climb + 0.6) * (1 - ramp(t, M.end - 0.6, M.end));
+    let a = ramp(t, M.climb, M.climb + 0.6) * (1 - ramp(t, M.end - 0.6, M.end));
+    const T = teaserAt(t);
+    if (TEASER()) a = T === null ? 0 : 1 - ramp(T, D.cut.marks.end - 0.3, D.cut.marks.end);
+    if (a <= 0) return;
     ctx.save();
     const band = ctx.createLinearGradient(0, 0, 0, 150);
     band.addColorStop(0, `rgba(5,6,10,${0.6 * a})`);
@@ -817,17 +835,19 @@
     ctx.globalAlpha = a;
     ctx.fillStyle = RED;
     ctx.fillRect(64, 44, 14, 14);
-    label(ctx, 'NETWORKS DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
-    const ch = chapters();
+    label(ctx, TEASER() ? 'DIGITAL CITY' : 'NETWORKS DIGITAL CITY', 90, 57, { color: INK, size: 16, alpha: a * 0.85 });
+    const ch = TEASER() ? [] : chapters();
     for (let i = 0; i < ch.length - 1; i++) {
       const [at, num, name] = ch[i];
       const next = ch[i + 1][0];
       if (t < at - 0.1 || t >= next) continue;
       typed(ctx, `${num} \u2014 ${name.toUpperCase()}`, 64, 92, t, at + 0.35, { size: 16, color: INK, alpha: 0.6, tout: next - 0.35 });
     }
-    label(ctx, 'NETWORKS · CATEGORY ESTATE', W - 64, 57, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
+    label(ctx, TEASER() ? 'ADOPTION, GAMIFIED' : 'NETWORKS · CATEGORY ESTATE', W - 64, 57, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
     // The progress line and timecode give way to the climb's rail.
     if (!within(t, M.climb, M.challenge)) {
+      const len = TEASER() ? D.cut.length : D.length;
+      t = TEASER() ? T : t;
       const f = Math.floor(t * D.fps);
       const tc = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}:${String(f % D.fps).padStart(2, '0')}`;
       ctx.globalAlpha = a * 0.18;
@@ -835,7 +855,7 @@
       ctx.fillRect(64, H - 46, W - 128, 2);
       ctx.globalAlpha = a;
       ctx.fillStyle = RED;
-      ctx.fillRect(64, H - 46, (W - 128) * clamp(t / D.length), 2);
+      ctx.fillRect(64, H - 46, (W - 128) * clamp(t / len), 2);
       label(ctx, tc, W - 64, H - 62, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
     }
     ctx.restore();
@@ -921,7 +941,7 @@
     }
 
     // The metaphor, stated before anything is drawn.
-    rise(ctx, 'Imagine Networks procurement', W / 2, 520, { t, tin: 0.8, tout: M.one - 0.5, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -2 });
+    rise(ctx, TEASER() ? 'Imagine procurement' : 'Imagine Networks procurement', W / 2, 520, { t, tin: 0.8, tout: M.one - 0.5, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -2 });
     rise(ctx, 'as a city.', W / 2, 610, { t, tin: 1.9, tout: M.one - 0.45, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -2, color: RED });
 
     /* One plot alone in the middle of the frame; then it takes its place in
@@ -977,7 +997,7 @@
 
     const tot = f.totals;
     const txtOut = M.plan - 0.2;
-    typed(ctx, 'VODAFONE NETWORKS · CATEGORY ESTATE', 150, 340, t, M.many, { size: 20, tout: txtOut });
+    typed(ctx, TEASER() ? 'THE CATEGORY ESTATE' : 'VODAFONE NETWORKS · CATEGORY ESTATE', 150, 340, t, M.many, { size: 20, tout: txtOut });
     const n1 = Math.round(count(0, tot.categories, t, M.many, 1.6));
     rise(ctx, String(n1), 142, 590, { t, tin: M.many, tout: M.spend - 0.2, size: 250, weight: 800, ls: -8, stagger: 0.05 });
     rise(ctx, 'categories', 150, 670, { t, tin: M.many + 0.3, tout: M.spend - 0.2, size: 54, weight: 500, color: 'rgba(255,255,255,0.8)' });
@@ -988,6 +1008,7 @@
 
     // What a blueprint is, while the plots find their places.
     const bOut = M.reveal + 0.3;
+    if (TEASER()) return;
     typed(ctx, 'BLUEPRINT', W / 2, 150, t, M.plan + 0.3, { size: 22, align: 'center', tout: bOut });
     rise(ctx, 'The playbook for how we buy a category.', W / 2, 232, { t, tin: M.plan + 0.9, tout: bOut, size: 56, weight: 700, align: 'center', by: 'word', stagger: 0.06, ls: -1 });
   }
@@ -997,11 +1018,11 @@
     const t0 = M.title, t1 = M.climb - 0.8;
     if (t < t0 - 0.5 || t > M.climb) return;
     scrim(ctx, 'center', ramp(t, t0 - 0.4, t0 + 0.4) * (1 - ramp(t, t1, t1 + 0.6)) * 0.9);
-    rise(ctx, 'NETWORKS DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 144, weight: 800, ls: -4, align: 'center', stagger: 0.03, dur: 0.9 });
+    rise(ctx, TEASER() ? 'DIGITAL CITY' : 'NETWORKS DIGITAL CITY', W / 2, 560, { t, tin: t0, tout: t1, size: 144, weight: 800, ls: -4, align: 'center', stagger: 0.03, dur: 0.9 });
     const bar = eio(ramp(t, t0 + 0.6, t0 + 1.4)) * (1 - eio(ramp(t, t1, t1 + 0.5)));
     ctx.fillStyle = RED;
     ctx.fillRect(W / 2 - 330 * bar, 604, 660 * bar, 8);
-    rise(ctx, 'Every category. One living city.', W / 2, 676, { t, tin: t0 + 1.1, tout: t1, size: 40, weight: 500, align: 'center', by: 'word', stagger: 0.07, color: 'rgba(255,255,255,0.88)' });
+    rise(ctx, TEASER() ? 'Where adoption is a game.' : 'Every category. One living city.', W / 2, 676, { t, tin: t0 + 1.1, tout: t1, size: 40, weight: 500, align: 'center', by: 'word', stagger: 0.07, color: 'rgba(255,255,255,0.88)' });
   }
 
   // ------------------------------------------------------------- act 2
@@ -1131,6 +1152,7 @@
   function challenge(ctx, t) {
     const M = D.M, f = D.facts;
     if (t < M.challenge || t > M.agent) return;
+    if (TEASER() && t < M.lightsOff - 0.7) return;
     const tot = f.totals;
     const out = M.agent - 0.8;
     scrim(ctx, 'center', ramp(t, M.challenge, M.challenge + 0.4) * (1 - ramp(t, M.blueprints - 0.8, M.blueprints - 0.2)) * 0.8);
@@ -1443,6 +1465,140 @@
     if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
   }
 
+  // ------------------------------------------------------------- teaser acts
+  /* The district league. Every district's journey score races up from zero
+   * to where it stands; the bars are given different starts and paces, so the
+   * order shuffles on the way and the leader takes the top late. A row's
+   * place is a soft rank, so rows slide past each other rather than jump. */
+  function league(ctx, T) {
+    const TM = D.cut.marks;
+    if (T < TM.league || T > TM.night) return;
+    const out = TM.night - 0.5;
+    const rows = D.facts.districts.map((d) => ({ name: d.name, total: d.totals.journey.total }))
+      .sort((a, b) => b.total - a.total);
+    // By final place: the leaders start later and run longer.
+    const delay = [0.9, 0.6, 0.35, 0.15, 0.25, 0.0, 0.1, 0.05];
+    const pace = [3.0, 2.7, 2.5, 2.2, 2.4, 1.6, 1.8, 1.4];
+    rows.forEach((r, i) => {
+      const a = TM.race + delay[i % 8], b = a + pace[i % 8];
+      r.v = r.total * eo(ramp(T, a, b));
+    });
+    const top = Math.max(...rows.map((r) => r.total)) * 1.12;
+    const on = ramp(T, TM.league, TM.league + 0.4) * (1 - ramp(T, out, out + 0.4));
+    scrim(ctx, 'left', on, 0.62);
+    typed(ctx, 'THE DISTRICT LEAGUE · JOURNEY SCORE, 0 TO 100', 110, 236, T, TM.league + 0.2, { size: 18, tout: out });
+    const x = 110, y0 = 300, rowH = 66, barX = 640, barW = 360;
+    const lead = rows.reduce((m, r) => (r.v > m.v ? r : m), rows[0]);
+    const settled = ramp(T, TM.race + 4.0, TM.race + 4.4);
+    rows.forEach((r, i) => {
+      let place = 0;
+      for (const o of rows) if (o !== r) place += 1 / (1 + Math.exp(-(o.v - r.v) / 0.06));
+      const y = y0 + place * rowH;
+      const k = eo5(ramp(T, TM.league + 0.3 + i * 0.05, TM.league + 0.9 + i * 0.05)) * (1 - ramp(T, out, out + 0.4));
+      if (k <= 0) return;
+      const isLead = r === lead && r.v > 0.5;
+      const col = isLead ? GOLD : INK;
+      ctx.save();
+      ctx.globalAlpha = k;
+      ctx.translate((1 - k) * -60, 0);
+      ctx.fillStyle = isLead ? 'rgba(255,210,122,0.10)' : 'rgba(255,255,255,0.03)';
+      ctx.fillRect(x - 16, y - 40, barX + barW + 150 - x, rowH - 10);
+      label(ctx, String(Math.round(place) + 1).padStart(2, '0'), x, y, { size: 20, color: isLead ? GOLD : RED, alpha: k });
+      font(ctx, 30, 700, SANS, -0.5);
+      ctx.fillStyle = col;
+      ctx.globalAlpha = k;
+      ctx.fillText(r.name.length > 28 ? r.name.replace('Managed Services and Outsourcing', 'Managed Services') : r.name, x + 56, y + 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(barX, y - 12, barW, 10);
+      ctx.fillStyle = isLead ? GOLD : RED;
+      if (isLead) { ctx.shadowColor = GOLD; ctx.shadowBlur = 18; }
+      ctx.fillRect(barX, y - 12, barW * r.v / top, 10);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+      label(ctx, r.v.toFixed(1), barX + barW * r.v / top + 14, y, { size: 20, color: col, alpha: k });
+      if (isLead && settled > 0) label(ctx, 'LEADING', barX + barW + 20, y - 26, { size: 14, color: GOLD, alpha: k * settled });
+    });
+  }
+
+  // The end card: the name, what it is for, and the four stages.
+  function endCard(ctx, T) {
+    const TM = D.cut.marks;
+    if (T < TM.end) return;
+    const a0 = TM.card;
+    scrim(ctx, 'center', ramp(T, TM.end, TM.end + 0.5) * 0.95);
+    const s = back(ramp(T, a0, a0 + 0.6));
+    const sz = 120 * s;
+    if (sz > 0) {
+      ctx.save();
+      ctx.globalAlpha = ramp(T, a0, a0 + 0.2);
+      ctx.drawImage(D.mark, W / 2 - sz / 2, 330 - sz / 2, sz, sz);
+      ctx.restore();
+    }
+    rise(ctx, 'Digital City', W / 2, 560, { t: T, tin: a0 + 0.35, size: 132, weight: 800, align: 'center', ls: -4, stagger: 0.03 });
+    const line = eio(ramp(T, a0 + 0.9, a0 + 1.6));
+    ctx.fillStyle = RED;
+    ctx.fillRect(W / 2 - 200 * line, 602, 400 * line, 6);
+    rise(ctx, 'This is how we gamify adoption in VP&C.', W / 2, 676, { t: T, tin: a0 + 1.1, size: 42, weight: 600, align: 'center', by: 'word', stagger: 0.06, color: 'rgba(255,255,255,0.9)' });
+    const words = [['TRADITIONAL', 'rgba(255,255,255,0.55)'], ['CONNECTED', INK], ['SMART', CYAN], ['AUTONOMOUS', GOLD]];
+    font(ctx, 20, 500, MONO, 4);
+    const gap = 70;
+    const widths = words.map(([w]) => ctx.measureText(w).width);
+    let x = W / 2 - (widths.reduce((s2, v) => s2 + v, 0) + gap * (words.length - 1)) / 2;
+    words.forEach(([w, col], i) => {
+      const tin = a0 + 2.0 + i * 0.35;
+      typed(ctx, w, x, 770, T, tin, { size: 20, color: col, ls: 4 });
+      if (i < words.length - 1 && T > tin + 0.3) label(ctx, '\u2192', x + widths[i] + gap / 2, 770, { size: 20, color: INK, align: 'center', alpha: 0.5 * ramp(T, tin + 0.3, tin + 0.6) });
+      x += widths[i] + gap;
+    });
+    const fade = ramp(T, D.cut.length - 0.9, D.cut.length);
+    if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
+  }
+
+  /* Captions, burned in, for the many who will watch it muted. One phrase
+   * at a time, on a dark band above the letterbox and the rail. */
+  function captions(ctx, T) {
+    const TM = D.cut.marks;
+    if (T >= TM.end) return;
+    const cap = (D.cut.captions || []).find((c) => T >= c.a && T < c.b);
+    if (!cap) return;
+    const a = ramp(T, cap.a, cap.a + 0.12) * (1 - ramp(T, cap.b - 0.12, cap.b));
+    font(ctx, 36, 600, SANS, 0);
+    const w = ctx.measureText(cap.text).width;
+    const y = H - 190;
+    ctx.save();
+    ctx.globalAlpha = a * 0.72;
+    ctx.fillStyle = '#05060a';
+    const pad = 22;
+    ctx.beginPath();
+    ctx.roundRect(W / 2 - w / 2 - pad, y - 40, w + pad * 2, 56, 10);
+    ctx.fill();
+    ctx.globalAlpha = a;
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'center';
+    ctx.fillText(cap.text, W / 2, y);
+    ctx.restore();
+  }
+
+  function afterTeaser(ctx, t) {
+    const T = teaserAt(t);
+    if (T === null) return;
+    composite(ctx, t);
+    rising(ctx, t);
+    climb(ctx, t);
+    challenge(ctx, t);
+    title(ctx, t);
+    coldOpen(ctx, t);
+    chrome(ctx, t);
+    league(ctx, T);
+    endCard(ctx, T);
+    captions(ctx, T);
+    for (const c of D.cut.cuts) {
+      if (c.in === 'wipe') wipe(ctx, T, c.at);
+      if (c.in === 'flash') flash(ctx, T, c.at, 0.5, c.id === 'rising' ? '143,232,255' : '255,255,255');
+    }
+    finish(ctx, T);
+  }
+
   // ------------------------------------------------------------- the frame
   // Before the frame renders: the city's state, the camera, the sky.
   D.before = function before(t) {
@@ -1478,6 +1634,7 @@
     const M = D.M;
     const ctx = D.ctx;
     ctx.clearRect(0, 0, W, H);
+    if (TEASER()) { afterTeaser(ctx, t); return; }
     composite(ctx, t);
     agent(ctx, D.bg, t);
     atlas(ctx, t);
