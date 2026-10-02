@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
+RNG = np.random.default_rng(11)
 ROOT = HERE.parent.parent
 OUT = ROOT / "film" / "out" / "teaser"
 FINAL = ROOT / "film" / "out" / "Digital-City-Teaser.mp4"
@@ -208,13 +209,27 @@ def compose() -> dict[str, np.ndarray]:
     # ---- the league: the race, at full tilt, and the winner.
     o = TM["league"]
     hit(o, 0.8, 2.5, 0.9)
-    pads_over(o, TM["rising"], m.PROG_LIFT, o, cutoff=3200, gain=0.55)
-    layer(o, TM["rising"] - 0.3, o, kick_on=True, hats=True, hats16=True, clap_on=True, pulse=1.0, arp=1.0,
+    pads_over(o, TM["atlas"], m.PROG_LIFT, o, cutoff=3200, gain=0.55)
+    layer(o, TM["atlas"] - 0.3, o, kick_on=True, hats=True, hats16=True, clap_on=True, pulse=1.0, arp=1.0,
           intensity=1.1, prog=m.PROG_LIFT)
     for t in m.beats(TM["race"], TM["leader"], BEAT / 4):
         m.place(fx, m.tick(), t, 0.12, pan=0.4 if round(t / (BEAT / 4)) % 2 else -0.4)
     sting(TM["leader"], ["A5", "D6", "F#6", "A6"], 0.3)
     hit(TM["leader"], 0.6, 2.5, 0.5)
+
+    # ---- Atlas: keys, the flight slowed to a long swell, the landing.
+    o = TM["atlas"]
+    m.place(pads, m.pad(["D3", "A3", "D4"], TM["fly"] - o, cutoff=1400, attack=0.1, release=0.3), o, 0.5)
+    for t in m.beats(o, TM["fly"] - 0.3, BEAT):
+        add_kick(t, 0.5)
+    for i in range(len("Batteries")):
+        m.place(fx, m.keyclick(), TM["ask"] + i * 0.07, 0.35 * (0.7 + 0.3 * RNG.random()), pan=RNG.uniform(-0.2, 0.2))
+    flight = TM["land"] - TM["fly"]
+    m.place(fx, m.riser(flight + 0.2), TM["fly"] - 0.2, 0.65)
+    m.place(pads, m.pad(["D3", "A3", "D4", "E4", "A4"], flight, cutoff=2600, attack=0.4, release=0.6), TM["fly"], 0.7)
+    m.place(bass, m.sub("D1", flight, 0.4), TM["fly"])
+    hit(TM["land"], 0.9, 3.5, 0.6)
+    sting(TM["land"] + 0.3, ["D5", "F#5", "A5", "D6"], 0.25)
     m.place(fx, m.riser(1.4), TM["rising"] - 1.4, 0.45)
 
     # ---- the city rising.

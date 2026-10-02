@@ -143,7 +143,7 @@
       #welcome, #tour, #legend, #journey, #chips, #hint, #touchbar, #modelBadge,
       #explainer, #hover, #asks, #suggest { display: none !important; }
       body.reel-cine .hud, body.reel-cine #bubble, body.reel-cine #caption { display: none !important; }
-      body.reel-ask #bubble, body.reel-ask #caption { visibility: hidden !important; }
+      body.reel-ask #bubble, body.reel-ask #caption, body.reel-ask #inspector { visibility: hidden !important; }
       #reelstage { position: fixed; inset: 0; transform-origin: 50% 50%; overflow: hidden; background: #05070d; }
       #reelbg, #reelfx { position: fixed; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
       #reelbg { z-index: 0; } #reelstage { z-index: 1; } #reelfx { z-index: 2; }
@@ -1193,9 +1193,13 @@
       for (let k = 1; k <= 3; k++) {
         const now = stageOf(f.byCode.get(codes[k]).journey.total);
         const before = stageOf(f.byCode.get(codes[k - 1]).journey.total);
-        if (now !== before) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'LEVEL UP', now.name.toUpperCase(), k === 3 ? GOLD : RED);
+        // AI is what this rung adds, so it is a power-up; the last level is
+        // kept for the top.
+        if (k === 3) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'POWER-UP', 'AI SWITCHED ON', CYAN);
+        else if (now !== before) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'LEVEL UP', now.name.toUpperCase(), RED);
       }
-      badge(ctx, t, M.hero + 1.0, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
+      badge(ctx, t, M.hero + 0.8, M.hero + 2.2, 'LEVEL UP', 'AUTONOMOUS', GOLD);
+      badge(ctx, t, M.hero + 2.4, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
     }
 
     // The letterbox and the rail in it go over everything in the frame.
@@ -1406,7 +1410,7 @@
         ctx.strokeStyle = RED; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] + 40, p[1] - 40); ctx.lineTo(p[0] + 150, p[1] - 40); ctx.stroke();
         ctx.restore();
-        label(ctx, 'ATLAS', p[0] + 46, p[1] - 50, { size: 20, color: INK, alpha: k });
+        label(ctx, TEASER() ? 'ATLAS · AI GUIDE' : 'ATLAS', p[0] + 46, p[1] - 50, { size: 20, color: INK, alpha: k });
       }
     }
     const c = f.byCode.get(f.answer);
@@ -1419,7 +1423,7 @@
     font(ctx, 150, 800, SANS, -6);
     rise(ctx, '/ 100', 110 + ctx.measureText(num).width + 10, 640, { t, tin: tin + 0.4, tout: out, size: 40, weight: 600, color: 'rgba(255,255,255,0.6)' });
     meters(ctx, c, 110, 710, t, tin + 0.5, out);
-    typed(ctx, `LIVE IN ${(c.markets || []).length} MARKETS · ${money(c.metrics.spend_eur)} OF SPEND`, 110, 850, t, tin + 1.2, { size: 18, color: INK, alpha: 0.75, tout: out });
+    typed(ctx, TEASER() ? `LIVE IN ${(c.markets || []).length} MARKETS` : `LIVE IN ${(c.markets || []).length} MARKETS · ${money(c.metrics.spend_eur)} OF SPEND`, 110, 850, t, tin + 1.2, { size: 18, color: INK, alpha: 0.75, tout: out });
   }
 
   // The city it could be, as it rises.
@@ -1554,8 +1558,8 @@
    * place is a soft rank, so rows slide past each other rather than jump. */
   function league(ctx, T) {
     const TM = D.cut.marks;
-    if (T < TM.league || T > TM.rising) return;
-    const out = TM.rising - 0.5;
+    if (T < TM.league || T > TM.atlas) return;
+    const out = TM.atlas - 0.5;
     const rows = D.facts.districts.map((d) => ({ name: d.name, total: d.totals.journey.total }))
       .sort((a, b) => b.total - a.total);
     // By final place: the leaders start later and run longer.
@@ -1719,6 +1723,8 @@
     const T = teaserAt(t);
     if (T === null) return;
     composite(ctx, t);
+    agent(ctx, D.bg, t);
+    atlas(ctx, t);
     rising(ctx, t);
     climb(ctx, t);
     title(ctx, t);
@@ -1734,6 +1740,7 @@
         const k = 1 - Math.abs(T - c.at) / 0.3;
         if (k > 0) { ctx.fillStyle = `rgba(0,0,0,${eio(k)})`; ctx.fillRect(0, 0, W, H); }
       }
+      if (c.id === 'atlas') flash(ctx, t, D.M.fly, 0.5);
       if (c.in === 'black') {
         const k = 1 - ramp(T, c.at, c.at + 0.7);
         if (k > 0) { ctx.fillStyle = `rgba(0,0,0,${k})`; ctx.fillRect(0, 0, W, H); }
