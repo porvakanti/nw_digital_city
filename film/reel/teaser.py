@@ -78,7 +78,8 @@ def narration() -> tuple[np.ndarray, list[dict]]:
 
 def phrases(text: str, most: int = 44) -> list[str]:
     """A line broken into caption-sized phrases, at punctuation where it can."""
-    text = text.replace("A.I.", "AI").replace("V P and C", "VP&C")
+    # The narration is spelled for the voice; the captions as written.
+    text = text.replace("A.I.", "AI").replace("V P and C", "VP&C").replace("gaymif", "gamif")
     parts = [p.strip() for p in re.split(r"(?<=[,.])\s+", text) if p.strip()]
     out: list[str] = []
     for p in parts:
