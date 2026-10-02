@@ -67,7 +67,8 @@ def narration() -> tuple[np.ndarray, list[dict]]:
         i = int(line["at"] * SR)
         j = min(n, i + len(x))
         vo[i:j] += x[: j - i]
-        spoken.append({"at": line["at"], "dur": (b - a) / SR, "text": line["text"]})
+        spoken.append({"at": line["at"], "dur": (b - a) / SR, "text": line["text"],
+                        "caption": line.get("caption", True)})
     vo = music.highpass(vo, 85)
     vo = vo + music.bandpass(vo, 2500, 6000) * 0.25
     vo = build.compress(vo, threshold=0.18, ratio=3.0)
@@ -94,6 +95,9 @@ def captions(spoken: list[dict]) -> list[dict]:
     """Each phrase on screen for its share of the line, by length."""
     caps = []
     for k, s in enumerate(spoken):
+        # A line already on screen in big type needs no caption under it.
+        if not s["caption"]:
+            continue
         ps = phrases(s["text"])
         weights = np.array([len(p) for p in ps], float)
         edges = s["at"] + np.concatenate([[0], np.cumsum(weights)]) / weights.sum() * s["dur"]
@@ -154,18 +158,18 @@ def compose() -> dict[str, np.ndarray]:
                 m.place(keys, m.pluck(m.hz(seq[step % 8]), 0.3, 2500 + 3000 * arp), t, 0.22 * arp,
                         pan=0.35 * np.sin(step * 0.7))
 
-    title = CUES["cuts"][1]["at"]
-    # ---- the promise: one plot, then all of them.
-    m.place(pads, m.pad(["D2", "A2", "D3"], title - 0.2, cutoff=500, attack=3.0, release=1.2), 0.0, 0.8)
-    m.place(bass, m.sub("D1", title, 0.35), 0.0)
-    m.place(keys, m.bell(m.hz("A4"), 4.0), 0.8, 0.22)
-    m.place(keys, m.bell(m.hz("A5"), 4.0), 3.9, 0.3)
-    for t in m.beats(6.6, title - 0.6, BEAT / 4):
-        g = 0.18 if (round(t / (BEAT / 4)) % 4) else 0.32
+    title = TM["title"]
+    # ---- the hook: a low drone and a riser, the question, then the hit.
+    m.place(pads, m.pad(["D2", "A2", "D3"], title, cutoff=600, attack=0.6, release=0.4), 0.0, 0.8)
+    m.place(bass, m.sub("D1", title, 0.4), 0.0)
+    m.place(fx, m.boom(2.5), 0.05, 0.5)
+    m.place(keys, m.bell(m.hz("A4"), 3.0), 0.45, 0.22)
+    m.place(keys, m.bell(m.hz("D5"), 3.0), 1.45, 0.26)
+    for t in m.beats(1.8, title - 0.1, BEAT / 4):
+        g = 0.12 + 0.25 * (t - 1.8) / (title - 1.8)
         m.place(fx, m.tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
-    m.place(fx, m.boom(2.5), 6.6, 0.4)
-    m.place(fx, m.riser(2.5), title - 2.5, 0.55)
-    hit(title, 0.9, 4.0, 1.4)
+    m.place(fx, m.riser(title - 0.3), 0.3, 0.6)
+    hit(title, 1.0, 4.0, 1.0)
 
     # ---- the title.
     m.place(pads, m.pad(["D3", "A3", "D4", "E4", "A4"], TM["draft"] - title, cutoff=2600, attack=0.3), title, 0.9)
@@ -182,6 +186,8 @@ def compose() -> dict[str, np.ndarray]:
     layer(TM["used"], TM["top"], o, pulse=1.0, hats=True, hats16=True, kick_on=True, clap_on=True, arp=0.9)
     for k in ("live", "used"):
         m.place(fx, m.switch(), TM[k], 0.5)
+    m.place(keys, m.bell(m.hz("A5"), 3.0), TM["ai"], 0.3)
+    m.place(keys, m.bell(m.hz("E6"), 3.0), TM["ai"] + 0.12, 0.2)
     m.place(fx, m.riser(1.6), TM["top"] - 1.6, 0.5)
     hit(TM["top"] + 0.3, 1.0, 4.0, 0.8)
     layer(TM["top"] + 0.3, TM["league"] - 0.3, o, pulse=1.0, hats=True, kick_on=True, arp=1.0, intensity=1.0, prog=m.PROG_LIFT)
