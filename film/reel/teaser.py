@@ -164,11 +164,13 @@ def compose() -> dict[str, np.ndarray]:
     m.place(bass, m.sub("D1", title, 0.4), 0.0)
     m.place(fx, m.boom(2.5), 0.05, 0.5)
     m.place(keys, m.bell(m.hz("A4"), 3.0), 0.45, 0.22)
-    m.place(keys, m.bell(m.hz("D5"), 3.0), 1.45, 0.26)
-    for t in m.beats(1.8, title - 0.1, BEAT / 4):
-        g = 0.12 + 0.25 * (t - 1.8) / (title - 1.8)
+    m.place(keys, m.bell(m.hz("D5"), 3.0), 3.9, 0.26)
+    # The grid of plots ticks in, faster and louder into the name.
+    for t in m.beats(6.6, title - 0.1, BEAT / 4):
+        g = 0.12 + 0.25 * (t - 6.6) / (title - 6.6)
         m.place(fx, m.tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
-    m.place(fx, m.riser(title - 0.3), 0.3, 0.6)
+    m.place(fx, m.boom(2.5), 6.6, 0.4)
+    m.place(fx, m.riser(3.0), title - 3.0, 0.6)
     hit(title, 1.0, 4.0, 1.0)
 
     # ---- the title.
@@ -192,28 +194,28 @@ def compose() -> dict[str, np.ndarray]:
     hit(TM["top"] + 0.3, 1.0, 4.0, 0.8)
     layer(TM["top"] + 0.3, TM["league"] - 0.3, o, pulse=1.0, hats=True, kick_on=True, arp=1.0, intensity=1.0, prog=m.PROG_LIFT)
 
-    # ---- the league: the race, at full tilt.
+    # ---- the game sounds: a level up is a rising arpeggio, the achievement
+    # a brighter one with a hit under it.
+    def sting(at, notes, gain=0.3):
+        for i, n in enumerate(notes):
+            m.place(keys, m.pluck(m.hz(n), 0.5, 6000), at + i * 0.07, gain)
+            m.place(keys, m.bell(m.hz(n), 1.5), at + i * 0.07, gain * 0.5)
+    sting(TM["level1"], ["D5", "F5", "A5", "D6"])
+    sting(TM["level2"], ["D5", "F5", "A5", "D6", "F6"])
+    sting(TM["achieve"], ["A5", "D6", "F#6", "A6", "D7"], 0.32)
+    hit(TM["achieve"], 0.7, 3.0, 0.6)
+
+    # ---- the league: the race, at full tilt, and the winner.
     o = TM["league"]
     hit(o, 0.8, 2.5, 0.9)
-    pads_over(o, TM["night"], m.PROG_LIFT, o, cutoff=3200, gain=0.55)
-    layer(o, TM["night"] - 0.3, o, kick_on=True, hats=True, hats16=True, clap_on=True, pulse=1.0, arp=1.0,
+    pads_over(o, TM["rising"], m.PROG_LIFT, o, cutoff=3200, gain=0.55)
+    layer(o, TM["rising"] - 0.3, o, kick_on=True, hats=True, hats16=True, clap_on=True, pulse=1.0, arp=1.0,
           intensity=1.1, prog=m.PROG_LIFT)
-    for t in m.beats(TM["race"], TM["race"] + 4.0, BEAT / 4):
+    for t in m.beats(TM["race"], TM["leader"], BEAT / 4):
         m.place(fx, m.tick(), t, 0.12, pan=0.4 if round(t / (BEAT / 4)) % 2 else -0.4)
-    m.place(keys, m.bell(m.hz("D6"), 3.0), TM["race"] + 4.0, 0.25)
-    m.place(fx, m.riser(1.4), TM["night"] - 1.4, 0.45)
-
-    # ---- night: the beat drops to a heartbeat, the roofs chime as they light.
-    o = TM["night"]
-    hit(o, 0.7, 3.5, 0.8)
-    m.place(pads, m.pad(["D3", "F3", "A3", "C4"], TM["rising"] - o, cutoff=1200, attack=0.8, release=0.8), o, 0.7)
-    m.place(bass, m.sub("D1", TM["rising"] - o, 0.5), o)
-    for t in m.beats(o + 0.5, TM["rising"] - 0.3, BEAT * 2):
-        add_kick(t, 0.6)
-        add_kick(t + 0.22, 0.35)
-    notes = ["A5", "C6", "D6", "E6", "F6", "A6"]
-    for i, t in enumerate(np.arange(o + 1.3, TM["rising"] - 0.5, 0.8)):
-        m.place(keys, m.bell(m.hz(notes[i % len(notes)]), 2.5), float(t), 0.16)
+    sting(TM["leader"], ["A5", "D6", "F#6", "A6"], 0.3)
+    hit(TM["leader"], 0.6, 2.5, 0.5)
+    m.place(fx, m.riser(1.4), TM["rising"] - 1.4, 0.45)
 
     # ---- the city rising.
     o = TM["rising"]
@@ -229,7 +231,8 @@ def compose() -> dict[str, np.ndarray]:
     m.place(pads, m.pad(["D3", "F#3", "A3", "D4", "F#4", "A4", "D5"], rest - 0.4, cutoff=4200, attack=0.05, release=1.5), o, 1.0)
     m.place(bass, m.sub("D1", rest - 0.3, 0.6), o)
     for i, n in enumerate(["F#5", "A5", "D6"]):
-        m.place(keys, m.bell(m.hz(n), 4.0), TM["card"] + 0.2 + i * 0.5, 0.24 - i * 0.03)
+        m.place(keys, m.bell(m.hz(n), 4.0), TM["card"] + 1.0 + i * 0.3, 0.24 - i * 0.03)
+    hit(TM["move"], 0.9, 3.0, 0.7)
     return {"drums": drums, "bass": bass, "pads": pads, "keys": keys, "fx": fx, "kicks": np.array(kicks)}
 
 

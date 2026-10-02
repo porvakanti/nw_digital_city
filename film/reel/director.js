@@ -284,20 +284,35 @@
     return D.cut.cuts.find((c) => t >= c.from - 1e-6 && t < c.to + 1e-6) || null;
   }
 
-  /* The teaser's own shots, for the two moments the reel has no shot for: a
-   * fast run in over the city as it rises, and a slow orbit for the name. */
+  /* The teaser's own shot for the league: the reel's wide view of the city,
+   * then a push in on the district that ends the race on top, so the eye is
+   * on the winner when its ground lights up. */
+  function leaderZone() {
+    if (D.leaderZone) return D.leaderZone;
+    const f = D.facts;
+    const top = f.districts.slice().sort((a, b) => b.totals.journey.total - a.totals.journey.total)[0];
+    let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
+    for (const c of f.cats) {
+      if (c.district !== top.name) continue;
+      const b = f.lots.get(c.code);
+      if (!b) continue;
+      const h = (b.span || 1) * (b.cell || 3) / 2 + 1.5;
+      x0 = Math.min(x0, b.x - h); x1 = Math.max(x1, b.x + h);
+      z0 = Math.min(z0, b.z - h); z1 = Math.max(z1, b.z + h);
+    }
+    D.leaderZone = { name: top.name, x0, x1, z0, z1, c: [(x0 + x1) / 2, 0, (z0 + z1) / 2] };
+    return D.leaderZone;
+  }
   const TEASER_CAMS = {
-    hook(u) {
-      const k = eio(u);
-      return { pos: spline([[-150, 70, 150], [-95, 38, 92], [-52, 22, 44], [-28, 17, 16]], k),
-               look: mix([0, 0, 0], [40, 5, -36], eio(u)), fov: lerp(46, 40, k) };
-    },
-    title(u) {
-      const k = eio(u);
-      return { pos: orbit([0, 0, -4], lerp(160, 128, k), lerp(96, 62, k), lerp(0.55, 1.15, u)),
-               look: [0, 4, -4], fov: 36 };
+    league(u, t) {
+      const base = wideAt(t);
+      const z = leaderZone();
+      const k = eio(ramp(u, 0.5, 1));
+      const near = [z.c[0] + (base.pos[0] - z.c[0]) * 0.38, base.pos[1] * 0.4, z.c[2] + (base.pos[2] - z.c[2]) * 0.38];
+      return { pos: mix(base.pos, near, k), look: mix(base.look, z.c, k), fov: lerp(base.fov, 40, k), shift: base.shift };
     },
   };
+
 
   // ------------------------------------------------------------- camera
   const lot = (code) => { const b = D.facts.lots.get(code); return b ? [b.x, b.top, b.z] : [0, 0, 0]; };
@@ -455,7 +470,7 @@
   function shotAt(t) {
     const M = D.M;
     const tc = cutAt(t);
-    if (tc && tc.cam && TEASER_CAMS[tc.cam]) return TEASER_CAMS[tc.cam](ramp(t, tc.from, tc.to));
+    if (tc && tc.cam && TEASER_CAMS[tc.cam]) return TEASER_CAMS[tc.cam](ramp(t, tc.from, tc.to), t);
     const S = [];
     // The plan from above, slowly turning; the cold open is drawn over it.
     S.push({ a: 0, b: M.reveal + 1.0, cam(u, tt) {
@@ -865,7 +880,7 @@
       if (t < at - 0.1 || t >= next) continue;
       typed(ctx, `${num} \u2014 ${name.toUpperCase()}`, 64, 92, t, at + 0.35, { size: 16, color: INK, alpha: 0.6, tout: next - 0.35 });
     }
-    label(ctx, TEASER() ? 'ADOPTION, GAMIFIED' : 'NETWORKS · CATEGORY ESTATE', W - 64, 57, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
+    label(ctx, TEASER() ? 'CATEGORY ESTATE' : 'NETWORKS · CATEGORY ESTATE', W - 64, 57, { color: INK, size: 14, alpha: a * 0.5, align: 'right' });
     // The progress line and timecode give way to the climb's rail.
     if (!TEASER() && !within(t, M.climb, M.challenge)) {
       const len = D.length;
@@ -1043,10 +1058,36 @@
     const bar = eio(ramp(t, t0 + 0.6, t0 + 1.4)) * (1 - eio(ramp(t, t1, t1 + 0.5)));
     ctx.fillStyle = RED;
     ctx.fillRect(W / 2 - 330 * bar, 604, 660 * bar, 8);
-    rise(ctx, TEASER() ? 'Where adoption is a game.' : 'Every category. One living city.', W / 2, 676, { t, tin: t0 + 1.1, tout: t1, size: 40, weight: 500, align: 'center', by: 'word', stagger: 0.07, color: 'rgba(255,255,255,0.88)' });
+    rise(ctx, 'Every category. One living city.', W / 2, 676, { t, tin: t0 + 1.1, tout: t1, size: 40, weight: 500, align: 'center', by: 'word', stagger: 0.07, color: 'rgba(255,255,255,0.88)' });
   }
 
   // ------------------------------------------------------------- act 2
+  // A game badge: pops in, holds, drops away. Top centre, clear of the HUD.
+  function badge(ctx, t, a, b, big, small, col) {
+    if (t < a || t > b + 0.3) return;
+    const k = back(ramp(t, a, a + 0.35)) * (1 - ei(ramp(t, b, b + 0.3)));
+    if (k <= 0) return;
+    ctx.save();
+    ctx.translate(W / 2, 236);
+    ctx.scale(k, k);
+    font(ctx, 64, 900, SANS, -1);
+    const w = Math.max(ctx.measureText(big).width, 300) + 90;
+    ctx.globalAlpha = clamp(k);
+    ctx.fillStyle = 'rgba(6,7,11,0.82)';
+    ctx.beginPath(); ctx.roundRect(-w / 2, -70, w, 128, 14); ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 3;
+    ctx.shadowColor = col; ctx.shadowBlur = 24;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = col;
+    ctx.textAlign = 'center';
+    ctx.fillText(big, 0, 4);
+    font(ctx, 20, 500, MONO, 5);
+    ctx.fillStyle = INK;
+    ctx.fillText(small, 0, 40);
+    ctx.restore();
+  }
+
   function climb(ctx, t) {
     const M = D.M, f = D.facts;
     if (t < M.climb || t > M.challenge) return;
@@ -1069,7 +1110,7 @@
       const tin = stops[i] + 0.2;
       const tout = stops[i + 1] - 1.2;
       const x = 110, y = 560;
-      if (!TEASER()) {
+      {
         scrim(ctx, 'left', ramp(t, tin - 0.2, tin + 0.3) * (1 - ramp(t, tout, tout + 0.4)), 0.5);
         typed(ctx, `${c.code} · ${c.district.toUpperCase()}`, x, y - 150, t, tin, { size: 16, color: INK, alpha: 0.8, tout });
       }
@@ -1097,7 +1138,7 @@
         }
       }
       // The teaser says each rung in its own words, over the lot alone.
-      if (!TEASER()) {
+      {
       rise(ctx, c.name, x, y - 92, { t, tin: tin + 0.1, tout, size: 44, weight: 700, by: 'word', stagger: 0.05 });
       const total = count(i ? f.byCode.get(codes[i - 1]).journey.total : 0, c.journey.total, t, tin + 0.4, 1.2, eio);
       const num = `${Math.round(total)}`;
@@ -1138,11 +1179,23 @@
       scrim(ctx, 'left', ramp(t, M.hero - 0.4, M.hero) * (1 - ramp(t, out, out + 0.5)) * 0.9, 0.6);
       slam(ctx, '100', 104, 600, { t, tin: M.hero, tout: out, size: 330, weight: 900, color: INK, ls: -14 });
       typed(ctx, 'OUT OF 100 · AUTONOMOUS', 116, 660, t, M.hero + 0.5, { size: 20, color: GOLD, tout: out });
-      if (!TEASER()) {
+      {
       rise(ctx, c.name, 110, 740, { t, tin: M.hero + 0.7, tout: out, size: 54, weight: 800, by: 'word', stagger: 0.06, ls: -1 });
       typed(ctx, `BLUEPRINT ${c.journey.blueprint}/40 · USED ${c.metrics.cbp_used}× · ${c.metrics.ai_rfps} AI-GENERATED RFPs · LANDMARK EARNED`, 114, 800, t, M.hero + 1.4, { size: 15, color: INK, alpha: 0.75, tout: out, per: 0.016 });
       rise(ctx, 'The only category to make the whole climb.', 110, 870, { t, tin: M.hero + 2.6, tout: out, size: 30, weight: 500, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.75)' });
       }
+    }
+
+    // The teaser plays the climb as a game: a level up where a lot's score
+    // crosses into the next stage, and an achievement at the top.
+    if (TEASER()) {
+      const stageOf = (v) => f.stages.reduce((s2, st) => (v >= st.from ? st : s2), f.stages[0]);
+      for (let k = 1; k <= 3; k++) {
+        const now = stageOf(f.byCode.get(codes[k]).journey.total);
+        const before = stageOf(f.byCode.get(codes[k - 1]).journey.total);
+        if (now !== before) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'LEVEL UP', now.name.toUpperCase(), k === 3 ? GOLD : RED);
+      }
+      badge(ctx, t, M.hero + 1.0, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
     }
 
     // The letterbox and the rail in it go over everything in the frame.
@@ -1501,31 +1554,58 @@
    * place is a soft rank, so rows slide past each other rather than jump. */
   function league(ctx, T) {
     const TM = D.cut.marks;
-    if (T < TM.league || T > TM.night) return;
-    const out = TM.night - 0.5;
+    if (T < TM.league || T > TM.rising) return;
+    const out = TM.rising - 0.5;
     const rows = D.facts.districts.map((d) => ({ name: d.name, total: d.totals.journey.total }))
       .sort((a, b) => b.total - a.total);
     // By final place: the leaders start later and run longer.
     const delay = [0.9, 0.6, 0.35, 0.15, 0.25, 0.0, 0.1, 0.05];
     const pace = [3.0, 2.7, 2.5, 2.2, 2.4, 1.6, 1.8, 1.4];
-    rows.forEach((r, i) => {
-      const a = TM.race + delay[i % 8], b = a + pace[i % 8];
-      r.v = r.total * eo(ramp(T, a, b));
-    });
+    const valueAt = (r, i, Tq) => r.total * eo(ramp(Tq, TM.race + delay[i % 8], TM.race + delay[i % 8] + pace[i % 8]));
+    const placeOf = (r, key) => rows.reduce((p2, o) => (o === r ? p2 : p2 + 1 / (1 + Math.exp(-(o[key] - r[key]) / 0.06))), 0);
+    rows.forEach((r, i) => { r.v = valueAt(r, i, T); r.was = valueAt(r, i, T - 0.35); });
+    rows.forEach((r) => { r.place = placeOf(r, 'v'); r.gain = placeOf(r, 'was') - r.place; });
+
+    // The winner's ground, lit, once the race is won.
+    const zone = leaderZone();
+    const lit = ramp(T, TM.leader, TM.leader + 0.5) * (1 - ramp(T, out, out + 0.4));
+    if (lit > 0) {
+      const pts = [[zone.x0, zone.z0], [zone.x1, zone.z0], [zone.x1, zone.z1], [zone.x0, zone.z1]].map(([px, pz]) => proj([px, 0.8, pz]));
+      if (pts.every((q) => q[2] < 1)) {
+        const pulse = 0.75 + 0.25 * Math.sin((T - TM.leader) * 6);
+        ctx.save();
+        ctx.beginPath();
+        pts.forEach((q, n) => (n ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])));
+        ctx.closePath();
+        ctx.globalAlpha = lit * 0.26 * pulse;
+        ctx.fillStyle = GOLD;
+        ctx.fill();
+        ctx.globalAlpha = lit * pulse;
+        ctx.strokeStyle = GOLD; ctx.lineWidth = 7; ctx.shadowColor = GOLD; ctx.shadowBlur = 36;
+        ctx.stroke();
+        ctx.restore();
+        const top = pts.reduce((m, q) => (q[1] < m[1] ? q : m), pts[0]);
+        const cx = pts.reduce((s2, q) => s2 + q[0], 0) / 4;
+        font(ctx, 28, 500, MONO, 4);
+        const lw = ctx.measureText('NEW LEADER').width + 40;
+        ctx.save();
+        ctx.globalAlpha = lit * 0.85;
+        ctx.fillStyle = 'rgba(6,7,11,0.85)';
+        ctx.beginPath(); ctx.roundRect(cx - lw / 2, top[1] - 82, lw, 50, 8); ctx.fill();
+        ctx.restore();
+        label(ctx, 'NEW LEADER', cx, top[1] - 47, { size: 28, color: GOLD, align: 'center', alpha: lit });
+      }
+    }
     const top = Math.max(...rows.map((r) => r.total)) * 1.12;
     const on = ramp(T, TM.league, TM.league + 0.4) * (1 - ramp(T, out, out + 0.4));
     scrim(ctx, 'left', on, 0.62);
-    typed(ctx, 'THE DISTRICT LEAGUE · BLUEPRINTS + USAGE + AI', 110, 168, T, TM.league + 0.2, { size: 18, tout: out });
-    rise(ctx, 'Healthy competition', 104, 250, { t: T, tin: TM.compete, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.06, ls: -2 });
-    font(ctx, 64, 800, SANS, -2);
-    const hw = ctx.measureText('Healthy competition ').width;
-    rise(ctx, 'drives adoption.', 104 + hw, 250, { t: T, tin: TM.compete + 0.35, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.06, ls: -2, color: RED });
+    typed(ctx, 'LIVE · JOURNEY SCORE · BLUEPRINTS + USAGE + AI', 110, 168, T, TM.league + 0.2, { size: 18, tout: out });
+    rise(ctx, 'The district league.', 104, 250, { t: T, tin: TM.league + 0.35, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.06, ls: -2 });
     const x = 110, y0 = 340, rowH = 60, barX = 640, barW = 360;
     const lead = rows.reduce((m, r) => (r.v > m.v ? r : m), rows[0]);
     const settled = ramp(T, TM.race + 4.0, TM.race + 4.4);
     rows.forEach((r, i) => {
-      let place = 0;
-      for (const o of rows) if (o !== r) place += 1 / (1 + Math.exp(-(o.v - r.v) / 0.06));
+      const place = r.place;
       const y = y0 + place * rowH;
       const k = eo5(ramp(T, TM.league + 0.3 + i * 0.05, TM.league + 0.9 + i * 0.05)) * (1 - ramp(T, out, out + 0.4));
       if (k <= 0) return;
@@ -1549,11 +1629,13 @@
       ctx.shadowBlur = 0;
       ctx.restore();
       label(ctx, r.v.toFixed(1), barX + barW * r.v / top + 14, y, { size: 20, color: col, alpha: k });
-      if (isLead && settled > 0) label(ctx, 'LEADING', barX + barW + 20, y - 26, { size: 14, color: GOLD, alpha: k * settled });
+      // Overtaking, as it happens.
+      if (r.gain > 0.15) label(ctx, '\u25b2', x + 38, y - 1, { size: 16, color: CYAN, alpha: k * clamp(r.gain * 2), align: 'center' });
+      if (isLead && settled > 0) label(ctx, '\u2605 1ST', barX + barW + 20, y - 26, { size: 16, color: GOLD, alpha: k * settled });
     });
   }
 
-  // The end card: the name, what it is for, and the four stages.
+  // The end card: the name, the three moves, and whose turn it is.
   function endCard(ctx, T) {
     const TM = D.cut.marks;
     if (T < TM.end) return;
@@ -1564,25 +1646,25 @@
     if (sz > 0) {
       ctx.save();
       ctx.globalAlpha = ramp(T, a0, a0 + 0.2);
-      ctx.drawImage(D.mark, W / 2 - sz / 2, 330 - sz / 2, sz, sz);
+      ctx.drawImage(D.mark, W / 2 - sz / 2, 310 - sz / 2, sz, sz);
       ctx.restore();
     }
-    rise(ctx, 'Digital City', W / 2, 560, { t: T, tin: a0 + 0.35, size: 132, weight: 800, align: 'center', ls: -4, stagger: 0.03 });
+    rise(ctx, 'Digital City', W / 2, 540, { t: T, tin: a0 + 0.35, size: 132, weight: 800, align: 'center', ls: -4, stagger: 0.03 });
     const line = eio(ramp(T, a0 + 0.9, a0 + 1.6));
     ctx.fillStyle = RED;
-    ctx.fillRect(W / 2 - 200 * line, 602, 400 * line, 6);
-    rise(ctx, 'This is how we gamify adoption.', W / 2, 676, { t: T, tin: a0 + 1.1, size: 42, weight: 600, align: 'center', by: 'word', stagger: 0.06, color: 'rgba(255,255,255,0.9)' });
+    ctx.fillRect(W / 2 - 200 * line, 582, 400 * line, 6);
     const words = [['WRITE THE BLUEPRINT', RED], ['USE IT', INK], ['LET AI BUILD ON IT', CYAN]];
     font(ctx, 26, 500, MONO, 4);
     const gap = 70;
     const widths = words.map(([w]) => ctx.measureText(w).width);
     let x = W / 2 - (widths.reduce((s2, v) => s2 + v, 0) + gap * (words.length - 1)) / 2;
     words.forEach(([w, col], i) => {
-      const tin = a0 + 2.0 + i * 0.35;
-      typed(ctx, w, x, 776, T, tin, { size: 26, color: col, ls: 4 });
-      if (i < words.length - 1 && T > tin + 0.3) label(ctx, '\u00b7', x + widths[i] + gap / 2, 776, { size: 26, color: INK, align: 'center', alpha: 0.6 * ramp(T, tin + 0.3, tin + 0.6) });
+      const tin = a0 + 1.0 + i * 0.3;
+      typed(ctx, w, x, 652, T, tin, { size: 26, color: col, ls: 4 });
+      if (i < words.length - 1 && T > tin + 0.3) label(ctx, '\u00b7', x + widths[i] + gap / 2, 652, { size: 26, color: INK, align: 'center', alpha: 0.6 * ramp(T, tin + 0.3, tin + 0.6) });
       x += widths[i] + gap;
     });
+    slamC(ctx, 'YOUR MOVE.', W / 2, 820, { t: T, tin: TM.move, size: 120, weight: 900, color: RED, ls: -4 });
     const fade = ramp(T, D.cut.length - 0.9, D.cut.length);
     if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
   }
@@ -1633,55 +1715,14 @@
     ctx.restore();
   }
 
-  /* The teaser's words: one idea per shot, said big, in the colour it means:
-   * red for the blueprint, white for using it, cyan for AI, gold for the top. */
-  function teaserType(ctx, T) {
-    const TM = D.cut.marks;
-    const on = (a, b) => ramp(T, a, a + 0.3) * (1 - ramp(T, b - 0.3, b));
-    // The question.
-    if (T < TM.title) scrim(ctx, 'center', 0.75 * (1 - ramp(T, TM.title - 0.4, TM.title)));
-    rise(ctx, 'What if adoption', W / 2, 500, { t: T, tin: 0.45, tout: TM.title - 0.45, size: 120, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -3 });
-    rise(ctx, 'was a game?', W / 2, 640, { t: T, tin: 1.45, tout: TM.title - 0.4, size: 120, weight: 800, align: 'center', by: 'word', stagger: 0.12, ls: -3, color: RED });
-    // The name.
-    if (T >= TM.title && T < TM.draft) {
-      scrim(ctx, 'center', on(TM.title, TM.draft) * 0.85);
-      slamC(ctx, 'DIGITAL CITY', W / 2, 560, { t: T, tin: TM.title + 0.05, tout: TM.draft - 0.35, size: 210, ls: -8 });
-      const bar = eio(ramp(T, TM.title + 0.5, TM.title + 1.2)) * (1 - eio(ramp(T, TM.draft - 0.4, TM.draft)));
-      ctx.fillStyle = RED;
-      ctx.fillRect(W / 2 - 360 * bar, 612, 720 * bar, 8);
-      rise(ctx, 'Every category. A plot of land.', W / 2, 690, { t: T, tin: TM.title + 1.0, tout: TM.draft - 0.4, size: 44, weight: 600, align: 'center', by: 'word', stagger: 0.07, color: 'rgba(255,255,255,0.9)' });
-    }
-    // The rungs.
-    const rung = (a, b, big, col, small) => {
-      if (T < a || T >= b) return;
-      scrim(ctx, 'left', on(a, b), 0.6);
-      slam(ctx, big, 96, 600, { t: T, tin: a + 0.2, tout: b - 0.35, size: 220, weight: 900, color: col, ls: -10 });
-      if (small) rise(ctx, small, 108, 700, { t: T, tin: a + 0.5, tout: b - 0.4, size: 64, weight: 700, by: 'word', stagger: 0.07, ls: -1 });
-    };
-    rung(TM.draft, TM.live, 'WRITE', RED, 'the blueprint.');
-    rung(TM.live, TM.used, 'LIVE', INK, 'across markets.');
-    if (T >= TM.used && T < TM.top) {
-      scrim(ctx, 'left', on(TM.used, TM.top), 0.6);
-      slam(ctx, 'USE IT', 96, 520, { t: T, tin: TM.used + 0.2, tout: TM.top - 0.35, size: 200, weight: 900, color: INK, ls: -9 });
-      slam(ctx, '+ AI', 96, 730, { t: T, tin: TM.ai, tout: TM.top - 0.35, size: 200, weight: 900, color: CYAN, ls: -9 });
-    }
-    // The night: what AI lights.
-    if (T >= TM.night && T < TM.rising) {
-      scrim(ctx, 'left', on(TM.night + 0.4, TM.rising) * 0.9, 0.55);
-      slam(ctx, 'AI', 96, 560, { t: T, tin: TM.night + 0.7, tout: TM.rising - 0.4, size: 260, weight: 900, color: CYAN, ls: -10 });
-      rise(ctx, 'lights it up.', 108, 670, { t: T, tin: TM.night + 1.0, tout: TM.rising - 0.4, size: 72, weight: 700, by: 'word', stagger: 0.08, ls: -1 });
-    }
-    // The city it could be.
-    rise(ctx, 'The city we could be.', W / 2, 200, { t: T, tin: TM.rising + 1.1, tout: TM.end - 0.5, size: 96, weight: 800, align: 'center', by: 'word', stagger: 0.09, ls: -3 });
-    rise(ctx, 'Every blueprint in use. Every category climbing.', W / 2, 270, { t: T, tin: TM.rising + 2.2, tout: TM.end - 0.5, size: 36, weight: 600, align: 'center', by: 'word', stagger: 0.05, color: CYAN });
-  }
-
   function afterTeaser(ctx, t) {
     const T = teaserAt(t);
     if (T === null) return;
     composite(ctx, t);
+    rising(ctx, t);
     climb(ctx, t);
-    teaserType(ctx, T);
+    title(ctx, t);
+    coldOpen(ctx, t);
     chrome(ctx, t);
     league(ctx, T);
     endCard(ctx, T);
