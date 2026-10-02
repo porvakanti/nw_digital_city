@@ -203,6 +203,7 @@ def compose() -> dict[str, np.ndarray]:
             m.place(keys, m.bell(m.hz(n), 1.5), at + i * 0.07, gain * 0.5)
     sting(TM["level1"], ["D5", "F5", "A5", "D6"])
     sting(TM["level2"], ["D5", "F5", "A5", "D6", "F6"])
+    sting(TM["level3"], ["D5", "F#5", "A5", "D6", "F#6", "A6"], 0.32)
     sting(TM["achieve"], ["A5", "D6", "F#6", "A6", "D7"], 0.32)
     hit(TM["achieve"], 0.7, 3.0, 0.6)
 
@@ -229,7 +230,9 @@ def compose() -> dict[str, np.ndarray]:
     m.place(pads, m.pad(["D3", "A3", "D4", "E4", "A4"], flight, cutoff=2600, attack=0.4, release=0.6), TM["fly"], 0.7)
     m.place(bass, m.sub("D1", flight, 0.4), TM["fly"])
     hit(TM["land"], 0.9, 3.5, 0.6)
-    sting(TM["land"] + 0.3, ["D5", "F#5", "A5", "D6"], 0.25)
+    # The deed is dealt: a card snap, then a bright chime.
+    m.place(fx, m.switch(), TM["land"] + 0.35, 0.7)
+    sting(TM["land"] + 0.55, ["D5", "F#5", "A5", "D6"], 0.25)
     m.place(fx, m.riser(1.4), TM["rising"] - 1.4, 0.45)
 
     # ---- the city rising.

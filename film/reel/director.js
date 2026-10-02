@@ -1198,7 +1198,7 @@
         if (k === 3) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'POWER-UP', 'AI SWITCHED ON', CYAN);
         else if (now !== before) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'LEVEL UP', now.name.toUpperCase(), RED);
       }
-      badge(ctx, t, M.hero + 0.8, M.hero + 2.2, 'LEVEL UP', 'AUTONOMOUS', GOLD);
+      badge(ctx, t, M.hero + 0.8, M.hero + 2.2, 'MAX LEVEL', 'AUTONOMOUS', GOLD);
       badge(ctx, t, M.hero + 2.4, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
     }
 
@@ -1394,6 +1394,79 @@
     return D.askBox;
   }
 
+  /* The lot's title deed, as Monopoly prints one: its colour group across
+   * the top, then what has been built on it. Landing on a property and being
+   * handed its deed is the one game move everyone knows. It flips in, tilted
+   * like a card put down on a table. No owner and no spend on it. */
+  function deed(ctx, t, c, tin) {
+    if (t < tin) return;
+    const k = back(ramp(t, tin, tin + 0.55));
+    const flip = Math.cos((1 - clamp(ramp(t, tin, tin + 0.45))) * Math.PI / 2);
+    const di = D.facts.districts.findIndex((d) => d.name === c.district);
+    const band = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'][(di < 0 ? 0 : di) % 8];
+    const w = 460, h = 600, x = 120, y = 250;
+    scrim(ctx, 'left', clamp(ramp(t, tin - 0.2, tin + 0.3)) * 0.85, 0.5);
+    ctx.save();
+    ctx.translate(x + w / 2, y + h / 2);
+    ctx.rotate(-0.045 * k);
+    ctx.scale(Math.max(0.001, flip), 0.9 + 0.1 * k);
+    ctx.translate(-w / 2, -h / 2);
+    ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18;
+    ctx.fillStyle = '#f6f1e4';
+    ctx.beginPath(); ctx.roundRect(0, 0, w, h, 10); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = 3;
+    ctx.strokeRect(18, 18, w - 36, h - 36);
+    // The colour group.
+    ctx.fillStyle = band;
+    ctx.fillRect(18, 18, w - 36, 118);
+    ctx.strokeRect(18, 18, w - 36, 118);
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    font(ctx, 15, 500, MONO, 4);
+    ctx.fillText('TITLE DEED', w / 2, 56);
+    font(ctx, 40, 900, SANS, 1);
+    ctx.fillText(c.name.toUpperCase(), w / 2, 106);
+    // What is built on it.
+    const j = c.journey;
+    const rows = [
+      ['Blueprint written', `${Math.round(j.blueprint)} / 40`],
+      ['Used in sourcing', `${Math.round(j.usage)} / 35`],
+      ['Briefs written by AI', `${Math.round(j.ai)} / 25`],
+      ['Live in markets', `${(c.markets || []).length}`],
+    ];
+    ctx.fillStyle = '#1b1b1b';
+    font(ctx, 14, 500, MONO, 3);
+    ctx.fillText(c.district.toUpperCase(), w / 2, 172);
+    rows.forEach(([a, b2], i) => {
+      const ry = 228 + i * 52;
+      font(ctx, 24, 500, SANS, 0);
+      ctx.textAlign = 'left'; ctx.fillText(a, 44, ry);
+      font(ctx, 24, 700, SANS, 0);
+      ctx.textAlign = 'right'; ctx.fillText(b2, w - 44, ry);
+    });
+    ctx.fillRect(44, 444, w - 88, 2);
+    ctx.textAlign = 'center';
+    font(ctx, 15, 500, MONO, 4);
+    ctx.fillText('JOURNEY SCORE', w / 2, 482);
+    font(ctx, 56, 900, SANS, -1);
+    ctx.fillText(`${Math.round(j.total)} / 100`, w / 2, 540);
+    ctx.restore();
+    // The hint, in the game's voice, once the card is down.
+    const hint = ramp(t, tin + 0.8, tin + 1.1);
+    if (hint > 0) {
+      font(ctx, 26, 500, MONO, 4);
+      const hw = ctx.measureText('NEXT MOVE \u2192 USE IT').width + 44;
+      ctx.save();
+      ctx.globalAlpha = hint * 0.9;
+      ctx.fillStyle = 'rgba(6,7,11,0.88)';
+      ctx.beginPath(); ctx.roundRect(x, y + h + 22, hw, 54, 8); ctx.fill();
+      ctx.strokeStyle = RED; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+      label(ctx, 'NEXT MOVE \u2192 USE IT', x + 22, y + h + 58, { size: 26, color: INK, alpha: hint, ls: 4 });
+    }
+  }
+
   // Atlas in flight, named; then the answer, as the lot builds.
   function atlas(ctx, t) {
     const M = D.M, f = D.facts;
@@ -1415,6 +1488,7 @@
     }
     const c = f.byCode.get(f.answer);
     const tin = M.land + 0.2;
+    if (TEASER()) { deed(ctx, t, c, M.land + 0.35); return; }
     scrim(ctx, 'left', ramp(t, tin - 0.2, tin + 0.3) * (1 - ramp(t, out, out + 0.3)) * 0.9, 0.5);
     typed(ctx, `${c.code} · ${c.district.toUpperCase()}`, 110, 420, t, tin, { size: 16, color: INK, alpha: 0.8, tout: out });
     rise(ctx, c.name, 110, 490, { t, tin: tin + 0.1, tout: out, size: 64, weight: 800, by: 'word', stagger: 0.06, ls: -1 });
