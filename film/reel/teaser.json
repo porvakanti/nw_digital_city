@@ -1,6 +1,6 @@
 {
   "fps": 30,
-  "length": 61.9,
+  "length": 62.9,
   "bpm": 120,
   "voice": "en-GB-SoniaNeural",
   "rate": "-2%",
@@ -12,7 +12,7 @@
     {"id": "league", "at": 31.8, "from": 55.6, "to": 65.0, "in": "wipe", "cam": "league"},
     {"id": "atlas", "at": 41.2, "from": 99.0, "to": 107.2, "in": "flash"},
     {"id": "rising", "at": 49.4, "from": 112.1, "to": 119.6, "in": "flash"},
-    {"id": "end", "at": 56.9, "from": 137.0, "to": 142.0, "in": "wipe"}
+    {"id": "end", "at": 56.9, "from": 137.0, "to": 143.0, "in": "wipe"}
   ],
   "marks": {
     "title": 4.4,
@@ -39,11 +39,17 @@
     "move": 59.4
   },
   "lines": [
-    {"id": "k01", "at": 0.6, "text": "Technology delivers value when people use it. Digital City makes that adoption visible, and gives our teams a reason to keep progressing."},
-    {"id": "k02", "at": 9.4, "text": "Each category has its own district. As teams and individuals adopt our digital solutions, their buildings grow, and their city becomes more advanced, moving from traditional, to connected, smart, and ultimately autonomous."},
-    {"id": "k03", "at": 23.8, "text": "Using A.I. unlocks further progress, while adoption milestones earn landmarks, turning everyday actions into visible achievements."},
-    {"id": "k04", "at": 32.2, "text": "The league table reveals who is leading, and where opportunities remain. We can celebrate our champions, learn from them, and focus support where it will make the biggest difference."},
-    {"id": "k05", "at": 42.9, "text": "Atlas, our A.I. guide, helps users explore the city, and their next steps."},
-    {"id": "k06", "at": 49.6, "text": "Our ambition is simple: make adoption engaging, build healthy competition, and turn digital investment into everyday habits."}
+    {"id": "m01", "at": 0.6, "text": "Technology only delivers value when people use it. Digital City makes adoption visible, and gives every team a reason to keep going."},
+    {"id": "m02", "at": 10.6, "text": "Every category is a plot of land."},
+    {"id": "m03", "at": 14.3, "text": "As teams adopt, their buildings grow,"},
+    {"id": "m04", "at": 17.8, "text": "from traditional, to connected,"},
+    {"id": "m05", "at": 22.2, "text": "Using A.I. unlocks the next level."},
+    {"id": "m06", "at": 26.6, "text": "Every milestone earns a landmark."},
+    {"id": "m07", "at": 29.3, "text": "Everyday actions, made visible."},
+    {"id": "m08", "at": 32.2, "text": "The league shows who is leading, and where the opportunities are."},
+    {"id": "m09", "at": 36.4, "text": "We celebrate our champions, learn from them, and focus support where it matters most."},
+    {"id": "m10", "at": 42.6, "text": "Atlas, our A.I. guide, shows every team its next move."},
+    {"id": "m11", "at": 49.6, "text": "Our ambition is simple: make adoption engaging, build healthy competition, and turn digital investment into everyday habits."},
+    {"id": "m12", "at": 59.4, "text": "Your move."}
   ]
 }
