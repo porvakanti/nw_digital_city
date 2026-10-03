@@ -165,13 +165,11 @@ def compose() -> dict[str, np.ndarray]:
     m.place(bass, m.sub("D1", title, 0.4), 0.0)
     m.place(fx, m.boom(2.5), 0.05, 0.5)
     m.place(keys, m.bell(m.hz("A4"), 3.0), 0.45, 0.22)
-    m.place(keys, m.bell(m.hz("D5"), 3.0), 3.9, 0.26)
-    # The grid of plots ticks in, faster and louder into the name.
-    for t in m.beats(6.6, title - 0.1, BEAT / 4):
-        g = 0.12 + 0.25 * (t - 6.6) / (title - 6.6)
+    # The plots tick into place on the plan, faster and louder into the name.
+    for t in m.beats(0.3, title - 0.1, BEAT / 4):
+        g = 0.1 + 0.22 * t / title
         m.place(fx, m.tick(), t, g, pan=0.3 if round(t / (BEAT / 4)) % 2 else -0.3)
-    m.place(fx, m.boom(2.5), 6.6, 0.4)
-    m.place(fx, m.riser(3.0), title - 3.0, 0.6)
+    m.place(fx, m.riser(title - 0.2), 0.2, 0.55)
     hit(title, 1.0, 4.0, 1.0)
 
     # ---- the title.

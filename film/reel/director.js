@@ -1181,8 +1181,10 @@
       typed(ctx, 'OUT OF 100 · AUTONOMOUS', 116, 660, t, M.hero + 0.5, { size: 20, color: GOLD, tout: out });
       {
       rise(ctx, c.name, 110, 740, { t, tin: M.hero + 0.7, tout: out, size: 54, weight: 800, by: 'word', stagger: 0.06, ls: -1 });
-      typed(ctx, `BLUEPRINT ${c.journey.blueprint}/40 · USED ${c.metrics.cbp_used}× · ${c.metrics.ai_rfps} AI-GENERATED RFPs · LANDMARK EARNED`, 114, 800, t, M.hero + 1.4, { size: 15, color: INK, alpha: 0.75, tout: out, per: 0.016 });
-      rise(ctx, 'The only category to make the whole climb.', 110, 870, { t, tin: M.hero + 2.6, tout: out, size: 30, weight: 500, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.75)' });
+      if (!TEASER()) {
+        typed(ctx, `BLUEPRINT ${c.journey.blueprint}/40 · USED ${c.metrics.cbp_used}× · ${c.metrics.ai_rfps} AI-GENERATED RFPs · LANDMARK EARNED`, 114, 800, t, M.hero + 1.4, { size: 15, color: INK, alpha: 0.75, tout: out, per: 0.016 });
+        rise(ctx, 'The only category to make the whole climb.', 110, 870, { t, tin: M.hero + 2.6, tout: out, size: 30, weight: 500, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.75)' });
+      }
       }
     }
 
@@ -1731,7 +1733,7 @@
     const line = eio(ramp(T, a0 + 0.9, a0 + 1.6));
     ctx.fillStyle = RED;
     ctx.fillRect(W / 2 - 200 * line, 582, 400 * line, 6);
-    const words = [['WRITE THE BLUEPRINT', RED], ['USE IT', INK], ['LET AI BUILD ON IT', CYAN]];
+    const words = [['ENGAGING ADOPTION', RED], ['HEALTHY COMPETITION', INK], ['EVERYDAY HABITS', CYAN]];
     font(ctx, 26, 500, MONO, 4);
     const gap = 70;
     const widths = words.map(([w]) => ctx.measureText(w).width);
