@@ -1195,13 +1195,16 @@
       for (let k = 1; k <= 3; k++) {
         const now = stageOf(f.byCode.get(codes[k]).journey.total);
         const before = stageOf(f.byCode.get(codes[k - 1]).journey.total);
-        // AI is what this rung adds, so it is a power-up; the last level is
-        // kept for the top.
-        if (k === 3) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'POWER-UP', 'AI SWITCHED ON', CYAN);
+        // This rung is used and has AI. Use alone takes it to Smart; AI is
+        // a power-up on top. The last level is kept for the top.
+        if (k === 3) {
+          badge(ctx, t, stops[k] + 2.0, stops[k] + 3.0, 'LEVEL UP', 'SMART', RED);
+          badge(ctx, t, stops[k] + 3.2, stops[k] + 4.6, 'POWER-UP', 'AI SWITCHED ON', CYAN);
+        }
         else if (now !== before) badge(ctx, t, stops[k] + 1.8, stops[k] + 3.3, 'LEVEL UP', now.name.toUpperCase(), RED);
       }
-      badge(ctx, t, M.hero + 0.8, M.hero + 2.2, 'MAX LEVEL', 'AUTONOMOUS', GOLD);
-      badge(ctx, t, M.hero + 2.4, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
+      badge(ctx, t, M.hero + 1.6, M.hero + 2.8, 'MAX LEVEL', 'AUTONOMOUS', GOLD);
+      badge(ctx, t, M.hero + 3.0, M.challenge - 1.4, 'ACHIEVEMENT UNLOCKED', 'LANDMARK EARNED', GOLD);
     }
 
     // The letterbox and the rail in it go over everything in the frame.
