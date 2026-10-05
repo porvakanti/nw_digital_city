@@ -1,12 +1,15 @@
 {
  "fps": 30,
  "srcFps": 30,
- "length": 75.2,
+ "length": 93.7,
  "accent": "#8f6bff",
  "voice": "en-GB-SoniaNeural",
  "rate": "-2%",
  "pitch": "+0Hz",
  "bpm": 110,
+ "captionMap": {
+  "Ask Ava": "AskAVA"
+ },
  "hide": [
   [
    1680,
@@ -20,7 +23,7 @@
   {
    "id": "open",
    "at": 0.0,
-   "dur": 7.0,
+   "dur": 11.0,
    "src": [
     13.0,
     13.0
@@ -44,7 +47,7 @@
   },
   {
    "id": "title",
-   "at": 7.0,
+   "at": 11.0,
    "dur": 5.0,
    "src": [
     23.4,
@@ -70,8 +73,8 @@
   },
   {
    "id": "sources",
-   "at": 12.0,
-   "dur": 6.0,
+   "at": 16.0,
+   "dur": 8.8,
    "src": [
     23.4,
     23.4
@@ -95,9 +98,94 @@
    "in": "dip"
   },
   {
-   "id": "q1ask",
-   "at": 18.0,
-   "dur": 3.0,
+   "id": "d1ask",
+   "at": 24.8,
+   "dur": 2.4,
+   "src": [
+    4.8,
+    4.8
+   ],
+   "hold": 4.8,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "persona": "09:00 \u00b7 LOCAL MARKET BUYER",
+   "in": "wipe"
+  },
+  {
+   "id": "d1wait",
+   "at": 27.2,
+   "dur": 0.9,
+   "src": [
+    4.7,
+    5.5
+   ],
+   "cam": [
+    [
+     0,
+     240,
+     100,
+     1100
+    ],
+    [
+     1,
+     250,
+     110,
+     1060
+    ]
+   ],
+   "persona": "09:00 \u00b7 LOCAL MARKET BUYER",
+   "in": "flash"
+  },
+  {
+   "id": "d1ans",
+   "at": 28.1,
+   "dur": 4.8,
+   "src": [
+    6.0,
+    9.0
+   ],
+   "cam": [
+    [
+     0,
+     490,
+     150,
+     1360
+    ],
+    [
+     1,
+     505,
+     158,
+     1330
+    ]
+   ],
+   "hide": [
+    [
+     522,
+     858,
+     1262,
+     40,
+     "#ffffff"
+    ]
+   ],
+   "persona": "09:00 \u00b7 LOCAL MARKET BUYER"
+  },
+  {
+   "id": "d2ask",
+   "at": 32.9,
+   "dur": 2.8,
    "src": [
     13.0,
     13.0
@@ -118,12 +206,13 @@
     ]
    ],
    "filter": "blur(7px) brightness(0.38)",
-   "in": "dip"
+   "persona": "10:30 \u00b7 LOCAL MARKET FINANCE",
+   "in": "wipe"
   },
   {
-   "id": "q1wait",
-   "at": 21.0,
-   "dur": 1.2,
+   "id": "d2wait",
+   "at": 35.7,
+   "dur": 1.0,
    "src": [
     12.6,
     13.6
@@ -142,12 +231,13 @@
      860
     ]
    ],
+   "persona": "10:30 \u00b7 LOCAL MARKET FINANCE",
    "in": "flash"
   },
   {
-   "id": "q1ans",
-   "at": 22.2,
-   "dur": 9.0,
+   "id": "d2ans",
+   "at": 36.7,
+   "dur": 8.2,
    "src": [
     23.2,
     29.4
@@ -177,12 +267,13 @@
      548,
      660
     ]
-   ]
+   ],
+   "persona": "10:30 \u00b7 LOCAL MARKET FINANCE"
   },
   {
-   "id": "q2ask",
-   "at": 31.2,
-   "dur": 1.9,
+   "id": "d3ask",
+   "at": 44.9,
+   "dur": 1.8,
    "src": [
     36.5,
     36.5
@@ -203,12 +294,13 @@
     ]
    ],
    "filter": "blur(7px) brightness(0.38)",
+   "persona": "12:00 \u00b7 BUSINESS USER",
    "in": "wipe"
   },
   {
-   "id": "q2ans",
-   "at": 33.1,
-   "dur": 5.0,
+   "id": "d3ans",
+   "at": 46.7,
+   "dur": 4.5,
    "src": [
     43.0,
     47.4
@@ -227,12 +319,13 @@
      1050
     ]
    ],
+   "persona": "12:00 \u00b7 BUSINESS USER",
    "in": "flash"
   },
   {
-   "id": "q3ask",
-   "at": 38.1,
-   "dur": 1.9,
+   "id": "d4ask",
+   "at": 51.2,
+   "dur": 1.8,
    "src": [
     59.0,
     59.0
@@ -253,12 +346,13 @@
     ]
    ],
    "filter": "blur(7px) brightness(0.38)",
+   "persona": "14:00 \u00b7 BUYER",
    "in": "wipe"
   },
   {
-   "id": "q3ans",
-   "at": 40.0,
-   "dur": 5.0,
+   "id": "d4ans",
+   "at": 53.0,
+   "dur": 4.5,
    "src": [
     64.8,
     69.4
@@ -277,7 +371,6 @@
      1330
     ]
    ],
-   "in": "flash",
    "hide": [
     [
      522,
@@ -286,11 +379,65 @@
      40,
      "#ffffff"
     ]
-   ]
+   ],
+   "persona": "14:00 \u00b7 BUYER",
+   "in": "flash"
   },
   {
-   "id": "ldask",
-   "at": 45.0,
+   "id": "d5ask",
+   "at": 57.5,
+   "dur": 2.2,
+   "src": [
+    66.0,
+    66.0
+   ],
+   "hold": 66.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "persona": "15:30 \u00b7 SUPPLIER MANAGEMENT",
+   "in": "wipe"
+  },
+  {
+   "id": "d5wait",
+   "at": 59.7,
+   "dur": 2.2,
+   "src": [
+    70.2,
+    74.4
+   ],
+   "cam": [
+    [
+     0,
+     470,
+     300,
+     1080
+    ],
+    [
+     1,
+     500,
+     330,
+     1020
+    ]
+   ],
+   "persona": "15:30 \u00b7 SUPPLIER MANAGEMENT",
+   "in": "flash"
+  },
+  {
+   "id": "d6ask",
+   "at": 61.9,
    "dur": 3.2,
    "src": [
     78.6,
@@ -312,11 +459,12 @@
     ]
    ],
    "filter": "blur(7px) brightness(0.38)",
+   "persona": "16:45 \u00b7 CATEGORY MANAGER",
    "in": "wipe"
   },
   {
-   "id": "ldwait",
-   "at": 48.2,
+   "id": "d6wait",
+   "at": 65.1,
    "dur": 1.0,
    "src": [
     79.0,
@@ -336,11 +484,12 @@
      860
     ]
    ],
+   "persona": "16:45 \u00b7 CATEGORY MANAGER",
    "in": "flash"
   },
   {
-   "id": "ldans",
-   "at": 49.2,
+   "id": "d6ans",
+   "at": 66.1,
    "dur": 12.0,
    "src": [
     87.4,
@@ -359,12 +508,13 @@
      310,
      1020
     ]
-   ]
+   ],
+   "persona": "16:45 \u00b7 CATEGORY MANAGER"
   },
   {
    "id": "value",
-   "at": 61.2,
-   "dur": 7.0,
+   "at": 78.1,
+   "dur": 8.6,
    "src": [
     96.5,
     96.5
@@ -389,111 +539,138 @@
   },
   {
    "id": "end",
-   "at": 68.2,
+   "at": 86.7,
    "dur": 7.0,
    "src": null,
    "in": "dip"
   }
  ],
  "questions": {
-  "q1ask": "How do I submit an invoice against a PO in Ariba?",
-  "q2ask": "How do I create a PR?",
-  "q3ask": "How do I check the status of a PO?",
-  "ldask": "Can you give the liquidated damages rate and cap for different contracts?"
+  "d1ask": "How do I raise a PO request?",
+  "d2ask": "How do I submit an invoice against a PO in Ariba?",
+  "d3ask": "How do I create a PR?",
+  "d4ask": "How do I check the status of a PO?",
+  "d5ask": "How do I onboard a new supplier in Ariba?",
+  "d6ask": "Can you give the liquidated damages rate and cap for different contracts?"
+ },
+ "marks": {
+  "open": 0.0,
+  "title": 11.0,
+  "sources": 16.0,
+  "d1ask": 24.8,
+  "d1wait": 27.2,
+  "d1ans": 28.1,
+  "d2ask": 32.9,
+  "d2wait": 35.7,
+  "d2ans": 36.7,
+  "d3ask": 44.9,
+  "d3ans": 46.7,
+  "d4ask": 51.2,
+  "d4ans": 53.0,
+  "d5ask": 57.5,
+  "d5wait": 59.7,
+  "d6ask": 61.9,
+  "d6wait": 65.1,
+  "d6ans": 66.1,
+  "value": 78.1,
+  "end": 86.7
  },
  "lines": [
   {
-   "id": "a01",
+   "id": "b01",
    "at": 0.6,
-   "text": "Every day, procurement teams ask the same questions."
+   "text": "Across Vodafone, category managers, buyers and local market teams ask hundreds of questions every day."
   },
   {
-   "id": "a02",
-   "at": 4.2,
-   "text": "And the answers are buried in documents."
+   "id": "b02",
+   "at": 7.7,
+   "text": "About contracts, sourcing, suppliers, and process."
   },
   {
-   "id": "a03",
-   "at": 7.4,
-   "text": "Meet AskAVA, your A.I. procurement assistant."
+   "id": "b03",
+   "at": 11.9,
+   "text": "Meet Ask Ava, your A.I. procurement assistant."
   },
   {
-   "id": "a04",
-   "at": 12.3,
-   "text": "It brings process guides, policies, contracts and supplier know-how together, in one place."
+   "id": "b04",
+   "at": 16.3,
+   "text": "It brings process guidance, contracts, supplier information and business data together in one place, grounded in approved documents."
   },
   {
-   "id": "a05",
-   "at": 18.7,
-   "text": "Just ask, in plain English."
+   "id": "b05",
+   "at": 25.0,
+   "text": "A buyer needs to raise a purchase order."
   },
   {
-   "id": "a06",
-   "at": 22.6,
-   "text": "AskAVA answers step by step, from approved procurement documents."
+   "id": "b06",
+   "at": 28.4,
+   "text": "Ask Ava walks them through it, step by step."
   },
   {
-   "id": "a07",
-   "at": 27.6,
-   "text": "And every answer shows its sources, so you can trust it."
+   "id": "b07",
+   "at": 33.1,
+   "text": "Submitting an invoice?"
   },
   {
-   "id": "a08",
-   "at": 31.5,
+   "id": "b08",
+   "at": 37.0,
+   "text": "Get the steps, and what to do if it is rejected."
+  },
+  {
+   "id": "b09",
+   "at": 41.3,
+   "text": "Every answer cites its sources, so you can trust it."
+  },
+  {
+   "id": "b10",
+   "at": 45.0,
    "text": "Raise a requisition."
   },
   {
-   "id": "a09",
-   "at": 38.4,
+   "id": "b11",
+   "at": 51.3,
    "text": "Check an order's status."
   },
   {
-   "id": "a10",
-   "at": 41.2,
+   "id": "b12",
+   "at": 54.2,
    "text": "No more searching through files."
   },
   {
-   "id": "a11",
-   "at": 45.4,
-   "text": "And it goes beyond process, into your contract data."
+   "id": "b13",
+   "at": 57.7,
+   "text": "Supplier questions too, from onboarding to everyday tasks."
   },
   {
-   "id": "a12",
-   "at": 49.6,
-   "text": "Ask for liquidated damages across your contracts, and get every rate and cap, in seconds."
+   "id": "b14",
+   "at": 62.1,
+   "text": "And for category managers, it goes deep into contract data."
   },
   {
-   "id": "a13",
-   "at": 55.8,
-   "text": "Right down to where it is defined in the contract."
+   "id": "b15",
+   "at": 66.5,
+   "text": "Liquidated damages rates and caps, across every contract, in seconds."
   },
   {
-   "id": "a14",
-   "at": 61.6,
+   "id": "b16",
+   "at": 72.7,
+   "text": "Right down to where they are defined."
+  },
+  {
+   "id": "b17",
+   "at": 78.5,
+   "text": "Clear, contextual answers, exactly when they are needed."
+  },
+  {
+   "id": "b18",
+   "at": 82.5,
    "text": "Faster answers. Fewer files. More confidence."
   },
   {
-   "id": "a15",
-   "at": 68.6,
-   "text": "AskAVA. Answers, just a question away.",
+   "id": "b19",
+   "at": 87.7,
+   "text": "Ask Ava. Answers, just a question away.",
    "caption": false
   }
- ],
- "marks": {
-  "open": 0.0,
-  "title": 7.0,
-  "sources": 12.0,
-  "q1ask": 18.0,
-  "q1wait": 21.0,
-  "q1ans": 22.2,
-  "q2ask": 31.2,
-  "q2ans": 33.1,
-  "q3ask": 38.1,
-  "q3ans": 40.0,
-  "ldask": 45.0,
-  "ldwait": 48.2,
-  "ldans": 49.2,
-  "value": 61.2,
-  "end": 68.2
- }
+ ]
 }

@@ -68,7 +68,7 @@
   }
 
   // A small tag, top left, on a dark pill so it reads over the white app.
-  function tag(ctx, T, at, text, accent) {
+  function tag(ctx, T, at, text, accent, y = 64) {
     const a = ramp(T, at, at + 0.3);
     if (a <= 0) return;
     font(ctx, 22, 500, MONO, 5);
@@ -76,78 +76,115 @@
     ctx.save();
     ctx.globalAlpha = a * 0.9;
     ctx.fillStyle = 'rgba(8,9,14,0.88)';
-    ctx.beginPath(); ctx.roundRect(64, 64, w, 52, 26); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(64, y, w, 52, 26); ctx.fill();
     ctx.restore();
-    label(ctx, text, 86, 99, { size: 22, color: accent, alpha: a, ls: 5 });
+    label(ctx, text, 86, y + 35, { size: 22, color: accent, alpha: a, ls: 5 });
   }
 
+  /* The people who ask: each question tagged with who is asking, across
+   * roles and markets. They gather into one point, which becomes AVA. */
   function questions(ctx, T, accent) {
-    const qs = ['How do I raise a PO?', 'How do I submit an invoice?', 'Where is my order?',
-      'What is the LD cap on this contract?', 'How do I onboard a supplier?', 'Which form do I need?'];
-    const spots = [[520, 300], [1380, 260], [380, 560], [1260, 520], [720, 780], [1500, 760]];
-    qs.forEach((q, i) => {
-      const a = 0.5 + i * 0.5;
+    const qs = [
+      ['CATEGORY MANAGER', 'What is the LD cap across my contracts?'],
+      ['LOCAL MARKET \u00b7 BUYER', 'How do I raise a PO?'],
+      ['SOURCING', 'Which suppliers are on this framework?'],
+      ['FINANCE', 'Why was my invoice rejected?'],
+      ['SUPPLIER MANAGEMENT', 'How do I onboard a new supplier?'],
+      ['BUSINESS USER', 'How do I create a PR?'],
+      ['LOCAL MARKET \u00b7 ITALY', 'Where is my order?'],
+      ['CONTRACTS', 'When does this agreement renew?'],
+    ];
+    const spots = [[560, 250], [1400, 220], [330, 470], [1180, 430], [760, 690], [1560, 640], [380, 880], [1250, 860]];
+    const gather = eio(ramp(T, 9.4, 10.6));
+    qs.forEach(([who, q], i) => {
+      const a = 0.4 + i * 0.55;
       const k = back(ramp(T, a, a + 0.35));
       if (k <= 0) return;
-      const gather = eio(ramp(T, 5.6, 6.8));
       const [sx, sy] = spots[i];
       const x = lerp(sx, W / 2, gather), y = lerp(sy + Math.sin(T * 0.8 + i) * 8, H / 2, gather);
-      font(ctx, 34, 600, SANS, 0);
+      font(ctx, 32, 600, SANS, 0);
       const w = ctx.measureText(q).width + 56;
-      const dim = 1 - 0.55 * ramp(T, 4.0, 4.6);
+      const dim = 1 - 0.5 * ramp(T, 7.4, 8.0);
       ctx.save();
       ctx.globalAlpha = clamp(k) * dim * (1 - gather);
       ctx.translate(x, y);
       ctx.scale(k * lerp(1, 0.2, gather), k * lerp(1, 0.2, gather));
       ctx.fillStyle = 'rgba(255,255,255,0.1)';
       ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.roundRect(-w / 2, -36, w, 72, 24); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(-w / 2, -34, w, 68, 24); ctx.fill(); ctx.stroke();
       ctx.fillStyle = INK; ctx.textAlign = 'center';
-      ctx.fillText(q, 0, 12);
+      ctx.fillText(q, 0, 11);
+      font(ctx, 15, 500, MONO, 4);
+      ctx.fillStyle = accent; ctx.textAlign = 'left';
+      ctx.fillText(who, -w / 2 + 18, -46);
       ctx.restore();
     });
-    // What every question runs into.
-    rise(ctx, 'The answers are buried in documents.', W / 2, 990, { t: T, tin: 4.3, tout: 6.0, size: 40, weight: 600, align: 'center', by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.85)' });
-    const dot = eo5(ramp(T, 6.4, 6.9)) * (1 - ramp(T, 6.9, 7.0));
+    rise(ctx, 'Hundreds of questions. Thousands of documents.', W / 2, 1000, { t: T, tin: 7.6, tout: 9.4, size: 40, weight: 600, align: 'center', by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.88)' });
+    const dot = eo5(ramp(T, 10.3, 10.8)) * (1 - ramp(T, 10.9, 11.0));
     if (dot > 0) { ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(W / 2, H / 2, 40 * dot, 0, 7); ctx.fill(); }
   }
 
-  function sources(ctx, T, at, accent) {
-    const t = T - at;
-    rise(ctx, 'One place for every answer.', W / 2, 200, { t: T, tin: at + 0.3, tout: at + 5.5, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.07, ls: -2 });
-    const cx = W / 2, cy = 590;
-    const items = [['PROCESS GUIDES', -560, -150], ['POLICIES & FAQs', -560, 150], ['CONTRACTS', 560, -150], ['SUPPLIER KNOW-HOW', 560, 150]];
+  function sources(ctx, T, at, dur, accent) {
+    const t = T - at, out = dur - 0.5;
+    rise(ctx, 'One place for every answer.', W / 2, 190, { t: T, tin: at + 0.3, tout: at + out, size: 72, weight: 800, align: 'center', by: 'word', stagger: 0.07, ls: -2 });
+    const cx = W / 2, cy = 600;
+    const items = [['PROCESS GUIDES', -580, -230], ['POLICIES & FAQs', -640, 0], ['SOURCING KNOWLEDGE', -580, 230],
+      ['CONTRACTS', 580, -230], ['SUPPLIER INFORMATION', 640, 0], ['BUSINESS DATA', 580, 230]];
     items.forEach(([name, dx, dy], i) => {
-      const a = ramp(t, 0.9 + i * 0.35, 1.3 + i * 0.35) * (1 - ramp(t, 5.5, 5.9));
+      const a = ramp(t, 0.9 + i * 0.4, 1.3 + i * 0.4) * (1 - ramp(t, out, out + 0.4));
       if (a <= 0) return;
       const x = cx + dx, y = cy + dy;
+      font(ctx, 22, 500, MONO, 4);
+      const w = ctx.measureText(name).width + 48;
       // The line in, with light running along it towards AVA.
       ctx.save();
       ctx.globalAlpha = a;
-      ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]);
       ctx.lineDashOffset = -t * 60;
-      ctx.beginPath(); ctx.moveTo(x + (dx < 0 ? 170 : -170), y); ctx.lineTo(cx + (dx < 0 ? -110 : 110), cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + (dx < 0 ? w / 2 : -w / 2), y); ctx.lineTo(cx + (dx < 0 ? -105 : 105), cy + dy * 0.25); ctx.stroke();
       ctx.setLineDash([]);
-      font(ctx, 22, 500, MONO, 4);
-      const w = ctx.measureText(name).width + 48;
       ctx.fillStyle = 'rgba(10,11,16,0.85)'; ctx.strokeStyle = 'rgba(255,255,255,0.4)';
       ctx.beginPath(); ctx.roundRect(x - w / 2, y - 34, w, 68, 34); ctx.fill(); ctx.stroke();
       ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.fillText(name, x, y + 8);
       ctx.restore();
     });
-    const core = back(ramp(t, 0.4, 0.9)) * (1 - ramp(t, 5.5, 5.9));
+    const core = back(ramp(t, 0.4, 0.9)) * (1 - ramp(t, out, out + 0.4));
     if (core > 0) {
       const pulse = 1 + 0.04 * Math.sin(t * 4);
       ctx.save();
       ctx.globalAlpha = clamp(core);
       ctx.shadowColor = accent; ctx.shadowBlur = 60;
       ctx.fillStyle = accent;
-      ctx.beginPath(); ctx.arc(cx, cy, 100 * core * pulse, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, 105 * core * pulse, 0, 7); ctx.fill();
       ctx.shadowBlur = 0;
       font(ctx, 54, 900, SANS, -1); ctx.fillStyle = INK; ctx.textAlign = 'center';
       ctx.fillText('AVA', cx, cy + 19);
       ctx.restore();
     }
+    label(ctx, 'GROUNDED IN APPROVED DOCUMENTS', W / 2, 960, { size: 20, color: accent, align: 'center', alpha: ramp(t, 4.0, 4.4) * (1 - ramp(t, out, out + 0.4)), ls: 6 });
+  }
+
+  /* The day: a clock and who is asking, top left, like a game's HUD. */
+  function hud(ctx, T, at, persona, accent, fresh) {
+    const [clock, who] = persona.split(' \u00b7 ');
+    const a = fresh ? ramp(T, at, at + 0.3) : 1;
+    font(ctx, 40, 800, SANS, -1);
+    const cw = ctx.measureText(clock).width;
+    font(ctx, 20, 500, MONO, 5);
+    const ww = ctx.measureText(who).width;
+    const w = cw + ww + 88;
+    ctx.save();
+    ctx.globalAlpha = a * 0.92;
+    ctx.fillStyle = 'rgba(8,9,14,0.9)';
+    ctx.beginPath(); ctx.roundRect(56, 52, w, 70, 35); ctx.fill();
+    ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = a;
+    font(ctx, 40, 800, SANS, -1); ctx.fillStyle = INK; ctx.fillText(clock, 86, 102);
+    ctx.fillStyle = accent; ctx.fillRect(86 + cw + 18, 70, 2, 34);
+    ctx.restore();
+    label(ctx, who, 86 + cw + 40, 95, { size: 20, color: accent, alpha: a, ls: 5 });
   }
 
   function endCard(ctx, T, at, accent) {
@@ -177,24 +214,29 @@
         ctx.fillStyle = A; ctx.fillRect(W / 2 - 260 * bar, 612, 520 * bar, 9);
         rise(ctx, 'Your AI procurement assistant.', W / 2, 700, { t: T, tin: at + 0.9, tout: at + 4.5, size: 52, weight: 600, align: 'center', by: 'word', stagger: 0.07 });
       }
-      if (id === 'sources') sources(ctx, T, at, A);
+      if (id === 'sources') sources(ctx, T, at, sh.cut.dur, A);
       if (cfg.questions[id]) {
         scrim(ctx, 'center', 0.5);
         bubble(ctx, T, at, sh.cut.dur, cfg.questions[id], A);
       }
-      if (id === 'q1wait' || id === 'ldwait') tag(ctx, T, at, 'AVA IS SEARCHING APPROVED SOURCES', A);
-      if (id === 'q1ans') {
-        badge(ctx, T, at + 0.5, at + 4.6, 'STEP BY STEP', 'FROM APPROVED PROCESS DOCUMENTS', A);
-        const refs = ramp(T, at + 5.6, at + 6.1);
-        outline(ctx, sh, [596, 668, 440, 140], refs, A, 'SOURCES CITED');
+      if (id.endsWith('wait')) tag(ctx, T, at, 'AVA IS SEARCHING APPROVED SOURCES', A, 136);
+      if (id === 'd1ans') badge(ctx, T, at + 0.5, at + 4.2, 'STEP BY STEP', 'RAISE A PO IN ARIBA', A, 210);
+      if (id === 'd2ans') {
+        badge(ctx, T, at + 0.5, at + 3.9, 'STEP BY STEP', 'AND WHAT TO DO IF IT IS REJECTED', A, 210);
+        outline(ctx, sh, [596, 668, 440, 140], ramp(T, at + 5.0, at + 5.5), A, 'SOURCES CITED');
       }
-      if (id === 'q2ans') tag(ctx, T, at, 'RAISE A REQUISITION', A);
-      if (id === 'q3ans') tag(ctx, T, at, 'CHECK AN ORDER', A);
-      if (id === 'ldans') badge(ctx, T, at + 0.6, at + 5.2, 'CONTRACT DATA', 'EVERY CONTRACT · ONE QUESTION', A);
+      if (id === 'd5wait') badge(ctx, T, at + 0.3, at + 2.1, 'SUPPLIER QUERIES', 'ONBOARDING \u00b7 EVERYDAY TASKS', A, 210);
+      if (id === 'd6ans') badge(ctx, T, at + 0.6, at + 5.2, 'CONTRACT DATA', 'EVERY CONTRACT \u00b7 ONE QUESTION', A, 210);
+      // The day's clock runs through every question and its answer.
+      if (sh.cut.persona) {
+        const prev = cfg.cuts[cfg.cuts.indexOf(sh.cut) - 1];
+        hud(ctx, T, at, sh.cut.persona, A, !(prev && prev.persona === sh.cut.persona));
+      }
       if (id === 'value') {
         scrim(ctx, 'center', 0.6);
         const words = [['Faster answers.', INK], ['Fewer files.', INK], ['More confidence.', A]];
-        words.forEach(([w, col], i) => rise(ctx, w, W / 2, 420 + i * 140, { t: T, tin: at + 0.4 + i * 1.1, tout: at + 6.3, size: 110, weight: 850, align: 'center', ls: -3, color: col, stagger: 0.025 }));
+        rise(ctx, 'Clear answers, exactly when they are needed.', W / 2, 250, { t: T, tin: at + 0.4, tout: at + 3.6, size: 56, weight: 700, align: 'center', by: 'word', stagger: 0.06 });
+        words.forEach(([w, col], i) => rise(ctx, w, W / 2, 420 + i * 140, { t: T, tin: at + 4.2 + i * 1.0, tout: at + 8.0, size: 110, weight: 850, align: 'center', ls: -3, color: col, stagger: 0.025 }));
       }
       if (id === 'end') endCard(ctx, T, at, A);
     },

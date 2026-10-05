@@ -193,7 +193,12 @@ def audio(film: str, cfg: dict, out: Path) -> None:
     for s, nxt in zip(spoken, spoken[1:] + [{"at": cfg["length"]}]):
         if s["at"] + s["dur"] > nxt["at"] - 0.1:
             print(f"warning: {s['text'][:40]!r} runs to {s['at'] + s['dur']:.2f}s, next at {nxt['at']}")
-    (out / "captions.json").write_text(json.dumps(captions(spoken), indent=1))
+    # The narration is spelled for the voice; captions show the brand as written.
+    caps = captions(spoken)
+    for c in caps:
+        for said, shown in cfg.get("captionMap", {}).items():
+            c["text"] = c["text"].replace(said, shown)
+    (out / "captions.json").write_text(json.dumps(caps, indent=1))
     score = music.mix(compose(cfg))
     score = np.tanh(score * 0.9)
     score /= np.abs(score).max()
