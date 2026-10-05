@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Demo film stage</title>
+<style>
+  @font-face { font-family: "Inter Tight"; src: url("../reel/fonts/inter-tight-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../reel/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+  html, body { margin: 0; background: #07080c; overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="kit.js"></script>
+<script>
+/* The stage every demo film is drawn on.
+ *
+ * A film is a timeline (its JSON) and a script (its JS). The timeline lists
+ * shots: each either a span of the team's recording seen through a moving
+ * camera, or a graphics-only beat. The script draws the film's own type and
+ * graphics over whatever the shot shows. window.frame(T) draws time T. */
+(() => {
+  const K = window.KIT;
+  const q = new URLSearchParams(location.search);
+  const ctx = document.getElementById('c').getContext('2d');
+  const S = { cfg: null, script: null, frames: q.get('frames'), captions: [], img: null, idx: -1 };
+
+  const load = (src) => new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+
+  async function sourceFrame(srcT) {
+    const idx = Math.max(1, Math.round(srcT * S.cfg.srcFps) + 1);
+    if (idx === S.idx) return S.img;
+    const img = new Image();
+    img.src = `file://${S.frames}/${String(idx).padStart(5, '0')}.jpg`;
+    await img.decode();
+    S.img = img; S.idx = idx;
+    return img;
+  }
+
+  // Where the shot's camera is looking, and the frame it sees.
+  async function shot(T) {
+    const cut = S.cfg.cuts.find((c) => T >= c.at - 1e-6 && T < c.at + c.dur + 1e-6) || S.cfg.cuts[S.cfg.cuts.length - 1];
+    const u = K.clamp((T - cut.at) / cut.dur);
+    if (!cut.src) return { cut, u, cam: null, img: null };
+    const [a, b] = cut.src;
+    const srcT = cut.hold !== undefined ? cut.hold : a + (b - a) * u;
+    const img = await sourceFrame(srcT);
+    return { cut, u, srcT, img, cam: K.camAt(cut.cam, u) };
+  }
+
+  function drawSource(sh, filter) {
+    const [x, y, w] = sh.cam;
+    ctx.save();
+    if (filter) ctx.filter = filter;
+    ctx.drawImage(sh.img, x, y, w, w * 9 / 16, 0, 0, K.W, K.H);
+    ctx.restore();
+    // What must not be seen: painted over, in the colour it sits on.
+    for (const [rx, ry, rw, rh, col] of [...(S.cfg.hide || []), ...(sh.cut.hide || [])]) {
+      const r = K.toScreen(sh.cam, [rx, ry, rw, rh]);
+      ctx.fillStyle = col;
+      ctx.fillRect(r[0], r[1], r[2], r[3]);
+    }
+  }
+
+  window.setup = async (film, captions) => {
+    S.cfg = await (await fetch(`${film}.json`)).json();
+    await load(`${film}.js`);
+    S.script = window.FILMSCRIPT;
+    S.captions = captions || [];
+    await document.fonts.load('700 40px "Inter Tight"');
+    await document.fonts.load('500 20px "JetBrains Mono"');
+    return { length: S.cfg.length, fps: S.cfg.fps };
+  };
+
+  window.frame = async (T) => {
+    const sh = await shot(T);
+    ctx.fillStyle = K.BG;
+    ctx.fillRect(0, 0, K.W, K.H);
+    const api = { ctx, K, cfg: S.cfg, M: S.cfg.marks, sh, drawSource: (f) => drawSource(sh, f), sourceFrame };
+    if (sh.img) drawSource(sh, sh.cut.filter);
+    await S.script.draw(T, api);
+    for (const c of S.cfg.cuts) {
+      if (c.in === 'wipe') K.wipe(ctx, T, c.at, S.cfg.accent);
+      if (c.in === 'flash') K.flash(ctx, T, c.at, 0.45);
+      if (c.in === 'dip') { const k = 1 - Math.abs(T - c.at) / 0.3; if (k > 0) K.fadeBlack(ctx, K.eio(k)); }
+    }
+    if (!(S.script.noCaptions && S.script.noCaptions(T))) K.captions(ctx, T, S.captions);
+    K.fadeBlack(ctx, 1 - K.ramp(T, 0, 0.6));
+    K.fadeBlack(ctx, K.ramp(T, S.cfg.length - 0.8, S.cfg.length));
+    K.finish(ctx, T, S.cfg.fps);
+  };
+})();
+</script>
+</body>
+</html>

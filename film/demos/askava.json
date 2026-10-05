@@ -1,0 +1,499 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 75.2,
+ "accent": "#8f6bff",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-2%",
+ "pitch": "+0Hz",
+ "bpm": 110,
+ "hide": [
+  [
+   1680,
+   66,
+   240,
+   56,
+   "#ffffff"
+  ]
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0.0,
+   "dur": 7.0,
+   "src": [
+    13.0,
+    13.0
+   ],
+   "hold": 13.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(16px) brightness(0.32) saturate(0.8)"
+  },
+  {
+   "id": "title",
+   "at": 7.0,
+   "dur": 5.0,
+   "src": [
+    23.4,
+    23.4
+   ],
+   "hold": 23.4,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     240,
+     120,
+     1400
+    ]
+   ],
+   "filter": "brightness(0.5)",
+   "in": "flash"
+  },
+  {
+   "id": "sources",
+   "at": 12.0,
+   "dur": 6.0,
+   "src": [
+    23.4,
+    23.4
+   ],
+   "hold": 23.4,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(16px) brightness(0.32) saturate(0.8)",
+   "in": "dip"
+  },
+  {
+   "id": "q1ask",
+   "at": 18.0,
+   "dur": 3.0,
+   "src": [
+    13.0,
+    13.0
+   ],
+   "hold": 13.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "in": "dip"
+  },
+  {
+   "id": "q1wait",
+   "at": 21.0,
+   "dur": 1.2,
+   "src": [
+    12.6,
+    13.6
+   ],
+   "cam": [
+    [
+     0,
+     480,
+     400,
+     900
+    ],
+    [
+     1,
+     500,
+     410,
+     860
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "q1ans",
+   "at": 22.2,
+   "dur": 9.0,
+   "src": [
+    23.2,
+    29.4
+   ],
+   "cam": [
+    [
+     0,
+     490,
+     150,
+     1360
+    ],
+    [
+     0.55,
+     500,
+     160,
+     1340
+    ],
+    [
+     0.72,
+     540,
+     540,
+     680
+    ],
+    [
+     1,
+     548,
+     548,
+     660
+    ]
+   ]
+  },
+  {
+   "id": "q2ask",
+   "at": 31.2,
+   "dur": 1.9,
+   "src": [
+    36.5,
+    36.5
+   ],
+   "hold": 36.5,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "in": "wipe"
+  },
+  {
+   "id": "q2ans",
+   "at": 33.1,
+   "dur": 5.0,
+   "src": [
+    43.0,
+    47.4
+   ],
+   "cam": [
+    [
+     0,
+     460,
+     318,
+     1060
+    ],
+    [
+     1,
+     470,
+     320,
+     1050
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "q3ask",
+   "at": 38.1,
+   "dur": 1.9,
+   "src": [
+    59.0,
+    59.0
+   ],
+   "hold": 59.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "in": "wipe"
+  },
+  {
+   "id": "q3ans",
+   "at": 40.0,
+   "dur": 5.0,
+   "src": [
+    64.8,
+    69.4
+   ],
+   "cam": [
+    [
+     0,
+     490,
+     150,
+     1360
+    ],
+    [
+     1,
+     505,
+     158,
+     1330
+    ]
+   ],
+   "in": "flash",
+   "hide": [
+    [
+     522,
+     858,
+     1262,
+     40,
+     "#ffffff"
+    ]
+   ]
+  },
+  {
+   "id": "ldask",
+   "at": 45.0,
+   "dur": 3.2,
+   "src": [
+    78.6,
+    78.6
+   ],
+   "hold": 78.6,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(7px) brightness(0.38)",
+   "in": "wipe"
+  },
+  {
+   "id": "ldwait",
+   "at": 48.2,
+   "dur": 1.0,
+   "src": [
+    79.0,
+    80.0
+   ],
+   "cam": [
+    [
+     0,
+     480,
+     250,
+     900
+    ],
+    [
+     1,
+     500,
+     260,
+     860
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "ldans",
+   "at": 49.2,
+   "dur": 12.0,
+   "src": [
+    87.4,
+    96.5
+   ],
+   "cam": [
+    [
+     0,
+     470,
+     290,
+     1060
+    ],
+    [
+     1,
+     490,
+     310,
+     1020
+    ]
+   ]
+  },
+  {
+   "id": "value",
+   "at": 61.2,
+   "dur": 7.0,
+   "src": [
+    96.5,
+    96.5
+   ],
+   "hold": 96.5,
+   "cam": [
+    [
+     0,
+     300,
+     200,
+     1200
+    ],
+    [
+     1,
+     0,
+     40,
+     1560
+    ]
+   ],
+   "filter": "blur(16px) brightness(0.32) saturate(0.8)",
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 68.2,
+   "dur": 7.0,
+   "src": null,
+   "in": "dip"
+  }
+ ],
+ "questions": {
+  "q1ask": "How do I submit an invoice against a PO in Ariba?",
+  "q2ask": "How do I create a PR?",
+  "q3ask": "How do I check the status of a PO?",
+  "ldask": "Can you give the liquidated damages rate and cap for different contracts?"
+ },
+ "lines": [
+  {
+   "id": "a01",
+   "at": 0.6,
+   "text": "Every day, procurement teams ask the same questions."
+  },
+  {
+   "id": "a02",
+   "at": 4.2,
+   "text": "And the answers are buried in documents."
+  },
+  {
+   "id": "a03",
+   "at": 7.4,
+   "text": "Meet AskAVA, your A.I. procurement assistant."
+  },
+  {
+   "id": "a04",
+   "at": 12.3,
+   "text": "It brings process guides, policies, contracts and supplier know-how together, in one place."
+  },
+  {
+   "id": "a05",
+   "at": 18.7,
+   "text": "Just ask, in plain English."
+  },
+  {
+   "id": "a06",
+   "at": 22.6,
+   "text": "AskAVA answers step by step, from approved procurement documents."
+  },
+  {
+   "id": "a07",
+   "at": 27.6,
+   "text": "And every answer shows its sources, so you can trust it."
+  },
+  {
+   "id": "a08",
+   "at": 31.5,
+   "text": "Raise a requisition."
+  },
+  {
+   "id": "a09",
+   "at": 38.4,
+   "text": "Check an order's status."
+  },
+  {
+   "id": "a10",
+   "at": 41.2,
+   "text": "No more searching through files."
+  },
+  {
+   "id": "a11",
+   "at": 45.4,
+   "text": "And it goes beyond process, into your contract data."
+  },
+  {
+   "id": "a12",
+   "at": 49.6,
+   "text": "Ask for liquidated damages across your contracts, and get every rate and cap, in seconds."
+  },
+  {
+   "id": "a13",
+   "at": 55.8,
+   "text": "Right down to where it is defined in the contract."
+  },
+  {
+   "id": "a14",
+   "at": 61.6,
+   "text": "Faster answers. Fewer files. More confidence."
+  },
+  {
+   "id": "a15",
+   "at": 68.6,
+   "text": "AskAVA. Answers, just a question away.",
+   "caption": false
+  }
+ ],
+ "marks": {
+  "open": 0.0,
+  "title": 7.0,
+  "sources": 12.0,
+  "q1ask": 18.0,
+  "q1wait": 21.0,
+  "q1ans": 22.2,
+  "q2ask": 31.2,
+  "q2ans": 33.1,
+  "q3ask": 38.1,
+  "q3ans": 40.0,
+  "ldask": 45.0,
+  "ldwait": 48.2,
+  "ldans": 49.2,
+  "value": 61.2,
+  "end": 68.2
+ }
+}
