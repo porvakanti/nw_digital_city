@@ -1,0 +1,354 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 83.5,
+ "script": "d2c",
+ "kind": "software",
+ "accent": "#a3e635",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-2%",
+ "pitch": "+0Hz",
+ "bpm": 104,
+ "hide": [],
+ "chimes": [
+  33.4,
+  51.5
+ ],
+ "boost": [
+  51.5,
+  76.0
+ ],
+ "title": [
+  "D2C",
+  "Should Cost"
+ ],
+ "tagline": "Know what it should cost, before you negotiate.",
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 11.2,
+   "src": [
+    1,
+    1
+   ],
+   "hold": 1.0,
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1360
+    ],
+    [
+     1,
+     40,
+     30,
+     1300
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.25) saturate(0.6)"
+  },
+  {
+   "id": "title",
+   "at": 11.2,
+   "dur": 4.8,
+   "src": [
+    1,
+    1
+   ],
+   "hold": 1.0,
+   "cam": [
+    [
+     0,
+     40,
+     30,
+     1300
+    ],
+    [
+     1,
+     60,
+     40,
+     1260
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.25) saturate(0.6)",
+   "in": "flash"
+  },
+  {
+   "id": "stream",
+   "at": 16.0,
+   "dur": 5.0,
+   "src": [
+    0.5,
+    13.5
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ],
+   "in": "wipe",
+   "step": "01 · SHOULD COST"
+  },
+  {
+   "id": "project",
+   "at": 21.0,
+   "dur": 6.0,
+   "src": [
+    15.0,
+    31.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ],
+   "step": "02 · PROJECT"
+  },
+  {
+   "id": "market",
+   "at": 27.0,
+   "dur": 6.4,
+   "src": [
+    32.0,
+    46.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ],
+   "step": "03 · COMPLEXITY & MARKET"
+  },
+  {
+   "id": "bench",
+   "at": 33.4,
+   "dur": 8.6,
+   "src": [
+    45.6,
+    50.0
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     60,
+     1050
+    ],
+    [
+     0.3,
+     330,
+     110,
+     900
+    ],
+    [
+     1,
+     340,
+     120,
+     870
+    ]
+   ],
+   "step": "04 · BENCHMARK"
+  },
+  {
+   "id": "params",
+   "at": 42.0,
+   "dur": 7.0,
+   "src": [
+    54.0,
+    84.5
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ],
+   "step": "05 · INPUTS"
+  },
+  {
+   "id": "wait",
+   "at": 49.0,
+   "dur": 2.5,
+   "src": [
+    84.5,
+    139.5
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ],
+   "step": "CALCULATING"
+  },
+  {
+   "id": "result",
+   "at": 51.5,
+   "dur": 13.5,
+   "src": [
+    139.6,
+    143.6
+   ],
+   "cam": [
+    [
+     0,
+     330,
+     60,
+     1100
+    ],
+    [
+     1,
+     330,
+     80,
+     1060
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "basis",
+   "at": 65.0,
+   "dur": 4.6,
+   "src": [
+    143.6,
+    151.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1150
+    ],
+    [
+     1,
+     300,
+     40,
+     1110
+    ]
+   ]
+  },
+  {
+   "id": "value",
+   "at": 69.6,
+   "dur": 6.4,
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 76.0,
+   "dur": 7.5,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "s01",
+   "at": 0.6,
+   "text": "How many man-days should this project take? At what rate? In which market?"
+  },
+  {
+   "id": "s02",
+   "at": 6.5,
+   "text": "For software services, the answer is usually the supplier's quote.",
+   "caption": false
+  },
+  {
+   "id": "s03",
+   "at": 11.6,
+   "text": "Meet D2C Should Cost, for software services.",
+   "caption": false
+  },
+  {
+   "id": "s04",
+   "at": 16.3,
+   "text": "In the D2C Assistant, choose software services, then should cost."
+  },
+  {
+   "id": "s05",
+   "at": 21.3,
+   "text": "Pick the project. Here, system integration, for application integration."
+  },
+  {
+   "id": "s06",
+   "at": 27.3,
+   "text": "Set the complexity, and the market. Medium complexity, delivered in Portugal."
+  },
+  {
+   "id": "s07",
+   "at": 33.7,
+   "text": "D2C brings in the benchmark: a blended rate of two hundred and ninety-four euros, with an eighty-twenty onshore, offshore mix."
+  },
+  {
+   "id": "s08",
+   "at": 42.3,
+   "text": "Name the project. Add the volume, contract term and confidence level. And calculate."
+  },
+  {
+   "id": "s09",
+   "at": 51.9,
+   "text": "The result is a should-cost range. Best case, six hundred and four thousand euros. Ideal, six hundred and fifty-seven thousand. Worst case, seven hundred and ten thousand."
+  },
+  {
+   "id": "s10",
+   "at": 65.3,
+   "text": "With the effort behind it in man-days, and the benchmark it came from."
+  },
+  {
+   "id": "s11",
+   "at": 70.0,
+   "text": "A defensible number, before the first quote arrives."
+  },
+  {
+   "id": "s12",
+   "at": 77.0,
+   "text": "Know what it should cost, before you negotiate.",
+   "caption": false
+  }
+ ]
+}

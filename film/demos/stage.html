@@ -69,7 +69,7 @@
 
   window.setup = async (film, captions) => {
     S.cfg = await (await fetch(`${film}.json`)).json();
-    await load(`${film}.js`);
+    await load(`${S.cfg.script || film}.js`);
     S.script = window.FILMSCRIPT;
     S.captions = captions || [];
     await document.fonts.load('700 40px "Inter Tight"');

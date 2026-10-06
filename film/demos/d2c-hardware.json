@@ -1,0 +1,316 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 71.0,
+ "script": "d2c",
+ "kind": "hardware",
+ "accent": "#3ad0ff",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-2%",
+ "pitch": "+0Hz",
+ "bpm": 112,
+ "hide": [],
+ "chimes": [
+  38.6
+ ],
+ "boost": [
+  38.6,
+  64.0
+ ],
+ "title": [
+  "D2C",
+  "Product reCosting"
+ ],
+ "tagline": "Know the number before the supplier names it.",
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 13.5,
+   "src": [
+    1,
+    1
+   ],
+   "hold": 1.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1800
+    ],
+    [
+     1,
+     60,
+     60,
+     1700
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.25) saturate(0.6)"
+  },
+  {
+   "id": "title",
+   "at": 13.5,
+   "dur": 4.5,
+   "src": [
+    1,
+    1
+   ],
+   "hold": 1.0,
+   "cam": [
+    [
+     0,
+     60,
+     60,
+     1700
+    ],
+    [
+     1,
+     80,
+     80,
+     1660
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.25) saturate(0.6)",
+   "in": "flash"
+  },
+  {
+   "id": "stream",
+   "at": 18.0,
+   "dur": 5.4,
+   "src": [
+    10.5,
+    19.0
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     60,
+     1500
+    ],
+    [
+     1,
+     420,
+     80,
+     1440
+    ]
+   ],
+   "in": "wipe",
+   "step": "01 · HARDWARE STREAM"
+  },
+  {
+   "id": "search",
+   "at": 23.4,
+   "dur": 4.2,
+   "src": [
+    19.5,
+    27.5
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     60,
+     1500
+    ],
+    [
+     1,
+     420,
+     80,
+     1440
+    ]
+   ],
+   "step": "02 · SEARCH BY"
+  },
+  {
+   "id": "vendor",
+   "at": 27.6,
+   "dur": 3.4,
+   "src": [
+    28.5,
+    33.0
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     60,
+     1500
+    ],
+    [
+     1,
+     420,
+     80,
+     1440
+    ]
+   ],
+   "step": "03 · VENDOR"
+  },
+  {
+   "id": "model",
+   "at": 31.0,
+   "dur": 3.8,
+   "src": [
+    34.0,
+    42.0
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     60,
+     1500
+    ],
+    [
+     1,
+     420,
+     80,
+     1440
+    ]
+   ],
+   "step": "04 · PRODUCT MODEL"
+  },
+  {
+   "id": "wait",
+   "at": 34.8,
+   "dur": 3.8,
+   "src": [
+    42.0,
+    57.4
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     60,
+     1500
+    ],
+    [
+     1,
+     420,
+     80,
+     1440
+    ]
+   ],
+   "step": "RE-COSTING"
+  },
+  {
+   "id": "result",
+   "at": 38.6,
+   "dur": 17.0,
+   "src": [
+    57.4,
+    68.5
+   ],
+   "cam": [
+    [
+     0,
+     400,
+     100,
+     1300
+    ],
+    [
+     0.3,
+     400,
+     150,
+     1300
+    ],
+    [
+     0.8,
+     400,
+     150,
+     1300
+    ],
+    [
+     1,
+     400,
+     140,
+     1320
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "value",
+   "at": 55.6,
+   "dur": 8.4,
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 64.0,
+   "dur": 7.0,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "h01",
+   "at": 0.6,
+   "text": "Every hardware renewal comes down to one question."
+  },
+  {
+   "id": "h02",
+   "at": 3.9,
+   "text": "What should this cost, today?"
+  },
+  {
+   "id": "h03",
+   "at": 6.4,
+   "text": "Components move. Currencies move. Without a current cost, you negotiate on an old number."
+  },
+  {
+   "id": "h04",
+   "at": 14.0,
+   "text": "Meet D2C Product Re-costing.",
+   "caption": false
+  },
+  {
+   "id": "h05",
+   "at": 18.4,
+   "text": "In the D2C Assistant, choose the hardware stream, then product costing."
+  },
+  {
+   "id": "h06",
+   "at": 23.6,
+   "text": "Search by L4 code, vendor, or product name."
+  },
+  {
+   "id": "h07",
+   "at": 27.9,
+   "text": "Pick the vendor. Here, Nokia."
+  },
+  {
+   "id": "h08",
+   "at": 31.2,
+   "text": "Then the product model."
+  },
+  {
+   "id": "h09",
+   "at": 35.0,
+   "text": "D2C re-costs it against the latest data."
+  },
+  {
+   "id": "h10",
+   "at": 39.0,
+   "text": "Original cost: two thousand, eight hundred and twenty-one dollars, in March 2024. Latest cost: three thousand, one hundred and twenty-four. Up almost eleven percent."
+  },
+  {
+   "id": "h11",
+   "at": 52.2,
+   "text": "And the full cost history is one download away."
+  },
+  {
+   "id": "h12",
+   "at": 56.0,
+   "text": "Any vendor. Any model. The current cost, in seconds."
+  },
+  {
+   "id": "h13",
+   "at": 64.6,
+   "text": "Know the number before the supplier names it.",
+   "caption": false
+  }
+ ]
+}
