@@ -1,0 +1,451 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 108.0,
+ "accent": "#a46bff",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-8%",
+ "pitch": "-2Hz",
+ "bpm": 100,
+ "hide": [],
+ "tracked": [
+  {
+   "x": 644,
+   "dy": 0,
+   "w": 190,
+   "h": 22,
+   "col": "#ffffff",
+   "spans": [
+    [
+     36.9,
+     50.4,
+     725
+    ]
+   ]
+  },
+  {
+   "x": 1060,
+   "dy": 0,
+   "w": 190,
+   "h": 22,
+   "col": "#ffffff",
+   "spans": [
+    [
+     36.9,
+     50.4,
+     725
+    ]
+   ]
+  },
+  {
+   "x": 1475,
+   "dy": 0,
+   "w": 190,
+   "h": 22,
+   "col": "#ffffff",
+   "spans": [
+    [
+     36.9,
+     50.4,
+     725
+    ]
+   ]
+  },
+  {
+   "x": 80,
+   "dy": -6,
+   "w": 360,
+   "h": 34,
+   "col": "#ffffff",
+   "spans": [
+    [
+     144.3,
+     145.48,
+     269
+    ],
+    [
+     145.49,
+     145.54,
+     336
+    ],
+    [
+     145.55,
+     145.58,
+     303
+    ],
+    [
+     145.59,
+     145.61,
+     275
+    ],
+    [
+     145.62,
+     146.1,
+     269
+    ]
+   ]
+  }
+ ],
+ "chimes": [
+  55.0,
+  64.0
+ ],
+ "boost": [
+  49.4,
+  94.4
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 20.6
+  },
+  {
+   "id": "title",
+   "at": 20.6,
+   "dur": 4.4,
+   "in": "flash"
+  },
+  {
+   "id": "access",
+   "at": 25.0,
+   "dur": 5.6,
+   "src": [
+    27.4,
+    34.6
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     165,
+     1560
+    ],
+    [
+     1,
+     0,
+     170,
+     1480
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "agents",
+   "at": 30.6,
+   "dur": 8.4,
+   "src": [
+    37.2,
+    49.6
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     190,
+     1500
+    ],
+    [
+     1,
+     380,
+     230,
+     1380
+    ]
+   ]
+  },
+  {
+   "id": "agentpage",
+   "at": 39.0,
+   "dur": 10.4,
+   "src": [
+    50.6,
+    86.0
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     170,
+     1480
+    ],
+    [
+     0.7,
+     0,
+     170,
+     1480
+    ],
+    [
+     0.9,
+     440,
+     170,
+     1480
+    ],
+    [
+     1,
+     440,
+     170,
+     1480
+    ]
+   ]
+  },
+  {
+   "id": "ask",
+   "at": 49.4,
+   "dur": 5.6,
+   "src": [
+    86.0,
+    91.4
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     380,
+     1150
+    ],
+    [
+     1,
+     320,
+     380,
+     1130
+    ]
+   ]
+  },
+  {
+   "id": "answer",
+   "at": 55.0,
+   "dur": 9.0,
+   "src": [
+    92.0,
+    101.6
+   ],
+   "cam": [
+    [
+     0,
+     330,
+     250,
+     1100
+    ],
+    [
+     1,
+     340,
+     250,
+     1080
+    ]
+   ]
+  },
+  {
+   "id": "insights",
+   "at": 64.0,
+   "dur": 7.2,
+   "src": [
+    102.4,
+    107.0
+   ],
+   "cam": [
+    [
+     0,
+     260,
+     300,
+     1300
+    ],
+    [
+     1,
+     270,
+     305,
+     1280
+    ]
+   ]
+  },
+  {
+   "id": "thinking",
+   "at": 71.2,
+   "dur": 6.8,
+   "src": [
+    108.8,
+    119.0
+   ],
+   "cam": [
+    [
+     0,
+     330,
+     250,
+     1100
+    ],
+    [
+     1,
+     350,
+     270,
+     1050
+    ]
+   ]
+  },
+  {
+   "id": "explore",
+   "at": 78.0,
+   "dur": 9.0,
+   "src": [
+    122.6,
+    135.0
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     170,
+     1480
+    ],
+    [
+     1,
+     300,
+     190,
+     1400
+    ]
+   ]
+  },
+  {
+   "id": "save",
+   "at": 87.0,
+   "dur": 4.6,
+   "src": [
+    135.2,
+    142.9
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     190,
+     1400
+    ],
+    [
+     1,
+     0,
+     170,
+     1480
+    ]
+   ]
+  },
+  {
+   "id": "dash",
+   "at": 91.6,
+   "dur": 2.8,
+   "src": [
+    144.4,
+    146.05
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     170,
+     1480
+    ],
+    [
+     1,
+     60,
+     190,
+     1380
+    ]
+   ]
+  },
+  {
+   "id": "value",
+   "at": 94.4,
+   "dur": 6.0,
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 100.4,
+   "dur": 7.6,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "k01",
+   "at": 0.8,
+   "text": "Every day, the business runs on questions."
+  },
+  {
+   "id": "k02",
+   "at": 4.3,
+   "text": "Which markets are growing? | Where is our traffic coming from? | What changed this year?",
+   "caption": false
+  },
+  {
+   "id": "k03",
+   "at": 10.8,
+   "text": "Getting an answer usually means | navigating reports, | applying filters, | and exporting data."
+  },
+  {
+   "id": "k04",
+   "at": 18.5,
+   "text": "What if you could just ask?",
+   "caption": false
+  },
+  {
+   "id": "k05",
+   "at": 21.0,
+   "text": "Conversational Analytics, | in Looker.",
+   "caption": false
+  },
+  {
+   "id": "k06",
+   "at": 25.2,
+   "text": "It's built right into Looker. | From the home page, | open Conversations."
+  },
+  {
+   "id": "k07",
+   "at": 30.9,
+   "text": "Each agent knows one business domain. | Permanent Roamers, | Silent Roamers, | and Wholesale Insights."
+  },
+  {
+   "id": "k08",
+   "at": 39.3,
+   "text": "Open one, | and it shows you where to start: | suggested questions, | your conversation history, | and exactly what data the agent can see."
+  },
+  {
+   "id": "k09",
+   "at": 49.6,
+   "text": "Now, | ask in plain English."
+  },
+  {
+   "id": "k10",
+   "at": 55.3,
+   "text": "In seconds, the answer. | A chart for the trend, | a table for the detail, | and the key insights, in plain words."
+  },
+  {
+   "id": "k11",
+   "at": 64.3,
+   "text": "Spain leads on inbound traffic. | The UK is growing fastest, | up thirty-nine percent."
+  },
+  {
+   "id": "k12",
+   "at": 71.5,
+   "text": "Want to know how it got there? | Show thinking walks you through the reasoning, | step by step."
+  },
+  {
+   "id": "k13",
+   "at": 78.3,
+   "text": "To go deeper, | open it in Explore. | Refine the query, | change dimensions and measures, | and keep investigating."
+  },
+  {
+   "id": "k14",
+   "at": 87.3,
+   "text": "Then save it to a dashboard, | and it stays live. | Change a filter, | and the data refreshes."
+  },
+  {
+   "id": "k15",
+   "at": 94.8,
+   "text": "From question, | to insight, | in one conversation."
+  },
+  {
+   "id": "k16",
+   "at": 101.2,
+   "text": "Conversational Analytics. | Just ask.",
+   "caption": false
+  }
+ ]
+}
