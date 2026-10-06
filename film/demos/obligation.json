@@ -1,0 +1,408 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 107.5,
+ "accent": "#5b8cff",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-2%",
+ "pitch": "+0Hz",
+ "bpm": 114,
+ "hide": [],
+ "chimes": [
+  52.2,
+  69.2
+ ],
+ "boost": [
+  42.0,
+  92.4
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 17.4,
+   "src": [
+    9,
+    9
+   ],
+   "hold": 9.0,
+   "cam": [
+    [
+     0,
+     200,
+     160,
+     1700
+    ],
+    [
+     1,
+     260,
+     180,
+     1600
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.26) saturate(0.6)"
+  },
+  {
+   "id": "title",
+   "at": 17.4,
+   "dur": 4.2,
+   "src": [
+    9,
+    9
+   ],
+   "hold": 9.0,
+   "cam": [
+    [
+     0,
+     260,
+     180,
+     1600
+    ],
+    [
+     1,
+     280,
+     190,
+     1560
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.26) saturate(0.6)",
+   "in": "flash"
+  },
+  {
+   "id": "intro",
+   "at": 21.6,
+   "dur": 6.6,
+   "src": [
+    2.0,
+    8.5
+   ],
+   "cam": [
+    [
+     0,
+     180,
+     160,
+     1560
+    ],
+    [
+     1,
+     240,
+     160,
+     1500
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "kpis",
+   "at": 28.2,
+   "dur": 6.2,
+   "src": [
+    9.0,
+    20.0
+   ],
+   "cam": [
+    [
+     0,
+     240,
+     160,
+     1500
+    ],
+    [
+     1,
+     290,
+     200,
+     1400
+    ]
+   ]
+  },
+  {
+   "id": "drill1",
+   "at": 34.4,
+   "dur": 4.0,
+   "src": [
+    22.0,
+    37.0
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     160,
+     1560
+    ],
+    [
+     1,
+     310,
+     165,
+     1550
+    ]
+   ],
+   "level": 1
+  },
+  {
+   "id": "drill2",
+   "at": 38.4,
+   "dur": 3.6,
+   "src": [
+    37.2,
+    46.4
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     160,
+     1560
+    ],
+    [
+     1,
+     310,
+     165,
+     1550
+    ]
+   ],
+   "level": 3
+  },
+  {
+   "id": "clause",
+   "at": 42.0,
+   "dur": 6.4,
+   "src": [
+    46.6,
+    50.0
+   ],
+   "cam": [
+    [
+     0,
+     496,
+     170,
+     1300
+    ],
+    [
+     1,
+     500,
+     180,
+     1290
+    ]
+   ],
+   "in": "flash",
+   "ledger": 1
+  },
+  {
+   "id": "actual",
+   "at": 48.4,
+   "dur": 3.8,
+   "src": [
+    50.0,
+    53.0
+   ],
+   "cam": [
+    [
+     0,
+     496,
+     230,
+     1300
+    ],
+    [
+     1,
+     500,
+     240,
+     1290
+    ]
+   ],
+   "ledger": 2
+  },
+  {
+   "id": "verdict",
+   "at": 52.2,
+   "dur": 6.0,
+   "src": [
+    53.0,
+    56.0
+   ],
+   "cam": [
+    [
+     0,
+     496,
+     280,
+     1300
+    ],
+    [
+     1,
+     500,
+     290,
+     1290
+    ]
+   ],
+   "ledger": 3
+  },
+  {
+   "id": "calc",
+   "at": 58.2,
+   "dur": 13.0,
+   "src": [
+    56.0,
+    62.4
+   ],
+   "cam": [
+    [
+     0,
+     496,
+     290,
+     1300
+    ],
+    [
+     1,
+     500,
+     300,
+     1290
+    ]
+   ],
+   "ledger": 4
+  },
+  {
+   "id": "configure",
+   "at": 71.2,
+   "dur": 12.8,
+   "src": [
+    70.5,
+    89.0
+   ],
+   "cam": [
+    [
+     0,
+     480,
+     190,
+     1330
+    ],
+    [
+     1,
+     500,
+     200,
+     1300
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "override",
+   "at": 84.0,
+   "dur": 8.4,
+   "src": [
+    104.5,
+    119.0
+   ],
+   "cam": [
+    [
+     0,
+     470,
+     170,
+     1360
+    ],
+    [
+     1,
+     490,
+     180,
+     1330
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "value",
+   "at": 92.4,
+   "dur": 7.6,
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 100.0,
+   "dur": 7.5,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "o01",
+   "at": 0.6,
+   "text": "Every contract makes promises."
+  },
+  {
+   "id": "o02",
+   "at": 3.0,
+   "text": "Delivery in six weeks. Discounts at volume. Rebates. Payment terms."
+  },
+  {
+   "id": "o03",
+   "at": 9.6,
+   "text": "But checking them is manual, and limited to a few contracts. When a promise is broken, the claim is often never made."
+  },
+  {
+   "id": "o04",
+   "at": 17.9,
+   "text": "Meet Obligation Management.",
+   "caption": false
+  },
+  {
+   "id": "o05",
+   "at": 21.8,
+   "text": "It tracks contractual obligations across every purchase order, and calculates the claim when one is broken."
+  },
+  {
+   "id": "o06",
+   "at": 28.4,
+   "text": "Start with the big picture: violations, potential claims, and the suppliers in breach."
+  },
+  {
+   "id": "o07",
+   "at": 34.6,
+   "text": "Then drill down. From supplier, to contract,"
+  },
+  {
+   "id": "o08",
+   "at": 38.6,
+   "text": "to purchase order, to each individual obligation."
+  },
+  {
+   "id": "o09",
+   "at": 42.3,
+   "text": "Here's the clause, straight from Sirion Contract Watch. Lead time: six weeks."
+  },
+  {
+   "id": "o10",
+   "at": 48.6,
+   "text": "And here's what happened. The goods took almost nine."
+  },
+  {
+   "id": "o11",
+   "at": 52.4,
+   "text": "The AI checks the order against the clause, and flags the breach. Three weeks late."
+  },
+  {
+   "id": "o12",
+   "at": 58.5,
+   "text": "Then it calculates the claim, step by step. Three weeks, at ten percent a week, of the order value. Checked against the cap. A claim of over one hundred and seven thousand pounds."
+  },
+  {
+   "id": "o13",
+   "at": 71.5,
+   "text": "New obligation types take minutes to set up. Delivery, payment, quality, compliance. The AI writes the validation logic for each, and runs it across every order."
+  },
+  {
+   "id": "o14",
+   "at": 84.3,
+   "text": "And when the data isn't the whole story, a buyer or category manager can override the result, with the justification on record."
+  },
+  {
+   "id": "o15",
+   "at": 92.8,
+   "text": "Every obligation tracked. Every claim counted. No revenue left on the table."
+  },
+  {
+   "id": "o16",
+   "at": 100.8,
+   "text": "Obligation Management. Promises, kept.",
+   "caption": false
+  }
+ ]
+}
