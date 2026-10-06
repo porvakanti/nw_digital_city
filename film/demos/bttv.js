@@ -86,7 +86,7 @@
     const w = 900, x = W / 2 - w / 2;
     const dest = T < 6.2 ? `${scramble(T, 3)} ${scramble(T + 1, 2)} ${scramble(T + 2, 4)}` : 'OCT 07 2026';
     circuitRow(ctx, x, 250, w, 'DESTINATION TIME', dest, '#ff3b2f', ramp(T, 0.8, 1.0), 0.15, T);
-    circuitRow(ctx, x, 420, w, 'PRESENT TIME', 'OCT 06 2026', GREEN, ramp(T, 1.6, 1.8), 0.05, T);
+    circuitRow(ctx, x, 420, w, 'PRESENT TIME', 'OCT 07 2026', GREEN, ramp(T, 1.6, 1.8), 0.05, T);
     circuitRow(ctx, x, 590, w, 'LAST TIME DEPARTED', '--- -- ----', AMBER, ramp(T, 2.4, 2.6), 0.05, T);
     label(ctx, 'LEADERSHIP SUMMIT · PROCUREMENT', W / 2, 840, { size: 22, color: 'rgba(255,255,255,0.75)', align: 'center', alpha: ramp(T, 3.6, 4.0), ls: 9 });
     // The jump: everything pulls toward the centre and whites out.
@@ -112,7 +112,7 @@
     lessons.forEach((l, i) => rise(ctx, l, 124, 560 + i * 62, { t: T, tin: at + 4.6 + i * 1.0, tout: at + 9.4, size: 38, weight: 600, by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.85)' }));
     // The circuits, small, rolling back.
     const yr = Math.round(lerp(2026, 2019, eio(ramp(t, 0.3, 3.0))));
-    circuitRowSmall(ctx, W - 520, 70, 'LAST TIME DEPARTED', `OCT 06 ${yr}`, AMBER, ramp(t, 0.2, 0.5) * (1 - ramp(t, 9.4, 9.8)));
+    circuitRowSmall(ctx, W - 520, 70, 'LAST TIME DEPARTED', `OCT 07 ${yr}`, AMBER, ramp(t, 0.2, 0.5) * (1 - ramp(t, 9.4, 9.8)));
   }
 
   function circuitRowSmall(ctx, x, y, l, v, col, a) {
