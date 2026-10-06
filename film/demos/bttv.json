@@ -1,0 +1,101 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 60.0,
+ "accent": "#e60000",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-8%",
+ "pitch": "-2Hz",
+ "bpm": 112,
+ "hide": [],
+ "grooveFrom": 17.0,
+ "boost": [
+  27.0,
+  50.6
+ ],
+ "boostClap": true,
+ "hits": [
+  30.0,
+  33.5,
+  37.0
+ ],
+ "ticks": [
+  0.6,
+  6.9,
+  0.5
+ ],
+ "risers": [
+  [
+   43.0,
+   50.6
+  ]
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 7.0
+  },
+  {
+   "id": "past",
+   "at": 7.0,
+   "dur": 10.0,
+   "in": "flash"
+  },
+  {
+   "id": "present",
+   "at": 17.0,
+   "dur": 10.0,
+   "in": "flash"
+  },
+  {
+   "id": "flux",
+   "at": 27.0,
+   "dur": 15.0,
+   "in": "dip"
+  },
+  {
+   "id": "accel",
+   "at": 42.0,
+   "dur": 8.6,
+   "in": "dip"
+  },
+  {
+   "id": "end",
+   "at": 50.6,
+   "dur": 9.4
+  }
+ ],
+ "lines": [
+  {
+   "id": "b01",
+   "at": 8.4,
+   "text": "Every great journey | starts with what we learned.",
+   "caption": false
+  },
+  {
+   "id": "b02",
+   "at": 17.6,
+   "text": "And the capabilities | are already in motion.",
+   "caption": false
+  },
+  {
+   "id": "b03",
+   "at": 27.4,
+   "text": "Three forces. | One machine.",
+   "caption": false
+  },
+  {
+   "id": "b04",
+   "at": 42.4,
+   "text": "Where we're going, | we don't need roads. | We need value.",
+   "caption": false
+  },
+  {
+   "id": "b05",
+   "at": 53.8,
+   "text": "Back to the Value. | Tomorrow.",
+   "caption": false
+  }
+ ]
+}

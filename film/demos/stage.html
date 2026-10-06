@@ -96,7 +96,7 @@
     const sh = await shot(T);
     ctx.fillStyle = K.BG;
     ctx.fillRect(0, 0, K.W, K.H);
-    const api = { ctx, K, cfg: S.cfg, M: S.cfg.marks, sh, drawSource: (f) => drawSource(sh, f), sourceFrame };
+    const api = { ctx, K, cfg: S.cfg, M: S.cfg.marks, sh, dir: S.frames, drawSource: (f) => drawSource(sh, f), sourceFrame };
     if (sh.img) drawSource(sh, sh.cut.filter);
     await S.script.draw(T, api);
     for (const c of S.cfg.cuts) {

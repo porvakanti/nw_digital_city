@@ -183,7 +183,7 @@ def compose(cfg: dict) -> dict:
     # The groove runs from the first question to the end card.
     ends = cuts.get("end", {"at": L})["at"]
     asks = [c for c in cfg["cuts"] if c["id"] in cfg.get("questions", {})]
-    start = asks[0]["at"] if asks else first
+    start = cfg.get("grooveFrom", asks[0]["at"] if asks else first)
     groove(start, ends - 0.3, pulse=0.6, arp=0.45, gain=0.7)
     if "value" in cuts:
         v = cuts["value"]
@@ -191,7 +191,17 @@ def compose(cfg: dict) -> dict:
         hit(v["at"], 0.8, 3.0)
     if "boost" in cfg:
         a, b = cfg["boost"]
-        groove(a, b - 0.3, hats16=True, pulse=0.8, arp=0.7, gain=0.8)
+        groove(a, b - 0.3, hats16=True, clap=cfg.get("boostClap", False), pulse=0.8, arp=0.7, gain=0.8)
+    # Sound design a film can ask for: a ticking clock, impacts, risers.
+    if "ticks" in cfg:
+        a, b, every = cfg["ticks"]
+        for t in m.beats(a, b, every):
+            m.place(fx, m.tick(), t, 0.5)
+    for t in cfg.get("hits", []):
+        hit(t, 0.85, 3.0)
+        m.place(fx, m.switch(), t, 0.35)
+    for a, b in cfg.get("risers", []):
+        m.place(fx, m.riser(b - a), a, 0.7)
 
     # A key click per letter typed, a whoosh as the question is sent.
     for c in asks:
