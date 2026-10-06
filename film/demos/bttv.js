@@ -697,6 +697,8 @@
     async draw(T, { ctx, sh, dir }) {
       await load(dir);
       const { id, at } = sh.cut;
+      // A shot can play its animation faster than written, to tighten a cut.
+      T = at + (T - at) * (sh.cut.speed || 1);
       if (id === 'cold') cold(ctx, T);
       if (id === 'ignite') ignite(ctx, T, at);
       if (id === 'rew') rew(ctx, T, at);

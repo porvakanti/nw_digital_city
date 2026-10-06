@@ -165,80 +165,74 @@ def compose(cfg: dict, m) -> dict:
     play(keys, brass("A4", 0.6, bright=1.4), 7.1, 0.6)
     snare_roll(7.1, 7.5, 0.4, 0.9)
 
-    # --------------------------------------------------- 7.5-19.5: the montage
+    # --------------------------------------------------- 7.5-15.1: the montage
     crash(7.5, 0.6)
-    for a, root in ((7.5, "D"), (9.5, "B"), (11.5, "G"), (13.5, "A"), (15.5, "D"), (17.5, "B")):
-        ostinato(a, a + 2.0, 0.55, root)
-        play(bass, m.sub({"D": "D1", "B": "B0", "G": "G0", "A": "A0"}[root], 2.0, 0.7), a)
-    march(7.5, 19.5, 0.4)
+    for a, root in ((7.5, "D"), (9.5, "B"), (11.5, "G"), (13.5, "A")):
+        ostinato(a, min(a + 2.0, 15.1), 0.55, root)
+        play(bass, m.sub({"D": "D1", "B": "B0", "G": "G0", "A": "A0"}[root], min(2.0, 15.1 - a), 0.7), a)
+    march(7.5, 15.1, 0.4)
     rewind(7.55)
-    for k in range(6):
-        play(fx, m.switch(), 13.1 + k * 0.36, 0.35)
-    whir(15.5)
-    # Low horns answer under each chapter.
-    for t, ph in ((9.5, [(0, "D4", 1), (1, "A4", 1), (2, "F#4", 2)]), (13.5, [(0, "E4", 1), (1, "A4", 1), (2, "C#5", 2)]),
-                  (17.5, [(0, "F#4", 1), (1, "B4", 1), (2, "D5", 2)])):
+    for k in range(6):  # frame advance through the tools
+        play(fx, m.switch(), 11.04 + k * 0.234, 0.35)
+    whir(12.6)
+    for t, ph in ((7.9, [(0, "D4", 1), (1, "A4", 1), (2, "F#4", 1.5)]), (10.4, [(0, "E4", 1), (1, "A4", 1), (2, "C#5", 1.5)]),
+                  (13.0, [(0, "F#4", 1), (1, "B4", 1), (2, "D5", 1.5)])):
         horn_line(t, ph, 0.5, harm=False)
-    timp_roll(18.3, 19.5, "A1", 0.2, 0.9)
+    timp_roll(14.3, 15.1, "A1", 0.2, 0.9)
 
-    # ------------------------------------------------- 19.5-31.5: choose your force
-    hit(19.5, g=0.9)
-    strings(19.5, [["D3", "F#3", "A3"]] * 4, 0.4, every=2)
-    for a in (20.5, 22.0, 23.5):  # each force card lands on a horn call
+    # ------------------------------------------------- 15.1-24.1: choose your force
+    hit(15.1, g=0.9)
+    strings(15.1, [["D3", "F#3", "A3"]] * 3, 0.45, every=2)
+    for a in (15.85, 16.98, 18.1):  # each force card lands on a horn call
         stab(a, ["D3", "A3", "D4", "F#4"], 0.9)
-    strings(23.5, [["G2", "D3", "G3", "B3"], ["A2", "E3", "A3", "C#4"]], 0.55)
-    for a, root in ((23.5, "G"), (25.5, "A")):
-        ostinato(a, a + 2.0, 0.55, root)
-    march(23.5, 27.4, 0.45)
-    for t in m.beats(24.5, 27.4, B / 2):  # the cursor
+    strings(18.1, [["G2", "D3", "G3", "B3"], ["A2", "E3", "A3", "C#4"], ["A2", "E3", "A3", "C#4"]], 0.55)
+    for a, root in ((18.1, "G"), (19.6, "A")):
+        ostinato(a, a + 1.5, 0.55, root)
+    march(18.1, 21.0, 0.45)
+    for t in m.beats(18.85, 21.03, B / 2):  # the cursor
         play(fx, m.tick(), t, 0.5)
-        play(drums, snare(), t, 0.25)
-    play(fx, m.riser(2.9), 24.5, 0.8)
-    snare_roll(26.4, 27.4, 0.3, 1.0)
+    play(fx, m.riser(2.2), 18.85, 0.8)
+    snare_roll(20.35, 21.1, 0.3, 1.0)
     # The machine fires: the fanfare's answer, in full.
-    hit(28.05, g=1.2)
-    strings(28.05, CHORDS_B, 0.65)
-    horn_line(28.05, PHRASE_B, 1.0)
-    march(28.05, 31.5, 0.55)
+    hit(21.14, g=1.2)
+    strings(21.14, CHORDS_B, 0.65)
+    horn_line(21.14, PHRASE_B, 1.0)
+    march(21.14, 24.1, 0.55)
 
-    # ---------------------------------------------------- 31.5-39.5: the mission
-    crash(31.5, 0.5)
-    for a, root in ((31.5, "G"), (33.5, "A"), (35.5, "B"), (37.5, "A")):
-        ostinato(a, a + 2.0, 0.6, root)
-        play(pads, m.pad([{"G": "G3", "A": "A3", "B": "B3"}[root], {"G": "B3", "A": "C#4", "B": "D4"}[root], {"G": "D4", "A": "E4", "B": "F#4"}[root]], 2.0, cutoff=2600, attack=0.3, release=0.4), a, 0.35)
-    march(31.5, 37.3, 0.38)
+    # ---------------------------------------------------- 24.1-30.1: the mission
+    crash(24.1, 0.4)
+    for a, root in ((25.1, "G"), (26.6, "A"), (28.1, "B")):
+        ostinato(a, a + 1.5, 0.6, root)
+    march(25.1, 28.45, 0.38)
     for k in range(40):  # the typing
-        play(fx, m.keyclick(), 32.5 + k * 0.09, 0.3)
-    snare_roll(37.3, 38.1, 0.3, 1.0)
-    hit(38.1, ("D3", "A3", "D4", "F#4", "A4", "D5"), g=1.1)
+        play(fx, m.keyclick(), 24.85 + k * 0.068, 0.3)
+    snare_roll(28.45, 29.05, 0.3, 1.0)
+    hit(29.05, ("D3", "A3", "D4", "F#4", "A4", "D5"), g=1.1)
 
-    # ------------------------------------------------- 39.5-47.3: the countdown
-    timp_roll(39.5, 44.5, "D2", 0.1, 0.8)
-    for a, chord in ((39.5, CHORDS_A[0]), (41.0, CHORDS_B[1]), (42.5, CHORDS_A[3]), (43.5, CHORDS_A[2])):
+    # ------------------------------------------------- 30.1-36.7: the countdown
+    timp_roll(30.1, 34.27, "D2", 0.1, 0.8)
+    for a, chord in ((30.1, CHORDS_A[0]), (31.3, CHORDS_B[1]), (32.5, CHORDS_A[3]), (33.4, CHORDS_A[2])):
         notes = chord + [n[:-1] + str(int(n[-1]) + 1) for n in chord]
-        play(pads, m.pad(notes, 1.5, cutoff=3000, attack=0.4, release=0.3), a, 0.55)
+        play(pads, m.pad(notes, 1.2, cutoff=3000, attack=0.3, release=0.3), a, 0.55)
     for k, note in enumerate(["A4", "B4", "C#5", "D5", "E5"]):  # brass climbing
-        play(keys, brass(note, 0.9, bright=1.2), 40.0 + k * 0.9, 0.55)
-    play(fx, m.riser(7.3), 39.6, 1.1)
-    for a, chord in ((44.5, ["A2", "E3", "A3", "C#4"]), (45.3, ["A2", "E3", "A3", "C#4", "E4"]), (46.1, ["A2", "E3", "A3", "C#4", "E4", "A4"])):
+        play(keys, brass(note, 0.75, bright=1.2), 30.5 + k * 0.75, 0.55)
+    play(fx, m.riser(6.1), 30.2, 1.1)
+    for a, chord in ((34.27, ["A2", "E3", "A3", "C#4"]), (34.93, ["A2", "E3", "A3", "C#4", "E4"]), (35.6, ["A2", "E3", "A3", "C#4", "E4", "A4"])):
         stab(a, chord, 1.15)
         crash(a, 0.6)
-    snare_roll(46.1, 46.9, 0.5, 1.0)
+    snare_roll(35.6, 36.3, 0.5, 1.0)
 
-    # ------------------------------------------------------ 47.3-60: the landing
-    hit(47.3, g=1.5)
-    play(fx, m.boom(5.0), 47.3, 1.1)
-    strings(47.3, CHORDS_A, 0.75)
-    horn_line(47.3, PHRASE_A, 1.15)
-    march(47.3, 55.3, 0.6)
-    strings(51.3, CHORDS_B, 0.75)
-    horn_line(51.3, PHRASE_B, 1.15)
-    # The final chord, held, with a timpani roll and a last hit.
-    timp_roll(55.3, 57.6, "D2", 0.3, 1.0)
+    # ------------------------------------------------------ 36.7-45: the landing
+    hit(36.7, g=1.5)
+    play(fx, m.boom(5.0), 36.7, 1.1)
+    strings(36.7, CHORDS_A, 0.75)
+    horn_line(36.7, PHRASE_A, 1.15)
+    march(36.7, 40.7, 0.6)
+    timp_roll(40.7, 42.4, "D2", 0.3, 1.0)
     final = ["D3", "F#3", "A3", "D4", "F#4", "A4", "D5"]
-    play(pads, m.pad(final + ["D2"], 4.2, cutoff=4500, attack=0.05, release=1.2), 55.3, 0.85)
+    play(pads, m.pad(final + ["D2"], 3.4, cutoff=4500, attack=0.05, release=1.0), 40.7, 0.85)
     for note in ("D4", "F#4", "A4", "D5"):
-        play(keys, brass(note, 2.2, bright=1.1), 55.3, 0.45)
-    hit(57.6, final, g=1.3, length=1.6)
+        play(keys, brass(note, 1.6, bright=1.1), 40.7, 0.45)
+    hit(42.4, final, g=1.3, length=1.4)
 
     return {"drums": drums, "bass": bass, "pads": pads, "keys": keys, "fx": fx, "kicks": np.array(kicks)}

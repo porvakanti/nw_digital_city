@@ -1,7 +1,7 @@
 {
  "fps": 30,
  "srcFps": 30,
- "length": 60.0,
+ "length": 45.0,
  "accent": "#e60000",
  "voice": "en-GB-SoniaNeural",
  "rate": "-4%",
@@ -9,8 +9,8 @@
  "bpm": 120,
  "score": "bttv_score",
  "silence": [
-  46.9,
-  47.3
+  36.3,
+  36.7
  ],
  "hide": [],
  "cuts": [
@@ -22,41 +22,47 @@
   {
    "id": "rew",
    "at": 7.5,
-   "dur": 4.0,
+   "dur": 2.5,
+   "speed": 1.6,
    "in": "flash"
   },
   {
    "id": "pause",
-   "at": 11.5,
-   "dur": 4.0
+   "at": 10.0,
+   "dur": 2.6,
+   "speed": 1.538
   },
   {
    "id": "ff",
-   "at": 15.5,
-   "dur": 4.0
+   "at": 12.6,
+   "dur": 2.5,
+   "speed": 1.6
   },
   {
    "id": "choose",
-   "at": 19.5,
-   "dur": 12.0,
+   "at": 15.1,
+   "dur": 9.0,
+   "speed": 1.333,
    "in": "flash"
   },
   {
    "id": "mission",
-   "at": 31.5,
-   "dur": 8.0,
+   "at": 24.1,
+   "dur": 6.0,
+   "speed": 1.333,
    "in": "flash"
   },
   {
    "id": "finale",
-   "at": 39.5,
-   "dur": 7.8,
+   "at": 30.1,
+   "dur": 6.6,
+   "speed": 1.2,
    "in": "flash"
   },
   {
    "id": "arrive",
-   "at": 47.3,
-   "dur": 12.7
+   "at": 36.7,
+   "dur": 8.3
   }
  ],
  "lines": [
@@ -68,67 +74,67 @@
   },
   {
    "id": "d03",
-   "at": 7.7,
+   "at": 7.6,
    "text": "Rewind.",
    "caption": false
   },
   {
    "id": "d04",
-   "at": 11.7,
+   "at": 10.1,
    "text": "Pause.",
    "caption": false
   },
   {
    "id": "d05",
-   "at": 15.7,
+   "at": 12.7,
    "text": "Fast forward.",
    "caption": false
   },
   {
    "id": "d06",
-   "at": 20.0,
+   "at": 15.5,
    "text": "Three forces. | Choose yours.",
    "caption": false
   },
   {
    "id": "d07",
-   "at": 32.0,
+   "at": 24.5,
    "text": "One mission: | write the Value Manifesto.",
    "caption": false
   },
   {
    "id": "d08",
-   "at": 40.3,
+   "at": 30.4,
    "text": "All three. | One machine.",
    "caption": false
   },
   {
    "id": "d09",
-   "at": 44.5,
+   "at": 34.27,
    "text": "Three.",
    "caption": false
   },
   {
    "id": "d10",
-   "at": 45.3,
+   "at": 34.93,
    "text": "Two.",
    "caption": false
   },
   {
    "id": "d11",
-   "at": 46.1,
+   "at": 35.6,
    "text": "One.",
    "caption": false
   },
   {
    "id": "d12",
-   "at": 48.6,
+   "at": 37.9,
    "text": "Back to the Value.",
    "caption": false
   },
   {
    "id": "d13",
-   "at": 51.6,
+   "at": 40.9,
    "text": "The breakout | starts now.",
    "caption": false
   }
