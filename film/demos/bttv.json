@@ -4,119 +4,133 @@
  "length": 60.0,
  "accent": "#e60000",
  "voice": "en-GB-SoniaNeural",
- "rate": "-6%",
+ "rate": "-4%",
  "pitch": "-2Hz",
  "bpm": 120,
  "score": "bttv_score",
+ "silence": [
+  46.9,
+  47.3
+ ],
  "hide": [],
  "cuts": [
   {
-   "id": "cold",
+   "id": "kick",
    "at": 0,
-   "dur": 6.0
-  },
-  {
-   "id": "ignite",
-   "at": 6.0,
-   "dur": 8.0
+   "dur": 7.5
   },
   {
    "id": "rew",
-   "at": 14.0,
+   "at": 7.5,
    "dur": 4.0,
    "in": "flash"
   },
   {
    "id": "pause",
-   "at": 18.0,
+   "at": 11.5,
    "dur": 4.0
   },
   {
    "id": "ff",
-   "at": 22.0,
+   "at": 15.5,
    "dur": 4.0
   },
   {
    "id": "choose",
-   "at": 26.0,
+   "at": 19.5,
    "dur": 12.0,
    "in": "flash"
   },
   {
    "id": "mission",
-   "at": 38.0,
+   "at": 31.5,
    "dur": 8.0,
    "in": "flash"
   },
   {
-   "id": "run",
-   "at": 46.0,
-   "dur": 7.0
+   "id": "finale",
+   "at": 39.5,
+   "dur": 7.8,
+   "in": "flash"
   },
   {
    "id": "arrive",
-   "at": 53.0,
-   "dur": 7.0
+   "at": 47.3,
+   "dur": 12.7
   }
  ],
  "lines": [
   {
-   "id": "c01",
-   "at": 6.4,
-   "text": "Today, | nine teams | take one journey.",
+   "id": "d01",
+   "at": 2.5,
+   "text": "Back to the Value.",
    "caption": false
   },
   {
-   "id": "c02",
-   "at": 10.4,
-   "text": "Through the past, | the present, | and the future.",
-   "caption": false
-  },
-  {
-   "id": "c03",
-   "at": 14.15,
+   "id": "d03",
+   "at": 7.7,
    "text": "Rewind.",
    "caption": false
   },
   {
-   "id": "c04",
-   "at": 18.1,
+   "id": "d04",
+   "at": 11.7,
    "text": "Pause.",
    "caption": false
   },
   {
-   "id": "c05",
-   "at": 22.1,
+   "id": "d05",
+   "at": 15.7,
    "text": "Fast forward.",
    "caption": false
   },
   {
-   "id": "c06",
-   "at": 26.5,
+   "id": "d06",
+   "at": 20.0,
    "text": "Three forces. | Choose yours.",
    "caption": false
   },
   {
-   "id": "c07",
-   "at": 38.5,
+   "id": "d07",
+   "at": 32.0,
    "text": "One mission: | write the Value Manifesto.",
    "caption": false
   },
   {
-   "id": "c08",
-   "at": 46.3,
-   "text": "Get ready.",
+   "id": "d08",
+   "at": 40.3,
+   "text": "All three. | One machine.",
    "caption": false
   },
   {
-   "id": "c09",
-   "at": 55.2,
-   "text": "Back to the Value. | Let's go.",
+   "id": "d09",
+   "at": 44.5,
+   "text": "Three.",
+   "caption": false
+  },
+  {
+   "id": "d10",
+   "at": 45.3,
+   "text": "Two.",
+   "caption": false
+  },
+  {
+   "id": "d11",
+   "at": 46.1,
+   "text": "One.",
+   "caption": false
+  },
+  {
+   "id": "d12",
+   "at": 48.6,
+   "text": "Back to the Value.",
+   "caption": false
+  },
+  {
+   "id": "d13",
+   "at": 51.6,
+   "text": "The breakout | starts now.",
    "caption": false
   }
- ],
- "silence": [
-  52.6,
-  53.0
  ]
 }

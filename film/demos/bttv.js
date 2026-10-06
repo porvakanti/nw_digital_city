@@ -358,9 +358,9 @@
 
   /* The select screen: three forces, a cursor, then the machine. */
   const FORCES = [
-    { n: '01', l1: 'EXECUTE', l2: 'RELENTLESSLY', teams: 'TEAMS 1 · 2 · 3', col: RED, x: 420, at: 27.0 },
-    { n: '02', l1: 'SIMPLIFY', l2: 'AGGRESSIVELY', teams: 'TEAMS 4 · 5 · 6', col: ORANGE, x: 960, at: 28.5 },
-    { n: '03', l1: 'RAISE THE', l2: 'TALENT BAR', teams: 'TEAMS 7 · 8 · 9', col: CYAN, x: 1500, at: 30.0 },
+    { n: '01', l1: 'EXECUTE', l2: 'RELENTLESSLY', teams: 'TEAMS 1 · 2 · 3', col: RED, x: 420, off: 1.0 },
+    { n: '02', l1: 'SIMPLIFY', l2: 'AGGRESSIVELY', teams: 'TEAMS 4 · 5 · 6', col: ORANGE, x: 960, off: 2.5 },
+    { n: '03', l1: 'RAISE THE', l2: 'TALENT BAR', teams: 'TEAMS 7 · 8 · 9', col: CYAN, x: 1500, off: 4.0 },
   ];
 
   function icon(ctx, k, col) {
@@ -380,8 +380,8 @@
     ctx.restore();
   }
 
-  function card(ctx, T, f, k, x, y, s, sel, alpha = 1) {
-    const p = back(ramp(T, f.at, f.at + 0.35));
+  function card(ctx, T, at, f, k, x, y, s, sel, alpha = 1) {
+    const p = back(ramp(T, at + f.off, at + f.off + 0.35));
     if (p <= 0 || alpha <= 0) return;
     const w = 470, h = 600;
     ctx.save();
@@ -433,7 +433,7 @@
       const bob = cyc === k ? -14 : 0;
       let x = f.x, y = 610 + bob, s = 1, a = 1;
       if (fly > 0 && ends) { x = lerp(f.x, ends[k][0], fly); y = lerp(610, ends[k][1], fly); s = lerp(1, 0.12, fly); a = 1 - ramp(fly, 0.8, 1); }
-      card(ctx, T, f, k, x, y, s, sel, a);
+      card(ctx, T, at, f, k, x, y, s, sel, a);
     });
     if (t > 8.8 && ends) {
       label(ctx, 'ALL THREE. ONE MACHINE.', W / 2, 160, { size: 40, color: '#fff', align: 'center', alpha: ramp(t, 9.0, 9.3), ls: 8, weight: 700 });
@@ -598,6 +598,100 @@
     }
   }
 
+
+  /* The kick: straight in at speed. 88, the jump, and the title on a hit. */
+  function kick(ctx, T, at) {
+    const t = T - at;
+    if (t < 1.85) {
+      const sp = eio(ramp(t, 0, 1.6));
+      ctx.save();
+      shake(ctx, T, 14 + sp * 30);
+      shot(ctx, [lerp(250, 300, sp), lerp(450, 510, sp), lerp(520, 400, sp)], `saturate(1.35) contrast(1.12) brightness(${1 + sp * 0.25})`);
+      trails(ctx, T, W / 2, H * 0.5, 90, 2.5 + sp * 2, 1);
+      ctx.restore();
+      if (rnd(F(T) >> 1) < 0.55) { const k = F(T) >> 1; bolt(ctx, W * (0.1 + rnd(k) * 0.8), -20, W / 2 + (rnd(k + 3) - 0.5) * 500, H * 0.6, k, 1); }
+      const v = Math.min(88, Math.floor(lerp(81, 89, sp)));
+      const hot = v >= 88;
+      ctx.save();
+      ctx.translate(W - 330, H - 190);
+      ctx.fillStyle = 'rgba(5,6,10,0.9)'; ctx.strokeStyle = hot ? FIRE : '#3a3f48'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.roundRect(-230, -110, 460, 200, 18); ctx.fill(); ctx.stroke();
+      font(ctx, 150, 500, MONO, 6); ctx.textAlign = 'right';
+      ctx.fillStyle = hot ? '#ffd27a' : '#ff3b2f'; ctx.shadowColor = hot ? FIRE : '#ff3b2f'; ctx.shadowBlur = hot ? 50 : 24;
+      ctx.fillText(String(v), 90, 45);
+      ctx.shadowBlur = 0; font(ctx, 40, 800, MONO, 3); ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.fillText('MPH', 110, 30);
+      ctx.restore();
+      label(ctx, 'ADOPTION', W - 330, H - 60, { size: 20, color: AMBER, align: 'center', ls: 10, weight: 700 });
+      whiteout(ctx, ramp(t, 1.55, 1.85));
+      return;
+    }
+    if (t < 5.3) {
+      // The title, close, on fire, with the storm still going.
+      const u = (t - 1.85) / 3.45;
+      ctx.save();
+      shake(ctx, T, 30 * (1 - ramp(t, 1.85, 2.6)));
+      shot(ctx, [lerp(30, 70, u), lerp(70, 95, u), lerp(640, 560, u)], 'saturate(1.2) contrast(1.05)');
+      ctx.restore();
+      const fire = 1 - ramp(t, 2.4, 4.6);
+      if (fire > 0) {
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        for (const yy of [H * 0.82, H * 0.93]) for (let i = 0; i < 3; i++) {
+          ctx.strokeStyle = `rgba(255,${110 + i * 50},30,${fire * (0.6 - i * 0.15)})`; ctx.lineWidth = 16 - i * 5;
+          ctx.beginPath();
+          for (let x = -20; x < W * lerp(0.1, 1.1, ramp(t, 1.85, 2.3)); x += 14) ctx.lineTo(x, yy + Math.sin(x * 0.05 + T * 30 + i) * 6);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      if (rnd(F(T) >> 2) < 0.18) { const k = F(T) >> 2; bolt(ctx, W * (0.55 + rnd(k) * 0.4), -20, W * (0.6 + rnd(k + 1) * 0.3), H * 0.75, k, 0.9); }
+      label(ctx, 'LEADERSHIP SUMMIT · PROCUREMENT · THE BREAKOUT', W / 2, H - 60, { size: 24, color: '#fff', align: 'center', alpha: ramp(t, 2.6, 3.0) * (1 - ramp(t, 5.0, 5.3)), ls: 8, weight: 700 });
+      whiteout(ctx, 1 - ramp(t, 1.85, 2.3));
+      return;
+    }
+    // Three slams on the brass.
+    black(ctx);
+    const words = [['NINE TEAMS.', 5.35, '#fff'], ['THREE FORCES.', 6.05, '#fff'], ['ONE MISSION.', 6.75, RED]];
+    words.forEach(([w, a, col], i) => {
+      const b = words[i + 1] ? words[i + 1][1] - 0.04 : 7.6;
+      if (t < a || t > b) return;
+      ctx.save();
+      shake(ctx, T, 22 * (1 - ramp(t, a, a + 0.2)));
+      slam(ctx, w, W / 2, H / 2 + 50, { t, tin: a, tout: b, size: 180, weight: 900, color: col, ls: -5 });
+      ctx.restore();
+      whiteout(ctx, 0.4 * (1 - ramp(t, a, a + 0.12)));
+    });
+  }
+
+  /* The bang: all three forces at full power, and a countdown to the jump. */
+  function finale(ctx, T, at) {
+    const t = T - at;
+    grid(ctx, T, 1, 1.5 + t * 0.4);
+    const dive = ei(ramp(t, 6.6, 7.4));
+    const pulse = 0.7 + 0.3 * Math.abs(Math.sin(T * lerp(8, 30, ramp(t, 0, 7))));
+    ctx.save();
+    shake(ctx, T, lerp(2, 30, ramp(t, 3, 7.2)));
+    const ends = flux(ctx, T, W / 2, 470, lerp(0.75, 0.9, ramp(t, 0, 6.6)) * lerp(1, 10, dive), [pulse, pulse, pulse], { core: clamp(ramp(t, 0, 6.6) * 0.6 + dive) });
+    ctx.restore();
+    if (dive < 0.2) {
+      FORCES.forEach((f, k) => {
+        const [ex, ey] = ends[k];
+        const lx = k === 2 ? ex : ex + (k === 0 ? -360 : 360), ly = k === 2 ? ey + 110 : ey - 30;
+        label(ctx, `${f.l1} ${f.l2}`, lx, ly, { size: 30, color: f.col, align: 'center', alpha: ramp(t, 0.2 + k * 0.25, 0.5 + k * 0.25), ls: 4, weight: 800 });
+      });
+      label(ctx, 'ALL THREE FORCES. ONE VALUE MANIFESTO.', W / 2, 90, { size: 34, color: '#fff', align: 'center', alpha: ramp(t, 0.8, 1.1) * (1 - ramp(t, 4.6, 4.9)), ls: 6, weight: 800 });
+      circuit(ctx, W / 2 - 330, 900, 660, 'DESTINATION TIME', 'OCT 07 2026', '#ff3b2f', ramp(t, 1.5, 1.8));
+    }
+    // 3, 2, 1.
+    [['3', 5.0], ['2', 5.8], ['1', 6.6]].forEach(([n, a], i) => {
+      const b = a + 0.78;
+      if (t < a || t > b) return;
+      slam(ctx, n, W / 2, 560, { t, tin: a, tout: b - 0.2, size: 520, weight: 900, color: i === 2 ? '#ffd27a' : '#fff', ls: 0 });
+      whiteout(ctx, 0.3 * (1 - ramp(t, a, a + 0.12)));
+    });
+    whiteout(ctx, ramp(t, 7.1, 7.4));
+    if (t >= 7.4) black(ctx);
+  }
+
   window.FILMSCRIPT = {
     noCaptions: () => true,
     async draw(T, { ctx, sh, dir }) {
@@ -611,6 +705,8 @@
       if (id === 'choose') choose(ctx, T, at);
       if (id === 'mission') mission(ctx, T, at);
       if (id === 'run') run(ctx, T, at);
+      if (id === 'kick') kick(ctx, T, at);
+      if (id === 'finale') finale(ctx, T, at);
       if (id === 'arrive') arrive(ctx, T, at);
     },
   };

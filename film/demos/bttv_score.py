@@ -1,158 +1,244 @@
-"""The Back to the Value score: a trailer cue at 120 bpm in D minor.
+"""The Back to the Value score: a heroic orchestral fanfare, 120 bpm, D major.
 
-Cut to the picture's hits rather than left to the generic demo score: four
-booms and brass stabs in the cold open, a ticking clock that tightens into a
-riser, a drop on the VCR montage, a breakdown for "choose your force", a
-second drop when the flux capacitor fires, a long riser to 88, half a second
-of silence, and the biggest hit of the film on the arrival, resolving to D
-major under the poster.
+In the spirit of an eighties adventure film (brass fanfare, timpani, marching
+snare, soaring strings), on an original melody. It opens on a hit, not a
+build: a timpani roll into the jump, the fanfare under the title, brass stabs
+on three slams; drives under the explanation; swells as the three forces
+fire; counts down three hits to half a second of silence; and lands the
+fanfare in full under the poster, ending on a held D major chord.
 """
 
 from __future__ import annotations
 
 import numpy as np
 
+# The fanfare, as (beat, note, beats). Original: a rising fifth to the
+# octave, a falling run, and an answer that climbs to the third above.
+PHRASE_A = [(0, "D4", 1.5), (1.5, "A4", 0.5), (2, "D5", 2), (4, "C#5", 0.67), (4.67, "B4", 0.67),
+            (5.33, "A4", 0.66), (6, "B4", 1), (7, "G4", 1)]
+PHRASE_B = [(0, "A4", 1.5), (1.5, "F#4", 0.5), (2, "A4", 1), (3, "D5", 1), (4, "E5", 2), (6, "F#5", 2)]
+CHORDS_A = [["D3", "F#3", "A3"], ["D3", "F#3", "A3"], ["A2", "E3", "A3", "C#4"], ["G2", "D3", "G3", "B3"]]
+CHORDS_B = [["D3", "F#3", "A3"], ["B2", "D3", "F#3"], ["G2", "D3", "G3", "B3"], ["A2", "E3", "A3", "C#4"]]
+
 
 def compose(cfg: dict, m) -> dict:
     SR, B = m.SR, 60.0 / cfg["bpm"]
-    L = cfg["length"]
     drums, bass, pads, keys, fx = m.track(), m.track(), m.track(), m.track(), m.track()
-    kicks = []
-    rng = np.random.default_rng(88)
+    rng = np.random.default_rng(1985)
+    kicks: list[float] = []
 
-    def kick(t, g=1.0):
-        m.place(drums, m.kick(), t, 0.95 * g)
-        kicks.append(t)
+    # ------------------------------------------------------- the orchestra
+    def brass(note, length, g=1.0, bright=1.0, pan=0.0, bus=None):
+        n = int((length + 0.25) * SR)
+        t = np.arange(n) / SR
+        f = m.hz(note) * (1 + 0.004 * np.sin(2 * np.pi * 5.2 * t) * np.clip((t - 0.25) / 0.3, 0, 1))
+        ph = np.cumsum(f) / SR
+        y = sum(((ph * (1 + d)) % 1.0) * 2 - 1 for d in (-0.003, 0.0, 0.004)) / 3
+        y = y + np.sin(2 * np.pi * ph) * 0.5
+        # The "blat": a bright layer that dies away fast over a warm one.
+        out = m.lowpass(y, 2600 + 1600 * bright) + m.highpass(m.lowpass(y, 9000), 2000) * (0.35 + 0.9 * np.exp(-t * 6)) * bright
+        e = m.env(n, 0.03, 0.15, 0.85, 0.2, hold=length)
+        return np.tanh(out * e * 1.4) * 0.55 * g
 
-    def braam(t, notes=("D1", "D2", "A2", "D3"), length=1.6, g=0.9, cutoff=1300):
-        m.place(pads, m.pad(list(notes), length, cutoff=cutoff, attack=0.015, release=0.9), t, g)
-        m.place(bass, m.sub(notes[0], length, 0.9), t)
+    def play(bus, sig, t, g=1.0, pan=0.0):
+        m.place(bus, sig, t, g, pan=pan)
 
-    def hit(t, g=1.0, length=3.5, big=False):
-        m.place(fx, m.reverse_swell(0.9), t - 0.9, 0.45 * g)
-        m.place(fx, m.boom(length), t, 1.0 * g)
-        if big:
-            m.place(fx, m.boom(length + 1.5), t, 0.8 * g)
+    def horn_line(t0, phrase, g=1.0, octave_down=True, harm=True):
+        for b, note, d in phrase:
+            t = t0 + b * B
+            play(keys, brass(note, d * B * 0.95, bright=1.1), t, 0.9 * g, pan=0.1)
+            if octave_down:
+                lo = note[:-1] + str(int(note[-1]) - 1)
+                play(keys, brass(lo, d * B * 0.95, bright=0.7), t, 0.55 * g, pan=-0.15)
+            if harm:
+                # A third below, from the scale.
+                scale = ["D", "E", "F#", "G", "A", "B", "C#"]
+                name, octv = note[:-1], int(note[-1])
+                i = scale.index(name)
+                j = (i - 2) % 7
+                o = octv - (1 if j > i else 0)
+                play(keys, brass(scale[j] + str(o), d * B * 0.95, bright=0.8), t, 0.45 * g, pan=0.3)
 
-    def roll(a, b, g=0.6):
-        # A snare roll that tightens from eighths to thirty-seconds.
+    def strings(t0, chords, g=0.55, every=2):
+        for k, ch in enumerate(chords):
+            notes = ch + [n[:-1] + str(int(n[-1]) + 1) for n in ch]
+            play(pads, m.pad(notes, every * B, cutoff=3800, attack=0.06, release=0.5), t0 + k * every * B, g)
+            play(bass, m.sub(ch[0][:-1] + "1", every * B, 0.5), t0 + k * every * B)
+
+    def timp(note, g=1.0):
+        n = int(1.8 * SR)
+        t = np.arange(n) / SR
+        f = m.hz(note) * (1 + 0.08 * np.exp(-t * 18))
+        y = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 2.2)
+        y += m.lowpass(rng.normal(0, 1, n), 500) * np.exp(-t * 30) * 0.5
+        return np.tanh(y * 1.6) * g
+
+    def timp_roll(a, b, note="D2", g0=0.15, g1=0.9):
         t = a
-        while t < b - 1e-6:
+        while t < b:
             u = (t - a) / (b - a)
-            m.place(drums, m.clap(), t, g * (0.35 + 0.65 * u), pan=rng.uniform(-0.2, 0.2))
-            t += B / (2 if u < 0.4 else 4 if u < 0.75 else 8)
+            play(drums, timp(note, lerp(g0, g1, u ** 1.5)), t, 0.55)
+            t += 0.055
 
-    def groove(a, b, prog, *, clap=True, hats16=True, gain=1.0, arp=0.6):
-        for t in m.beats(a, b, B):
-            kick(t, gain)
-            m.place(drums, m.hat(open_=True), t + B / 2, 0.35 * gain, pan=0.2)
-            if clap and round((t - a) / B) % 2 == 1:
-                m.place(drums, m.clap(), t, 0.6 * gain)
-        if hats16:
-            for t in m.beats(a, b, B / 4):
-                m.place(drums, m.hat(), t, 0.22 * gain, pan=-0.25)
-        for t in m.beats(a, b, B / 2):
-            _, _, note = m.chord_at(t, prog, a)
-            m.place(bass, m.bassnote(note, B / 2 * 0.9), t, 0.6 * gain)
-        for t in m.beats(a, b, B / 4):
-            ch, _, _ = m.chord_at(t, prog, a)
-            seq = m.ARP_MINOR.get(ch[0][:-1], m.ARP_MINOR["D"])
-            k = round((t - a) / (B / 4))
-            m.place(keys, m.pluck(m.hz(seq[k % 8]), 0.28, 5200), t, 0.2 * arp, pan=0.4 * np.sin(k * 0.7))
-        for t in m.beats(a, b, 8 * B):
-            ch, sub_note, _ = m.chord_at(t, prog, a)
-            span = min(8 * B, b - t)
-            m.place(pads, m.pad(ch, span, cutoff=2800, attack=0.2, release=0.5), t, 0.45 * gain)
+    def snare():
+        n = int(0.22 * SR)
+        t = np.arange(n) / SR
+        y = m.bandpass(rng.normal(0, 1, n), 1500, 7000) * np.exp(-t * 22) + np.sin(2 * np.pi * 190 * t) * np.exp(-t * 35) * 0.6
+        return y * 0.6
+
+    def snare_roll(a, b, g0=0.2, g1=0.8):
+        t = a
+        while t < b:
+            u = (t - a) / (b - a)
+            play(drums, snare(), t, lerp(g0, g1, u), pan=rng.uniform(-0.15, 0.15))
+            t += B / 8
+
+    def march(a, b, g=0.7):
+        # Snare on the march figure: 1 . (a 2) . 3 . (a 4) with triplet pickups.
+        for t in m.beats(a, b, 2 * B):
+            for off, v in ((0, 1.0), (B * 0.667, 0.55), (B * 0.833, 0.6), (B, 0.9), (B * 1.5, 0.5)):
+                if t + off < b:
+                    play(drums, snare(), t + off, g * v)
+        for t in m.beats(a, b, 2 * B):
+            play(drums, timp("D2", 0.8), t, 0.5)
+            play(drums, timp("A1", 0.7), t + B, 0.45)
+
+    def crash(t, g=0.8):
+        n = int(3.0 * SR)
+        tt = np.arange(n) / SR
+        y = m.highpass(rng.normal(0, 1, (2, n)), 5000) * np.exp(-tt * 1.6)
+        play(fx, y * 0.5, t, g)
+
+    def hit(t, chord=("D3", "F#3", "A3", "D4", "F#4", "A4"), g=1.0, length=1.2):
+        for k, note in enumerate(chord):
+            play(keys, brass(note, length, bright=1.3), t, 0.45 * g, pan=(k / (len(chord) - 1) - 0.5) * 0.6)
+        play(bass, m.sub("D1", length, 0.9), t)
+        play(drums, timp("D2", 1.0), t, 0.9 * g)
+        play(fx, m.boom(2.5), t, 0.7 * g)
+        crash(t, 0.7 * g)
+
+    def stab(t, chord, g=0.9):
+        for note in chord:
+            play(keys, brass(note, 0.32, bright=1.4), t, 0.5 * g)
+        play(drums, timp("D2", 1.0), t, 0.8 * g)
+        play(fx, m.boom(1.2), t, 0.45 * g)
+
+    def ostinato(a, b, g=0.5, root="D"):
+        # Driving sixteenths in the strings: root, fifth, octave.
+        seq = {"D": ["D3", "D3", "A3", "D3", "D4", "D3", "A3", "D3"], "B": ["B2", "B2", "F#3", "B2", "B3", "B2", "F#3", "B2"],
+               "G": ["G2", "G2", "D3", "G2", "G3", "G2", "D3", "G2"], "A": ["A2", "A2", "E3", "A2", "A3", "A2", "E3", "A2"]}[root]
+        for k, t in enumerate(m.beats(a, b, B / 4)):
+            play(pads, m.pluck(m.hz(seq[k % 8]), 0.16, 3200), t, g, pan=0.25 * np.sin(k * 0.9))
+
+    def lerp(x, y, u):
+        return x + (y - x) * u
 
     def rewind(t, length=0.8):
         n = int(length * SR)
         tt = np.arange(n) / SR
         f = 1800 * (0.12 ** (tt / length))
         y = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.4 + m.bandpass(rng.normal(0, 1, n), 800, 5000) * 0.25
-        m.place(fx, y * np.exp(-tt * 1.2), t, 0.7)
+        play(fx, y * np.exp(-tt * 1.2), t, 0.6)
 
     def whir(t, length=0.9):
         n = int(length * SR)
         tt = np.arange(n) / SR
         f = 300 * (6 ** (tt / length))
         y = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.4 + m.highpass(rng.normal(0, 1, n), 3000) * 0.2
-        m.place(fx, y * (tt / length) ** 0.5 * np.exp(-tt * 0.8), t, 0.6)
+        play(fx, y * (tt / length) ** 0.5 * np.exp(-tt * 0.8), t, 0.55)
 
-    # 0-6: the cold open. A clock, and four slams.
-    m.place(bass, m.sub("D1", 6.0, 0.35), 0.0)
-    for t in m.beats(0.2, 4.0, B):
-        m.place(fx, m.tick(), t, 0.55)
-    for t in m.beats(4.0, 6.0, B / 2):
-        m.place(fx, m.tick(), t, 0.65)
-    for t in (0.5, 2.0, 3.5, 5.0):
-        hit(t, 0.8, 2.0)
-        braam(t, length=1.3, g=0.75 + 0.05 * (t / 1.5))
+    # ------------------------------------------------------------ 0-7.5: the kick
+    hit(0.0, g=1.0)
+    timp_roll(0.15, 1.85, "A1", 0.2, 1.0)
+    snare_roll(0.6, 1.85, 0.2, 0.9)
+    play(fx, m.riser(1.8), 0.05, 0.9)
+    # The jump, and the fanfare under the title.
+    hit(1.85, g=1.3)
+    play(fx, m.boom(4.0), 1.85, 1.0)
+    strings(1.85, CHORDS_A, 0.6)
+    horn_line(1.85, PHRASE_A, 1.0)
+    march(1.85, 5.35, 0.55)
+    # Three slams.
+    stab(5.35, ["D3", "A3", "D4", "F#4"], 1.0)
+    stab(6.05, ["B2", "F#3", "B3", "D4"], 1.0)
+    stab(6.75, ["G2", "D3", "G3", "B3"], 1.05)
+    play(keys, brass("A4", 0.6, bright=1.4), 7.1, 0.6)
+    snare_roll(7.1, 7.5, 0.4, 0.9)
 
-    # 6-14: ignition. Pulse, ticks tightening, a riser into the drop.
-    for t in m.beats(6.0, 14.0, B / 2):
-        m.place(bass, m.bassnote("D1", B / 2 * 0.8), t, 0.45)
-    for t in m.beats(6.0, 10.0, B / 2):
-        m.place(fx, m.tick(), t, 0.5)
-    for t in m.beats(10.0, 14.0, B / 4):
-        m.place(fx, m.tick(), t, 0.45)
-    m.place(pads, m.pad(["D2", "A2", "D3", "F3"], 8.0, cutoff=900, attack=1.5, release=0.4), 6.0, 0.6)
-    m.place(fx, m.riser(4.0), 10.0, 0.9)
-    roll(12.0, 14.0, 0.5)
+    # --------------------------------------------------- 7.5-19.5: the montage
+    crash(7.5, 0.6)
+    for a, root in ((7.5, "D"), (9.5, "B"), (11.5, "G"), (13.5, "A"), (15.5, "D"), (17.5, "B")):
+        ostinato(a, a + 2.0, 0.55, root)
+        play(bass, m.sub({"D": "D1", "B": "B0", "G": "G0", "A": "A0"}[root], 2.0, 0.7), a)
+    march(7.5, 19.5, 0.4)
+    rewind(7.55)
+    for k in range(6):
+        play(fx, m.switch(), 13.1 + k * 0.36, 0.35)
+    whir(15.5)
+    # Low horns answer under each chapter.
+    for t, ph in ((9.5, [(0, "D4", 1), (1, "A4", 1), (2, "F#4", 2)]), (13.5, [(0, "E4", 1), (1, "A4", 1), (2, "C#5", 2)]),
+                  (17.5, [(0, "F#4", 1), (1, "B4", 1), (2, "D5", 2)])):
+        horn_line(t, ph, 0.5, harm=False)
+    timp_roll(18.3, 19.5, "A1", 0.2, 0.9)
 
-    # 14-26: the drop, under the VCR montage.
-    hit(14.0, 1.0, 3.0)
-    groove(14.0, 26.0, m.PROG_MINOR)
-    rewind(14.05)
-    m.place(fx, m.switch(), 18.0, 0.7)
-    for k in range(6):  # frame-advance clicks on the tool flashes
-        m.place(fx, m.switch(), 19.6 + k * 0.36, 0.35)
-    whir(22.0)
+    # ------------------------------------------------- 19.5-31.5: choose your force
+    hit(19.5, g=0.9)
+    strings(19.5, [["D3", "F#3", "A3"]] * 4, 0.4, every=2)
+    for a in (20.5, 22.0, 23.5):  # each force card lands on a horn call
+        stab(a, ["D3", "A3", "D4", "F#4"], 0.9)
+    strings(23.5, [["G2", "D3", "G3", "B3"], ["A2", "E3", "A3", "C#4"]], 0.55)
+    for a, root in ((23.5, "G"), (25.5, "A")):
+        ostinato(a, a + 2.0, 0.55, root)
+    march(23.5, 27.4, 0.45)
+    for t in m.beats(24.5, 27.4, B / 2):  # the cursor
+        play(fx, m.tick(), t, 0.5)
+        play(drums, snare(), t, 0.25)
+    play(fx, m.riser(2.9), 24.5, 0.8)
+    snare_roll(26.4, 27.4, 0.3, 1.0)
+    # The machine fires: the fanfare's answer, in full.
+    hit(28.05, g=1.2)
+    strings(28.05, CHORDS_B, 0.65)
+    horn_line(28.05, PHRASE_B, 1.0)
+    march(28.05, 31.5, 0.55)
 
-    # 26-34: breakdown for "choose your force", then a build.
-    m.place(pads, m.pad(["D3", "F3", "A3", "C4"], 8.0, cutoff=1800, attack=0.3, release=0.6), 26.0, 0.55)
-    for t in m.beats(26.0, 34.0, 2 * B):
-        kick(t, 0.8)
-    for t in (27.0, 28.5, 30.0):
-        hit(t, 0.75, 2.2)
-        braam(t, ("D1", "D2", "A2"), length=1.0, g=0.6)
-    for t in m.beats(31.0, 34.0, B):
-        m.place(fx, m.switch(), t, 0.4)
-        m.place(keys, m.bell(m.hz("A5"), 0.8), t, 0.12)
-    m.place(fx, m.riser(4.0), 30.0, 0.8)
-    roll(32.0, 34.0, 0.6)
+    # ---------------------------------------------------- 31.5-39.5: the mission
+    crash(31.5, 0.5)
+    for a, root in ((31.5, "G"), (33.5, "A"), (35.5, "B"), (37.5, "A")):
+        ostinato(a, a + 2.0, 0.6, root)
+        play(pads, m.pad([{"G": "G3", "A": "A3", "B": "B3"}[root], {"G": "B3", "A": "C#4", "B": "D4"}[root], {"G": "D4", "A": "E4", "B": "F#4"}[root]], 2.0, cutoff=2600, attack=0.3, release=0.4), a, 0.35)
+    march(31.5, 37.3, 0.38)
+    for k in range(40):  # the typing
+        play(fx, m.keyclick(), 32.5 + k * 0.09, 0.3)
+    snare_roll(37.3, 38.1, 0.3, 1.0)
+    hit(38.1, ("D3", "A3", "D4", "F#4", "A4", "D5"), g=1.1)
 
-    # 34-46: the flux capacitor fires. Full groove, lifted.
-    hit(34.0, 1.1, 3.5, big=True)
-    braam(34.0, ("D1", "D2", "A2", "D3", "F3"), length=2.0, g=0.9, cutoff=2200)
-    groove(34.0, 46.0, m.PROG_LIFT, gain=1.05, arp=0.8)
-    hit(38.0, 0.6, 2.0)
-    for k, n in enumerate(["D6", "F6", "A6", "D7"]):
-        m.place(keys, m.bell(m.hz(n), 2.5), 44.6 + k * 0.08, 0.16)
-    hit(44.6, 0.8, 2.5)
+    # ------------------------------------------------- 39.5-47.3: the countdown
+    timp_roll(39.5, 44.5, "D2", 0.1, 0.8)
+    for a, chord in ((39.5, CHORDS_A[0]), (41.0, CHORDS_B[1]), (42.5, CHORDS_A[3]), (43.5, CHORDS_A[2])):
+        notes = chord + [n[:-1] + str(int(n[-1]) + 1) for n in chord]
+        play(pads, m.pad(notes, 1.5, cutoff=3000, attack=0.4, release=0.3), a, 0.55)
+    for k, note in enumerate(["A4", "B4", "C#5", "D5", "E5"]):  # brass climbing
+        play(keys, brass(note, 0.9, bright=1.2), 40.0 + k * 0.9, 0.55)
+    play(fx, m.riser(7.3), 39.6, 1.1)
+    for a, chord in ((44.5, ["A2", "E3", "A3", "C#4"]), (45.3, ["A2", "E3", "A3", "C#4", "E4"]), (46.1, ["A2", "E3", "A3", "C#4", "E4", "A4"])):
+        stab(a, chord, 1.15)
+        crash(a, 0.6)
+    snare_roll(46.1, 46.9, 0.5, 1.0)
 
-    # 46-52.6: the run to 88. Four on the floor and a long riser.
-    for t in m.beats(46.0, 52.6, B):
-        kick(t, 0.9)
-    for t in m.beats(46.0, 52.6, B / 2):
-        m.place(bass, m.bassnote("D1", B / 2 * 0.85), t, 0.6)
-    m.place(fx, m.riser(6.6), 46.0, 1.2)
-    roll(50.0, 52.6, 0.75)
-    m.place(pads, m.pad(["D2", "A2", "D3", "F3", "A3"], 6.6, cutoff=600, attack=4.0, release=0.1), 46.0, 0.7)
-
-    # 52.6-53.0: silence. Then the jump.
-    a, b = int(52.6 * SR), int(53.0 * SR)
-    for bus in (drums, bass, pads, keys, fx):
-        bus[:, a:b] *= np.linspace(1, 0, b - a) ** 3
-        bus[:, b:b + int(0.02 * SR)] = 0
-
-    # 53-60: arrival, resolving to D major under the poster.
-    hit(53.0, 1.3, 5.0, big=True)
-    m.place(pads, m.pad(["D2", "A2", "D3", "F#3", "A3", "D4", "F#4", "A4"], L - 53.3, cutoff=4200, attack=0.03, release=1.4), 53.0, 1.0)
-    m.place(bass, m.sub("D1", L - 53.3, 0.8), 53.0)
-    for k, n in enumerate(["D5", "F#5", "A5", "D6"]):
-        m.place(keys, m.bell(m.hz(n), 4.0), 54.2 + k * 0.5, 0.22)
-    for t in m.beats(55.5, L - 1.4, B):
-        m.place(drums, m.hat(open_=True), t, 0.18)
-    hit(57.0, 0.6, 3.0)
+    # ------------------------------------------------------ 47.3-60: the landing
+    hit(47.3, g=1.5)
+    play(fx, m.boom(5.0), 47.3, 1.1)
+    strings(47.3, CHORDS_A, 0.75)
+    horn_line(47.3, PHRASE_A, 1.15)
+    march(47.3, 55.3, 0.6)
+    strings(51.3, CHORDS_B, 0.75)
+    horn_line(51.3, PHRASE_B, 1.15)
+    # The final chord, held, with a timpani roll and a last hit.
+    timp_roll(55.3, 57.6, "D2", 0.3, 1.0)
+    final = ["D3", "F#3", "A3", "D4", "F#4", "A4", "D5"]
+    play(pads, m.pad(final + ["D2"], 4.2, cutoff=4500, attack=0.05, release=1.2), 55.3, 0.85)
+    for note in ("D4", "F#4", "A4", "D5"):
+        play(keys, brass(note, 2.2, bright=1.1), 55.3, 0.45)
+    hit(57.6, final, g=1.3, length=1.6)
 
     return {"drums": drums, "bass": bass, "pads": pads, "keys": keys, "fx": fx, "kicks": np.array(kicks)}
