@@ -1,0 +1,500 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 113.0,
+ "accent": "#ffb02e",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "-2%",
+ "pitch": "+0Hz",
+ "bpm": 118,
+ "hide": [],
+ "boost": [
+  37.4,
+  99.0
+ ],
+ "chimes": [
+  37.4,
+  45.4,
+  54.6,
+  61.4,
+  69.4,
+  78.7,
+  89.6,
+  99.0
+ ],
+ "chapters": [
+  [
+   "RFP SUMMARY",
+   "4",
+   "SUPPLIERS INVITED",
+   "2,000 units · £2.1M baseline",
+   3.0,
+   "RFP summary"
+  ],
+  [
+   "BID EVALUATION",
+   "88.7%",
+   "DELL · WEIGHTED SCORE",
+   "HP 80.0% · Lenovo 76.3%",
+   5.6,
+   "Bid evaluation"
+  ],
+  [
+   "PAST PURCHASES",
+   "7.6%",
+   "AVERAGE REALISED SAVING",
+   "Last three negotiation cycles",
+   2.6,
+   "Past purchases"
+  ],
+  [
+   "MARKET INSIGHTS",
+   "HIGH",
+   "CHINA–TAIWAN SUPPLY RISK",
+   "3 geopolitical signals, rated",
+   4.6,
+   "Market insights"
+  ],
+  [
+   "DESIGN TO COST",
+   "£914",
+   "SHOULD-COST PER UNIT",
+   "Lowest bid £995",
+   5.0,
+   "Design to cost"
+  ],
+  [
+   "MESO ANALYSIS",
+   "70/30",
+   "DUAL AWARD · DELL / HP",
+   "4 award scenarios simulated",
+   6.4,
+   "MESO analysis"
+  ],
+  [
+   "RECOMMENDATION",
+   "£154,000",
+   "PROJECTED SAVINGS",
+   "Target £965 Dell · £980 HP",
+   5.6,
+   "Recommendation"
+  ]
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0.0,
+   "dur": 20.0,
+   "src": [
+    13,
+    13
+   ],
+   "hold": 13.0,
+   "cam": [
+    [
+     0,
+     0,
+     40,
+     1560
+    ],
+    [
+     1,
+     60,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.28) saturate(0.7)"
+  },
+  {
+   "id": "title",
+   "at": 20.0,
+   "dur": 4.2,
+   "src": [
+    13,
+    13
+   ],
+   "hold": 13.0,
+   "cam": [
+    [
+     0,
+     60,
+     60,
+     1500
+    ],
+    [
+     1,
+     80,
+     80,
+     1460
+    ]
+   ],
+   "filter": "blur(18px) brightness(0.28) saturate(0.7)",
+   "in": "flash"
+  },
+  {
+   "id": "agent",
+   "at": 24.2,
+   "dur": 3.6,
+   "src": [
+    14.0,
+    20.6
+   ],
+   "cam": [
+    [
+     0,
+     480,
+     160,
+     1200
+    ],
+    [
+     1,
+     560,
+     220,
+     1060
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "events",
+   "at": 27.8,
+   "dur": 4.2,
+   "src": [
+    23.2,
+    29.8
+   ],
+   "cam": [
+    [
+     0,
+     600,
+     300,
+     960
+    ],
+    [
+     1,
+     640,
+     340,
+     900
+    ]
+   ]
+  },
+  {
+   "id": "generate",
+   "at": 32.0,
+   "dur": 5.4,
+   "src": [
+    30.2,
+    34.4
+   ],
+   "cam": [
+    [
+     0,
+     640,
+     380,
+     900
+    ],
+    [
+     0.5,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     540,
+     270,
+     1133
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "c1",
+   "at": 37.4,
+   "dur": 8.0,
+   "src": [
+    41.4,
+    46.2
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     390,
+     1133
+    ],
+    [
+     1,
+     560,
+     400,
+     1100
+    ]
+   ],
+   "chapter": 0,
+   "in": "wipe"
+  },
+  {
+   "id": "c2",
+   "at": 45.4,
+   "dur": 9.2,
+   "src": [
+    53.0,
+    60.8
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 1,
+   "in": "wipe"
+  },
+  {
+   "id": "c3",
+   "at": 54.6,
+   "dur": 6.8,
+   "src": [
+    70.6,
+    76.6
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 2,
+   "in": "wipe"
+  },
+  {
+   "id": "c4",
+   "at": 61.4,
+   "dur": 8.0,
+   "src": [
+    85.0,
+    93.0
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 3,
+   "in": "wipe"
+  },
+  {
+   "id": "c5",
+   "at": 69.4,
+   "dur": 9.3,
+   "src": [
+    105.4,
+    110.0
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 4,
+   "in": "wipe"
+  },
+  {
+   "id": "c6",
+   "at": 78.7,
+   "dur": 10.9,
+   "src": [
+    121.0,
+    131.6
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 5,
+   "in": "wipe"
+  },
+  {
+   "id": "c7",
+   "at": 89.6,
+   "dur": 9.4,
+   "src": [
+    138.6,
+    146.0
+   ],
+   "cam": [
+    [
+     0,
+     540,
+     270,
+     1133
+    ],
+    [
+     1,
+     555,
+     280,
+     1100
+    ]
+   ],
+   "chapter": 6,
+   "in": "wipe"
+  },
+  {
+   "id": "ready",
+   "at": 99.0,
+   "dur": 6.4,
+   "src": [
+    144.5,
+    144.5
+   ],
+   "hold": 144.5,
+   "cam": [
+    [
+     0,
+     555,
+     280,
+     1100
+    ],
+    [
+     1,
+     600,
+     320,
+     1020
+    ]
+   ],
+   "filter": "blur(10px) brightness(0.35) saturate(0.6)",
+   "in": "flash"
+  },
+  {
+   "id": "end",
+   "at": 105.4,
+   "dur": 7.6,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "n02",
+   "at": 0.8,
+   "text": "Who do we push? How much leverage do we have? What's a realistic saving target?",
+   "caption": false
+  },
+  {
+   "id": "n03",
+   "at": 7.2,
+   "text": "The answers are scattered across RFPs, bids, market reports and past purchases. Pulled together by hand, over hours."
+  },
+  {
+   "id": "n04",
+   "at": 16.2,
+   "text": "Insights get missed, and savings are left on the table."
+  },
+  {
+   "id": "n05",
+   "at": 20.5,
+   "text": "Meet the Sourcing Negotiation Agent.",
+   "caption": false
+  },
+  {
+   "id": "n06",
+   "at": 24.6,
+   "text": "The moment a sourcing event is ready for negotiation, the agent goes to work."
+  },
+  {
+   "id": "n07",
+   "at": 31.8,
+   "text": "It builds a structured briefing, seven sections deep, ending in one clear recommendation."
+  },
+  {
+   "id": "n08",
+   "at": 37.8,
+   "text": "First, the RFP: requirements, criteria and invited suppliers, extracted automatically."
+  },
+  {
+   "id": "n09",
+   "at": 45.8,
+   "text": "Every bid, scored across technical, compliance, ESG and commercial. Dell leads, at eighty-eight point seven percent."
+  },
+  {
+   "id": "n10",
+   "at": 55.0,
+   "text": "Past purchases set the baseline: seven point six percent average savings in this category."
+  },
+  {
+   "id": "n11",
+   "at": 61.8,
+   "text": "Live market intelligence adds price trends, top suppliers, and geopolitical risk, each rated by severity."
+  },
+  {
+   "id": "n12",
+   "at": 69.8,
+   "text": "Design to cost breaks the laptop into its components, and lands a should-cost of nine hundred and fourteen pounds. Every bid sits above it."
+  },
+  {
+   "id": "n13",
+   "at": 79.1,
+   "text": "Then it simulates the award: single, dual, BAFO, multi-year. A seventy-thirty split, Dell and HP, wins on risk-adjusted value."
+  },
+  {
+   "id": "n14",
+   "at": 90.0,
+   "text": "It all flows into one recommendation: preferred supplier, target price, and projected savings of one hundred and fifty-four thousand pounds."
+  },
+  {
+   "id": "n15",
+   "at": 99.6,
+   "text": "Every number backed by data. Every strategy grounded in evidence."
+  },
+  {
+   "id": "n16",
+   "at": 106.3,
+   "text": "Walk into every negotiation fully briefed.",
+   "caption": false
+  }
+ ]
+}

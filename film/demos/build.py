@@ -160,6 +160,9 @@ def compose(cfg: dict) -> dict:
         v = cuts["value"]
         groove(v["at"], v["at"] + v["dur"] - 0.3, hats16=True, clap=True, pulse=0.9, arp=0.9, gain=0.9)
         hit(v["at"], 0.8, 3.0)
+    if "boost" in cfg:
+        a, b = cfg["boost"]
+        groove(a, b - 0.3, hats16=True, pulse=0.8, arp=0.7, gain=0.8)
 
     # A key click per letter typed, a whoosh as the question is sent.
     for c in asks:
@@ -169,11 +172,11 @@ def compose(cfg: dict) -> dict:
             m.place(fx, m.keyclick(), c["at"] + 0.25 + i * per, 0.3 * (0.7 + 0.3 * RNG.random()),
                     pan=RNG.uniform(-0.2, 0.2))
         m.place(fx, m.reverse_swell(0.5), c["at"] + c["dur"] - 0.5, 0.35)
-    # A bright chime where each answer lands.
-    for c in cfg["cuts"]:
-        if c["id"].endswith("ans"):
-            for i, n in enumerate(["D6", "F#6", "A6"]):
-                m.place(keys, m.bell(m.hz(n), 2.0), c["at"] + 0.05 + i * 0.06, 0.16)
+    # A bright chime where each answer lands, or wherever the film asks for one.
+    lands = [c["at"] for c in cfg["cuts"] if c["id"].endswith("ans")] + cfg.get("chimes", [])
+    for t in lands:
+        for i, n in enumerate(["D6", "F#6", "A6"]):
+            m.place(keys, m.bell(m.hz(n), 2.0), t + 0.05 + i * 0.06, 0.16)
 
     if "end" in cuts:
         e = cuts["end"]["at"]
