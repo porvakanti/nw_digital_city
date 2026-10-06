@@ -3,139 +3,61 @@
  "srcFps": 30,
  "length": 45.0,
  "accent": "#e60000",
+ "script": "bttv_poster",
  "voice": "en-GB-SoniaNeural",
- "rate": "-4%",
+ "rate": "-6%",
  "pitch": "-2Hz",
  "bpm": 120,
- "score": "bttv_score",
+ "score": "bttv_synth",
  "silence": [
-  36.3,
-  36.7
+  35.6,
+  36.0
  ],
  "hide": [],
  "cuts": [
   {
-   "id": "kick",
+   "id": "drive",
    "at": 0,
-   "dur": 7.5
+   "dur": 16.0
   },
   {
-   "id": "rew",
-   "at": 7.5,
-   "dur": 2.5,
-   "speed": 1.6,
-   "in": "flash"
+   "id": "dest",
+   "at": 16.0,
+   "dur": 14.0
   },
   {
-   "id": "pause",
-   "at": 10.0,
-   "dur": 2.6,
-   "speed": 1.538
+   "id": "run",
+   "at": 30.0,
+   "dur": 5.6
   },
   {
-   "id": "ff",
-   "at": 12.6,
-   "dur": 2.5,
-   "speed": 1.6
-  },
-  {
-   "id": "choose",
-   "at": 15.1,
-   "dur": 9.0,
-   "speed": 1.333,
-   "in": "flash"
-  },
-  {
-   "id": "mission",
-   "at": 24.1,
-   "dur": 6.0,
-   "speed": 1.333,
-   "in": "flash"
+   "id": "gap",
+   "at": 35.6,
+   "dur": 0.4
   },
   {
    "id": "finale",
-   "at": 30.1,
-   "dur": 6.6,
-   "speed": 1.2,
-   "in": "flash"
-  },
-  {
-   "id": "arrive",
-   "at": 36.7,
-   "dur": 8.3
+   "at": 36.0,
+   "dur": 9.0
   }
  ],
  "lines": [
   {
-   "id": "d01",
-   "at": 2.5,
+   "id": "e01",
+   "at": 8.5,
+   "text": "Value isn't in the tools we build. | It's in the tools we use.",
+   "caption": false
+  },
+  {
+   "id": "e02",
+   "at": 16.3,
+   "text": "Three forces. | Every team gets one.",
+   "caption": false
+  },
+  {
+   "id": "e03",
+   "at": 39.0,
    "text": "Back to the Value.",
-   "caption": false
-  },
-  {
-   "id": "d03",
-   "at": 7.6,
-   "text": "Rewind.",
-   "caption": false
-  },
-  {
-   "id": "d04",
-   "at": 10.1,
-   "text": "Pause.",
-   "caption": false
-  },
-  {
-   "id": "d05",
-   "at": 12.7,
-   "text": "Fast forward.",
-   "caption": false
-  },
-  {
-   "id": "d06",
-   "at": 15.5,
-   "text": "Three forces. | Choose yours.",
-   "caption": false
-  },
-  {
-   "id": "d07",
-   "at": 24.5,
-   "text": "One mission: | write the Value Manifesto.",
-   "caption": false
-  },
-  {
-   "id": "d08",
-   "at": 30.4,
-   "text": "All three. | One machine.",
-   "caption": false
-  },
-  {
-   "id": "d09",
-   "at": 34.27,
-   "text": "Three.",
-   "caption": false
-  },
-  {
-   "id": "d10",
-   "at": 34.93,
-   "text": "Two.",
-   "caption": false
-  },
-  {
-   "id": "d11",
-   "at": 35.6,
-   "text": "One.",
-   "caption": false
-  },
-  {
-   "id": "d12",
-   "at": 37.9,
-   "text": "Back to the Value.",
-   "caption": false
-  },
-  {
-   "id": "d13",
-   "at": 40.9,
-   "text": "The breakout | starts now.",
    "caption": false
   }
  ]
