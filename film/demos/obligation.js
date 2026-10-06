@@ -225,7 +225,7 @@
       }
       if (id === 'value') {
         scrim(ctx, 'center', 0.6);
-        const words = [['Every obligation tracked.', INK], ['Every claim counted.', INK], ['No revenue left on the table.', A]];
+        const words = [['Every obligation tracked.', INK], ['Every claim counted.', INK], ['No value left on the table.', A]];
         words.forEach(([w, col], i) => rise(ctx, w, W / 2, 360 + i * 130, { t: T, tin: at + 0.4 + i * 1.6, tout: at + dur - 0.6, size: 92, weight: 850, align: 'center', ls: -3, color: col, stagger: 0.02 }));
         label(ctx, 'AND LEVERAGE FOR EVERY SUPPLIER NEGOTIATION', W / 2, 820, { size: 20, color: A, align: 'center', alpha: ramp(T, at + 5.2, at + 5.6) * (1 - ramp(T, at + dur - 0.6, at + dur - 0.3)), ls: 6 });
       }
