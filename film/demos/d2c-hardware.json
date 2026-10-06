@@ -263,13 +263,13 @@
   {
    "id": "h04",
    "at": 14.0,
-   "text": "Meet D2C Product Re-costing.",
+   "text": "Meet D to C Product Re-costing.",
    "caption": false
   },
   {
    "id": "h05",
    "at": 18.4,
-   "text": "In the D2C Assistant, choose the hardware stream, then product costing."
+   "text": "In the D to C Assistant, choose the hardware stream, then product costing."
   },
   {
    "id": "h06",
@@ -289,7 +289,7 @@
   {
    "id": "h09",
    "at": 35.0,
-   "text": "D2C re-costs it against the latest data."
+   "text": "D to C re-costs it against the latest data."
   },
   {
    "id": "h10",
@@ -312,5 +312,8 @@
    "text": "Know the number before the supplier names it.",
    "caption": false
   }
- ]
+ ],
+ "captionMap": {
+  "D to C": "D2C"
+ }
 }

@@ -301,13 +301,13 @@
   {
    "id": "s03",
    "at": 11.6,
-   "text": "Meet D2C Should Cost, for software services.",
+   "text": "Meet D to C Should Cost, for software services.",
    "caption": false
   },
   {
    "id": "s04",
    "at": 16.3,
-   "text": "In the D2C Assistant, choose software services, then should cost."
+   "text": "In the D to C Assistant, choose software services, then should cost."
   },
   {
    "id": "s05",
@@ -322,7 +322,7 @@
   {
    "id": "s07",
    "at": 33.7,
-   "text": "D2C brings in the benchmark: a blended rate of two hundred and ninety-four euros, with an eighty-twenty onshore, offshore mix."
+   "text": "D to C brings in the benchmark: a blended rate of two hundred and ninety-four euros, with an eighty-twenty onshore, offshore mix."
   },
   {
    "id": "s08",
@@ -350,5 +350,8 @@
    "text": "Know what it should cost, before you negotiate.",
    "caption": false
   }
- ]
+ ],
+ "captionMap": {
+  "D to C": "D2C"
+ }
 }
