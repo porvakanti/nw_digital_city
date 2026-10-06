@@ -246,7 +246,7 @@
         cards.forEach(([x, y, w, h, n, when]) => outline(ctx, sh, [x, y, w, h], ramp(T, at + when, at + when + 0.3), A, n, false));
         tag(ctx, T, at + 0.3, 'LEADERSHIP PRIORITIES · WITH NEXT STEPS', A);
       }
-      if (id === 'tabs') tag(ctx, T, at + 0.3, 'EVERY DETAIL · ONE TAB AWAY', A);
+      if (id === 'tabs') tag(ctx, T, at + 0.3, 'EVERY DETAIL · ONE TAB AWAY', A, 860);
       if (id === 'switch') tag(ctx, T, at, 'SWITCH SUPPLIER', A, 860);
       if (id === 'ticker') outline(ctx, sh, [597, 211, 296, 30], ramp(T, at + 1.0, at + 1.4), A, 'LIVE SHARE PRICE');
       if (id === 'news') {
