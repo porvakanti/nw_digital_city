@@ -241,9 +241,22 @@ def audio(film: str, cfg: dict, out: Path) -> None:
         for said, shown in cfg.get("captionMap", {}).items():
             c["text"] = c["text"].replace(said, shown)
     (out / "captions.json").write_text(json.dumps(caps, indent=1))
-    score = music.mix(compose(cfg))
+    # A film can bring its own score, cut to its own hits.
+    if cfg.get("score"):
+        import importlib
+        sys.path.insert(0, str(HERE))
+        stems = importlib.import_module(cfg["score"]).compose(cfg, music)
+    else:
+        stems = compose(cfg)
+    score = music.mix(stems)
     score = np.tanh(score * 0.9)
     score /= np.abs(score).max()
+    # A held breath the film asks for: the score falls silent, tails and all.
+    if "silence" in cfg:
+        a, b = (int(v * SR) for v in cfg["silence"])
+        fade = int(0.08 * SR)
+        score[:, a - fade:a] *= np.linspace(1, 0, fade) ** 2
+        score[:, a:b] = 0
     mix = score * reel.duck(vo) * 0.6 + vo * 0.95
     tail = int(1.0 * SR)
     mix[:, -tail:] *= np.linspace(1, 0, tail) ** 2
