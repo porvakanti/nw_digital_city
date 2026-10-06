@@ -1,8 +1,8 @@
 /* Executive Supplier Intelligence: the film's own graphics, over its shots.
  *
- * Its signature is the count: a forty-page pack that riffles, gathers and
- * folds into one screen, and a corner counter that holds it there, "40 → 1",
- * for as long as the film stays on that screen. Emerald, for clarity.
+ * Its signature is the clock: the film opens on a meeting forty-five minutes
+ * away and counts down in the corner while the tour runs, ending with minutes
+ * to spare. Emerald, for clarity.
  */
 (() => {
   const K = window.KIT;
@@ -43,95 +43,117 @@
     }
   }
 
-  /* The pack: forty pages riffling, fed by a dozen systems, then folded flat. */
-  function pack(ctx, T, A) {
-    const fold = eio(ramp(T, 12.8, 14.2));
-    const out = ei(ramp(T, 15.4, 16.0));
-    const cx = W / 2, cy = 480;
-    const pages = 40;
-    const shown = Math.floor(clamp(ramp(T, 0.8, 4.4)) * pages);
-    rise(ctx, 'Before every supplier meeting:', W / 2, 160, { t: T, tin: 0.6, tout: 12.4, size: 52, weight: 700, align: 'center', by: 'word', stagger: 0.05 });
-    // The systems it is pulled from.
-    const sys = [['SAP DATASPHERE', -620, -170], ['SIRION CONTRACT WATCH', 620, -200], ['EXIGER', -680, 60],
-      ['CRM', 660, 50], ['AVA SOURCING', -560, 270], ['NEWSROOMS & FILINGS', 600, 280]];
+  // Minutes until the meeting, counting down from 45:00 at the film's start.
+  const clock = (T) => {
+    const left = Math.max(0, 45 * 60 - T);
+    return `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(Math.floor(left % 60)).padStart(2, '0')}`;
+  };
+
+  /* The meeting: a calendar alert, the countdown already running. */
+  function alert(ctx, T, A) {
+    const k = back(ramp(T, 0.3, 0.8));
+    const out = ei(ramp(T, 3.6, 4.2));
+    if (k <= 0 || out >= 1) return;
+    const w = 760, h = 230, x = W / 2 - w / 2, y = lerp(-h, 330, eo5(ramp(T, 0.3, 0.9))) - out * 500;
+    ctx.save();
+    ctx.globalAlpha = clamp(k) * (1 - out);
+    ctx.fillStyle = 'rgba(246,247,249,0.97)'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 60;
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, 28); ctx.fill();
+    ctx.shadowBlur = 0;
+    // The calendar icon.
+    ctx.fillStyle = '#e60000'; ctx.beginPath(); ctx.roundRect(x + 40, y + 50, 120, 130, 18); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillRect(x + 40, y + 88, 120, 92);
+    font(ctx, 20, 700, MONO, 3); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText('09:00', x + 100, y + 78);
+    font(ctx, 56, 900, SANS, -2); ctx.fillStyle = '#111'; ctx.fillText('15', x + 100, y + 158);
+    ctx.textAlign = 'left';
+    font(ctx, 19, 500, MONO, 4); ctx.fillStyle = '#e60000'; ctx.fillText('UPCOMING · TODAY', x + 196, y + 78);
+    font(ctx, 40, 800, SANS, -1); ctx.fillStyle = '#111'; ctx.fillText('Huawei quarterly review', x + 196, y + 128);
+    font(ctx, 28, 600, SANS, 0); ctx.fillStyle = '#555'; ctx.fillText('Executive meeting · Board room', x + 196, y + 170);
+    ctx.restore();
+    // The countdown, big, beneath it.
+    const c = ramp(T, 1.0, 1.4) * (1 - out);
+    if (c > 0) {
+      ctx.save(); ctx.globalAlpha = c;
+      font(ctx, 150, 900, MONO, -4); ctx.fillStyle = INK; ctx.textAlign = 'center';
+      ctx.fillText(clock(T), W / 2, 780);
+      ctx.restore();
+      label(ctx, 'UNTIL THE MEETING', W / 2, 830, { size: 22, color: A, align: 'center', alpha: c, ls: 8 });
+    }
+  }
+
+  /* The pack: files flicking past at speed, pulled from system after system. */
+  function flick(ctx, T, A) {
+    const a0 = 4.2, out = 10.9;
+    if (T < a0 || T > out + 0.6) return;
+    const files = ['Spend_by_market_Q3.xlsx', 'Contract_summary_v7.pptx', 'Risk_register.xlsx', 'Sourcing_history.pdf',
+      'Relationship_notes.docx', 'News_digest_week41.pdf', 'Renewals_2027.xlsx', 'Performance_scorecard.pptx',
+      'Exec_pack_FINAL_v3.pptx', 'Market_exposure.xlsx'];
+    const fade = 1 - ramp(T, out, out + 0.5);
+    // A stream of pages, fast, each with its own file name.
+    const rate = lerp(2.2, 7.5, ramp(T, a0, a0 + 3));
+    const n = Math.floor((T - a0) * rate);
+    for (let i = Math.max(0, n - 9); i <= n; i++) {
+      const born = a0 + i / rate;
+      const u = (T - born) * rate / 9;
+      if (u < 0 || u > 1) continue;
+      const y = lerp(H + 260, -320, eio(u));
+      const x = W / 2 + Math.sin(i * 2.1) * 120;
+      const r = Math.sin(i * 1.3) * 0.06;
+      ctx.save();
+      ctx.globalAlpha = fade * (1 - Math.abs(u - 0.5) * 0.8);
+      ctx.translate(x, y); ctx.rotate(r);
+      ctx.fillStyle = '#f4f5f7'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 30;
+      ctx.fillRect(-260, -170, 520, 340);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#d8dbe1';
+      for (let l = 0; l < 7; l++) ctx.fillRect(-220, -80 + l * 30, 440 - (l % 3) * 70, 10);
+      font(ctx, 22, 600, MONO, 0); ctx.fillStyle = '#e60000'; ctx.fillRect(-220, -132, 14, 26);
+      ctx.fillStyle = '#222'; ctx.fillText(files[i % files.length], -196, -112);
+      ctx.restore();
+    }
+    // The systems they come from.
+    const sys = [['SAP DATASPHERE', -640, -260], ['SIRION CONTRACT WATCH', 600, -300], ['EXIGER', -700, 20],
+      ['CRM', 700, 0], ['AVA SOURCING', -620, 280], ['NEWSROOMS & FILINGS', 600, 300]];
     sys.forEach(([name, dx, dy], i) => {
-      const a = ramp(T, 5.4 + i * 0.4, 5.8 + i * 0.4) * (1 - ramp(T, 12.2, 12.8));
+      const a = ramp(T, 8.3 + i * 0.2, 8.6 + i * 0.2) * fade;
       if (a <= 0) return;
-      const k = eo5(ramp(T, 5.4 + i * 0.4, 6.2 + i * 0.4));
-      const x = cx + dx * lerp(1.15, 1, k), y = cy + dy;
+      const x = W / 2 + dx, y = 540 + dy;
       font(ctx, 20, 500, MONO, 4);
       const w = ctx.measureText(name).width + 40;
       ctx.save(); ctx.globalAlpha = a;
-      ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.setLineDash([6, 8]); ctx.lineDashOffset = -T * 40;
-      ctx.beginPath(); ctx.moveTo(x + (dx < 0 ? w / 2 : -w / 2), y); ctx.lineTo(cx + (dx < 0 ? -190 : 190), cy + dy * 0.3); ctx.stroke();
-      ctx.setLineDash([]);
       ctx.fillStyle = PANEL; ctx.strokeStyle = A; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.roundRect(x - w / 2, y - 26, w, 52, 26); ctx.fill(); ctx.stroke();
       ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.fillText(name, x, y + 7);
       ctx.restore();
     });
-    // Pages, stacked with a riffle, folding into one screen.
-    ctx.save();
-    ctx.globalAlpha = 1 - out;
-    for (let i = 0; i < shown; i++) {
-      const off = (pages - i) * lerp(3.2, 0, fold);
-      const wob = Math.sin(T * 3 + i * 0.7) * 2 * (1 - fold);
-      const pw = lerp(300, 560, fold), ph = lerp(400, 330, fold);
-      ctx.save();
-      ctx.translate(cx + off * 0.6 + wob, cy - off * 0.8 + 20);
-      ctx.rotate((i % 2 ? 0.012 : -0.01) * (1 - fold));
-      ctx.fillStyle = i === shown - 1 || fold > 0.9 ? '#f4f5f7' : `rgba(230,232,236,${0.6 + 0.4 * (i / pages)})`;
-      ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 10;
-      ctx.fillRect(-pw / 2, -ph / 2, pw, ph);
-      ctx.restore();
-    }
-    // The top page: text lines while it is a pack, a dashboard once it is a screen.
-    if (shown > 0) {
-      const pw = lerp(300, 560, fold), ph = lerp(400, 330, fold);
-      ctx.save();
-      ctx.translate(cx, cy + 20);
-      if (fold < 0.5) {
-        ctx.fillStyle = '#c9ccd3';
-        for (let l = 0; l < 11; l++) ctx.fillRect(-pw / 2 + 28, -ph / 2 + 40 + l * 30, pw - 56 - (l % 3) * 40, 9);
-      } else {
-        const a = ramp(fold, 0.5, 1);
-        ctx.globalAlpha = a;
-        ctx.fillStyle = '#2a2d33'; ctx.fillRect(-pw / 2 + 20, -ph / 2 + 20, pw - 40, 70);
-        for (let i = 0; i < 4; i++) { ctx.fillStyle = '#ffffff'; ctx.fillRect(-pw / 2 + 20 + i * ((pw - 40) / 4), -ph / 2 + 104, (pw - 40) / 4 - 10, 50); }
-        ctx.fillStyle = A; ctx.fillRect(-pw / 2 + 20, -ph / 2 + 168, 90, 14);
-        for (let i = 0; i < 3; i++) { ctx.fillStyle = '#e1e4ea'; ctx.fillRect(-pw / 2 + 20 + i * ((pw - 40) / 3), -ph / 2 + 196, (pw - 40) / 3 - 10, 110); }
-      }
-      ctx.restore();
-    }
-    ctx.restore();
-    // The count, then the fold.
-    const n = fold > 0 ? Math.round(lerp(40, 1, fold)) : shown;
-    const ca = ramp(T, 0.8, 1.1) * (1 - out);
-    if (ca > 0) {
-      ctx.save(); ctx.globalAlpha = ca;
-      font(ctx, 120, 900, SANS, -4); ctx.fillStyle = fold > 0.95 ? A : INK; ctx.textAlign = 'center';
-      ctx.fillText(String(n), cx, 840);
-      ctx.restore();
-      label(ctx, fold > 0.95 ? 'SCREEN' : n === 1 ? 'PAGE' : 'PAGES', cx, 880, { size: 20, color: A, align: 'center', alpha: ca, ls: 8 });
-    }
   }
 
-  // The corner counter that holds the promise while the film is on the screen.
-  function counter(ctx, T, A, a) {
+  /* What an executive actually needs: three questions, landing with the voice. */
+  function needs(ctx, T, A) {
+    const out = 18.4;
+    rise(ctx, 'All you really need to know:', W / 2, 300, { t: T, tin: 11.3, tout: out, size: 48, weight: 600, align: 'center', by: 'word', stagger: 0.05, color: 'rgba(255,255,255,0.75)' });
+    [['How much we spend.', 13.6], ['How risky they are.', 15.1], ["What's coming up.", 16.65]].forEach(([q, a], i) => {
+      rise(ctx, q, W / 2, 470 + i * 140, { t: T, tin: a, tout: out, size: 100, weight: 900, align: 'center', ls: -3, stagger: 0.02, color: i === 2 ? A : INK });
+    });
+  }
+
+  // The countdown, held in the corner while the film is on the screen.
+  function countdown(ctx, T, A, a) {
     if (a <= 0) return;
+    const w = 410, x = W - 64 - w, y = 40;
     ctx.save();
     ctx.globalAlpha = a * 0.95;
     ctx.fillStyle = PANEL;
-    ctx.beginPath(); ctx.roundRect(W - 64 - 230, 40, 230, 64, 32); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(x, y, w, 64, 32); ctx.fill();
     ctx.restore();
     ctx.save(); ctx.globalAlpha = a;
-    font(ctx, 30, 800, SANS, -0.5); ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillText('40', W - 64 - 200, 83);
-    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(W - 64 - 204, 72, 42, 3);
-    ctx.fillStyle = INK; ctx.fillText('→', W - 64 - 148, 83);
-    ctx.fillStyle = A; ctx.fillText('1', W - 64 - 108, 83);
+    ctx.fillStyle = A; ctx.beginPath(); ctx.arc(x + 30, y + 32, 7 + Math.sin(T * 4) * 1.5, 0, 7); ctx.fill();
     ctx.restore();
-    label(ctx, 'SCREEN', W - 64 - 82, 80, { size: 16, color: A, alpha: a, ls: 4 });
+    label(ctx, 'HUAWEI REVIEW', x + 50, y + 39, { size: 16, color: 'rgba(255,255,255,0.7)', alpha: a, ls: 3 });
+    ctx.save(); ctx.globalAlpha = a;
+    font(ctx, 30, 800, MONO, 0); ctx.fillStyle = INK; ctx.textAlign = 'right';
+    ctx.fillText(clock(T), x + w - 26, y + 43);
+    ctx.restore();
   }
 
   function chips(ctx, T, at, items, A, x0, y0, title) {
@@ -174,36 +196,6 @@
     label(ctx, 'ASK AI', x + 4, y - 22, { size: 18, color: A, alpha: clamp(pop), ls: 6 });
   }
 
-  // A PDF slides out, as if from a printer.
-  function pdf(ctx, T, at, A) {
-    const t = T - at;
-    const k = eo5(ramp(t, 2.6, 3.8));
-    if (k <= 0) return;
-    const x = 1360, y = lerp(H + 20, 250, k), w = 460, h = 600;
-    ctx.save();
-    ctx.translate(x + w / 2, y + h / 2);
-    ctx.rotate(0.04 * (1 - k) + 0.02);
-    ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 50;
-    ctx.fillRect(-w / 2, -h / 2, w, h);
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#e60000'; ctx.fillRect(-w / 2, -h / 2, w, 70);
-    font(ctx, 22, 800, SANS, 0); ctx.fillStyle = '#fff'; ctx.fillText('Executive briefing', -w / 2 + 28, -h / 2 + 44);
-    font(ctx, 34, 850, SANS, -1); ctx.fillStyle = '#111'; ctx.fillText('Microsoft', -w / 2 + 28, -h / 2 + 124);
-    const facts = [['€126m', 'SPEND'], ['83/100', 'PERFORMANCE'], ['2027-03-18', 'RENEWAL']];
-    facts.forEach(([v, l], i) => {
-      font(ctx, 24, 800, SANS, -0.5); ctx.fillStyle = '#111'; ctx.fillText(v, -w / 2 + 28 + i * 140, -h / 2 + 184);
-      font(ctx, 11, 500, MONO, 2); ctx.fillStyle = '#777'; ctx.fillText(l, -w / 2 + 28 + i * 140, -h / 2 + 206);
-    });
-    font(ctx, 16, 700, SANS, 0); ctx.fillStyle = '#111'; ctx.fillText('Recommended talking points', -w / 2 + 28, -h / 2 + 260);
-    ['Align on a 24-month commercial roadmap', 'Confirm resilience and executive ownership', 'Agree renewal strategy and benchmark rights', 'Review delivery actions and 90-day milestones'].forEach((p, i) => {
-      font(ctx, 14, 500, SANS, 0); ctx.fillStyle = '#333'; ctx.fillText(`0${i + 1} · ${p}`, -w / 2 + 28, -h / 2 + 296 + i * 30);
-    });
-    ctx.fillStyle = '#d7dae0';
-    for (let l = 0; l < 5; l++) ctx.fillRect(-w / 2 + 28, -h / 2 + 440 + l * 24, w - 56 - (l % 2) * 80, 8);
-    ctx.restore();
-    label(ctx, 'DESIGNED PDF · READY TO PRINT', x, y - 24, { size: 17, color: A, alpha: k, ls: 4 });
-  }
-
   function endCard(ctx, T, at, A) {
     const t = T - at;
     const g = ctx.createRadialGradient(W / 2, H * 0.45, 0, W / 2, H * 0.45, W * 0.6);
@@ -223,22 +215,35 @@
     async draw(T, { ctx, cfg, sh }) {
       const A = cfg.accent;
       const { id, at, dur } = sh.cut;
-      if (id === 'open') pack(ctx, T, A);
+      if (id === 'open') {
+        alert(ctx, T, A);
+        flick(ctx, T, A);
+        needs(ctx, T, A);
+      }
+      if (id === 'reveal') {
+        const k = ramp(T, at + 0.8, at + 1.2) * (1 - ramp(T, at + dur - 0.4, at + dur));
+        if (k > 0) {
+          ctx.save(); ctx.globalAlpha = k * 0.85; ctx.fillStyle = PANEL;
+          ctx.beginPath(); ctx.roundRect(W / 2 - 250, 880, 500, 92, 46); ctx.fill(); ctx.restore();
+          ctx.save(); ctx.globalAlpha = k; font(ctx, 52, 850, SANS, -1.5); ctx.fillStyle = A; ctx.textAlign = 'center';
+          ctx.fillText('One screen.', W / 2, 944); ctx.restore();
+        }
+      }
       if (id === 'title') {
         scrim(ctx, 'center', 0.9);
-        label(ctx, 'VODAFONE PROCUREMENT · AI-ASSISTED', W / 2, 370, { size: 22, color: A, align: 'center', alpha: ramp(T, at + 0.5, at + 0.9) * (1 - ramp(T, at + 4.0, at + 4.3)), ls: 7 });
-        slam(ctx, 'Executive Supplier', W / 2, 500, { t: T, tin: at + 0.15, tout: at + 4.0, size: 128, weight: 900, ls: -5 });
-        slam(ctx, 'Intelligence', W / 2, 630, { t: T, tin: at + 0.45, tout: at + 4.0, size: 128, weight: 900, ls: -5, color: A });
-        rise(ctx, 'Forty pages. One screen.', W / 2, 740, { t: T, tin: at + 1.2, tout: at + 3.9, size: 46, weight: 600, align: 'center', by: 'word', stagger: 0.07 });
+        label(ctx, 'VODAFONE PROCUREMENT · AI-ASSISTED', W / 2, 370, { size: 22, color: A, align: 'center', alpha: ramp(T, at + 0.5, at + 0.9) * (1 - ramp(T, at + 3.5, at + 3.8)), ls: 7 });
+        slam(ctx, 'Executive Supplier', W / 2, 500, { t: T, tin: at + 0.15, tout: at + 3.5, size: 128, weight: 900, ls: -5 });
+        slam(ctx, 'Intelligence', W / 2, 630, { t: T, tin: at + 0.45, tout: at + 3.5, size: 128, weight: 900, ls: -5, color: A });
+        rise(ctx, 'The whole supplier, on one screen.', W / 2, 740, { t: T, tin: at + 1.2, tout: at + 3.4, size: 46, weight: 600, align: 'center', by: 'word', stagger: 0.06 });
       }
-      const onScreen = ['tiles', 'priorities', 'tabs', 'switch', 'ticker', 'news', 'compare', 'briefing', 'ask'];
+      const onScreen = ['reveal', 'tiles', 'priorities', 'tabs', 'switch', 'ticker', 'news', 'compare', 'briefing', 'ask'];
       if (onScreen.includes(id)) {
         const first = cfg.cuts.find((c) => c.id === 'tiles');
         const last = cfg.cuts.find((c) => c.id === 'ask');
-        counter(ctx, T, A, ramp(T, first.at + 0.5, first.at + 0.9) * (1 - ramp(T, last.at + last.dur - 0.4, last.at + last.dur)));
+        countdown(ctx, T, A, ramp(T, first.at + 0.5, first.at + 0.9) * (1 - ramp(T, last.at + last.dur - 0.4, last.at + last.dur)));
       }
       if (id === 'tiles') {
-        const tiles = [[297, 367, 315, 81, 'SPEND', 1.8], [631, 367, 315, 81, 'CONTRACTS', 3.0], [964, 367, 315, 81, 'SOURCING EVENTS', 3.8], [1298, 367, 317, 81, 'RISK · RED / AMBER / GREEN', 5.2]];
+        const tiles = [[297, 367, 315, 81, 'SPEND', 2.95], [631, 367, 315, 81, 'CONTRACTS', 3.83], [964, 367, 315, 81, 'SOURCING EVENTS', 4.99], [1298, 367, 317, 81, 'RISK · RED / AMBER / GREEN', 6.51]];
         tiles.forEach(([x, y, w, h, n, when]) => outline(ctx, sh, [x, y, w, h], ramp(T, at + when, at + when + 0.3) * (1 - ramp(T, at + dur - 0.4, at + dur)), A, n));
       }
       if (id === 'priorities') {
@@ -251,19 +256,20 @@
       if (id === 'ticker') outline(ctx, sh, [597, 211, 296, 30], ramp(T, at + 1.0, at + 1.4), A, 'LIVE SHARE PRICE');
       if (id === 'news') {
         scrim(ctx, 'right', 0.85, 0.42);
-        chips(ctx, T, at, [['Company website', 1.6], ['Financial reports', 3.0], ['Sustainability reports', 3.9], ['Investor relations', 5.2], ['SEC filings', 6.6], ['+ Trusted publishers', 8.4], ['+ Your own sources', 10.4]], A, 1420, 250, 'PRIMARY SOURCES FIRST');
+        chips(ctx, T, at, [['Company website', 3.26], ['Financial reports', 5.18], ['Sustainability reports', 6.4], ['Investor relations', 8.32], ['SEC filings', 10.1], ['+ Trusted publishers', 11.83], ['+ Your own sources', 13.8]], A, 1420, 250, 'PRIMARY SOURCES FIRST');
       }
-      if (id === 'briefing') tag(ctx, T, at + 0.3, 'DESIGNED PDF \u00b7 IN SECONDS', A, 860);
+      if (id === 'briefing') tag(ctx, T, at + 0.3, 'DESIGNED PDF \u00b7 TALKING POINTS INCLUDED', A, 124, W - 64 - 740);
       if (id === 'ask') ask(ctx, T, at, 'Which contract renews next?', A);
       if (id === 'value') {
-        const t = T - at;
-        rise(ctx, '40 pages', W / 2, 430, { t: T, tin: at + 0.3, tout: at + dur - 0.6, size: 150, weight: 900, align: 'center', ls: -5, color: 'rgba(255,255,255,0.55)' });
-        const sw = eio(ramp(t, 1.0, 1.4)) * (1 - ramp(t, dur - 0.6, dur - 0.3));
-        font(ctx, 150, 900, SANS, -5);
-        const tw = ctx.measureText('40 pages').width;
-        ctx.fillStyle = A; ctx.fillRect(W / 2 - tw / 2 - 10, 380, (tw + 20) * sw, 10);
-        rise(ctx, 'on one screen.', W / 2, 600, { t: T, tin: at + 1.4, tout: at + dur - 0.6, size: 150, weight: 900, align: 'center', ls: -5, color: A });
-        rise(ctx, 'Ready before the meeting starts.', W / 2, 740, { t: T, tin: at + 2.8, tout: at + dur - 0.6, size: 52, weight: 600, align: 'center', by: 'word', stagger: 0.06 });
+        rise(ctx, 'Everything you need, on one screen.', W / 2, 300, { t: T, tin: at + 0.4, tout: at + dur - 0.6, size: 64, weight: 800, align: 'center', by: 'word', stagger: 0.05, ls: -1.5 });
+        const c = ramp(T, at + 1.8, at + 2.2) * (1 - ramp(T, at + dur - 0.6, at + dur - 0.3));
+        if (c > 0) {
+          ctx.save(); ctx.globalAlpha = c;
+          font(ctx, 220, 900, MONO, -8); ctx.fillStyle = A; ctx.textAlign = 'center';
+          ctx.fillText(clock(T), W / 2, 620);
+          ctx.restore();
+          label(ctx, 'MINUTES TO SPARE', W / 2, 690, { size: 26, color: INK, align: 'center', alpha: c, ls: 10 });
+        }
       }
       if (id === 'end') endCard(ctx, T, at, A);
     },

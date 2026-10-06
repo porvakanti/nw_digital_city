@@ -1,406 +1,13 @@
 {
  "fps": 30,
  "srcFps": 30,
- "length": 107.5,
+ "length": 119.5,
  "accent": "#2ee6a6",
  "voice": "en-GB-SoniaNeural",
- "rate": "-2%",
- "pitch": "+0Hz",
- "bpm": 108,
+ "rate": "-8%",
+ "pitch": "-2Hz",
+ "bpm": 104,
  "hide": [],
- "chimes": [
-  20.5,
-  67.2,
-  85.4
- ],
- "boost": [
-  54.0,
-  93.4
- ],
- "cuts": [
-  {
-   "id": "open",
-   "at": 0,
-   "dur": 16.0,
-   "src": [
-    24,
-    24
-   ],
-   "hold": 24.0,
-   "cam": [
-    [
-     0,
-     200,
-     40,
-     1600
-    ],
-    [
-     1,
-     260,
-     60,
-     1500
-    ]
-   ],
-   "filter": "blur(18px) brightness(0.26) saturate(0.6)"
-  },
-  {
-   "id": "title",
-   "at": 16.0,
-   "dur": 4.5,
-   "src": [
-    24,
-    24
-   ],
-   "hold": 24.0,
-   "cam": [
-    [
-     0,
-     260,
-     60,
-     1500
-    ],
-    [
-     1,
-     280,
-     70,
-     1460
-    ]
-   ],
-   "filter": "blur(18px) brightness(0.26) saturate(0.6)",
-   "in": "flash"
-  },
-  {
-   "id": "tiles",
-   "at": 20.5,
-   "dur": 9.7,
-   "src": [
-    23.3,
-    26.4
-   ],
-   "cam": [
-    [
-     0,
-     250,
-     20,
-     1420
-    ],
-    [
-     0.35,
-     270,
-     120,
-     1380
-    ],
-    [
-     1,
-     280,
-     140,
-     1360
-    ]
-   ],
-   "in": "wipe"
-  },
-  {
-   "id": "priorities",
-   "at": 30.2,
-   "dur": 6.2,
-   "src": [
-    23.3,
-    26.4
-   ],
-   "cam": [
-    [
-     0,
-     280,
-     300,
-     1360
-    ],
-    [
-     1,
-     280,
-     460,
-     1100
-    ]
-   ]
-  },
-  {
-   "id": "tabs",
-   "at": 36.4,
-   "dur": 11.4,
-   "src": [
-    36.0,
-    47.2
-   ],
-   "cam": [
-    [
-     0,
-     280,
-     140,
-     1360
-    ],
-    [
-     1,
-     290,
-     140,
-     1350
-    ]
-   ]
-  },
-  {
-   "id": "switch",
-   "at": 47.8,
-   "dur": 2.2,
-   "src": [
-    56.0,
-    70.0
-   ],
-   "cam": [
-    [
-     0,
-     280,
-     30,
-     1360
-    ],
-    [
-     1,
-     280,
-     30,
-     1360
-    ]
-   ]
-  },
-  {
-   "id": "ticker",
-   "at": 50.0,
-   "dur": 4.0,
-   "src": [
-    72.0,
-    78.0
-   ],
-   "cam": [
-    [
-     0,
-     280,
-     60,
-     1360
-    ],
-    [
-     1,
-     330,
-     80,
-     1000
-    ]
-   ]
-  },
-  {
-   "id": "news",
-   "at": 54.0,
-   "dur": 13.2,
-   "src": [
-    82.0,
-    125.0
-   ],
-   "cam": [
-    [
-     0,
-     280,
-     140,
-     1360
-    ],
-    [
-     1,
-     290,
-     145,
-     1340
-    ]
-   ]
-  },
-  {
-   "id": "compare",
-   "at": 67.2,
-   "dur": 11.4,
-   "src": [
-    138.0,
-    158.8
-   ],
-   "cam": [
-    [
-     0,
-     300,
-     40,
-     1360
-    ],
-    [
-     1,
-     310,
-     45,
-     1340
-    ]
-   ],
-   "in": "wipe"
-  },
-  {
-   "id": "briefing",
-   "at": 78.6,
-   "dur": 6.8,
-   "src": [
-    161.0,
-    175.0
-   ],
-   "cam": [
-    [
-     0,
-     300,
-     40,
-     1360
-    ],
-    [
-     1,
-     310,
-     45,
-     1340
-    ]
-   ],
-   "in": "wipe"
-  },
-  {
-   "id": "ask",
-   "at": 85.4,
-   "dur": 8.0,
-   "src": [
-    184.3,
-    186.9
-   ],
-   "cam": [
-    [
-     0,
-     860,
-     0,
-     1060
-    ],
-    [
-     1,
-     860,
-     300,
-     1060
-    ]
-   ],
-   "in": "wipe",
-   "hide": [
-    [
-     1410,
-     455,
-     340,
-     24,
-     "#f5f6f8"
-    ],
-    [
-     1410,
-     731,
-     340,
-     24,
-     "#f5f6f8"
-    ],
-    [
-     1410,
-     1007,
-     340,
-     24,
-     "#f5f6f8"
-    ]
-   ]
-  },
-  {
-   "id": "value",
-   "at": 93.4,
-   "dur": 6.6,
-   "in": "wipe"
-  },
-  {
-   "id": "end",
-   "at": 100.0,
-   "dur": 7.5,
-   "in": "dip"
-  }
- ],
- "lines": [
-  {
-   "id": "x01",
-   "at": 0.6,
-   "text": "Before a supplier meeting, an executive gets a forty-page pack."
-  },
-  {
-   "id": "x02",
-   "at": 5.1,
-   "text": "Spend, contracts, sourcing history, risk, news. Pulled from a dozen different systems."
-  },
-  {
-   "id": "x03",
-   "at": 12.6,
-   "text": "Here's the same briefing, on one screen."
-  },
-  {
-   "id": "x04",
-   "at": 16.5,
-   "text": "Meet Executive Supplier Intelligence.",
-   "caption": false
-  },
-  {
-   "id": "x05",
-   "at": 20.9,
-   "text": "The headline numbers sit up top: spend, contracts, sourcing events, and an overall risk rating. Red, amber or green."
-  },
-  {
-   "id": "x06",
-   "at": 30.5,
-   "text": "Below them, three leadership priorities, each with a next step, and the system it came from."
-  },
-  {
-   "id": "x07",
-   "at": 36.8,
-   "text": "Every detail is one tab away. Spend and exposure, sourcing history, risk, contracts, the supplier as a Vodafone customer, and the latest news."
-  },
-  {
-   "id": "x08",
-   "at": 48.0,
-   "text": "Switch supplier in a click."
-  },
-  {
-   "id": "x09",
-   "at": 50.2,
-   "text": "For listed companies, the live share price comes with it."
-  },
-  {
-   "id": "x10",
-   "at": 54.4,
-   "text": "News starts from primary sources: the company's website, financial and sustainability reports, investor relations, and SEC filings. Then trusted publishers, and any source you add."
-  },
-  {
-   "id": "x11",
-   "at": 67.6,
-   "text": "Compare up to four suppliers side by side. Microsoft, Huawei and Nokia: lowest exposure, best performance, lowest risk, nearest renewal."
-  },
-  {
-   "id": "x12",
-   "at": 79.0,
-   "text": "Need it on paper? Generate the briefing, talking points included, as a designed PDF."
-  },
-  {
-   "id": "x13",
-   "at": 85.8,
-   "text": "Or just ask. Which contract renews next? The answer comes from the underlying data, with its source."
-  },
-  {
-   "id": "x14",
-   "at": 93.8,
-   "text": "Forty pages, on one screen. Ready before the meeting starts."
-  },
-  {
-   "id": "x15",
-   "at": 100.6,
-   "text": "Executive Supplier Intelligence. The whole supplier, at a glance.",
-   "caption": false
-  }
- ],
  "tracked": [
   {
    "x": 290,
@@ -620,6 +227,436 @@
      14
     ]
    ]
+  }
+ ],
+ "chimes": [
+  18.8,
+  26.4,
+  80.0,
+  96.4
+ ],
+ "boost": [
+  64.4,
+  105.4
+ ],
+ "cuts": [
+  {
+   "id": "open",
+   "at": 0,
+   "dur": 18.8,
+   "src": [
+    24,
+    24
+   ],
+   "hold": 24.0,
+   "cam": [
+    [
+     0,
+     200,
+     40,
+     1600
+    ],
+    [
+     1,
+     260,
+     60,
+     1500
+    ]
+   ],
+   "filter": "blur(20px) brightness(0.22) saturate(0.5)"
+  },
+  {
+   "id": "reveal",
+   "at": 18.8,
+   "dur": 3.6,
+   "src": [
+    23.4,
+    24.6
+   ],
+   "cam": [
+    [
+     0,
+     760,
+     330,
+     520
+    ],
+    [
+     0.75,
+     260,
+     30,
+     1400
+    ],
+    [
+     1,
+     250,
+     20,
+     1420
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "title",
+   "at": 22.4,
+   "dur": 4.0,
+   "src": [
+    24.6,
+    24.6
+   ],
+   "hold": 24.6,
+   "cam": [
+    [
+     0,
+     250,
+     20,
+     1420
+    ],
+    [
+     1,
+     270,
+     40,
+     1380
+    ]
+   ],
+   "filter": "blur(20px) brightness(0.22) saturate(0.5)",
+   "in": "dip"
+  },
+  {
+   "id": "tiles",
+   "at": 26.4,
+   "dur": 11.2,
+   "src": [
+    23.3,
+    26.4
+   ],
+   "cam": [
+    [
+     0,
+     250,
+     20,
+     1420
+    ],
+    [
+     0.3,
+     270,
+     120,
+     1380
+    ],
+    [
+     1,
+     280,
+     140,
+     1360
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "priorities",
+   "at": 37.6,
+   "dur": 7.0,
+   "src": [
+    23.3,
+    26.4
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     300,
+     1360
+    ],
+    [
+     1,
+     280,
+     460,
+     1100
+    ]
+   ]
+  },
+  {
+   "id": "tabs",
+   "at": 44.6,
+   "dur": 12.6,
+   "src": [
+    36.0,
+    47.2
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     140,
+     1360
+    ],
+    [
+     1,
+     290,
+     140,
+     1350
+    ]
+   ]
+  },
+  {
+   "id": "switch",
+   "at": 57.2,
+   "dur": 2.8,
+   "src": [
+    56.0,
+    70.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     30,
+     1360
+    ],
+    [
+     1,
+     280,
+     30,
+     1360
+    ]
+   ]
+  },
+  {
+   "id": "ticker",
+   "at": 60.0,
+   "dur": 4.4,
+   "src": [
+    72.0,
+    78.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     60,
+     1360
+    ],
+    [
+     1,
+     330,
+     80,
+     1000
+    ]
+   ]
+  },
+  {
+   "id": "news",
+   "at": 64.4,
+   "dur": 15.6,
+   "src": [
+    82.0,
+    125.0
+   ],
+   "cam": [
+    [
+     0,
+     280,
+     140,
+     1360
+    ],
+    [
+     1,
+     290,
+     145,
+     1340
+    ]
+   ]
+  },
+  {
+   "id": "compare",
+   "at": 80.0,
+   "dur": 10.2,
+   "src": [
+    138.0,
+    158.8
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     40,
+     1360
+    ],
+    [
+     1,
+     310,
+     45,
+     1340
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "briefing",
+   "at": 90.2,
+   "dur": 6.2,
+   "src": [
+    161.0,
+    175.0
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     40,
+     1360
+    ],
+    [
+     1,
+     310,
+     45,
+     1340
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "ask",
+   "at": 96.4,
+   "dur": 9.0,
+   "src": [
+    184.3,
+    186.9
+   ],
+   "cam": [
+    [
+     0,
+     860,
+     0,
+     1060
+    ],
+    [
+     1,
+     860,
+     300,
+     1060
+    ]
+   ],
+   "in": "wipe",
+   "hide": [
+    [
+     1410,
+     455,
+     340,
+     24,
+     "#f5f6f8"
+    ],
+    [
+     1410,
+     731,
+     340,
+     24,
+     "#f5f6f8"
+    ],
+    [
+     1410,
+     1007,
+     340,
+     24,
+     "#f5f6f8"
+    ]
+   ]
+  },
+  {
+   "id": "value",
+   "at": 105.4,
+   "dur": 6.0,
+   "in": "wipe"
+  },
+  {
+   "id": "end",
+   "at": 111.4,
+   "dur": 8.1,
+   "in": "dip"
+  }
+ ],
+ "lines": [
+  {
+   "id": "y01",
+   "at": 0.8,
+   "text": "Forty-five minutes until the Huawei review."
+  },
+  {
+   "id": "y02",
+   "at": 4.2,
+   "text": "The briefing pack? | Slides, spreadsheets and reports, | from a dozen different systems."
+  },
+  {
+   "id": "y03",
+   "at": 11.2,
+   "text": "And all you really need to know is: | how much we spend, | how risky they are, | and what's coming up."
+  },
+  {
+   "id": "y04",
+   "at": 18.6,
+   "text": "Now, | it's one screen.",
+   "caption": false
+  },
+  {
+   "id": "y05",
+   "at": 22.8,
+   "text": "Executive Supplier Intelligence.",
+   "caption": false
+  },
+  {
+   "id": "y06",
+   "at": 26.8,
+   "text": "The headline numbers sit up top. | Spend, | contracts, | sourcing events, | and an overall risk rating: | red, amber or green."
+  },
+  {
+   "id": "y07",
+   "at": 37.9,
+   "text": "Below them, three leadership priorities, | each with a next step, | and the system it came from."
+  },
+  {
+   "id": "y08",
+   "at": 44.9,
+   "text": "Every detail is one tab away. | Spend and exposure, | sourcing history, | risk, | contracts, | the supplier as a Vodafone customer, | and the latest news."
+  },
+  {
+   "id": "y09",
+   "at": 57.4,
+   "text": "Switching supplier takes one click."
+  },
+  {
+   "id": "y10",
+   "at": 60.2,
+   "text": "For listed companies, | the live share price comes with it."
+  },
+  {
+   "id": "y11",
+   "at": 64.7,
+   "text": "The news starts with primary sources. | The company's own website, | financial and sustainability reports, | investor relations, | and SEC filings. | Then trusted publishers, | and any source you add."
+  },
+  {
+   "id": "y12",
+   "at": 80.3,
+   "text": "Compare up to four suppliers, side by side. | Lowest exposure, | best performance, | lowest risk, | and the nearest renewal."
+  },
+  {
+   "id": "y13",
+   "at": 90.5,
+   "text": "Need it on paper? | Generate a designed briefing, | talking points included."
+  },
+  {
+   "id": "y14",
+   "at": 96.6,
+   "text": "Or simply ask. | Which contract renews next? | The answer comes straight from the underlying data, | with its source."
+  },
+  {
+   "id": "y15",
+   "at": 105.8,
+   "text": "Everything you need, on one screen. | Ready, | with time to spare."
+  },
+  {
+   "id": "y16",
+   "at": 112.2,
+   "text": "Executive Supplier Intelligence. | The whole supplier, at a glance.",
+   "caption": false
   }
  ]
 }

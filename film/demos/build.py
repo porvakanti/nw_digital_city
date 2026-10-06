@@ -45,20 +45,49 @@ def load(film: str) -> dict:
 
 # ------------------------------------------------------------------- voice
 
+def spoken_text(text: str) -> str:
+    return re.sub(r"\s+", " ", text.replace("|", " ")).strip()
+
+
+def phrased(cfg: dict, line: dict, clips: dict) -> np.ndarray:
+    """A line read phrase by phrase, "|" marking each break, with the pauses
+    set here rather than left to the voice: a beat after a comma, a longer
+    one after a full stop, a question or a colon."""
+    out = []
+    parts = [p.strip() for p in line["text"].split("|") if p.strip()]
+    for k, p in enumerate(parts):
+        x = reel.read_wav(clips[f"{line['id']}-{k}"])
+        loud = np.where(np.abs(x) > 0.01)[0]
+        x = x[max(0, int(loud[0]) - int(0.02 * SR)): int(loud[-1]) + int(0.06 * SR)]
+        out.append(x)
+        if k < len(parts) - 1:
+            gap = cfg.get("pauseLong", 0.38) if p[-1] in ".?:" else cfg.get("pauseShort", 0.16)
+            out.append(np.zeros(int(gap * SR)))
+    return np.concatenate(out)
+
+
 def narration(cfg: dict) -> tuple[np.ndarray, list[dict]]:
-    clips = voice.synthesise(cfg)
+    # Lines with "|" are synthesised a phrase at a time; the rest whole.
+    jobs = []
+    for line in cfg["lines"]:
+        if "|" in line["text"]:
+            parts = [p.strip() for p in line["text"].split("|") if p.strip()]
+            jobs += [{"id": f"{line['id']}-{k}", "text": p} for k, p in enumerate(parts)]
+        else:
+            jobs.append(line)
+    clips = voice.synthesise({**cfg, "lines": jobs})
     n = int(cfg["length"] * SR)
     vo = np.zeros(n)
     spoken = []
     for line in cfg["lines"]:
-        x = reel.read_wav(clips[line["id"]])
+        x = phrased(cfg, line, clips) if "|" in line["text"] else reel.read_wav(clips[line["id"]])
         loud = np.where(np.abs(x) > 0.01)[0]
         a, b = int(loud[0]), int(loud[-1])
         x = x[max(0, a - int(0.02 * SR)):]
         i = int(line["at"] * SR)
         j = min(n, i + len(x))
         vo[i:j] += x[: j - i]
-        spoken.append({"at": line["at"], "dur": (b - a) / SR, "text": line["text"],
+        spoken.append({"at": line["at"], "dur": (b - a) / SR, "text": spoken_text(line["text"]),
                        "caption": line.get("caption", True)})
     vo = music.highpass(vo, 85)
     vo = vo + music.bandpass(vo, 2500, 6000) * 0.25
