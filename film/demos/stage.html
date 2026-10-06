@@ -65,6 +65,21 @@
       ctx.fillStyle = col;
       ctx.fillRect(r[0], r[1], r[2], r[3]);
     }
+    // And what moves as the recording scrolls: a rectangle that follows a
+    // tracked height, given as [from, to, y] spans of source time.
+    for (const tr of sh.cut.filter ? [] : S.cfg.tracked || []) {
+      const t = sh.srcT;
+      let y = null;
+      tr.spans.forEach(([a, b, yy], i) => {
+        if (t >= a && t <= b) y = yy;
+        const next = tr.spans[i + 1];
+        if (y === null && next && t > b && t < next[0] && next[0] - b <= 0.3) y = K.lerp(yy, next[2], (t - b) / (next[0] - b));
+      });
+      if (y === null) continue;
+      const r = K.toScreen(sh.cam, [tr.x, y + tr.dy, tr.w, tr.h]);
+      ctx.fillStyle = tr.col;
+      ctx.fillRect(r[0], r[1], r[2], r[3]);
+    }
   }
 
   window.setup = async (film, captions) => {
