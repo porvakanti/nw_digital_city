@@ -432,7 +432,8 @@
        * Outsourcing" does, so each gets what it needs and the letters come
        * out the same height in all eight, which is the only way the set
        * reads as one piece of lettering. */
-      const w = inner.w + DISTRICT_PAD * 2;
+      // Wide enough for its content, and never narrower than its own name.
+      const w = Math.max(inner.w + DISTRICT_PAD * 2, nameNeeds(district.name));
       const nameFit = fitName(district.name, w - KERB * 2 - 1.0);
       const strip = Math.max(PLATE_STRIP, nameFit.depth + KERB + 0.6);
       return {
@@ -706,6 +707,33 @@
    * they are set at and the ground they need, so the layout can reserve
    * exactly that and no more.
    */
+  /* How wide a district has to be for its own name at full size.
+   *
+   * fitName shrinks when the plate is too narrow, and a shrunk name is the
+   * one thing the set of them cannot survive: eight at one size and one at
+   * another stops reading as lettering and starts reading as a mistake. With
+   * a single estate every district happened to be wide enough. Across four
+   * one was not, and its name came out at 1.27 against everything else's
+   * 2.05.
+   *
+   * So the name is a constraint on the plate rather than the plate a
+   * constraint on the name. Two lines, because that is what fitName will use;
+   * a word too long to break still falls through to the shrink.
+   */
+  function nameNeeds(text) {
+    const label = text.toUpperCase();
+    const full = Math.round(NAME_CAP * NAME_PPU);
+    const words = label.split(/\s+/);
+    let widest = nameWidth(label, full);
+    for (let cut = 1; cut < words.length; cut++) {
+      const longest = Math.max(
+        nameWidth(words.slice(0, cut).join(" "), full),
+        nameWidth(words.slice(cut).join(" "), full));
+      widest = Math.min(widest, longest);
+    }
+    return widest / (NAME_PPU * 0.96) + KERB * 2 + 1.0;
+  }
+
   function fitName(text, width) {
     const label = text.toUpperCase();
     const room = width * NAME_PPU * 0.96;
