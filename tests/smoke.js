@@ -298,9 +298,33 @@ async function onAPhone(browser) {
   await page.goto(PAGE, { timeout: NAVIGATION });
   await page.waitForSelector('body[data-ready="1"]', { timeout: NAVIGATION });
 
-  const counts = await page.evaluate(() => window.NWCity.data.meta.counts);
-  check("city loads", counts.categories === 145 && counts.districts === 8,
-    `${counts.districts} districts, ${counts.categories} buildings`);
+  /* The city drew what the data holds.
+   *
+   * Pinned at 145 and 8 this failed the day a second estate was switched on,
+   * for the one reason that is not a fault. What matters is that every
+   * category and district in the file reached the screen, and that every
+   * estate got an island, so the counts come from the file rather than from
+   * a constant that has to be edited whenever the estate changes.
+   */
+  const shape = await page.evaluate(() => {
+    const data = window.NWCity.data;
+    return {
+      counts: data.meta.counts,
+      estates: (data.estates || []).length,
+      islands: window.NWCity.islands ? window.NWCity.islands().length : 1,
+      districts: data.districts.length,
+      categories: data.categories.length,
+    };
+  });
+  check("city loads",
+    shape.counts.categories === shape.categories
+      && shape.counts.districts === shape.districts
+      && shape.categories > 0,
+    `${shape.districts} districts, ${shape.categories} buildings`);
+  check("every estate got an island",
+    shape.islands === Math.max(shape.estates, 1),
+    `${shape.estates} estates, ${shape.islands} islands`);
+  const counts = shape.counts;
 
   const resolved = await page.evaluate(
     (cases) => cases.map(([q]) => {
@@ -1330,9 +1354,23 @@ async function onAPhone(browser) {
     const base = document.getElementById("arcBase");
     return { score, base: base.textContent, baseShown: !base.hidden };
   });
+  /* The base line names whatever the whole sea is called.
+   *
+   * It said "Networks" because Networks was all there was. With four estates
+   * a total is not a Networks total, so the renderer asks the config what to
+   * call it and this asks the same question rather than pinning the answer.
+   */
+  const wholeName = await page.evaluate(() => {
+    const data = window.NWCity.data;
+    const estates = data.estates || [];
+    if (estates.length > 1) {
+      return ((window.NWCity.config || {}).city || {}).region_label || "the region";
+    }
+    return estates.length ? estates[0].label : "Networks";
+  });
   check("the arc reading names the selected category",
     /A251/.test(arcFollows.score) && arcFollows.baseShown
-      && /Networks/.test(arcFollows.base),
+      && arcFollows.base.includes(wholeName),
     `${arcFollows.score} | ${arcFollows.base}`);
 
   const arcClears = await page.evaluate(() => {
@@ -1341,7 +1379,7 @@ async function onAPhone(browser) {
              baseShown: !document.getElementById("arcBase").hidden };
   });
   check("clearing the selection returns the reading to the organisation",
-    /Networks/.test(arcClears.score) && !arcClears.baseShown, arcClears.score);
+    arcClears.score.includes(wholeName) && !arcClears.baseShown, arcClears.score);
 
   /* Every category over the spend threshold shows its property.
    *

@@ -14,6 +14,10 @@
 city:
   name: NW Digital City
   scope_label: Vodafone Networks, Level 1 "Network"
+  # What the whole sea is called, used wherever a figure belongs to
+  # every estate rather than to one of them. With a single estate
+  # enabled the two are the same place and this is never shown.
+  region_label: the region
   agent_name: Crane           # the agent's display name; change freely
   # What the builder wears on the front of the vest.
   #
@@ -62,7 +66,7 @@ estates:
   # How far apart the islands sit, in world units, measured between plate
   # centres. Wide enough that they read as separate places rather than as one
   # city with gaps in it.
-  spacing: 196
+  spacing: 248
 
   # `enabled` is what the data is built from. The renderer still draws a
   # single plate, so turning an estate on before it can draw islands would put
@@ -81,19 +85,19 @@ estates:
       level1: IT&E
       sheet: IT&E
       order: 1
-      enabled: false
+      enabled: true
     - id: commercial
       label: Commercial & Services
       level1: Commercial & Services
       sheet: C&S
       order: 2
-      enabled: false
+      enabled: true
     - id: corporate
       label: Corporate Services and Property
       level1: Corporate Services and Property
       sheet: Corporate Services
       order: 3
-      enabled: false
+      enabled: true
 
 # ---------------------------------------------------------------------------
 # LAYER BINDINGS. What each visible thing in the city is driven by.

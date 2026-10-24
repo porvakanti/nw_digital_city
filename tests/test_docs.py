@@ -24,6 +24,8 @@ import unittest
 
 import yaml
 
+import estate_view
+
 REPO = pathlib.Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs"
 
@@ -83,7 +85,8 @@ class DocumentFigures(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.city = json.loads((REPO / "data" / "city.json").read_text(encoding="utf-8"))
+        # Scoped to the estate the documents are about. See tests/estate_view.py.
+        cls.city = estate_view.scoped(estate_view.load())
         cls.config = yaml.safe_load((REPO / "config" / "metrics.yaml").read_text(encoding="utf-8"))
         cls.cats = cls.city["categories"]
 

@@ -456,7 +456,15 @@
   }
 
   function scopeText(scope) {
-    if (!scope || scope.kind === "none") return "Networks";
+    if (!scope || scope.kind === "none") {
+      // Not "Networks" once there are four estates: an unscoped answer is
+      // about every one of them, and naming one of them would be wrong.
+      const estates = CITY.estates || [];
+      if (estates.length > 1) {
+        return ((CITYVIEW.config || {}).city || {}).region_label || "the region";
+      }
+      return estates.length ? estates[0].label : "Networks";
+    }
     return scope.kind === "category" ? scope.hit.name : scope.hit;
   }
 
@@ -627,8 +635,11 @@
        *
        * Lots built and spend describe the size of a district, not how it is
        * doing, and the question is usually the second one. The scoreboard
-       * already ranks the eight of them, so the answer says where this one
-       * sits on it. */
+       * already ranks them, so the answer says where this one sits on it.
+       *
+       * It ranked "of the eight districts", which was true while there was
+       * one estate and became wrong the moment there were four. The count
+       * comes off the board being ranked. */
       const s = await call("summarise", found);
       const board = CITY.districts.slice()
         .sort((a, b) => b.totals.journey.total - a.totals.journey.total);
@@ -636,9 +647,10 @@
       const mine = board[rank];
       await call("render", "district", found.hit);
       const score = Math.round(mine.totals.journey.total);
-      const place = rank === 0 ? "top of the eight districts"
-        : rank === board.length - 1 ? "last of the eight districts"
-          : `${ordinal(rank + 1)} of the eight districts`;
+      const of = `the ${board.length} districts`;
+      const place = rank === 0 ? `top of ${of}`
+        : rank === board.length - 1 ? `last of ${of}`
+          : `${ordinal(rank + 1)} of ${of}`;
       CITYVIEW.speak(
         `${found.hit} scores ${score} out of 100, ${place}. `
         + `${s.built} of ${s.count} lots are built and ${euro(s.spend)} sits on them.`,
@@ -1053,7 +1065,23 @@
   const TOUR = [
     {
       title: "One city, one org.",
-      body: "Eight coloured blocks, one for each L2 area in Networks. Inside a block are its plots, and inside a plot are the lots, one for every L4 category. A block is as big as the number of categories it holds, so Access Radio/Fixed is the largest and Transmission Infrastructure is among the smallest. The green between the blocks is parkland, not part of any district.",
+      /* Counted rather than stated.
+       *
+       * This read "Eight coloured blocks" and named two districts by hand,
+       * which was true of one estate and of no other. The walkthrough is the
+       * first thing a first-time viewer reads, so a sentence in it that the
+       * data has moved past is worse than a vaguer one that stays true.
+       */
+      body: (() => {
+        const districts = CITY.districts.length;
+        const islands = (CITY.estates || []).length;
+        const where = islands > 1
+          ? `${islands} islands, one for each Level 1 estate, and ${districts} coloured blocks between them`
+          : `${districts} coloured blocks, one for each L2 area`;
+        const biggest = CITY.districts.slice().sort(
+          (a, b) => b.totals.categories - a.totals.categories)[0];
+        return `${where}. Inside a block are its plots, and inside a plot are the lots, one for every L4 category. A block is as big as the number of categories it holds, so ${biggest.name} is the largest. The ground between the blocks is parkland, not part of any district.`;
+      })(),
       run: () => CITYVIEW.reset(),
     },
     {

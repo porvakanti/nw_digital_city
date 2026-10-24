@@ -44,6 +44,17 @@
     house: 0x2e9e4f, // Monopoly green
     hotel: 0xe60000, // Vodafone red
     reactor: 0x7fdcff,
+    /* The sea, as a Lego baseplate rather than as a backdrop.
+     *
+     * A flat dark plane under four plates reads as a slide background. The
+     * water is the same studded plate the ground is, in blue and a plate
+     * lower, so the region is built out of the same bricks as everything
+     * standing on it. */
+    sea: 0x1d4f8c,
+    seaStud: 0x2a63a8,
+    seaDeep: 0x163c69,
+    sand: 0xd8c38f,
+    sandStud: 0xe3d3a8,
     label: "#e8eaf0",
   };
 
@@ -127,6 +138,8 @@
   const KERB = 0.9;
   const DISTRICT_MAX_W = 32;
   const WORLD_MAX_W = 132;
+  // Open water between two island plates, at the closest point.
+  const SEA_GAP = 58;
   // Floors per height tier. Six entries so any registered metric can drive it.
   /* Floors per rung of the height ladder.
    *
@@ -425,6 +438,10 @@
       return {
         index,
         name: district.name,
+        // Which island this stands on. The layout rebuilds the district
+        // rather than decorating the one in the data, so anything the layout
+        // needs has to be carried across by hand.
+        estate: district.estate,
         plots,
         totals: district.totals,
         nameFit,
@@ -441,13 +458,14 @@
      * Widest first was the first attempt and left the city filling 57% of its
      * own bounding box against 65% for this, on a world that is also closer
      * to square, which matters because the camera looks down the diagonal. */
-    const ordered = districts.slice().sort((a, b) => b.d - a.d || a.name.localeCompare(b.name));
-    const world = shelfPack(ordered, WORLD_MAX_W, 5.0);
+    const islands = packIslands(districts);
+    placeIslands(islands);
 
     const buildings = [];
     for (const district of districts) {
-      district.cx = district.x - world.w / 2;
-      district.cz = district.z - world.d / 2;
+      const island = district.island;
+      district.cx = island.ox + district.x - island.w / 2;
+      district.cz = island.oz + district.z - island.d / 2;
       for (const plot of district.plots) {
         plot.cx = district.cx + DISTRICT_PAD + plot.x;
         /* The reserved strip is at the near edge, not the far one.
@@ -477,7 +495,99 @@
         });
       }
     }
-    return { districts, buildings, size: world };
+    for (const building of buildings) building.island = building.district.island;
+    for (const island of islands) {
+      island.buildings = buildings.filter((b) => b.island === island);
+    }
+
+    /* The region's own bounds, which is what the camera frames and what the
+     * sea has to cover. One island centred on nothing is the same number it
+     * always was. */
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const island of islands) {
+      minX = Math.min(minX, island.ox - island.w / 2);
+      maxX = Math.max(maxX, island.ox + island.w / 2);
+      minZ = Math.min(minZ, island.oz - island.d / 2);
+      maxZ = Math.max(maxZ, island.oz + island.d / 2);
+    }
+    return { districts, islands, buildings,
+             size: { w: maxX - minX, d: maxZ - minZ } };
+  }
+
+  /* One island per estate, each packed toward a square.
+   *
+   * Packing every estate at the width the single city used makes a
+   * three-district estate spread into one wide row: Commercial & Services
+   * came out 93 wide on 38 lots against Networks' 111 on 145, so the smallest
+   * estate read as nearly the largest. Size reads as importance, so the
+   * picture would have been making a claim the data does not. Searching the
+   * width for the squarest plate puts island area back in proportion, and
+   * because lot size already follows spend per category, area then orders
+   * exactly as spend does.
+   */
+  function packIslands(districts) {
+    const config = (CONFIG.estates || {});
+    const roster = (CITY.estates && CITY.estates.length)
+      ? CITY.estates.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+      : [{ id: (districts[0] || {}).estate, label: "", order: 0 }];
+
+    const islands = [];
+    for (const estate of roster) {
+      const mine = districts.filter((d) => (d.estate || roster[0].id) === estate.id);
+      if (!mine.length) continue;
+      const ordered = mine.slice().sort(
+        (a, b) => b.d - a.d || a.name.localeCompare(b.name));
+      const packed = config.square_plates === false
+        ? shelfPack(ordered, WORLD_MAX_W, 5.0)
+        : squarest(ordered);
+      const island = { id: estate.id, label: estate.label || estate.id,
+                       order: estate.order || 0, districts: mine,
+                       w: packed.w, d: packed.d, ox: 0, oz: 0 };
+      for (const district of mine) district.island = island;
+      islands.push(island);
+    }
+    return islands;
+  }
+
+  /** The shelf pack whose plate comes out closest to square. */
+  function squarest(ordered) {
+    const widest = ordered.reduce((most, d) => Math.max(most, d.w), 0) + 4;
+    const limit = Math.max(widest, WORLD_MAX_W * 2);
+    let best = widest, bestRatio = Infinity;
+    for (let width = widest; width <= limit; width += 2) {
+      const packed = shelfPack(ordered, width, 5.0);
+      const ratio = Math.max(packed.w, packed.d) / Math.min(packed.w, packed.d);
+      if (ratio < bestRatio) { bestRatio = ratio; best = width; }
+    }
+    // Run it once more at the chosen width: shelfPack writes each district's
+    // position as it goes, and the last search step left them at the wrong one.
+    return shelfPack(ordered, best, 5.0);
+  }
+
+  /* Where each island sits on the sea.
+   *
+   * Clockwise from the north corner, which under this camera is the one the
+   * eye reaches first. A single island sits where the single city always did,
+   * at the origin, so nothing about one estate moves.
+   */
+  function placeIslands(islands) {
+    if (islands.length < 2) {
+      if (islands.length) { islands[0].ox = 0; islands[0].oz = 0; }
+      return;
+    }
+    const CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    const widest = islands.reduce(
+      (most, i) => Math.max(most, i.w, i.d), 0);
+    // Config asks for a centre-to-centre distance. Honour it unless it would
+    // run two plates into each other, in which case the islands stop being
+    // islands and the whole metaphor goes with them.
+    const asked = (CONFIG.estates || {}).spacing || 196;
+    const spacing = Math.max(asked, widest + SEA_GAP);
+    islands.forEach((island, i) => {
+      const corner = CORNERS[i % CORNERS.length];
+      island.ox = corner[0] * spacing / 2;
+      island.oz = corner[1] * spacing / 2;
+    });
   }
 
   // ------------------------------------------------------------- instancing
@@ -1036,24 +1146,200 @@
    * it stood on the boundary cost twelve units on each axis for two towers
    * that are nowhere near one.
    */
+  /* The lighthouse, and what its beam is measuring.
+   *
+   * The region view needed a subject. Four plates and a stretch of water is a
+   * set of things rather than a place, and the all-estate score had nowhere
+   * to live: it is the one figure that belongs to no island.
+   *
+   * Nothing here is decorative, so the beam carries it. Its reach is the
+   * region's score on the same 0 to 100 the buildings use, taken as a
+   * fraction of the distance to the furthest island. At 17.5 it falls well
+   * short of all four, which is the honest picture and the point of drawing
+   * it: the light does not yet reach the cities it is meant to serve.
+   */
+  const lighthouse = { beam: null, lamp: null, reach: 0 };
+
+  function drawLighthouse(islands) {
+    if (islands.length < 2) return;
+
+    const furthest = islands.reduce(
+      (most, i) => Math.max(most, Math.hypot(i.ox, i.oz)), 0);
+    const score = ((CITY.totals || {}).journey || {}).total || 0;
+    lighthouse.reach = furthest * (score / 100);
+
+    // A rock to stand on, so the tower is on land like everything else.
+    studdedPlate(0, -0.9, 0, 34, 1.4, 34, 0x4a5160, 0x59616f);
+    studdedPlate(0, -0.1, 0, 24, 1.0, 24, 0x5b6373, 0x6a7384);
+
+    // Banded white and red, which is what a lighthouse looks like in every
+    // set that has ever contained one.
+    const BANDS = 9, BAND = 3.3, FOOT = 6.4, HEAD = 3.4;
+    for (let i = 0; i < BANDS; i++) {
+      const t = i / (BANDS - 1);
+      const radius = (FOOT + (HEAD - FOOT) * t) / 2;
+      const band = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.93, radius, BAND, 14),
+        new THREE.MeshLambertMaterial({ color: i % 2 ? 0xe60000 : 0xf2f0ea })
+      );
+      band.position.set(0, 0.4 + BAND / 2 + i * BAND, 0);
+      band.castShadow = true;
+      scene.add(band);
+    }
+    const top = 0.4 + BANDS * BAND;
+
+    // The lamp room, and a cap over it.
+    const room = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.4, 2.4, 2.4, 14),
+      new THREE.MeshBasicMaterial({ color: 0xffe9a8 })
+    );
+    room.position.set(0, top + 1.2, 0);
+    scene.add(room);
+    lighthouse.lamp = room;
+
+    const cap = new THREE.Mesh(
+      new THREE.ConeGeometry(3.1, 2.3, 14),
+      new THREE.MeshLambertMaterial({ color: 0x2b3038 })
+    );
+    cap.position.set(0, top + 3.5, 0);
+    scene.add(cap);
+
+    /* The beam itself.
+     *
+     * A cone laid on its side, widest where it lands, so it reads as light
+     * spreading rather than as a bar pointing. Additive, so it brightens what
+     * it crosses instead of hiding it, and off by day where it would be
+     * invisible anyway.
+     */
+    const beam = new THREE.Mesh(
+      new THREE.ConeGeometry(4.0, Math.max(lighthouse.reach, 1), 16, 1, true)
+        .rotateZ(-Math.PI / 2)
+        .translate(Math.max(lighthouse.reach, 1) / 2, 0, 0),
+      new THREE.MeshBasicMaterial({
+        color: 0xffe9a8, transparent: true, opacity: 0.22,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+      })
+    );
+    beam.position.set(0, top + 1.2, 0);
+    beam.visible = false;
+    scene.add(beam);
+    lighthouse.beam = beam;
+  }
+
+  /** The beam turns, slowly, and only after dark. */
+  function updateLighthouse(nowSec) {
+    if (!lighthouse.beam) return;
+    lighthouse.beam.visible = isNight;
+    lighthouse.beam.rotation.y = -nowSec * 0.42;
+    if (lighthouse.lamp) {
+      lighthouse.lamp.material.color.setHex(isNight ? 0xfff3c4 : 0xcfc9b4);
+    }
+  }
+
+  /* The sea, the beaches and the surf.
+   *
+   * Three rings per island, all of them the same studded plate the ground
+   * uses, each one a plate lower than the last. Lego has always done water as
+   * stacked plates and a stepped shoreline, and reusing studdedPlate means
+   * the sea is made of the same brick as the city rather than being a
+   * different kind of object that happens to be blue.
+   *
+   * The surf ring is kept in `surf` so the animation loop can lift it. It is
+   * the only moving part of the sea: a shader would read better and would
+   * also be the one thing in this renderer that is not a brick.
+   */
+  const surf = [];
+
+  function drawSea(islands, bounds) {
+    if (islands.length < 2) return;      // one island is the city, not a region
+
+    const pad = 150;
+    studdedPlate(
+      (bounds.minX + bounds.maxX) / 2, -3.4, (bounds.minZ + bounds.maxZ) / 2,
+      (bounds.maxX - bounds.minX) + pad * 2, 1.2,
+      (bounds.maxZ - bounds.minZ) + pad * 2, C.sea, C.seaStud
+    );
+
+    for (const island of islands) {
+      // Shallows: one step up from the open sea, so the island has an
+      // approach rather than a cliff.
+      studdedPlate(island.ox, -2.4, island.oz,
+                   island.plateW + 30, 1.0, island.plateD + 30, C.seaDeep, C.seaStud);
+      // Surf, the ring the animation lifts.
+      surf.push({
+        mesh: studdedPlate(island.ox, -1.7, island.oz,
+                           island.plateW + 17, 0.9, island.plateD + 17,
+                           C.seaStud, C.sea),
+        y: -1.7,
+        phase: (island.order || 0) * 0.8,
+      });
+      // Beach, between the water and the kerb.
+      studdedPlate(island.ox, -1.1, island.oz,
+                   island.plateW + 7, 1.0, island.plateD + 7, C.sand, C.sandStud);
+    }
+  }
+
+  /* The surf breathes.
+   *
+   * A sixth of a plate of travel, which is enough that the shoreline is alive
+   * and little enough that it never reads as the island sinking. Each island
+   * is given its own phase so the four do not pulse in unison, which looks
+   * mechanical.
+   */
+  function updateSurf(nowSec) {
+    for (const ring of surf) {
+      ring.mesh.position.y = ring.y + Math.sin(nowSec * 0.7 + ring.phase) * 0.16;
+    }
+  }
+
   const BEHIND = Math.hypot(CAM_DIR.x, CAM_DIR.z) / CAM_DIR.y / Math.SQRT2;
-  const CLEARANCE = Math.ceil(layout.buildings.reduce(
-    (most, b) => {
-      const reach = assemblyTop(b) * BEHIND;
-      return Math.max(most,
-        reach - (b.x + layout.size.w / 2),
-        reach - (b.z + layout.size.d / 2));
-    },
-    // The viaducts start in deficit: they run along the ring road outside
-    // the districts, so their distance from the block counts against them
-    // rather than for them. Left out of the first version of this, their
-    // overhead wire came out against the void, which is the one fault the
-    // margin exists to prevent.
-    FLYOVER_TOP * BEHIND + FLYOVER_OUT
-  ));
-  const baseW = layout.size.w + 10 + CLEARANCE * 2;
-  const baseD = layout.size.d + 10 + CLEARANCE * 2;
-  studdedPlate(0, -0.6, 0, baseW, 1.2, baseD, C.ground, 0x373d47);
+
+  /* Asked of each island separately.
+   *
+   * The margin exists so a tall thing has ground behind it to stand against.
+   * Taken across the region it would be decided by whichever island holds the
+   * tallest tower and paid for by all four, which on the three smaller ones
+   * is a wide apron of empty plate where there should be water.
+   */
+  function clearanceFor(island) {
+    return Math.ceil(island.buildings.reduce(
+      (most, b) => {
+        const reach = assemblyTop(b) * BEHIND;
+        return Math.max(most,
+          reach - (b.x - island.ox + island.w / 2),
+          reach - (b.z - island.oz + island.d / 2));
+      },
+      // The viaducts start in deficit: they run along the ring road outside
+      // the districts, so their distance from the block counts against them
+      // rather than for them. Left out of the first version of this, their
+      // overhead wire came out against the void, which is the one fault the
+      // margin exists to prevent.
+      FLYOVER_TOP * BEHIND + FLYOVER_OUT
+    ));
+  }
+
+  for (const island of layout.islands) {
+    const clearance = clearanceFor(island);
+    island.plateW = island.w + 10 + clearance * 2;
+    island.plateD = island.d + 10 + clearance * 2;
+  }
+
+  // The region, as the camera has to frame it and the sea has to cover it.
+  const bounds = layout.islands.reduce((box, island) => ({
+    minX: Math.min(box.minX, island.ox - island.plateW / 2),
+    maxX: Math.max(box.maxX, island.ox + island.plateW / 2),
+    minZ: Math.min(box.minZ, island.oz - island.plateD / 2),
+    maxZ: Math.max(box.maxZ, island.oz + island.plateD / 2),
+  }), { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity });
+  const baseW = bounds.maxX - bounds.minX;
+  const baseD = bounds.maxZ - bounds.minZ;
+
+  drawSea(layout.islands, bounds);
+  drawLighthouse(layout.islands);
+  for (const island of layout.islands) {
+    studdedPlate(island.ox, -0.6, island.oz,
+                 island.plateW, 1.2, island.plateD, C.ground, 0x373d47);
+  }
 
 
 
@@ -1189,55 +1475,63 @@
     const signBucket = new Bucket();
     const signalBucket = new Bucket();
 
-    const bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
-    for (const d of layout.districts) {
-      bounds.minX = Math.min(bounds.minX, d.cx);
-      bounds.maxX = Math.max(bounds.maxX, d.cx + d.w);
-      bounds.minZ = Math.min(bounds.minZ, d.cz);
-      bounds.maxZ = Math.max(bounds.maxZ, d.cz + d.d);
-    }
-
-    // Districts were shelf-packed, so their rows and the gaps between them are
-    // already a street grid, so it only has to be drawn.
-    const rows = new Map();
-    for (const d of layout.districts) {
-      const key = Math.round(d.z);
-      if (!rows.has(key)) rows.set(key, []);
-      rows.get(key).push(d);
-    }
-    const rowKeys = [...rows.keys()].sort((a, b) => a - b);
-
     const ROAD = RING_ROAD;
     const PAVEMENT = 1.15;
     const KERB_H = 0.26;
     const roads = [];
     const road = (x, z, w, d) => roads.push({ x, z, w, d, vertical: d > w });
 
-    const pad = RING_PAD;
-    const minX = bounds.minX - pad, maxX = bounds.maxX + pad;
-    const minZ = bounds.minZ - pad, maxZ = bounds.maxZ + pad;
-    const spanX = maxX - minX, spanZ = maxZ - minZ;
-    road((minX + maxX) / 2, minZ, spanX + ROAD * 2, ROAD);
-    road((minX + maxX) / 2, maxZ, spanX + ROAD * 2, ROAD);
-    road(minX, (minZ + maxZ) / 2, ROAD, spanZ);
-    road(maxX, (minZ + maxZ) / 2, ROAD, spanZ);
+    /* A street grid per island, not one across the region.
+     *
+     * Districts were shelf-packed, so their rows and the gaps between them
+     * are already a street grid and it only has to be drawn. Run once over
+     * every district in the region it drew a ring road round all four islands
+     * and ran the cross streets over open water, which is the one thing a sea
+     * between cities cannot survive.
+     */
+    for (const island of layout.islands) {
+      const bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
+      for (const d of island.districts) {
+        bounds.minX = Math.min(bounds.minX, d.cx);
+        bounds.maxX = Math.max(bounds.maxX, d.cx + d.w);
+        bounds.minZ = Math.min(bounds.minZ, d.cz);
+        bounds.maxZ = Math.max(bounds.maxZ, d.cz + d.d);
+      }
 
-    for (let i = 0; i < rowKeys.length - 1; i++) {
-      const above = rows.get(rowKeys[i]);
-      const below = rows.get(rowKeys[i + 1]);
-      const z0 = Math.max(...above.map((d) => d.cz + d.d));
-      const z1 = Math.min(...below.map((d) => d.cz));
-      road((minX + maxX) / 2, (z0 + z1) / 2, spanX, Math.max(ROAD, z1 - z0));
-    }
+      const rows = new Map();
+      for (const d of island.districts) {
+        const key = Math.round(d.z);
+        if (!rows.has(key)) rows.set(key, []);
+        rows.get(key).push(d);
+      }
+      const rowKeys = [...rows.keys()].sort((a, b) => a - b);
 
-    for (const key of rowKeys) {
-      const row = rows.get(key).slice().sort((a, b) => a.cx - b.cx);
-      const z0 = Math.min(...row.map((d) => d.cz)) - 1.2;
-      const z1 = Math.max(...row.map((d) => d.cz + d.d)) + 1.2;
-      for (let i = 0; i < row.length - 1; i++) {
-        const x0 = row[i].cx + row[i].w;
-        const x1 = row[i + 1].cx;
-        road((x0 + x1) / 2, (z0 + z1) / 2, Math.max(ROAD, x1 - x0), z1 - z0);
+      const pad = RING_PAD;
+      const minX = bounds.minX - pad, maxX = bounds.maxX + pad;
+      const minZ = bounds.minZ - pad, maxZ = bounds.maxZ + pad;
+      const spanX = maxX - minX, spanZ = maxZ - minZ;
+      road((minX + maxX) / 2, minZ, spanX + ROAD * 2, ROAD);
+      road((minX + maxX) / 2, maxZ, spanX + ROAD * 2, ROAD);
+      road(minX, (minZ + maxZ) / 2, ROAD, spanZ);
+      road(maxX, (minZ + maxZ) / 2, ROAD, spanZ);
+
+      for (let i = 0; i < rowKeys.length - 1; i++) {
+        const above = rows.get(rowKeys[i]);
+        const below = rows.get(rowKeys[i + 1]);
+        const z0 = Math.max(...above.map((d) => d.cz + d.d));
+        const z1 = Math.min(...below.map((d) => d.cz));
+        road((minX + maxX) / 2, (z0 + z1) / 2, spanX, Math.max(ROAD, z1 - z0));
+      }
+
+      for (const key of rowKeys) {
+        const row = rows.get(key).slice().sort((a, b) => a.cx - b.cx);
+        const z0 = Math.min(...row.map((d) => d.cz)) - 1.2;
+        const z1 = Math.max(...row.map((d) => d.cz + d.d)) + 1.2;
+        for (let i = 0; i < row.length - 1; i++) {
+          const x0 = row[i].cx + row[i].w;
+          const x1 = row[i + 1].cx;
+          road((x0 + x1) / 2, (z0 + z1) / 2, Math.max(ROAD, x1 - x0), z1 - z0);
+        }
       }
     }
 
@@ -1391,8 +1685,14 @@
 
     let seed = 7;
     const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-    for (let x = -baseW / 2 + 3; x < baseW / 2 - 3; x += 4.6) {
-      for (let z = -baseD / 2 + 3; z < baseD / 2 - 3; z += 4.6) {
+    // Walked per island rather than across the region: between the islands
+    // there is open water, and a tree standing in it is the one mistake the
+    // whole metaphor cannot survive.
+    for (const island of layout.islands) {
+    for (let x = island.ox - island.plateW / 2 + 3;
+         x < island.ox + island.plateW / 2 - 3; x += 4.6) {
+      for (let z = island.oz - island.plateD / 2 + 3;
+           z < island.oz + island.plateD / 2 - 3; z += 4.6) {
         const jx = x + (rnd() - 0.5) * 2;
         const jz = z + (rnd() - 0.5) * 2;
         /* Street trees, not parkland.
@@ -1406,6 +1706,7 @@
         canopyBucket.add(jx, (0.9 + 0.6) * scale, jz, 1.5 * scale, 1.7 * scale, 1.5 * scale, 0x2f7d46);
         canopyBucket.add(jx, (0.9 + 1.35) * scale, jz, 1.1 * scale, 1.3 * scale, 1.1 * scale, 0x39916f);
       }
+    }
     }
 
     const solid = (streetMaterial = new THREE.MeshLambertMaterial());
@@ -3482,7 +3783,7 @@
     const j = CITY.totals.journey;
     if (!j) return;
     document.getElementById("arcYou").style.left = `${arcPosition(j.total)}%`;
-    document.getElementById("arcScore").textContent = `Networks ${Math.round(j.total)} / ${ARC_MAX}`;
+    document.getElementById("arcScore").textContent = `${wholeLabel()} ${Math.round(j.total)} / ${ARC_MAX}`;
     document.getElementById("arcNote").textContent =
       `· ${Math.round(j.blueprint / WEIGHTS.blueprint * 100)}% written, `
       + `${Math.round(j.usage / WEIGHTS.usage * 100)}% used, `
@@ -3559,7 +3860,7 @@
       + `${Math.round(j.usage)} used, ${Math.round(j.ai)} AI`;
     const n = CITY.totals.journey;
     base.hidden = false;
-    base.textContent = `Networks overall ${Math.round(n.total)} / ${ARC_MAX}`;
+    base.textContent = `${wholeLabel()} overall ${Math.round(n.total)} / ${ARC_MAX}`;
     markStage(stageOf(j.total));
   }
 
@@ -3567,6 +3868,42 @@
    * answers different questions depending on who is asking. */
   const journeyRows = document.getElementById("jRows");
   let journeyView = "districts";
+
+  /* What to call the thing a figure belongs to.
+   *
+   * With one estate the city and the region are the same place and it keeps
+   * the name it always had. With four, a total is not a Networks total and
+   * saying so is simply wrong.
+   */
+  /* The worked example under the square root, found rather than written.
+   *
+   * It named Fixed and said "second of the eight districts", which held while
+   * there was one estate and eight of them. The district that makes the point
+   * is whichever one leans hardest on a single category, so it is looked up.
+   */
+  function rootExample() {
+    const lean = CITY.districts.map((d) => {
+      const codes = new Set(d.plots.flatMap((p) => p.codes));
+      const mine = CITY.categories.filter((c) => codes.has(c.code));
+      const spends = mine.map((c) => c.metrics.spend_eur || 0);
+      const total = spends.reduce((a, b) => a + b, 0);
+      const biggest = Math.max(0, ...spends);
+      return { name: d.name, share: total > 0 ? biggest / total : 0,
+               lots: mine.length, quiet: spends.filter((v) => !(v > 0)).length };
+    }).filter((d) => d.lots > 2).sort((a, b) => b.share - a.share)[0];
+    if (!lean) return "";
+    return `On raw spend, ${lean.name} would be carried by one category of `
+      + `${lean.lots}, holding ${Math.round(lean.share * 100)}% of the `
+      + `district's spend between them.`;
+  }
+
+  function wholeLabel() {
+    const estates = CITY.estates || [];
+    if (estates.length > 1) {
+      return (CONFIG.city && CONFIG.city.region_label) || "the region";
+    }
+    return estates.length ? estates[0].label : "Networks";
+  }
 
   function scoreBar(j) {
     const seg = (key, value) =>
@@ -3584,6 +3921,23 @@
   }
 
   function journeyData() {
+    /* The league table the region exists to make possible.
+     *
+     * Four estates, one formula, side by side. It is the only view where a
+     * row is a whole city, so the sub-line carries what that city is made of
+     * rather than how empty it is: at this level the lot count is the thing
+     * being compared against, not a fact about the row.
+     */
+    if (journeyView === "estates") {
+      return (CITY.estates || [])
+        .map((e) => ({
+          label: e.label,
+          sub: `${e.counts.categories} lots · ${e.totals.empty_lots} empty`,
+          j: e.totals.journey,
+          go: () => window.NWCity.focusEstate(e.id),
+        }))
+        .sort((a, b) => b.j.total - a.j.total);
+    }
     if (journeyView === "categories") {
       return CITY.categories
         .map((c) => ({ label: `${c.code} ${c.name}`, sub: c.district,
@@ -4873,8 +5227,7 @@
           sum of the weights. The root is applied per category, not to the
           total.</p>
         <p><b>The square root</b> limits how far one large category can carry
-          a group. On raw spend, Fixed ranks second of the eight districts on
-          one category of twelve, the other eleven at nought.
+          a group. ${rootExample()}
           <b>The floor</b> keeps a category with no spend recorded in the
           calculation. A weight of nought removes it altogether, and
           ${CITY.categories.filter((c) => !(c.metrics.spend_eur > 0)).length}
@@ -4894,7 +5247,7 @@
             + " still carries weight</span>" : ""}</p>
         <p>A category total is one of a fixed set of sums. An average of
           those sums is not, so a group scores a figure none of its categories
-          can: Networks reads ${Math.round(CITY.totals.journey.total)} out of
+          can: ${wholeLabel()} reads ${Math.round(CITY.totals.journey.total)} out of
           100 where single categories read 0, 25, 40 or 100. It reads low
           because ${CITY.categories.filter((c) => c.journey.total === 0).length}
           of the ${counts.categories} lots score nought. Groupings holding
@@ -5129,6 +5482,40 @@
     },
     // Fly to a whole district rather than one lot. Used when the agent is
     // answering about a district or ranking within one.
+    /* Fly to one island, framing the whole of it.
+     *
+     * The margin is wider than a district's because an island is already
+     * framed by water: cropping to its plate edge loses the thing that makes
+     * it an island.
+     */
+    focusEstate(id) {
+      const wanted = String(id || "").toLowerCase();
+      const island = layout.islands.find(
+        (i) => i.id.toLowerCase() === wanted
+            || String(i.label || "").toLowerCase() === wanted);
+      if (!island) return false;
+      showCategory(null);
+      const at = new THREE.Vector3(island.ox, 0, island.oz);
+      flyTo(at, Math.max(island.plateW, island.plateD) * 0.62);
+      sendFigure(new THREE.Vector3(island.ox, 0, island.oz + island.d * 0.3),
+                 "fly", FLIGHT);
+      walker.pinned = true;
+      return true;
+    },
+    /* Back out to the whole region, which is only a place when there is more
+     * than one island to see. */
+    focusRegion() {
+      showCategory(null);
+      flyTo(HOME.target, HOME.size);
+      return true;
+    },
+    islands() {
+      return layout.islands.map((i) => ({
+        id: i.id, label: i.label, x: i.ox, z: i.oz,
+        w: i.w, d: i.d, plateW: i.plateW, plateD: i.plateD,
+        districts: i.districts.length,
+      }));
+    },
     focusDistrict(name) {
       const wanted = String(name || "").toLowerCase();
       const district = layout.districts.find((d) => d.name.toLowerCase() === wanted);
@@ -5295,7 +5682,7 @@
      * speak the top of the list without recomputing the score.
      */
     showJourney(view) {
-      if (!["districts", "categories", "people"].includes(view)) return null;
+      if (!["estates", "districts", "categories", "people"].includes(view)) return null;
       const button = document.querySelector(`#jSwitch [data-view="${view}"]`);
       if (!button) return null;
       button.click();
@@ -5392,6 +5779,8 @@
     updateWalkers(nowSec, delta);
     updateTraffic(delta);
     updateSleepers(nowSec);
+    updateSurf(nowSec);
+    updateLighthouse(nowSec);
     updateFigure(nowSec, delta);
     applyCamera();
     placeBubble();
@@ -5427,6 +5816,8 @@
   /* Before the first frame, because every mark is added at the same point and
    * would be seen stacked there for one frame otherwise. */
   updateSleepers(clockNow());
+  updateSurf(clockNow());
+  updateLighthouse(clockNow());
   cityRise();
   tick();
 })();

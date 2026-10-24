@@ -99,21 +99,25 @@ class EstateSelection(unittest.TestCase):
         ]}})
         self.assertEqual(["a", "b", "c"], [e["id"] for e in picked])
 
-    def test_the_shipped_config_builds_networks_and_nothing_else(self):
-        """What the repository is actually set to produce.
+    def test_what_is_switched_on_is_what_was_built(self):
+        """The config and the committed data have to agree.
 
-        The renderer draws one plate. An estate switched on before it can draw
-        a sea would put two estates' districts on one piece of ground and
-        change every figure the documents quote.
+        Switching an estate on without rebuilding leaves an island configured
+        and absent, and rebuilding without switching one on leaves the reverse.
+        Neither shows up anywhere else: the renderer draws whatever is in the
+        file and the config is only read at build time.
         """
+        import json
         config = build_city.load_config()
         live = [e["id"] for e in build_city.estates_in(config)]
-        self.assertEqual(["network"], live,
-                         "only Networks should be enabled until the renderer "
-                         "lays out islands")
+        built = [e["id"] for e in json.loads(
+            (REPO / "data" / "city.json").read_text(encoding="utf-8"))["estates"]]
+        self.assertEqual(sorted(live), sorted(built),
+                         "config/metrics.yaml and data/city.json disagree about "
+                         "which estates exist. Run: python3 run.py build")
         listed = {e["id"] for e in config["estates"]["list"]}
         self.assertEqual({"network", "itande", "commercial", "corporate"}, listed,
-                         "all four estates should be configured, three of them off")
+                         "all four estates should stay configured")
 
 
 class ReadingAnEstate(unittest.TestCase):

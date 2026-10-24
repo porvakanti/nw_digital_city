@@ -14,6 +14,8 @@ from pathlib import Path
 
 import yaml
 
+import estate_view
+
 REPO = Path(__file__).resolve().parent.parent
 CITY = REPO / "data" / "city.json"
 CONFIG = REPO / "config" / "metrics.yaml"
@@ -291,7 +293,9 @@ class TestTheNumbersWeSayOutLoud(unittest.TestCase):
     """
 
     def setUp(self):
-        self.city = load_city()
+        # Every figure in this class is a Networks figure, quoted in a
+        # Networks document. See tests/estate_view.py.
+        self.city = estate_view.scoped(load_city())
         self.cats = self.city["categories"]
 
     def test_the_shape_of_the_estate(self):
