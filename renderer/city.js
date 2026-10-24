@@ -5643,13 +5643,21 @@
         bubble: document.getElementById("bubble").getBoundingClientRect(),
       };
     },
-    /* The ground plate, so a check can confirm nothing stands off the edge. */
+    /* The ground plates, so a check can confirm nothing stands off an edge.
+     *
+     * w and d are the region: every island and the water between them. A
+     * building is not held against those, because it stands on one island
+     * and it is that island's edge it could fall off. `islands` carries one
+     * plate each, which is what the check has to walk.
+     */
     plate() {
       return {
         w: baseW,
         d: baseD,
+        islands: layout.islands.map((i) => ({
+          id: i.id, x: i.ox, z: i.oz, w: i.plateW, d: i.plateD,
+        })),
         tallest: TALLEST,
-        clearance: CLEARANCE,
         /* How far back a unit of height is thrown by this projection, per
          * ground axis. Reported rather than left to be inferred from the
          * clearance: the clearance is the shortfall left over after every
