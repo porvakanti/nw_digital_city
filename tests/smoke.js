@@ -506,8 +506,15 @@ async function onAPhone(browser) {
   await page.waitForTimeout(2200);
   const districtSaid = await page.evaluate(() =>
     document.querySelector("#caption b").innerText.replace(/\s+/g, " "));
+  /* The count in the sentence is the number of districts there are.
+   *
+   * Pinned to "eight" this failed when a second estate was switched on, for
+   * the one reason that is not a fault: there were sixteen, and the renderer
+   * said so correctly. */
+  const districtCount = await page.evaluate(() => window.NWCity.data.districts.length);
   check("a district answer carries its score and its place",
-    /Energy scores \d+ out of 100, \w+ of the eight districts/.test(districtSaid),
+    new RegExp(`Energy scores \\d+ out of 100, \\w+ of the ${districtCount} districts`)
+      .test(districtSaid),
     districtSaid.slice(0, 110));
 
   // And a ranking question still takes you to a lot, scored on the journey
