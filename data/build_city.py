@@ -97,12 +97,17 @@ def clean(value):
     return text
 
 
-def read_model(workbook, sheet_name=MODEL_SHEET):
+def read_model(workbook, sheet_name=MODEL_SHEET, level1=None):
     """Per-L4 taxonomy, blueprint counts, adoption percentages, spend and usage.
 
     Reads either workbook. The columns are the same except that the current
     extract adds "CBP used", which is absent from older files and defaults to
     zero rather than failing, so a superseded extract still builds.
+
+    `level1` scopes the rows to one estate. The first extract held every Level
+    1 on one sheet, so the filter was the only way to pick one out; the
+    current one gives each estate its own sheet and the filter then matches
+    everything on it. Both shapes read the same way.
     """
     sheet = workbook[sheet_name]
     rows = list(rows_of(sheet))
@@ -111,7 +116,7 @@ def read_model(workbook, sheet_name=MODEL_SHEET):
 
     out = {}
     for row in rows[1:]:
-        if clean(row[idx["Level1"]]) != SCOPE_L1:
+        if level1 is not None and clean(row[idx["Level1"]]) != level1:
             continue
         code = clean(row[idx["Code"]])
         if not code:
@@ -139,18 +144,29 @@ def read_model(workbook, sheet_name=MODEL_SHEET):
     return out
 
 
-def read_market_reach(workbook):
-    """Distinct local markets per category code. Owner identities are discarded."""
-    sheet = workbook[RECORDS_SHEET]
+def read_market_reach(workbook, level1=None, sheet_name=RECORDS_SHEET):
+    """Distinct local markets per category code. Owner identities are discarded.
+
+    Two shapes. The first extract carried one row per individual blueprint on
+    a records sheet, each naming the markets it covered. The current one
+    carries a comma-separated MarketsList against the category itself, which
+    is the same information in the form the estates were asked for.
+    """
+    if sheet_name not in workbook.sheetnames:
+        return {}
+    sheet = workbook[sheet_name]
     rows = list(rows_of(sheet))
     header = [clean(c) for c in rows[0]]
     idx = {name: i for i, name in enumerate(header) if name}
+    if "MarketsList" not in idx:
+        return {}
+    code_column = "Category Code" if "Category Code" in idx else "Code"
 
     markets = collections.defaultdict(set)
     for row in rows[1:]:
-        if clean(row[idx["Level1"]]) != SCOPE_L1:
+        if level1 is not None and clean(row[idx["Level1"]]) != level1:
             continue
-        code = clean(row[idx["Category Code"]])
+        code = clean(row[idx[code_column]])
         if not code:
             continue
         raw = clean(row[idx["MarketsList"]]) or ""
@@ -161,9 +177,11 @@ def read_market_reach(workbook):
     return {code: sorted(names) for code, names in markets.items()}
 
 
-def read_definitions(workbook):
+def read_definitions(workbook, sheet_name=TAXONOMY_SHEET):
     """Category definitions, for building tooltips. Contact columns are skipped."""
-    sheet = workbook[TAXONOMY_SHEET]
+    if sheet_name not in workbook.sheetnames:
+        return {}
+    sheet = workbook[sheet_name]
     rows = list(rows_of(sheet))
     header = [clean(c) for c in rows[0]]
     idx = {name: i for i, name in enumerate(header) if name}
@@ -226,7 +244,7 @@ def journey(record, config) -> dict:
     }
 
 
-def read_managers(workbook, config) -> dict:
+def read_managers(workbook, config, level1=None, sheet_name=TAXONOMY_SHEET) -> dict:
     """Who owns each category, at whatever level of detail the config allows.
 
     `people.show` is one word in config/metrics.yaml and it decides what leaves
@@ -238,7 +256,9 @@ def read_managers(workbook, config) -> dict:
         return {}
     column = config["people"].get("source_column", "VPC Category Manager")
 
-    sheet = workbook[TAXONOMY_SHEET]
+    if sheet_name not in workbook.sheetnames:
+        return {}
+    sheet = workbook[sheet_name]
     rows = rows_of(sheet)
     header = [clean(c) for c in next(rows)]
     idx = {name: i for i, name in enumerate(header) if name}
@@ -248,7 +268,7 @@ def read_managers(workbook, config) -> dict:
 
     out = {}
     for row in rows:
-        if clean(row[idx["Level1"]]) != SCOPE_L1:
+        if level1 is not None and clean(row[idx["Level1"]]) != level1:
             continue
         code = clean(row[idx["Code"]])
         cell = clean(row[idx[column]])
@@ -396,23 +416,55 @@ def sample_metrics(config: dict) -> list[str]:
     )
 
 
-def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
-    config = load_config()
-    workbook = openpyxl.load_workbook(source, read_only=True, data_only=True)
+def estates_in(config: dict) -> list[dict]:
+    """The estates to build, or the single Level 1 the model began with.
 
-    # The refreshed extract is the model when present; the older workbook
-    # still supplies the markets, the definitions and the category manager.
-    if metrics and metrics.exists():
-        refreshed = openpyxl.load_workbook(metrics, read_only=True, data_only=True)
-        model = read_model(refreshed, METRICS_SHEET)
-        print(f"  model from {metrics.name} ({len(model)} categories)")
+    A config with no `estates` block still builds, as the one city it always
+    was. Nothing downstream has to know which of the two it is looking at: a
+    single estate is a list of one.
+    """
+    block = config.get("estates") or {}
+    listed = [e for e in (block.get("list") or []) if e.get("enabled", True)]
+    if listed:
+        return sorted(listed, key=lambda e: (e.get("order", 0), e["id"]))
+    return [{"id": "network", "label": SCOPE_L1, "level1": SCOPE_L1, "order": 0}]
+
+
+def read_estate(workbook, refreshed, estate: dict, config: dict) -> list[dict]:
+    """Every category on one island.
+
+    The estate names the sheet it is read from. Without one it is read from
+    the shared model sheet and filtered on its Level 1, which is the shape the
+    first extract arrived in.
+    """
+    level1 = estate.get("level1")
+    sheet = estate.get("sheet")
+
+    if sheet and refreshed is not None and sheet in refreshed.sheetnames:
+        model = read_model(refreshed, sheet, level1)
+        source = refreshed
+    elif sheet and sheet in workbook.sheetnames:
+        model = read_model(workbook, sheet, level1)
+        source = workbook
+    elif refreshed is not None:
+        model = read_model(refreshed, METRICS_SHEET, level1)
+        source = workbook
     else:
-        model = read_model(workbook)
-        print(f"  model from {source.name} (no refresh found)")
+        model = read_model(workbook, MODEL_SHEET, level1)
+        source = workbook
 
-    reach = read_market_reach(workbook)
-    definitions = read_definitions(workbook)
-    managers = read_managers(workbook, config)
+    # Markets, definitions and the category manager come from the estate's own
+    # sheet when it carries them, and from the records and taxonomy sheets of
+    # the older workbook when it does not.
+    reach = read_market_reach(source, level1, sheet) if sheet else {}
+    if not reach:
+        reach = read_market_reach(workbook, level1)
+    definitions = read_definitions(source, sheet) if sheet else {}
+    if not definitions:
+        definitions = read_definitions(workbook)
+    managers = read_managers(source, config, level1, sheet) if sheet else {}
+    if not managers:
+        managers = read_managers(workbook, config, level1)
 
     categories = []
     for code, record in model.items():
@@ -421,6 +473,7 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
         categories.append(
             {
                 "code": code,
+                "estate": estate["id"],
                 "name": record["l4"],
                 "district": record["l2"],
                 "plot": record["l3"],
@@ -449,10 +502,17 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
             }
         )
 
-    # Stable ordering so the city looks the same every single run.
+    # Stable ordering so the island looks the same every single run.
     categories.sort(key=lambda c: (c["district"] or "", c["plot"] or "", c["code"]))
+    # Monuments are awarded within an island, not across the region. The cap
+    # is what keeps one scarce, and a region-wide cap would hand every
+    # monument to the largest estate.
     assign_landmarks(categories, config)
+    return categories
 
+
+def districts_of(categories, estate_id, config) -> list[dict]:
+    """The districts of one island, each with its plots and its roll-up."""
     districts = []
     by_district = collections.defaultdict(list)
     for category in categories:
@@ -466,6 +526,7 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
         districts.append(
             {
                 "name": district_name,
+                "estate": estate_id,
                 "plots": [
                     {
                         "name": plot_name,
@@ -476,19 +537,58 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
                 "totals": summarise(members, config),
             }
         )
+    return districts
+
+
+def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
+    config = load_config()
+    workbook = openpyxl.load_workbook(source, read_only=True, data_only=True)
+    refreshed = None
+    if metrics and metrics.exists():
+        refreshed = openpyxl.load_workbook(metrics, read_only=True, data_only=True)
+        print(f"  refreshed model from {metrics.name}")
+
+    categories, districts, summaries = [], [], []
+    for estate in estates_in(config):
+        mine = read_estate(workbook, refreshed, estate, config)
+        if not mine:
+            print(f"  {estate['label']}: no categories found, skipped")
+            continue
+        theirs = districts_of(mine, estate["id"], config)
+        categories.extend(mine)
+        districts.extend(theirs)
+        summaries.append({
+            "id": estate["id"],
+            "label": estate["label"],
+            "level1": estate.get("level1"),
+            "order": estate.get("order", 0),
+            "counts": {
+                "districts": len(theirs),
+                "plots": sum(len(d["plots"]) for d in theirs),
+                "categories": len(mine),
+            },
+            "totals": summarise(mine, config),
+        })
+        print(f"  {estate['label']}: {len(mine)} categories, {len(theirs)} districts, "
+              f"score {summarise(mine, config)['journey']['total']}")
+
+    if not categories:
+        raise SystemExit("no categories were read: check the estates block in the config")
 
     all_markets = sorted({m for c in categories for m in c["markets"]})
+    scope = ", ".join(e["label"] for e in summaries)
     city = {
         "meta": {
             "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "source": source.name,
             "source_extract_date": "2026-08-06",
-            "scope": f"{SCOPE_L1} (Level 1)",
+            "scope": f"{scope} (Level 1)",
             "anonymised": True,
             "sample_metrics": sample_metrics(config),
             "people": (config.get("people") or {}).get("show", "none"),
             "markets": all_markets,
             "counts": {
+                "estates": len(summaries),
                 "districts": len(districts),
                 "plots": sum(len(d["plots"]) for d in districts),
                 "categories": len(categories),
@@ -496,6 +596,7 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
             },
         },
         "totals": summarise(categories, config),
+        "estates": summaries,
         "districts": districts,
         "categories": categories,
     }
@@ -646,28 +747,51 @@ def assert_no_personal_data(city: dict, source: Path, config: dict) -> None:
           f"This file now identifies people; set people.show to 'none' to stop that.")
 
 
+def found(preferred: Path, folder: Path) -> Path | None:
+    """The named extract, or whatever workbook is sitting in data/raw.
+
+    The extract is never committed, so a checkout is rebuilt from whatever the
+    estates have most recently supplied. Naming the file in a constant meant
+    renaming every refresh to match.
+    """
+    if preferred.exists():
+        return preferred
+    if not folder.is_dir():
+        return None
+    books = sorted(p for p in folder.glob("*.xlsx") if not p.name.startswith("~$"))
+    return books[0] if books else None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
+    parser.add_argument("--source", type=Path, default=None)
     parser.add_argument("--metrics", type=Path, default=DEFAULT_METRICS,
                         help="the refreshed per-category extract, if there is one")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
 
-    if not args.source.exists():
+    source = args.source or found(DEFAULT_SOURCE, REPO / "data" / "raw")
+    if source is None or not source.exists():
         raise SystemExit(
-            f"source workbook not found at {args.source}\n"
+            f"no source workbook in {REPO / 'data' / 'raw'}\n"
             "The extract is deliberately not in git. Drop it in data/raw/ to rebuild."
         )
 
-    city = build(args.source, args.out, args.metrics)
+    city = build(source, args.out, args.metrics)
     meta, totals = city["meta"], city["totals"]
-    print(f"\n{meta['scope']}: {meta['counts']['districts']} districts, "
-          f"{meta['counts']['plots']} plots, {meta['counts']['categories']} buildings")
-    print(f"  {totals['with_blueprint']} developed / {totals['empty_lots']} empty lots "
-          f"({totals['empty_lots'] / totals['categories']:.0%} of the city is empty ground)")
+    print(f"\n{meta['counts'].get('estates', 1)} estate(s): "
+          f"{meta['counts']['districts']} districts, {meta['counts']['plots']} plots, "
+          f"{meta['counts']['categories']} buildings")
+    for estate in city.get("estates", []):
+        t = estate["totals"]
+        print(f"  {estate['label']:34} {t['journey']['total']:5.1f} / 100   "
+              f"{t['with_blueprint']:>3} built, {t['empty_lots']:>3} empty, "
+              f"€{t['spend_eur'] / 1e6:,.0f}m")
+    print(f"\n  {totals['with_blueprint']} developed / {totals['empty_lots']} empty lots "
+          f"({totals['empty_lots'] / totals['categories']:.0%} of the region is empty ground)")
     print(f"  {totals['blueprints']} blueprints across {meta['counts']['markets']} markets")
     print(f"  €{totals['spend_eur'] / 1e6:,.0f}m addressable spend")
+    print(f"  region score {totals['journey']['total']} / 100")
     print(f"\nwrote {args.out.relative_to(REPO)}")
 
 

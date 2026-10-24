@@ -266,6 +266,37 @@ decimal place.
 `docs/JOURNEY-SCORE.md` carries the full derivation, the rung counts per
 component, and a district worked row by row.
 
+## More than one estate
+
+The model began as a single Level 1 and the renderer draws a single plate.
+`config/metrics.yaml` now carries an `estates` block listing all four Level 1
+estates, of which one is switched on:
+
+```yaml
+estates:
+  list:
+    - {id: network,    label: Network,                          sheet: Network,            enabled: true}
+    - {id: itande,     label: IT&E,                             sheet: IT&E,               enabled: false}
+    - {id: commercial, label: Commercial & Services,            sheet: C&S,                enabled: false}
+    - {id: corporate,  label: Corporate Services and Property,  sheet: Corporate Services, enabled: false}
+```
+
+An enabled estate is read from its own worksheet and becomes an island:
+its own districts, its own plots, its own monuments, its own roll-up. Every
+category and district in `city.json` carries the estate it belongs to, and
+`city.json` gains an `estates` array holding one summary each. A config with
+no block at all still builds the single city it always was.
+
+The three new estates stay off until the renderer can lay out a sea. Turning
+one on before then would put two estates' districts on one piece of ground
+and silently change every figure the documents quote. With all four on the
+region is 388 categories and scores 17.5 out of 100; what the repository
+currently builds is Networks alone at 19.4.
+
+Adding an estate changes no vocabulary. A skyscraper means the same thing on
+every island, which is the whole point of putting them on one sea.
+
+
 ## Privacy
 
 The source workbook contains blueprint owner names and email addresses.
@@ -284,7 +315,7 @@ The source workbook contains blueprint owner names and email addresses.
 
 ```
 run.py                 the only command anyone needs to run
-config/metrics.yaml    which metric drives which visual layer
+config/metrics.yaml    which metric drives which visual layer, and the estates
 film/film.yaml         the product film: its shots, its cut, its text frames
 film/out/              the finished film; its footage is not tracked
 data/build_city.py     workbook to anonymised city.json
