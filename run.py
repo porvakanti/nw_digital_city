@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import filecmp
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -131,7 +132,7 @@ def serve(python: Path, lan: bool = False) -> int:
     """
     host = "0.0.0.0" if lan else "127.0.0.1"
     url = f"http://127.0.0.1:{PORT}/"
-    print(f"\n  NW Digital City   {url}")
+    print(f"\n  {product_name()}   {url}")
     if lan:
         address = lan_address()
         if address:
@@ -155,6 +156,19 @@ def serve(python: Path, lan: bool = False) -> int:
 def models(python: Path) -> int:
     """Ask the provider what it has, rather than trusting a name in a file."""
     return subprocess.call([str(python), "-m", "app.models"], cwd=ROOT)
+
+
+def product_name() -> str:
+    """What the thing is called, from the one place that decides.
+
+    The name was written into the page, the packaged filename, the banner and
+    the catalogue entry, so renaming it meant finding four of them and the
+    tests pinned a fifth. config/metrics.yaml already names the city; this
+    reads it rather than keeping a second copy that can disagree.
+    """
+    text = (ROOT / "config" / "metrics.yaml").read_text(encoding="utf-8")
+    found = re.search(r"^\s{2}name:\s*(.+?)\s*$", text, re.M)
+    return found.group(1) if found else "Digital City"
 
 
 def single_file() -> Path:
@@ -186,7 +200,7 @@ def single_file() -> Path:
         code = code.replace("</script>", "<\\/script>")
         html = html.replace(tag, f"<script>\n{code}\n</script>")
 
-    out = ROOT / "NW Digital City.html"
+    out = ROOT / f"{product_name()}.html"
     out.write_text(html, encoding="utf-8")
     return out
 
@@ -210,7 +224,7 @@ def package() -> int:
         return 1
 
     readme = (
-        "NW Digital City\n"
+        f"{product_name()}\n"
         "===============\n\n"
         "Open index.html in Chrome. Nothing to install, no network needed.\n\n"
         "Press T for a two-minute guided tour, or type a category code, a\n"

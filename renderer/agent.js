@@ -99,6 +99,7 @@
   // ------------------------------------------------------------------ index
   const categories = CITY.categories;
   const byCode = new Map(categories.map((c) => [c.code.toUpperCase(), c]));
+  const estates = (CITY.estates || []).map((e) => ({ id: e.id, label: e.label }));
   const districts = [...new Set(categories.map((c) => c.district))];
   const plots = [...new Set(categories.map((c) => c.plot))];
   const markets = CITY.meta.markets;
@@ -140,6 +141,22 @@
           hit: c,
           score: Math.max(similarity(query, c.name),
                           similarity(query, `${c.code} ${c.name}`)),
+        });
+      }
+      /* An estate is a place you can ask for.
+       *
+       * Typing "networks" used to find whichever category happened to have
+       * the word in its name, which is a lot in a telco. An estate is the
+       * largest thing on the map and the one a leader names first, so it is
+       * scored against its label and its id alike: people type "IT&E" and
+       * they type "itande", and neither should fail.
+       */
+      for (const e of estates) {
+        scored.push({
+          kind: "estate",
+          hit: e.id,
+          label: e.label,
+          score: Math.max(similarity(query, e.label), similarity(query, e.id)),
         });
       }
       for (const d of districts) scored.push({ kind: "district", hit: d, score: similarity(query, d) });
@@ -329,6 +346,7 @@
       // whole city greyed out with no way to tell why.
       if (action !== "potential") CITYVIEW.potential(false);
       if (action === "focus") return CITYVIEW.focus(argument) ? "flying" : "not found";
+      if (action === "estate") return CITYVIEW.focusEstate(argument) ? "flying" : "not found";
       if (action === "district") return CITYVIEW.focusDistrict(argument) ? "flying" : "not found";
       if (action === "potential") {
         const shown = CITYVIEW.potential(true);
@@ -625,6 +643,33 @@
   }
 
   async function runPlace(found) {
+    /* An island is an answer in its own right.
+     *
+     * "networks" names the largest thing on the map, and the useful reply is
+     * to go there and say how the whole of it is doing against the other
+     * three. Scored by the same formula, so the comparison is the point.
+     */
+    if (found.kind === "estate") {
+      const board = (CITY.estates || []).slice()
+        .sort((a, b) => b.totals.journey.total - a.totals.journey.total);
+      const rank = board.findIndex((e) => e.id === found.hit);
+      const mine = board[rank];
+      await call("render", "estate", found.hit);
+      const score = Math.round(mine.totals.journey.total);
+      const of = `the ${board.length} estates`;
+      const place = board.length < 2 ? ""
+        : rank === 0 ? `, top of ${of}`
+          : rank === board.length - 1 ? `, last of ${of}`
+            : `, ${ordinal(rank + 1)} of ${of}`;
+      const t = mine.totals;
+      CITYVIEW.speak(
+        `${mine.label} scores ${score} out of 100${place}. `
+        + `${t.with_blueprint} of ${t.categories} lots are built, `
+        + `${t.in_use} of them used, and ${euro(t.spend_eur)} sits on the estate.`,
+        `${mine.label}: ${score} out of 100.`
+      );
+      return;
+    }
     if (found.kind === "category") {
       await call("get_metrics", found.hit.code);
       await call("render", "focus", found.hit.code);
@@ -765,6 +810,10 @@
 
   function vocabulary() {
     return {
+      // Names, and only names. An estate label is the name of a part of the
+      // organisation, which is the same kind of thing as a district name and
+      // carries no figure with it.
+      estates: estates.map((e) => e.label),
       categories: categories.map((c) => `${c.code} ${c.name}`),
       districts,
       plots,

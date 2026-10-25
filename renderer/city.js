@@ -1232,6 +1232,40 @@
     cap.position.set(0, top + 3.5, 0);
     scene.add(cap);
 
+    /* A gallery round the lamp, and a plinth under it.
+     *
+     * Banded red and white it was a lighthouse after dark, when the lamp was
+     * lit, and a striped post in daylight. What tells you what it is when
+     * nothing is glowing is the shape at the top: a walkway ringing the lamp
+     * room, wider than the tower, with a rail above it. Two rings and a
+     * flange, which is all a brick lighthouse has ever needed.
+     */
+    const gallery = new THREE.Mesh(
+      new THREE.CylinderGeometry(3.3, 3.3, 0.45, 16),
+      new THREE.MeshLambertMaterial({ color: 0x2b3038 })
+    );
+    gallery.position.set(0, top - 0.1, 0);
+    gallery.castShadow = true;
+    scene.add(gallery);
+
+    const rail = new THREE.Mesh(
+      new THREE.CylinderGeometry(3.15, 3.15, 1.1, 16, 1, true),
+      new THREE.MeshLambertMaterial({
+        color: 0x39414c, side: THREE.DoubleSide, transparent: true, opacity: 0.85,
+      })
+    );
+    rail.position.set(0, top + 0.6, 0);
+    scene.add(rail);
+
+    // A skirt where the tower meets its rock, so it stands rather than ends.
+    const skirt = new THREE.Mesh(
+      new THREE.CylinderGeometry(FOOT / 2 + 0.6, FOOT / 2 + 1.5, 1.1, 16),
+      new THREE.MeshLambertMaterial({ color: 0xf2f0ea })
+    );
+    skirt.position.set(0, 0.75, 0);
+    skirt.castShadow = true;
+    scene.add(skirt);
+
     /* The beam itself.
      *
      * A cone laid on its side, widest where it lands, so it reads as light
@@ -1260,7 +1294,7 @@
     lighthouse.beam.visible = isNight;
     lighthouse.beam.rotation.y = -nowSec * 0.42;
     if (lighthouse.lamp) {
-      lighthouse.lamp.material.color.setHex(isNight ? 0xfff3c4 : 0xcfc9b4);
+      lighthouse.lamp.material.color.setHex(isNight ? 0xfff3c4 : 0xffe9a8);
     }
   }
 
@@ -1277,16 +1311,38 @@
    * also be the one thing in this renderer that is not a brick.
    */
   const surf = [];
+  const sea = { mesh: null, rest: null };
 
   function drawSea(islands, bounds) {
     if (islands.length < 2) return;      // one island is the city, not a region
 
+    /* The open sea, as a surface that moves.
+     *
+     * It was a flat studded plate, and a flat blue plate is a blue floor: the
+     * first thing anyone asked was whether that was water. Lego water is
+     * still bricks, so the studs stay and the surface they sit on is what
+     * moves, a grid of vertices under two travelling sines at an angle to
+     * each other. Crossed waves rather than one, because a single sine reads
+     * as corrugation and two read as sea.
+     *
+     * The grid is coarse on purpose. Fine enough and the ripple turns into a
+     * shimmer, which is noise, and this is the one surface in the city that
+     * carries no data at all.
+     */
     const pad = 150;
-    studdedPlate(
-      (bounds.minX + bounds.maxX) / 2, -3.4, (bounds.minZ + bounds.maxZ) / 2,
-      (bounds.maxX - bounds.minX) + pad * 2, 1.2,
-      (bounds.maxZ - bounds.minZ) + pad * 2, C.sea, C.seaStud
-    );
+    const width = (bounds.maxX - bounds.minX) + pad * 2;
+    const depth = (bounds.maxZ - bounds.minZ) + pad * 2;
+    const grid = new THREE.PlaneGeometry(width, depth, 64, 64).rotateX(-Math.PI / 2);
+    const tex = studTexture(C.sea, C.seaStud);
+    tex.repeat.set(Math.max(1, Math.round(width / STUD_TILE)),
+                   Math.max(1, Math.round(depth / STUD_TILE)));
+    const water = new THREE.Mesh(grid, new THREE.MeshLambertMaterial({ map: tex }));
+    water.position.set((bounds.minX + bounds.maxX) / 2, -4.1,
+                       (bounds.minZ + bounds.maxZ) / 2);
+    water.receiveShadow = true;
+    scene.add(water);
+    sea.mesh = water;
+    sea.rest = grid.attributes.position.array.slice();
 
     for (const island of islands) {
       // Shallows: one step up from the open sea, so the island has an
@@ -1307,6 +1363,92 @@
     }
   }
 
+  /* Each island says its own name, on its own water.
+   *
+   * Four plates on a sea is a set of things until something tells you what
+   * they are. The names were only ever in the scoreboard, so the first thing
+   * a viewer asks is which city they are looking at, and nothing on screen
+   * answered.
+   *
+   * Engraved into the ground first, the way district names are, and it was
+   * unreadable: a cut letter reads because the plate under it is lit, and
+   * these sit on water at the far end of the camera's throw. So it is a
+   * nameplate instead, which is also what a property carries on a Monopoly
+   * board: a solid bar, the name across it, standing just off the beach.
+   *
+   * At the near edge, because an isometric camera throws a tall building up
+   * and back, and a name at the far edge is read through whatever stands in
+   * front of it.
+   */
+  const islandNames = [];
+
+  function nameplate(text, width) {
+    const PPU = 56;
+    const w = Math.round(width * PPU);
+    const h = Math.round(width * PPU * 0.17);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+
+    const pad = h * 0.16;
+    const size = Math.round(h * 0.46);
+    ctx.fillStyle = "rgba(14,18,26,0.92)";
+    ctx.beginPath();
+    const r = h * 0.18;
+    ctx.moveTo(pad + r, pad);
+    ctx.arcTo(w - pad, pad, w - pad, h - pad, r);
+    ctx.arcTo(w - pad, h - pad, pad, h - pad, r);
+    ctx.arcTo(pad, h - pad, pad, pad, r);
+    ctx.arcTo(pad, pad, w - pad, pad, r);
+    ctx.closePath();
+    ctx.fill();
+
+    /* Shrink to fit rather than run off the end.
+     *
+     * Drawn at one size, "Corporate Services and Property" came out as
+     * "ATE SERVICES AND P": the canvas simply clipped it. A name that cannot
+     * be read is worse than a smaller one, and the bar is as wide as its own
+     * island, so a long name on a small island has least room and needs the
+     * most shrinking.
+     */
+    const label = text.toUpperCase();
+    const room = w - pad * 2 - h * 0.5;
+    let fitted = size;
+    for (; fitted > 10; fitted -= 1) {
+      ctx.letterSpacing = `${Math.round(fitted * 0.14)}px`;
+      ctx.font = NAME_FONT(fitted);
+      if (ctx.measureText(label).width <= room) break;
+    }
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#f2f4f8";
+    ctx.fillText(label, w / 2, h / 2 + fitted * 0.04);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.anisotropy = 4;
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, width * 0.17).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ map: texture, transparent: true })
+    );
+    return mesh;
+  }
+
+  function nameTheIslands(islands) {
+    if (islands.length < 2) return;   // one island is the city, not a place in it
+    for (const island of islands) {
+      const width = island.plateW * 0.92;
+      const plate = nameplate(island.label, width);
+      plate.position.set(
+        island.ox,
+        -0.42,
+        island.oz + island.plateD / 2 + width * 0.17 / 2 + 3.0
+      );
+      scene.add(plate);
+      islandNames.push(plate);
+    }
+  }
+
   /* The surf breathes.
    *
    * A sixth of a plate of travel, which is enough that the shoreline is alive
@@ -1318,6 +1460,46 @@
     for (const ring of surf) {
       ring.mesh.position.y = ring.y + Math.sin(nowSec * 0.7 + ring.phase) * 0.16;
     }
+    if (!sea.mesh) return;
+    const position = sea.mesh.geometry.attributes.position;
+    const normal = sea.mesh.geometry.attributes.normal;
+    const rest = sea.rest;
+
+    /* Two crossed swells, each about a district wide.
+     *
+     * The first pass was a tenth of this and invisible at the zoom the region
+     * is seen from: it moved and nobody could tell. The crests stay below the
+     * beaches, so the water never climbs the shore.
+     *
+     * The normals are differentiated rather than rebuilt. computeVertexNormals
+     * walks every triangle, allocates, and renormalises, and on a grid this
+     * size once a frame it took the whole application to one frame a second.
+     * The surface is a known function, so its slope is known too: for a
+     * height field the normal is (-df/dx, 1, -df/dz), which is four more
+     * trigonometric calls on a vertex that is already being moved.
+     */
+    const A1 = 1.45, kx1 = 0.085, kz1 = 0.034, w1 = 0.9;
+    const A2 = 1.05, kx2 = 0.031, kz2 = -0.072, w2 = 0.6;
+    const t1 = nowSec * w1, t2 = nowSec * w2;
+
+    for (let i = 0; i < position.count; i++) {
+      const o = i * 3;
+      const x = rest[o], z = rest[o + 2];
+      const p1 = x * kx1 + z * kz1 + t1;
+      const p2 = x * kx2 + z * kz2 + t2;
+      const s1 = Math.sin(p1), s2 = Math.sin(p2);
+      position.array[o + 1] = A1 * s1 + A2 * s2;
+
+      const c1 = Math.cos(p1) * A1, c2 = Math.cos(p2) * A2;
+      const dx = c1 * kx1 + c2 * kx2;
+      const dz = c1 * kz1 + c2 * kz2;
+      const length = Math.hypot(dx, 1, dz);
+      normal.array[o] = -dx / length;
+      normal.array[o + 1] = 1 / length;
+      normal.array[o + 2] = -dz / length;
+    }
+    position.needsUpdate = true;
+    normal.needsUpdate = true;
   }
 
   const BEHIND = Math.hypot(CAM_DIR.x, CAM_DIR.z) / CAM_DIR.y / Math.SQRT2;
@@ -1364,6 +1546,7 @@
 
   drawSea(layout.islands, bounds);
   drawLighthouse(layout.islands);
+  nameTheIslands(layout.islands);
   for (const island of layout.islands) {
     studdedPlate(island.ox, -0.6, island.oz,
                  island.plateW, 1.2, island.plateD, C.ground, 0x373d47);
@@ -3434,12 +3617,48 @@
       [t.empty_lots, "empty lots"],
       [euro(t.spend_eur), "spend to date"],
     ];
+    /* Every figure here is true as of one date, and the screen never said
+     * which. A spend figure with no date against it is read as current, and
+     * this one is an extract that gets refreshed: the date comes from the
+     * data rather than from a constant, so a rebuild moves it on its own. */
+    const asOf = new Date(`${CITY.meta.source_extract_date}T00:00:00Z`);
+    const when = Number.isNaN(asOf.getTime())
+      ? CITY.meta.source_extract_date
+      : asOf.toLocaleDateString(undefined,
+          { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
     document.getElementById("stats").innerHTML = stats
       .map(([n, k, flag]) =>
         `<div class="stat${flag ? " sharp" : ""}"><span class="n">${n}</span><span class="k">${k}</span></div>`)
-      .join("");
+      .join("")
+      + `<p class="asof">Figures as at ${when}. Spend is FY26/27 to that date.</p>`;
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
+  }
+
+  /* The sea only needs explaining when there is one.
+   *
+   * With a single estate there are no islands, nothing is named on the water
+   * and there is no lighthouse, so a paragraph about all three would be
+   * describing something that is not on screen.
+   */
+  function explainTheSea() {
+    const block = document.getElementById("geographySea");
+    const colours = document.getElementById("geographyLocal");
+    const many = (CITY.estates || []).length > 1;
+    if (block) block.hidden = !many;
+    if (colours) {
+      /* A district colour is a colour group, not an identity.
+       *
+       * Eight hues go round again on the next island, so the blue on
+       * Networks and the blue on IT&E are not related. That is how a
+       * Monopoly board works too, and left unsaid it is the kind of thing a
+       * viewer quietly concludes the wrong thing about.
+       */
+      colours.innerHTML = many
+        ? " <b>District colours repeat between islands</b> and mean nothing"
+          + " across them, the way a colour group on a board game does."
+        : "";
+    }
   }
 
   function renderLegend() {
@@ -3807,11 +4026,55 @@
     return Math.max(2, Math.min(74, (score / ARC_MAX) * 74));
   }
 
+  /* Which island the rail is reading, when it is reading one.
+   *
+   * The rail showed VPC and nothing else, so a viewer standing over Networks
+   * had the whole-of-VPC figure in front of them and no way to see the
+   * island's own. Both numbers matter and the comparison between them is the
+   * point of putting four cities on one sea.
+   */
+  let arcEstate = null;
+
+  /* Offer the way out exactly when there is somewhere to go back to.
+   *
+   * "Inside an island" is a camera question, not a selection one: scrolling
+   * in counts as much as clicking does, and after a zoom nothing is
+   * selected. So it is decided by how much of the sea is on screen.
+   */
+  const backOut = document.getElementById("backOut");
+  const backOutBtn = document.getElementById("backOutBtn");
+  if (backOutBtn) {
+    backOutBtn.addEventListener("click", () => window.NWCity.reset());
+  }
+
+  function offerTheWayBack() {
+    if (!backOut) return;
+    const many = (CITY.estates || []).length > 1;
+    backOut.hidden = !(many && view.size < HOME.size * 0.72);
+  }
+
+  function showEstateOnArc(id) {
+    arcEstate = id || null;
+    renderArc();
+  }
+
   function renderArc() {
-    const j = CITY.totals.journey;
+    const estates = CITY.estates || [];
+    const mine = arcEstate && estates.length > 1
+      ? estates.find((e) => e.id === arcEstate)
+      : null;
+    const j = mine ? mine.totals.journey : CITY.totals.journey;
     if (!j) return;
+    const base = document.getElementById("arcBase");
+    if (mine) {
+      // The island on the rail, the whole of VPC under it.
+      const whole = CITY.totals.journey;
+      base.hidden = false;
+      base.textContent = `${wholeLabel()} overall ${Math.round(whole.total)} / ${ARC_MAX}`;
+    }
     document.getElementById("arcYou").style.left = `${arcPosition(j.total)}%`;
-    document.getElementById("arcScore").textContent = `${wholeLabel()} ${Math.round(j.total)} / ${ARC_MAX}`;
+    document.getElementById("arcScore").textContent =
+      `${mine ? mine.label : wholeLabel()} ${Math.round(j.total)} / ${ARC_MAX}`;
     document.getElementById("arcNote").textContent =
       `· ${Math.round(j.blueprint / WEIGHTS.blueprint * 100)}% written, `
       + `${Math.round(j.usage / WEIGHTS.usage * 100)}% used, `
@@ -3895,7 +4158,15 @@
   /* The journey panel. Three views of one score, because the same number
    * answers different questions depending on who is asking. */
   const journeyRows = document.getElementById("jRows");
-  let journeyView = "districts";
+  /* Estates first.
+   *
+   * Four whole cities scored by one formula is the comparison the sea exists
+   * to make, and it is the question a leader opens with. Districts are the
+   * answer to "where inside this one", which is the second question. With a
+   * single estate there is nothing to compare, so the board opens where it
+   * always did.
+   */
+  let journeyView = (CITY.estates || []).length > 1 ? "estates" : "districts";
 
   /* What to call the thing a figure belongs to.
    *
@@ -4050,6 +4321,7 @@
 
   renderStats();
   renderLegend();
+  explainTheSea();
   renderArc();
   renderJourney();
 
@@ -4324,9 +4596,23 @@
    * one of those diagonals, so the crossing point between four lots is the one
    * spot with a clear line back to the viewer. That is where he stands.
    */
-  const standings = layout.buildings.map(
-    (b) => new THREE.Vector3(b.x + CELL * 0.5, 0, b.z + CELL * 0.5)
-  );
+  /* Where the builder can stand, and which island each spot is on.
+   *
+   * Every spot is on land, so the destinations were never the problem. The
+   * walk between two of them is a straight line at ground level, and between
+   * two islands that line is over open water: the figure strolled across the
+   * sea because nothing in it knew there was a sea to cross.
+   */
+  const standings = layout.buildings.map((b) => {
+    const at = new THREE.Vector3(b.x + CELL * 0.5, 0, b.z + CELL * 0.5);
+    at.userData = { estate: b.district.estate };
+    return at;
+  });
+  const standingsByIsland = standings.reduce((by, at) => {
+    const key = at.userData.estate;
+    (by[key] = by[key] || []).push(at);
+    return by;
+  }, {});
 
   const walker = {
     mode: "idle",
@@ -4348,12 +4634,32 @@
     walker.holdUntil = 0;
   }
 
+  /* The builder walks its own island and flies between them.
+   *
+   * Wandering across every standing spot in the region, one stroll in four
+   * set off across the sea. Picking from the island the figure is already on
+   * keeps the walking on land, where walking belongs; the rare hop to
+   * another island is a flight, which is what the camera does too.
+   */
   function wander(now) {
-    const next = standings[Math.floor(Math.random() * standings.length)];
+    const here = nearestIsland(figure.position);
+    const local = standingsByIsland[here] || standings;
+    const next = local[Math.floor(Math.random() * local.length)];
     const distance = figure.position.distanceTo(next);
-    sendFigure(next, "walk", Math.max(1.4, distance / 9));
+    const mode = next.userData && next.userData.estate !== here ? "fly" : "walk";
+    sendFigure(next, mode, Math.max(1.4, distance / 9));
     walker.holdUntil = 0;
     return now;
+  }
+
+  /** Whichever island a point is closest to the middle of. */
+  function nearestIsland(at) {
+    let best = null, least = Infinity;
+    for (const island of layout.islands) {
+      const gap = Math.hypot(at.x - island.ox, at.z - island.oz);
+      if (gap < least) { least = gap; best = island.id; }
+    }
+    return best;
   }
 
   function updateFigure(now, delta) {
@@ -4734,13 +5040,49 @@
   renderer.domElement.addEventListener("pointerup", endDrag);
   renderer.domElement.addEventListener("pointercancel", endDrag);
 
+  const raycaster = new THREE.Raycaster();
+
+  /* The wheel zooms toward whatever is under the pointer.
+   *
+   * It zoomed on the centre of the screen, which on one city was fine: the
+   * city was the centre. On four islands it means pointing at the one you
+   * want, scrolling, and watching the middle of the sea come toward you
+   * instead. Nobody should have to drag a city into the centre before they
+   * are allowed to look at it.
+   *
+   * The ground point under the pointer is held still across the zoom, which
+   * is what every map does and what makes it feel like pulling the thing
+   * closer rather than operating a control.
+   */
+  const ZOOM_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+  function groundUnder(event) {
+    const box = renderer.domElement.getBoundingClientRect();
+    const at = new THREE.Vector2(
+      ((event.clientX - box.left) / box.width) * 2 - 1,
+      -((event.clientY - box.top) / box.height) * 2 + 1
+    );
+    raycaster.setFromCamera(at, camera);
+    const point = new THREE.Vector3();
+    return raycaster.ray.intersectPlane(ZOOM_PLANE, point) ? point : null;
+  }
+
   renderer.domElement.addEventListener("wheel", (e) => {
     e.preventDefault();
+    const before = groundUnder(e);
+    const was = view.size;
     view.size = THREE.MathUtils.clamp(view.size * (e.deltaY > 0 ? 1.1 : 0.9), 6, span * 1.4);
     anim.active = false;
+    if (before && was > 0) {
+      // Move the target by the same fraction the view shrank, so the point
+      // under the cursor lands back under the cursor.
+      const keep = view.size / was;
+      view.target.x = before.x + (view.target.x - before.x) * keep;
+      view.target.z = before.z + (view.target.z - before.z) * keep;
+    }
+    applyCamera();
+    offerTheWayBack();
   }, { passive: false });
-
-  const raycaster = new THREE.Raycaster();
 
   /* What is under the pointer, without having to click it.
    *
@@ -5362,6 +5704,7 @@
     asks: () => setAsks(!showingAsks),
     reset: () => {
       showCategory(null);
+      showEstateOnArc(null);
       flyTo(HOME.target, HOME.size);
     },
   };
@@ -5523,6 +5866,7 @@
             || String(i.label || "").toLowerCase() === wanted);
       if (!island) return false;
       showCategory(null);
+      showEstateOnArc(island.id);
       const at = new THREE.Vector3(island.ox, 0, island.oz);
       flyTo(at, Math.max(island.plateW, island.plateD) * 0.62);
       sendFigure(new THREE.Vector3(island.ox, 0, island.oz + island.d * 0.3),
@@ -5784,6 +6128,9 @@
     },
     reset() {
       showCategory(null);
+      // The rail goes back to reading the whole of it, or it keeps showing
+      // the island you have just left.
+      showEstateOnArc(null);
       say(null);
       setAsks(false);
       walker.pinned = false;
@@ -5817,6 +6164,7 @@
     updateSleepers(nowSec);
     updateSurf(nowSec);
     updateLighthouse(nowSec);
+    offerTheWayBack();
     updateFigure(nowSec, delta);
     applyCamera();
     placeBubble();
