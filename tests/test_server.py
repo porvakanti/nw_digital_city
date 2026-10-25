@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import unittest
+
+import yaml
 from unittest import mock
+
+REPO = pathlib.Path(__file__).resolve().parent.parent
 
 try:
     from fastapi.testclient import TestClient
@@ -56,7 +61,12 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(client.get("/health").status_code, 200)
         page = client.get("/")
         self.assertEqual(page.status_code, 200)
-        self.assertIn("NW Digital City", page.text)
+        # The product name lives in config/metrics.yaml. Pinned here as a
+        # literal it failed the day the name changed, which is the one day it
+        # had nothing useful to say.
+        name = yaml.safe_load(
+            (REPO / "config" / "metrics.yaml").read_text(encoding="utf-8"))["city"]["name"]
+        self.assertIn(name, page.text)
 
     def test_refuses_to_be_framed_by_default(self):
         client = self.client()

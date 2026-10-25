@@ -28,7 +28,7 @@ docs/
 film/
 deploy/
 *.zip
-NW Digital City.html
+*Digital City.html
 *.png
 run.cmd
 run.sh

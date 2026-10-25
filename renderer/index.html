@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NW Digital City</title>
+<title>VPC Digital City</title>
 <style>
   :root {
     color-scheme: dark;
@@ -81,9 +81,47 @@
     font-weight: 620;
     line-height: 1.1;
   }
-  /* The one figure the whole iteration is about. */
-  #stats .stat.sharp { border-color: rgba(199,16,46,0.55); background: rgba(199,16,46,0.10); }
-  #stats .stat.sharp .n { color: #ff6b7a; }
+  /* The one figure the whole iteration is about.
+   *
+   * A 10% red wash on a translucent panel was legible over dark grey ground
+   * and close to invisible once the ground became a bright blue sea: the
+   * panel is glass, and what is behind the glass changed. Opaque enough to
+   * be read against anything, which is what a tile carrying the number the
+   * whole thing is about has to be. */
+  #stats .stat.sharp {
+    border-color: rgba(230,0,0,0.78);
+    background: rgba(86,8,18,0.86);
+    backdrop-filter: blur(10px);
+  }
+  #stats .stat.sharp .n { color: #ff8a95; }
+  #stats .stat.sharp .k { color: #ffc9ce; }
+  /* The date the figures are true as of. Quiet, and never absent. */
+  /* Below the journey rail, not on top of it.
+   *
+   * Both wanted the middle of the top edge, and the rail was there first.
+   * Under it the button is still the first thing in the eye's path back out
+   * and covers nothing. */
+  #backOut {
+    top: 113px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+  }
+  #backOut .btn {
+    background: rgba(13,15,20,0.9);
+    border: 1px solid rgba(255,255,255,0.22);
+    backdrop-filter: blur(10px);
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+  #backOut .btn:hover { border-color: rgba(255,255,255,0.45); }
+  #stats .asof {
+    width: 100%;
+    margin-top: 2px;
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+  }
   #stats .k {
     display: block;
     font-size: 11px;
@@ -1215,8 +1253,8 @@
 </head>
 <body>
   <div class="hud" id="masthead">
-    <h1>NW Digital City</h1>
-    <p id="scope">Vodafone Networks &middot; category blueprint estate</p>
+    <h1>VPC Digital City</h1>
+    <p id="scope">Vodafone Procurement Company &middot; category blueprint estate</p>
     <div id="stats"></div>
   </div>
 
@@ -1229,6 +1267,17 @@
            including why a lot is the size it is and what makes one district
            busier than another, is in the explainer behind the button
            below. -->
+      <!-- The islands first, because that is the question a viewer has
+           before any of the others, and the panel never answered it. -->
+      <div class="geography" id="geographySea" hidden>
+        <div class="name">The sea</div>
+        <div class="by">Each <b>island is one Level 1 estate</b> VPC buys
+        through, named on the water in front of it. The same rules on every
+        island, so a tower on one means what a tower on another means.
+        <b>Island size follows what the estate spends.</b> The lighthouse in
+        the middle belongs to no island: its beam reaches as far as VPC's own
+        score, out of 100.</div>
+      </div>
       <div class="geography">
         <div class="name">The ground</div>
         <div class="by"><b>District</b> is an L2 area inside its own coloured
@@ -1237,7 +1286,8 @@
         <b>Land is worth what is spent on it</b>, so the biggest lots are
         where the money is. <b>Streets are as busy as the district is far
         along</b>: the traffic, the people on the ground and the four-lane
-        markings all follow the journey score.</div>
+        markings all follow the journey score.
+        <span id="geographyLocal"></span></div>
       </div>
       <div id="measures"></div>
       <button class="panel-more" id="legendMore">The full explanation</button>
@@ -1283,8 +1333,8 @@
     <button class="panel-toggle" data-collapse data-drag>Scoreboard<span class="caret">&#9662;</span></button>
     <div class="panel-body">
       <div id="jSwitch" class="seg">
-        <button data-view="estates">Estates</button>
-        <button data-view="districts" class="on">Districts</button>
+        <button data-view="estates" class="on">Estates</button>
+        <button data-view="districts">Districts</button>
         <button data-view="categories">Categories</button>
         <button data-view="people">People</button>
       </div>
@@ -1306,13 +1356,25 @@
     <button id="askGo">Ask</button>
   </div>
 
+  <!-- The way back out.
+       Zooming into an island is one gesture and leaving it was none: the
+       keyboard had `r` and nothing on screen said so, so the only way back
+       anybody found was to scroll out and hunt for the sea. It appears when
+       the camera is inside an island and goes away when it is not, because a
+       control that is always there is one more thing to read. -->
+  <div class="hud" id="backOut" hidden>
+    <button class="btn" id="backOutBtn"><span aria-hidden="true">&#9204;</span> All four cities</button>
+  </div>
+
   <div class="hud" id="welcome">
     <div class="card">
-      <h2>This is Networks, built as a city.</h2>
-      <p>Every category in the Networks blueprint estate is a lot of land. What
-      stands on it is how that category is doing: whether the blueprint exists,
-      how far it has been adopted, what it is worth, and how ready it is for
-      what comes next.</p>
+      <h2>Four cities, one sea.</h2>
+      <p>Every Level 1 estate VPC buys through is an island, and every category
+      on it is a lot of land. What stands on that lot is how the category is
+      doing: whether the blueprint exists, how far it has been adopted, what it
+      is worth, and how ready it is for what comes next.</p>
+      <p>The same rules on every island, so a tower on one means what a tower
+      on another means.</p>
       <p>It takes about two minutes to walk through.</p>
       <div class="row">
         <button class="btn" id="welcomeTour">Show me around</button>

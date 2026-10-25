@@ -1,4 +1,4 @@
-# NW Digital City: visual configuration
+# VPC Digital City: visual configuration
 #
 # THE PIVOT POINT OF THIS PROJECT.
 #
@@ -12,12 +12,17 @@
 # on-screen explanation can never drift out of sync with what is drawn.
 
 city:
-  name: NW Digital City
-  scope_label: Vodafone Networks, Level 1 "Network"
-  # What the whole sea is called, used wherever a figure belongs to
-  # every estate rather than to one of them. With a single estate
-  # enabled the two are the same place and this is never shown.
-  region_label: the region
+  name: VPC Digital City
+  scope_label: Vodafone Procurement Company, every Level 1 estate
+  # What the whole sea is called, used wherever a figure belongs to every
+  # estate rather than to one of them.
+  #
+  # It was "the region", which is geographic, vague, and in a telco already
+  # means a grouping of markets. VPC owns all four estates, so "VPC scores 18
+  # out of 100" needs no explaining and is the figure a leader compares
+  # against. With a single estate enabled the city and the whole are the same
+  # place and this is never shown.
+  region_label: VPC
   agent_name: Crane           # the agent's display name; change freely
   # What the builder wears on the front of the vest.
   #
@@ -401,12 +406,21 @@ explainer:
         blueprints anybody has actually used.
     - who: If you own the AI agenda
       body: >-
-        The reactors mark the eight categories where the rules are already
+        The reactors mark the categories where the rules are already
         structured enough for a brief to be generated. Press N to see only
-        those eight against the rest of the estate, and read the AI component
+        those against the rest of the estate, and read the AI component
         on the scoreboard to see how little of the available credit that is.
   ground: >-
-    The geography is the category tree. A district is a Level 2 area inside
+    The geography is the category tree, laid out over four islands. An island
+    is one Level 1 estate VPC buys through and carries its own districts,
+    plots, lots and monuments, scored by the same formula as every other, so
+    a tower on one island means what a tower on another means. Island area
+    follows the estate: lot size already follows spend per category, so the
+    islands end up ordered by what each estate spends. District colours start
+    again on each island and mean nothing across them, the way a colour group
+    on a board game is local to its own side of the board.
+
+    A district is a Level 2 area inside
     its own coloured kerb, a plot is a Level 3 group on the paler slab inside
     it, and a lot is one Level 4 category on one square of land. Lot area
     follows the average spend per category in the plot, square-root
@@ -429,8 +443,8 @@ explainer:
         figure is the position at the extract date and none of it is a trend.
     - title: Adoption depth is not measured
       body: >-
-        The intended adoption measure reads a constant 100% across all 145
-        categories, so it says nothing and nothing is bound to it. Market
+        The intended adoption measure reads a constant 100% in every estate,
+        so it says nothing and nothing is bound to it. Market
         reach is a count with no denominator: no source states which markets
         a category applies to, so a category live in one market cannot be
         told apart from one that only ever applied to one.
@@ -767,7 +781,7 @@ metrics:
       is live.
 
       Measured data. The column was empty in earlier extracts and carried a
-      placeholder until then; 8 of 145 categories have any.
+      placeholder until then. The legend carries the current count.
     unit: rfps
     kind: numeric
     # Calibrated to the measured range, which is 0 to 2. The earlier four-tier

@@ -1082,11 +1082,37 @@ async function onAPhone(browser) {
    * lot, because the three have very different heights and the tall ones are
    * what broke.
    */
+  /* Waited on, not slept through.
+   *
+   * A fixed 1700ms assumed the flight had not only finished but been drawn.
+   * The flight is timed off the clock, so it always finishes; the frame that
+   * puts the pin where the flight left it is another matter, and on a host
+   * rendering in software a frame can be most of a second. The check then
+   * reads a pin one frame behind and reports a fault in the renderer that is
+   * really a fault in the waiting.
+   *
+   * So it waits for the pin to stop moving, which is the condition it
+   * actually needs, and gives up after a few seconds rather than hanging.
+   */
+  const settledPin = async () => {
+    let last = null;
+    for (let i = 0; i < 24; i++) {
+      await page.waitForTimeout(250);
+      const now = await page.evaluate(() => window.NWCity.spotlightBox());
+      if (now && last
+          && Math.abs(now.pin.y - last.pin.y) < 0.001
+          && Math.abs(now.pin.x - last.pin.x) < 0.001) {
+        return now;
+      }
+      last = now;
+    }
+    return last;
+  };
+
   const marked = [];
   for (const code of ["A251", "D408", "A221", "A311"]) {
     await page.evaluate((c) => window.NWCity.focus(c), code);
-    await page.waitForTimeout(1700);
-    const seen = await page.evaluate(() => window.NWCity.spotlightBox());
+    const seen = await settledPin();
     if (!seen) { marked.push({ code, missing: true }); continue; }
     /* Against the silhouette, not its bounding box.
      *
