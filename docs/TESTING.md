@@ -86,8 +86,12 @@ node tests/smoke.js            the browser pass on its own
 Work through this and note anything that does not match. The figures below come
 from the current extract and are what the screen should say.
 
-Open it: double-click **NW Digital City.html**, or run `py run.py` and let it
+Open it: double-click **VPC Digital City.html**, or run `py run.py` and let it
 open a browser. Chrome or Edge. Give it a couple of seconds to draw.
+
+Sections A to L are about one city, and their figures are Networks'. Section M
+covers the sea the four of them sit on and how to get between them. Do M first
+if you are opening this for the first time.
 
 ### A. It opens and the shape is right
 
@@ -311,6 +315,31 @@ anything about it feels wrong to show, that is the finding worth reporting.
 60. Click a lot, then another, then the same one twice.
 61. Press every key during the tour.
 62. Open the browser console (F12) and look for red. There should be none.
+
+### M. The sea, and getting about on it
+
+63. The opening view is four islands on one sea, with a lighthouse between
+    them. There is water between every pair of them; no two plates meet.
+64. Each island carries a name bar on the water at its near edge. **All four
+    names are lettered at the same size.** A smaller island does not get
+    smaller lettering.
+65. **Zoom into** sits under the rail at the top, with one button per city,
+    named from the config rather than written into the page. On a phone it
+    joins the stack along the bottom, above the starter questions, and
+    scrolls sideways.
+66. Hover a name bar. The pointer becomes a hand and the card says the city
+    and what clicking it does.
+67. Click a name bar. The camera flies into that city and the control at the
+    top becomes **Global view**. **Zoom into** goes away, because there is
+    nothing to pick between from inside a city.
+68. **Global view**, or the `R` key, brings you back out, and the list of
+    cities comes back with it.
+69. Pick a different city from the list. The rail now reads that island's
+    score over the VPC score.
+70. Type a city's name into the ask box. It should land in the same place
+    clicking the name bar does.
+71. No monument stands on two islands. If Big Ben is on Networks, no other
+    island has one.
 
 ---
 

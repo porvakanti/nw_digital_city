@@ -4,6 +4,30 @@ What every part of the picture means, and what the picture is actually saying.
 Every figure quoted here is generated from the dataset. All of
 them come from `data/city.json` and change when the extract does.
 
+## The sea
+
+Each Level 1 estate VPC buys through is built as a city on its own island, and
+the islands sit on one sea. The same rules apply on every island, so a tower on
+one means what a tower on another means, and island area follows what the
+estate spends. The lighthouse in the middle belongs to no island: its beam
+reaches as far as VPC's own score out of 100.
+
+District colours repeat between islands. They are colour groups, the way a
+Monopoly board has them, and they mean nothing across islands.
+
+The opening view frames all of them at once, which is the wrong height to read
+anything on one. There are three ways into a city and one back out:
+
+| To go | Do this |
+| --- | --- |
+| Into a city | Click its name on the water |
+| Into a city | Pick it from **Zoom into** at the top of the screen |
+| Into a city | Type its name into the ask box |
+| Back out | **Global view**, or press `R` |
+
+Everything below this is about one city. The figures are Networks', which is
+the estate the other three are still catching up to on market data.
+
 ## The idea
 
 Every category in the Networks estate owns one square of land. What stands on

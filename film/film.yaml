@@ -38,8 +38,10 @@ record:
   after_dismiss_ms: 1500 # and settles again once the dialog is gone
   ready_timeout_ms: 60000
   # Hidden in every recording. These carry reading instructions, keyboard
-  # hints and touch controls, none of which belong in a film.
-  hide_ids: [legend, journey, trace, hint, chips, touchbar]
+  # hints, touch controls and the two navigation controls, none of which
+  # belong in a film: the camera is driven by the shoot, so a control
+  # offering to drive it is an instruction to a viewer who cannot act on it.
+  hide_ids: [legend, journey, trace, hint, chips, touchbar, backOut, intoCity]
   # Without an endpoint the badge reads as an unfinished product rather than
   # as the development affordance it is.
   hide_model_badge: true

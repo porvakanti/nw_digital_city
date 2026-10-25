@@ -196,7 +196,11 @@ async function onAPhone(browser) {
   // The original failure, and the one most likely to come back: a panel
   // written for a desktop corner, laid over the model on a 390px screen.
   const overlap = await page.evaluate(() => {
-    const boxes = ["ask", "touchbar", "chips", "legend", "trace"]
+    // The two navigation controls are in this stack on a phone: their
+    // desktop slot is under the journey rail, which on a phone is where the
+    // scoreboard sits.
+    const boxes = ["ask", "touchbar", "chips", "legend", "trace",
+                   "backOut", "intoCity"]
       .map((id) => [id, document.getElementById(id)])
       .filter(([, el]) => el && getComputedStyle(el).display !== "none")
       .map(([id, el]) => [id, el.getBoundingClientRect()])
@@ -537,7 +541,12 @@ async function onAPhone(browser) {
   check("type-ahead offers the lot", offered.some((t) => /D504/.test(t)),
     offered[0] || "nothing offered");
 
-  // Hovering a lot should say what it is without having to click it.
+  /* Hovering a lot should say what it is without having to click it.
+   *
+   * The sweep keeps going past a card that is not a lot's. The water now
+   * carries the cities' nameplates, and those answer the hover too, so the
+   * first card the sweep meets is not necessarily the one this is about.
+   */
   await page.keyboard.press("Escape");
   await page.evaluate(() => window.NWCity.reset());
   await page.waitForTimeout(1500);
@@ -545,8 +554,9 @@ async function onAPhone(browser) {
   for (let x = 700; x < 1300 && !hovered; x += 25) {
     for (let y = 250; y < 700 && !hovered; y += 25) {
       await page.mouse.move(x, y);
-      hovered = await page.$eval("#hover",
+      const card = await page.$eval("#hover",
         (el) => (el.classList.contains("on") ? el.innerText : ""));
+      if (/[A-Z]\d{3}/.test(card)) hovered = card;
     }
   }
   check("hover names the lot", /[A-Z]\d{3}/.test(hovered),
@@ -1050,6 +1060,133 @@ async function onAPhone(browser) {
       : `${grounded.lots} lots and the viaducts, on a plate ${grounded.plate},`
         + ` tallest assembly ${grounded.tallest}`);
 
+  /* No two islands may touch.
+   *
+   * The islands are placed before their plates exist and the plates are
+   * closed up afterwards, so the spacing that reaches the screen is not the
+   * one the config asked for. Two plates meeting would end the metaphor: a
+   * single landmass with two sets of districts on it says the estates are
+   * one estate.
+   */
+  const strait = await page.evaluate(() => {
+    const plate = window.NWCity.plate();
+    const pairs = [];
+    for (let i = 0; i < plate.islands.length; i++) {
+      for (let j = i + 1; j < plate.islands.length; j++) {
+        const a = plate.islands[i], b = plate.islands[j];
+        // Clear on either axis is clear. The channel is the wider of the two.
+        const gapX = Math.abs(a.x - b.x) - (a.w + b.w) / 2;
+        const gapZ = Math.abs(a.z - b.z) - (a.d + b.d) / 2;
+        pairs.push({ what: `${a.id}/${b.id}`, gap: Math.max(gapX, gapZ) });
+      }
+    }
+    return pairs;
+  });
+  const touching = strait.filter((p) => p.gap <= 0);
+  const narrowest = strait.slice().sort((a, b) => a.gap - b.gap)[0];
+  check("there is water between every pair of islands",
+    strait.length === 0 || touching.length === 0,
+    touching.length ? touching.map((p) => `${p.what} ${p.gap.toFixed(0)}`).join("; ")
+      : strait.length
+        ? `${strait.length} pairs, narrowest ${narrowest.what} at ${narrowest.gap.toFixed(0)}`
+        : "one island, no straits");
+
+  /* Every city's name is lettered at one size.
+   *
+   * The bar used to be as wide as the island under it and the lettering a
+   * fraction of the bar, so the smallest island got the smallest lettering
+   * and the longest name got smaller lettering still. Four sizes read as a
+   * ranking that the data never claimed.
+   */
+  const lettering = await page.evaluate(
+    () => window.NWCity.islands().map((i) => ({
+      id: i.id, cap: i.name ? +i.name.cap.toFixed(3) : null,
+    })));
+  const nameCaps = [...new Set(lettering.map((i) => i.cap).filter((c) => c !== null))];
+  check("every city name is lettered at the same size",
+    lettering.every((i) => i.cap === null) || nameCaps.length === 1,
+    nameCaps.length === 1 ? `${lettering.length} names at cap ${nameCaps[0]}`
+      : nameCaps.length ? `${nameCaps.length} sizes: ${nameCaps.join(", ")}`
+        : "one island, which is the city and is not named on the water");
+
+  /* The way in and the way out are the same slot, never both at once.
+   *
+   * Typing a city's name worked and was not discoverable. The list is built
+   * from the estates, so a check on it is also a check that adding one does
+   * not need the markup touched.
+   */
+  await page.evaluate(() => window.NWCity.reset());
+  await page.waitForTimeout(1800);
+  const ways = await page.evaluate(() => {
+    const into = document.getElementById("intoCity");
+    const back = document.getElementById("backOut");
+    return {
+      estates: (window.NW_CITY.estates || []).length,
+      listed: [...document.querySelectorAll("#intoCity .row button")]
+        .map((b) => b.dataset.estate),
+      labels: [...document.querySelectorAll("#intoCity .row button")]
+        .map((b) => b.textContent),
+      intoShown: into ? !into.hidden : null,
+      backShown: back ? !back.hidden : null,
+      backSays: document.getElementById("backOutBtn").textContent.trim(),
+    };
+  });
+  const roster = await page.evaluate(
+    () => (window.NW_CITY.estates || []).map((e) => e.id));
+  check("the global view lists every city as a way in",
+    ways.estates < 2
+      || (ways.listed.join(",") === roster.join(",") && ways.intoShown
+          && !ways.backShown && /Global view$/.test(ways.backSays)),
+    ways.estates < 2 ? "one estate, nothing to pick between"
+      : `${ways.labels.join(", ")}; way in ${ways.intoShown}, `
+        + `way out ${ways.backShown} saying "${ways.backSays}"`);
+
+  /* Clicking a city's name goes into that city.
+   *
+   * The plainest gesture there is: a viewer who wants that one points at the
+   * thing that says its name. It is driven here through the canvas rather
+   * than through the API, because what could break is the pick, not the
+   * camera move behind it.
+   */
+  const target = await page.evaluate(() => {
+    const island = window.NWCity.islands().find((i) => i.name && i.name.at.infront);
+    return island ? { id: island.id, label: island.label, at: island.name.at } : null;
+  });
+  if (target) {
+    const wide = await page.evaluate(() => window.NWCity.state().size);
+    await page.mouse.move(Math.round(target.at.x), Math.round(target.at.y));
+    await page.waitForTimeout(220);
+    const tip = await page.evaluate(
+      () => (document.getElementById("hover").querySelector("b") || {}).textContent || "");
+    await page.mouse.click(Math.round(target.at.x), Math.round(target.at.y));
+    await page.waitForTimeout(2000);
+    const landed = await page.evaluate(() => ({
+      size: window.NWCity.state().size,
+      target: window.NWCity.state().target,
+      backShown: !document.getElementById("backOut").hidden,
+      intoShown: !document.getElementById("intoCity").hidden,
+    }));
+    const island = await page.evaluate(
+      (id) => window.NWCity.islands().find((i) => i.id === id), target.id);
+    // state().target is [x, z], the two ground coordinates.
+    const near = Math.hypot(landed.target[0] - island.x, landed.target[1] - island.z);
+    /* The camera landing is asserted against the island, not against a
+     * fraction of the opening view: how far in going into a city zooms
+     * depends on how big that city is, and the controls swapping over is the
+     * thing a viewer actually sees. */
+    check("clicking a city name goes into that city",
+      tip === target.label && landed.size < wide && near < 2
+        && landed.backShown && !landed.intoShown,
+      `hover said "${tip}", camera ${wide.toFixed(0)} to ${landed.size.toFixed(0)}, `
+        + `${near.toFixed(1)} from the middle of ${target.label}, `
+        + `way out ${landed.backShown}, way in ${landed.intoShown}`);
+    await page.evaluate(() => window.NWCity.reset());
+    await page.waitForTimeout(1800);
+  } else {
+    check("clicking a city name goes into that city", true,
+      "one island, which is the city and is not named on the water");
+  }
+
   /* A monument has to be taller than every plain tower.
    *
    * It used to replace the tower and was drawn at a fixed height, so the five
@@ -1094,12 +1231,26 @@ async function onAPhone(browser) {
    * So it waits for the pin to stop moving, which is the condition it
    * actually needs, and gives up after a few seconds rather than hanging.
    */
+  /* Two identical reads were not enough on their own.
+   *
+   * The marker is moved by the render loop, and on a host drawing at about a
+   * frame a second two samples 250ms apart can both land before the loop has
+   * run once. They match, because nothing has happened yet, and the pin that
+   * comes back is the previous lot's while the box around it is the new
+   * one's. The check then reports a fault in the renderer that is really a
+   * fault in the waiting, and a different lot each run, which is the
+   * signature of a timing bug rather than a drawing one.
+   *
+   * The flight is 1.2 seconds, so nothing read before then can be the
+   * answer. It waits that out first and settles after.
+   */
+  const FLIGHT_MS = 1200;
   const settledPin = async () => {
     let last = null;
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 32; i++) {
       await page.waitForTimeout(250);
       const now = await page.evaluate(() => window.NWCity.spotlightBox());
-      if (now && last
+      if (now && last && (i + 1) * 250 > FLIGHT_MS
           && Math.abs(now.pin.y - last.pin.y) < 0.001
           && Math.abs(now.pin.x - last.pin.x) < 0.001) {
         return now;
@@ -1351,6 +1502,21 @@ async function onAPhone(browser) {
   check("every landmark in the data is standing in the city",
     monuments.drawn.join(",") === monuments.earned.join(","),
     `${monuments.drawn.length} built: ${monuments.named.join(", ")}`);
+  /* And no monument stands twice.
+   *
+   * A monument says which market carried a blueprint furthest. The same one
+   * on two islands says that twice about two different categories, which is
+   * not a thing the data can mean, and a viewer who recognises the shape has
+   * no way to tell which of the two they are looking at. Only Networks has
+   * supplied a market list so far, so nothing can collide today; it could
+   * the day the other three arrive, which is the point of asserting it now.
+   */
+  const standing = monuments.named.map((n) => n.replace(/ \(.*$/, ""));
+  const repeated = standing.filter((n, i) => standing.indexOf(n) !== i);
+  check("no monument stands on two islands",
+    repeated.length === 0,
+    repeated.length ? `repeated: ${[...new Set(repeated)].join(", ")}`
+      : `${standing.length} monuments, all different`);
   /* Occupancy reaches the monuments.
    *
    * Every one of the four categories anybody has run a sourcing event through

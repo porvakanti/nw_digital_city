@@ -115,6 +115,61 @@
     padding: 8px 16px;
   }
   #backOut .btn:hover { border-color: rgba(255,255,255,0.45); }
+  /* The way in, in the slot the way out uses.
+   *
+   * The two are never on screen together: one is for the global view and the
+   * other for being inside a city, so they share the one place the eye
+   * already looks for a control about where it is. */
+  #intoCity {
+    top: 113px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    /* The names come from the config and the longest of them is thirty-one
+       characters, so on a phone the row is wider than the screen. */
+    max-width: calc(100vw - 24px);
+    background: rgba(13,15,20,0.9);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+  }
+  #intoCity[hidden] { display: none; }
+  #intoCity .lead {
+    flex: none;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    padding-left: 4px;
+  }
+  /* Scrollable rather than clipped, so every city stays reachable at any
+     width. On a desktop it never overflows, so none of this is ever seen. */
+  #intoCity .row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  #intoCity .row::-webkit-scrollbar { display: none; }
+  #intoCity button {
+    flex: none;
+    white-space: nowrap;
+    font: 600 12px system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink-1);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  #intoCity button:hover {
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.4);
+  }
   #stats .asof {
     width: 100%;
     margin-top: 2px;
@@ -1135,9 +1190,24 @@
     #ask { bottom: 14px; }
     #touchbar { bottom: 70px; }
     #chips { bottom: 116px; }
-    #caption { bottom: 156px; }
-    #legend { bottom: 202px; }
-    #trace { bottom: 250px; top: auto; }
+    #backOut, #intoCity { bottom: 156px; }
+    #caption { bottom: 196px; }
+    #legend { bottom: 242px; }
+    #trace { bottom: 290px; top: auto; }
+
+    /* The way in and the way out join the stack rather than keeping their
+       desktop slot. That slot is under the journey rail, which on a phone is
+       where the scoreboard sits, so both controls were drawn behind it and
+       neither could be pressed. Here they are a row of their own, between
+       the starter questions and whatever the agent last said. */
+    #backOut, #intoCity {
+      top: auto;
+      left: 10px;
+      right: 10px;
+      transform: none;
+      max-width: none;
+      justify-content: flex-start;
+    }
 
     /* Both were fixed-width panels in a corner. On a phone they are sheets
        across the bottom, and both start collapsed: the header stays visible
@@ -1276,7 +1346,9 @@
         island, so a tower on one means what a tower on another means.
         <b>Island size follows what the estate spends.</b> The lighthouse in
         the middle belongs to no island: its beam reaches as far as VPC's own
-        score, out of 100.</div>
+        score, out of 100.
+        <b>Click a city's name to go into it</b>, or pick one from Zoom into
+        at the top of the screen. Global view brings you back out.</div>
       </div>
       <div class="geography">
         <div class="name">The ground</div>
@@ -1363,16 +1435,32 @@
        the camera is inside an island and goes away when it is not, because a
        control that is always there is one more thing to read. -->
   <div class="hud" id="backOut" hidden>
-    <button class="btn" id="backOutBtn"><span aria-hidden="true">&#9204;</span> All four cities</button>
+    <button class="btn" id="backOutBtn"><span aria-hidden="true">&#9204;</span> Global view</button>
+  </div>
+
+  <!-- And the way in. Typing a city's name into the ask box worked and was
+       not discoverable: nothing on screen said the box would take a city, and
+       a viewer who has not read anything is looking for something to press.
+       So the cities are listed, in the slot the way out uses, and the list is
+       built from the estates rather than written here. -->
+  <div class="hud" id="intoCity" hidden>
+    <span class="lead">Zoom into</span>
+    <div class="row"></div>
   </div>
 
   <div class="hud" id="welcome">
     <div class="card">
-      <h2>Four cities, one sea.</h2>
-      <p>Every Level 1 estate VPC buys through is an island, and every category
-      on it is a lot of land. What stands on that lot is how the category is
-      doing: whether the blueprint exists, how far it has been adopted, what it
-      is worth, and how ready it is for what comes next.</p>
+      <!-- The heading and the opening line are written from the estates when
+           the page runs, so adding or removing one does not leave a number
+           here saying something the sea does not. What is here is what they
+           say today, and what is read if the script never gets that far. -->
+      <h2>VPC Ocean</h2>
+      <p id="welcomeLede">Four Level 1 estates, each built as a city on its own
+      island.</p>
+      <p>Every category in an estate is a lot of land on its island, and what
+      stands on that lot is how the category is doing: whether the blueprint
+      exists, how far it has been adopted, what it is worth, and how ready it
+      is for what comes next.</p>
       <p>The same rules on every island, so a tower on one means what a tower
       on another means.</p>
       <p>It takes about two minutes to walk through.</p>
