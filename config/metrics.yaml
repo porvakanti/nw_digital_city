@@ -14,6 +14,10 @@
 city:
   name: NW Digital City
   scope_label: Vodafone Networks, Level 1 "Network"
+  # What the whole sea is called, used wherever a figure belongs to
+  # every estate rather than to one of them. With a single estate
+  # enabled the two are the same place and this is never shown.
+  region_label: the region
   agent_name: Crane           # the agent's display name; change freely
   # What the builder wears on the front of the vest.
   #
@@ -29,6 +33,71 @@ city:
   # about a centimetre across on screen, and 128 pixels square is already more
   # than the plate can show.
   vest_mark: renderer/vest-mark.png
+
+# ---------------------------------------------------------------------------
+# ESTATES. One city per Level 1, laid out as islands on one sea.
+#
+# The model began as a single Level 1 and the renderer drew one plate. Adding
+# the other three estates is a change of data, not of vocabulary: an island is
+# built from the same districts, plots, lots and monuments, so a skyscraper on
+# one means exactly what it means on another. That is the whole value of the
+# comparison and nothing here should be allowed to break it.
+#
+# `sheet` names the worksheet an estate is read from. Leave it out and the
+# estate is read from the shared model sheet and filtered on `level1`, which
+# is the shape the first extract arrived in.
+#
+# `order` places the islands. The sea is laid out clockwise from the north
+# corner, which is where the camera looks first.
+# ---------------------------------------------------------------------------
+estates:
+  # Island plates are packed toward a square rather than to the width the
+  # single-city layout used.
+  #
+  # Shelf packing at one fixed width makes a three-district estate spread into
+  # a single wide row: Commercial & Services came out 93 wide on 38 lots
+  # against Networks' 111 on 145, so the smallest estate looked like the
+  # largest. Size reads as importance, so the picture would have been making a
+  # claim the data does not. Searching the width for the squarest plate puts
+  # island area back in proportion to the estate, and because lot size already
+  # follows spend per category, area ends up ordering exactly as spend does.
+  square_plates: true
+
+  # How far apart the islands sit, in world units, measured between plate
+  # centres. Wide enough that they read as separate places rather than as one
+  # city with gaps in it.
+  spacing: 248
+
+  # `enabled` is what the data is built from. The renderer still draws a
+  # single plate, so turning an estate on before it can draw islands would put
+  # four estates' districts on one piece of ground and silently change every
+  # figure the documents quote. The three new estates stay off until the
+  # renderer lays out a sea; the build reads them the moment they are on.
+  list:
+    - id: network
+      label: Network
+      level1: Network
+      sheet: Network
+      order: 0
+      enabled: true
+    - id: itande
+      label: IT&E
+      level1: IT&E
+      sheet: IT&E
+      order: 1
+      enabled: true
+    - id: commercial
+      label: Commercial & Services
+      level1: Commercial & Services
+      sheet: C&S
+      order: 2
+      enabled: true
+    - id: corporate
+      label: Corporate Services and Property
+      level1: Corporate Services and Property
+      sheet: Corporate Services
+      order: 3
+      enabled: true
 
 # ---------------------------------------------------------------------------
 # LAYER BINDINGS. What each visible thing in the city is driven by.

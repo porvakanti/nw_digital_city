@@ -266,6 +266,64 @@ decimal place.
 `docs/JOURNEY-SCORE.md` carries the full derivation, the rung counts per
 component, and a district worked row by row.
 
+## More than one estate
+
+The model began as a single Level 1 and the renderer draws a single plate.
+`config/metrics.yaml` now carries an `estates` block listing all four Level 1
+estates, of which one is switched on:
+
+```yaml
+estates:
+  list:
+    - {id: network,    label: Network,                          sheet: Network,            enabled: true}
+    - {id: itande,     label: IT&E,                             sheet: IT&E,               enabled: false}
+    - {id: commercial, label: Commercial & Services,            sheet: C&S,                enabled: false}
+    - {id: corporate,  label: Corporate Services and Property,  sheet: Corporate Services, enabled: false}
+```
+
+An enabled estate is read from its own worksheet and becomes an island:
+its own districts, its own plots, its own monuments, its own roll-up. Every
+category and district in `city.json` carries the estate it belongs to, and
+`city.json` gains an `estates` array holding one summary each. A config with
+no block at all still builds the single city it always was.
+
+All four are on. The region is 388 categories across 16 districts and scores
+17.5 out of 100; Networks alone is 145 and scores 19.4.
+
+## The archipelago
+
+Each island is packed toward a square rather than to a fixed width. Packed at
+one width a three-district estate spreads into a single wide row, and the
+smallest estate reads as nearly the largest; island area would then be making
+a claim the data does not. Squared, area tracks the estate, and because lot
+size already follows spend per category it ends up ordering exactly as spend
+does.
+
+| Estate | Score | Lots | Districts | Spend YTD |
+| --- | --- | --- | --- | --- |
+| Commercial & Services | 19.7 | 38 | 3 | €168m |
+| Network | 19.4 | 145 | 8 | €760m |
+| IT&E | 15.8 | 83 | 3 | €473m |
+| Corporate Services and Property | 15.0 | 122 | 2 | €171m |
+
+The sea, the shallows, the surf and the beaches are the same studded plate the
+ground is, one plate lower each, so the water is built from the same brick as
+the city standing on it. The surf ring lifts on a slow sine, each island out
+of phase with the others.
+
+Roads, trees and the ground margin are worked out per island. Run once across
+the region they drew a ring road around all four and ran the cross streets
+over open water.
+
+The lighthouse at the centre carries the one figure that belongs to no island.
+Its beam reaches the region's score as a fraction of the distance to the
+furthest city, so at 17.5 it falls well short of all four: the light does not
+yet reach the places it is meant to serve.
+
+Adding an estate changes no vocabulary. A skyscraper means the same thing on
+every island, which is the whole point of putting them on one sea.
+
+
 ## Privacy
 
 The source workbook contains blueprint owner names and email addresses.
@@ -284,7 +342,7 @@ The source workbook contains blueprint owner names and email addresses.
 
 ```
 run.py                 the only command anyone needs to run
-config/metrics.yaml    which metric drives which visual layer
+config/metrics.yaml    which metric drives which visual layer, and the estates
 film/film.yaml         the product film: its shots, its cut, its text frames
 film/out/              the finished film; its footage is not tracked
 data/build_city.py     workbook to anonymised city.json
