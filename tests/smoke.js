@@ -71,6 +71,31 @@ function findChromium() {
  */
 const NAVIGATION = 90000;
 
+/* Wait for the camera to stop moving, rather than for the clock.
+ *
+ * Going anywhere in this city is a flight, and after it the frame that puts
+ * the camera where the flight left it is another matter: on a host drawing
+ * at about a frame a second it can be most of a second later. A fixed sleep
+ * is a guess at both, and guessing short leaves the camera still inside a
+ * city, which is the state the navigation checks are about. One of them read
+ * "way in false, way out true" at the global view for exactly that reason.
+ *
+ * The flight is 1.2 seconds, so nothing before then can be the answer: it
+ * waits that out first and settles after, and gives up rather than hanging.
+ */
+async function cameraSettled(page, cap = 14000) {
+  let last = null;
+  for (let i = 0; i * 250 < cap; i++) {
+    await page.waitForTimeout(250);
+    const now = await page.evaluate(() => window.NWCity.state().size);
+    if (last !== null && (i + 1) * 250 > 1200 && Math.abs(now - last) < 0.01) {
+      return now;
+    }
+    last = now;
+  }
+  return last;
+}
+
 /* Convex hull of a handful of points, and point-in-hull.
  *
  * Used to test whether the speech bubble covers the lot it describes. A lot
@@ -1116,7 +1141,7 @@ async function onAPhone(browser) {
    * not need the markup touched.
    */
   await page.evaluate(() => window.NWCity.reset());
-  await page.waitForTimeout(1800);
+  await cameraSettled(page);
   const ways = await page.evaluate(() => {
     const into = document.getElementById("intoCity");
     const back = document.getElementById("backOut");
@@ -1141,6 +1166,57 @@ async function onAPhone(browser) {
       : `${ways.labels.join(", ")}; way in ${ways.intoShown}, `
         + `way out ${ways.backShown} saying "${ways.backSays}"`);
 
+  /* Every city frames its own ground, not a share of the largest one's.
+   *
+   * Going into a city used to frame a fraction of that island's plate, and a
+   * plate is not the city on it: the apron round the edge is empty ground a
+   * tall building leans over, and on the island with the tallest tower
+   * relative to its size it is a third of the plate. The complaint that
+   * produced this check named two islands; the fault was in a rule that
+   * applied to all of them, so it is asked of all of them.
+   *
+   * Three things have to hold for each, and none is a number copied out of
+   * the renderer: the camera lands on that island, the whole of that island
+   * is on screen, and it takes up most of the screen. A framing computed
+   * from the wrong island fails at least one of the three.
+   */
+  const entered = [];
+  for (const id of await page.evaluate(
+    () => window.NWCity.islands().map((i) => i.id))) {
+    await page.evaluate((i) => window.NWCity.focusEstate(i), id);
+    await cameraSettled(page);
+    entered.push(await page.evaluate((wanted) => {
+      const island = window.NWCity.islands().find((i) => i.id === wanted);
+      const st = window.NWCity.state();
+      const xs = island.screen.map((c) => c[0]);
+      const ys = island.screen.map((c) => c[1]);
+      return {
+        id: island.id,
+        label: island.label,
+        // On the island it was asked for.
+        off: Math.hypot(st.target[0] - island.x, st.target[1] - island.z),
+        // Wholly on screen, with a little room at the edges.
+        inside: Math.min(...xs) > -8 && Math.max(...xs) < innerWidth + 8
+             && Math.min(...ys) > -8 && Math.max(...ys) < innerHeight + 8,
+        // And taking up most of it, rather than sitting in a field of sea.
+        fill: (Math.max(...ys) - Math.min(...ys)) / innerHeight,
+        swapped: !document.getElementById("backOut").hidden
+              && document.getElementById("intoCity").hidden,
+      };
+    }, id));
+  }
+  const strayed = entered.filter(
+    (e) => !(e.off < 2 && e.inside && e.fill > 0.55 && e.swapped));
+  check("every city frames its own ground when the camera goes to it",
+    entered.length > 0 && strayed.length === 0,
+    strayed.length
+      ? strayed.map((e) => `${e.label}: ${e.off.toFixed(1)} off centre, `
+          + `on screen ${e.inside}, fills ${(e.fill * 100).toFixed(0)}%, `
+          + `controls swapped ${e.swapped}`).join("; ")
+      : entered.map((e) => `${e.label} ${(e.fill * 100).toFixed(0)}%`).join(", "));
+  await page.evaluate(() => window.NWCity.reset());
+  await cameraSettled(page);
+
   /* Clicking a city's name goes into that city.
    *
    * The plainest gesture there is: a viewer who wants that one points at the
@@ -1159,7 +1235,7 @@ async function onAPhone(browser) {
     const tip = await page.evaluate(
       () => (document.getElementById("hover").querySelector("b") || {}).textContent || "");
     await page.mouse.click(Math.round(target.at.x), Math.round(target.at.y));
-    await page.waitForTimeout(2000);
+    await cameraSettled(page);
     const landed = await page.evaluate(() => ({
       size: window.NWCity.state().size,
       target: window.NWCity.state().target,
@@ -1181,7 +1257,7 @@ async function onAPhone(browser) {
         + `${near.toFixed(1)} from the middle of ${target.label}, `
         + `way out ${landed.backShown}, way in ${landed.intoShown}`);
     await page.evaluate(() => window.NWCity.reset());
-    await page.waitForTimeout(1800);
+    await cameraSettled(page);
   } else {
     check("clicking a city name goes into that city", true,
       "one island, which is the city and is not named on the water");

@@ -4241,12 +4241,24 @@
 
   /* Exactly one of the two is on screen, and only ever with more than one
    * island: inside a city the control is the way out, outside it the control
-   * is the way in. */
+   * is the way in.
+   *
+   * The list of cities also stands down while a title deed is open. The deed
+   * is a tall panel pinned to the top right and the list is a wide bar
+   * across the top middle, so at the global view the deed covered the end of
+   * the list and took the cities at that end with it. Reading a lot is a
+   * commitment to that lot rather than a moment for picking a city, and
+   * dismissing the deed brings the list straight back. The way out is a
+   * single narrow button and clears the deed on every viewport, so it stays.
+   */
+  const deed = document.getElementById("inspector");
+
   function offerTheWayBack() {
     const many = (CITY.estates || []).length > 1;
     const inside = insideACity();
+    const reading = !!deed && deed.classList.contains("on");
     if (backOut) backOut.hidden = !(many && inside);
-    if (intoCity) intoCity.hidden = !(many && !inside);
+    if (intoCity) intoCity.hidden = !(many && !inside && !reading);
   }
 
   listTheCities();
@@ -6165,6 +6177,28 @@
           at: toScreen(new THREE.Vector3(
             i.ox, -0.42, i.oz + i.plateD / 2 + i.nameBar.d / 2 + 3.0)),
         } : null,
+        /* The island's built volume, in screen pixels.
+         *
+         * The eight corners rather than a box, because under this projection
+         * the volume is a hexagon on screen and its bounding box is half
+         * empty corner. Reported so a check can ask the question that
+         * matters when the camera goes to a city: is all of this city on
+         * screen, and how much of the screen does it take. Asking that of
+         * every island is what stops the framing being right for the one
+         * that happened to be looked at. */
+        screen: (() => {
+          const out = [];
+          for (const dx of [-i.w / 2, i.w / 2]) {
+            for (const dz of [-i.d / 2, i.d / 2]) {
+              for (const dy of [0, 22]) {
+                const at = toScreen(
+                  new THREE.Vector3(i.ox + dx, dy, i.oz + dz));
+                out.push([+at.x.toFixed(1), +at.y.toFixed(1)]);
+              }
+            }
+          }
+          return out;
+        })(),
       }));
     },
     focusDistrict(name) {
