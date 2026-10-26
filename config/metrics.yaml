@@ -682,10 +682,10 @@ landmarks:
       - {name: Big Ben, shape: clocktower}
       - {name: Tower Bridge, shape: bridge}
       - {name: Stonehenge, shape: stonecircle}
-      - {name: Tower of London, shape: fortress}
+      - {name: Tower of London, shape: keep}
     Egypt:
       - {name: The Pyramids, shape: pyramid}
-      - {name: The Great Sphinx, shape: statue}
+      - {name: The Great Sphinx, shape: sphinx}
       - {name: The Luxor Obelisk, shape: obelisk}
       - {name: The Citadel of Cairo, shape: fortress}
     Italy:
@@ -696,8 +696,10 @@ landmarks:
     Greece:
       - {name: The Parthenon, shape: parthenon}
       - {name: The White Tower of Thessaloniki, shape: roundtower}
-      - {name: The Lion Gate of Mycenae, shape: gate}
+      - {name: The Lion Gate of Mycenae, shape: towergate}
       - {name: The Windmills of Mykonos, shape: windmill}
+      - {name: The Odeon of Herodes Atticus, shape: amphitheatre}
+      - {name: The Palace of the Grand Master, shape: fortress}
     # Eight rather than four, and the one market measured rather than assumed.
     # Germany is named by fourteen of the qualifying categories, more than any
     # other market, and it sits early enough in this order that seven of them
@@ -711,9 +713,12 @@ landmarks:
       - {name: Cologne Cathedral, shape: cathedral}
       - {name: Neuschwanstein Castle, shape: castle}
       - {name: The Reichstag, shape: dome}
-      - {name: The Victory Column, shape: obelisk}
+      - {name: The Victory Column, shape: column}
       - {name: The Hohenzollern Bridge, shape: bridge}
-      - {name: The Porta Nigra, shape: arch}
+      - {name: The Porta Nigra, shape: towergate}
+      - {name: Berlin Cathedral, shape: basilica}
+      - {name: The Hermann Monument, shape: statue}
+      - {name: Bremen Town Hall, shape: townhall}
     Turkey:
       - {name: Hagia Sophia, shape: dome}
       - {name: Galata Tower, shape: roundtower}
@@ -723,12 +728,14 @@ landmarks:
       - {name: Rozafa Castle, shape: castle}
       - {name: Berat Fortress, shape: fortress}
       - {name: The Clock Tower of Tirana, shape: clocktower}
-      - {name: The Amphitheatre of Butrint, shape: colosseum}
+      - {name: The Amphitheatre of Butrint, shape: amphitheatre}
     Romania:
       - {name: Palace of the Parliament, shape: palace}
       - {name: Bran Castle, shape: castle}
       - {name: The Black Church of Brasov, shape: cathedral}
       - {name: The Arch of Triumph, shape: arch}
+      - {name: The Citadel of Alba Iulia, shape: fortress}
+      - {name: Voronet Monastery, shape: monastery}
     Ireland:
       - {name: Blarney Castle, shape: castle}
       - {name: The Round Tower of Clonmacnoise, shape: roundtower}
@@ -736,7 +743,7 @@ landmarks:
       - {name: The Ha'penny Bridge, shape: bridge}
     Portugal:
       - {name: Belem Tower, shape: fortress}
-      - {name: Jeronimos Monastery, shape: cathedral}
+      - {name: Jeronimos Monastery, shape: monastery}
       - {name: Pena Palace, shape: palace}
       - {name: The Aqueduct of the Free Waters, shape: aqueduct}
     Czech Republic:
@@ -745,15 +752,15 @@ landmarks:
       - {name: St Vitus Cathedral, shape: cathedral}
       - {name: Prague Castle, shape: castle}
     Spain:
-      - {name: The Sagrada Familia, shape: cathedral}
-      - {name: The Alhambra, shape: palace}
+      - {name: The Sagrada Familia, shape: basilica}
+      - {name: The Alhambra, shape: moorish}
       - {name: The Aqueduct of Segovia, shape: aqueduct}
       - {name: The Torre del Oro, shape: roundtower}
     Hungary:
       - {name: The Hungarian Parliament, shape: palace}
       - {name: Fisherman's Bastion, shape: fortress}
       - {name: The Chain Bridge, shape: bridge}
-      - {name: St Stephen's Basilica, shape: dome}
+      - {name: St Stephen's Basilica, shape: basilica}
     South Africa:
       - {name: The Union Buildings, shape: palace}
       - {name: The Castle of Good Hope, shape: fortress}

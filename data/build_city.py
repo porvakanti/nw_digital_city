@@ -338,7 +338,7 @@ def initials(person: str) -> str:
     return ".".join(p[0].upper() for p in parts[:3]) + "." if parts else ""
 
 
-def assign_landmarks(categories, config, taken=None) -> None:
+def assign_landmarks(categories, config, taken=None, shapes=None) -> None:
     """Give the best-performing categories a monument from a market that
     actually adopted them.
 
@@ -381,6 +381,15 @@ def assign_landmarks(categories, config, taken=None) -> None:
     # have the day the other three arrive.
     if taken is None:
         taken = set()
+    # Names and shapes are claimed together, so one shared set would have had
+    # to hold both kinds of string. The shapes live in a set of their own, and
+    # it is the caller's set rather than a copy of it: copying it made every
+    # island start with every silhouette unused, which is the bug this was
+    # written to stop.
+    if shapes is None:
+        shapes = set()
+    shapes.update(c["landmark"]["shape"] for c in categories if c.get("landmark"))
+    standing = shapes
 
     def lists_for(category):
         """The monument lists this category may draw from, in table order.
@@ -398,25 +407,57 @@ def assign_landmarks(categories, config, taken=None) -> None:
                 found.setdefault(key, market)
         return [(key, found[key]) for key in by_market if key in found]
 
+    def award(category, monument, market) -> None:
+        taken.add(monument["name"])
+        standing.add(monument["shape"])
+        drawn_count[monument["shape"]] += 1
+        category["landmark"] = {
+            "name": monument["name"],
+            "shape": monument["shape"],
+            "market": market,
+            "because": (f"scores {round(category['journey']['total'])} out of "
+                        f"100, and {market} has adopted this blueprint"),
+        }
+
+    # How many of each silhouette are standing, so a forced repeat can be the
+    # rarest one rather than whichever came first in the table.
+    drawn_count = collections.Counter()
+    for category in categories:
+        if category.get("landmark"):
+            drawn_count[category["landmark"]["shape"]] += 1
+
     for category in eligible:
+        # The best a repeat would do, kept in case nothing better turns up.
+        spare = None
         for key, market in lists_for(category):
-            monument = next(
-                (m for m in by_market[key] if m["name"] not in taken), None)
-            # Every monument in that market is standing somewhere else, so
-            # try the next market on the same blueprint. Four deep per market
+            free = [m for m in by_market[key] if m["name"] not in taken]
+            # Every monument in that market is standing somewhere else, so try
+            # the next market on the same blueprint. Four deep per market
             # means this is rare, and a category that runs out of markets
             # entirely is named in the warning below.
-            if monument is None:
+            if not free:
                 continue
-            taken.add(monument["name"])
-            category["landmark"] = {
-                "name": monument["name"],
-                "shape": monument["shape"],
-                "market": market,
-                "because": (f"scores {round(category['journey']['total'])} out of "
-                            f"100, and {market} has adopted this blueprint"),
-            }
-            break
+            for option in free:
+                # Rarest first, so a forced repeat is a second of something
+                # rather than a fourth. Ties keep the table's own order, which
+                # is the order of preference the market was written in.
+                weight = drawn_count[option["shape"]]
+                if spare is None or weight < spare[0]:
+                    spare = (weight, option, market)
+            # The first monument in this market whose silhouette is not already
+            # standing somewhere. Two different monuments drawn as the same
+            # shape say the same thing twice to anybody reading the skyline,
+            # and the tooltip disagreeing with the shape is worse than either.
+            fresh = next((m for m in free if m["shape"] not in standing), None)
+            if fresh is not None:
+                award(category, fresh, market)
+                break
+        else:
+            # Nothing left anywhere that is not already drawn somewhere else.
+            # A repeated silhouette is worse than a repeated name and better
+            # than a bare lot, so it is the last resort rather than the first.
+            if spare:
+                award(category, spare[1], spare[2])
 
     named = [c for c in categories if c.get("landmark")]
     short = [c["code"] for c in eligible if not c.get("landmark")]
@@ -431,6 +472,12 @@ def assign_landmarks(categories, config, taken=None) -> None:
         # Loud, because a category inside the cap with no market we can depict
         # is a gap in the configuration, not a property of the data.
         print(f"  WARNING: no monument available for {', '.join(short)}")
+    repeats = sorted(shape for shape, n in drawn_count.items() if n > 1)
+    if repeats:
+        # Also loud. A repeat means some market ran out of silhouettes nobody
+        # was standing on, and two monuments with different names came out
+        # drawn as the same thing. The fix is another entry in that market.
+        print(f"  WARNING: {', '.join(repeats)} drawn more than once")
 
 
 def blueprint_state(record) -> str:
@@ -470,7 +517,8 @@ def estates_in(config: dict) -> list[dict]:
     return [{"id": "network", "label": SCOPE_L1, "level1": SCOPE_L1, "order": 0}]
 
 
-def read_estate(workbook, refreshed, estate: dict, config: dict, taken=None) -> list[dict]:
+def read_estate(workbook, refreshed, estate: dict, config: dict, taken=None,
+                shapes=None) -> list[dict]:
     """Every category on one island.
 
     The estate names the sheet it is read from. Without one it is read from
@@ -547,7 +595,7 @@ def read_estate(workbook, refreshed, estate: dict, config: dict, taken=None) -> 
     # The cap is per island: a region-wide one would hand every monument to
     # the largest estate. Which monument is handed out is not, because the
     # claim set is shared, so Big Ben stands on one island or on none.
-    assign_landmarks(categories, config, taken)
+    assign_landmarks(categories, config, taken, shapes)
     return categories
 
 
@@ -591,8 +639,12 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
     categories, districts, summaries = [], [], []
     # One monument may stand once in the region, not once per island.
     claimed = set()
+    # And the silhouettes, which are claimed across the sea for the same
+    # reason the names are: two monuments drawn the same way say the same
+    # thing twice about two different categories.
+    drawn = set()
     for estate in estates_in(config):
-        mine = read_estate(workbook, refreshed, estate, config, claimed)
+        mine = read_estate(workbook, refreshed, estate, config, claimed, drawn)
         if not mine:
             print(f"  {estate['label']}: no categories found, skipped")
             continue

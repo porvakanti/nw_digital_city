@@ -2935,10 +2935,15 @@
    * this blueprint travelled. The pairing is decided in the build, in
    * config/metrics.yaml; this only draws it.
    *
-   * Nineteen archetypes, because the table offers four monuments in every
-   * market and the four in any one market have to be told apart. A shape is
-   * reused across markets, never within one: a round tower is Pisa in Italy
-   * and Clonmacnoise in Ireland, and no category can hold both.
+   * Twenty-eight archetypes, which is more than the monuments standing in the
+   * sea today. That is the point: the build hands out a shape nobody else is
+   * standing on before it hands out a repeat, so two monuments with different
+   * names are not drawn as the same thing. Nineteen was not enough and it
+   * showed, with four castles and two of several others on screen at once.
+   *
+   * A shape may still be listed in more than one market, because the choice
+   * is made once across the whole sea: a round tower is Pisa in Italy and
+   * Clonmacnoise in Ireland, and only one of them can be standing.
    *
    * Ordinary lots are instanced, one draw call per shape. There are at most a
    * few dozen monuments in the whole sea, so each is a plain group. The extra
@@ -3172,6 +3177,138 @@
       put(STONE, 0, 1.7, 0.78, 0.9, 2.4, 0.5);
       put(STONE_DARK, 0, 2.98, 0.78, 1.0, 0.2, 0.6);
       put(LEAD, 0, 3.3, 0.78, 0.3, 0.44, 0.06);
+    } else if (shape === "townhall") {
+      // A long hall with an arcaded front and stepped gables on the roof: the
+      // merchant-city silhouette, which is a row of steps rather than a tower.
+      put(STONE_DARK, 0, 0.16, 0, 3.0, 0.32, 1.8);
+      put(STONE, 0, 1.0, 0, 2.6, 1.4, 1.4);
+      for (let i = 0; i < 7; i++) {
+        put(STONE_DARK, -1.05 + i * 0.35, 0.8, 0.74, 0.11, 0.9, 0.11, cyl);
+      }
+      put(STONE_DARK, 0, 1.8, 0, 2.7, 0.2, 1.5);
+      for (const dx of [-0.85, 0, 0.85]) {
+        put(STONE, dx, 2.02, 0, 0.78, 0.44, 1.2);
+        put(STONE, dx, 2.38, 0, 0.54, 0.36, 1.2);
+        put(STONE, dx, 2.68, 0, 0.3, 0.3, 1.2);
+        put(GOLD, dx, 2.94, 0, 0.08, 0.26, 0.08);
+      }
+    } else if (shape === "sphinx") {
+      // A recumbent lion in a headdress: a long low body, forelegs stretched
+      // out in front, a small head carried clear above the back.
+      //
+      // Low and long is the whole silhouette, which is why the first pass at
+      // this read as a statue of somebody standing up. The second read as a
+      // heap of boxes, because the head was nearly the size of the body and
+      // sat straight on it. The head is a third of the body now, lifted on a
+      // neck with daylight under the chin, and the forelegs run a full body
+      // length out in front where nothing else can be mistaken for them.
+      put(STONE_DARK, 0, 0.15, 0, 3.8, 0.3, 2.1);
+      put(STONE, -0.5, 0.62, 0, 2.2, 0.64, 1.0);
+      put(STONE_DARK, -1.45, 0.78, 0, 0.6, 0.96, 1.15);
+      for (const dz of [-0.36, 0.36]) {
+        put(STONE, 1.0, 0.48, dz, 1.7, 0.36, 0.3);
+        put(STONE_DARK, 1.8, 0.44, dz, 0.22, 0.3, 0.32);
+      }
+      put(STONE, 0.5, 1.05, 0, 0.8, 1.5, 0.9);
+      put(STONE, 0.66, 2.34, 0, 0.58, 0.6, 0.6);
+      put(STONE_DARK, 0.52, 2.46, 0, 0.5, 0.8, 1.12);
+      put(STONE_DARK, 0.62, 2.78, 0, 0.9, 0.3, 1.0);
+      put(GOLD, 0.95, 2.52, 0, 0.14, 0.26, 0.14);
+    } else if (shape === "column") {
+      // One column and whatever stands on it. The top is what tells it from
+      // an obelisk, which tapers to a point of its own.
+      put(STONE_DARK, 0, 0.2, 0, 2.3, 0.4, 2.3);
+      put(STONE_DARK, 0, 0.62, 0, 1.7, 0.44, 1.7);
+      put(STONE, 0, 1.1, 0, 1.2, 0.52, 1.2);
+      put(STONE, 0, 2.9, 0, 0.62, 3.1, 0.62, cyl);
+      put(STONE_DARK, 0, 4.56, 0, 0.9, 0.24, 0.9);
+      put(GOLD, 0, 5.02, 0, 0.42, 0.68, 0.42);
+      put(GOLD, 0, 5.5, 0, 0.26, 0.26, 0.26, sphere);
+    } else if (shape === "basilica") {
+      // A drum dome at the back, two bell towers at the front, a portico
+      // between them. A cathedral puts its towers under open spires and its
+      // mass in a nave; this one is a dome with towers beside it.
+      put(STONE_DARK, 0, 0.16, 0, 2.6, 0.32, 1.9);
+      put(STONE, -0.35, 0.95, 0, 1.6, 1.3, 1.6);
+      put(STONE_DARK, -0.6, 1.76, 0, 1.3, 0.34, 1.3, cyl);
+      put(STONE, -0.6, 2.3, 0, 1.15, 0.78, 1.15, cyl);
+      put(LEAD, -0.6, 3.0, 0, 1.2, 0.95, 1.2, sphere);
+      put(GOLD, -0.6, 3.74, 0, 0.12, 0.42, 0.12);
+      for (const dz of [-0.6, 0.6]) {
+        put(STONE, 0.95, 1.65, dz, 0.5, 2.7, 0.5);
+        put(STONE_DARK, 0.95, 3.1, dz, 0.6, 0.22, 0.6);
+        put(LEAD, 0.95, 3.46, dz, 0.46, 0.52, 0.46, cone);
+      }
+      put(STONE, 0.95, 1.1, 0, 0.3, 1.6, 0.7);
+    } else if (shape === "moorish") {
+      // A long arcaded palace round a courtyard, with one square tower. Low
+      // and wide where a palace is tiered and a fortress is round-towered.
+      put(STONE_DARK, 0, 0.16, 0, 3.2, 0.32, 2.4);
+      for (const dz of [-0.85, 0.85]) {
+        put(STONE, 0, 0.85, dz, 2.8, 1.1, 0.5);
+        put(STONE_DARK, 0, 1.46, dz, 2.9, 0.18, 0.6);
+      }
+      for (const dx of [-1.25, 1.25]) {
+        put(STONE, dx, 0.85, 0, 0.5, 1.1, 1.3);
+      }
+      for (let i = 0; i < 7; i++) {
+        put(STONE_DARK, -1.05 + i * 0.35, 0.8, 0.86, 0.1, 0.8, 0.1, cyl);
+      }
+      put(STONE, -0.95, 1.9, 0, 0.95, 3.1, 0.95);
+      put(STONE_DARK, -0.95, 3.54, 0, 1.1, 0.22, 1.1);
+      put(LEAD, -0.95, 3.88, 0, 0.92, 0.5, 0.92, pyramid);
+    } else if (shape === "monastery") {
+      // A long cloister under one steep gable with a bell wall at the end: a
+      // church wider than it is tall, which is what tells it from the
+      // cathedral's pair of towers.
+      put(STONE_DARK, 0, 0.16, 0, 3.0, 0.32, 1.9);
+      put(STONE, 0.1, 0.9, 0, 2.5, 1.2, 1.4);
+      put(STONE_DARK, 0.1, 1.88, 0, 2.6, 0.66, 1.5, pyramid);
+      for (let i = 0; i < 8; i++) {
+        put(STONE_DARK, -1.0 + i * 0.3, 0.75, 0.78, 0.1, 0.9, 0.1, cyl);
+      }
+      put(STONE, -1.35, 1.6, 0, 0.42, 2.6, 1.0);
+      put(STONE_DARK, -1.35, 3.0, 0, 0.5, 0.3, 1.1);
+      put(GOLD, -1.35, 3.32, 0, 0.1, 0.34, 0.1);
+    } else if (shape === "towergate") {
+      // A Roman city gate: a block of arcaded tiers with a rounded tower at
+      // each end. Where `gate` is a colonnade you see through, this is a wall
+      // with holes in it.
+      put(STONE_DARK, 0, 0.18, 0, 3.0, 0.36, 1.3);
+      put(STONE, 0, 1.4, 0, 2.3, 2.1, 0.95);
+      for (let tier = 0; tier < 3; tier++) {
+        for (let i = 0; i < 4; i++) {
+          put(STONE_DARK, -0.72 + i * 0.48, 0.85 + tier * 0.72, 0.5, 0.3, 0.46, 0.07);
+        }
+      }
+      put(STONE_DARK, 0, 2.6, 0, 2.5, 0.22, 1.1);
+      for (const dx of [-1.15, 1.15]) {
+        put(STONE, dx, 1.55, 0, 0.8, 2.5, 0.8, cyl);
+        put(STONE_DARK, dx, 2.9, 0, 0.9, 0.2, 0.9, cyl);
+      }
+    } else if (shape === "amphitheatre") {
+      // An open bowl of seating with a stage wall across one side: rings
+      // stepping down to the floor, where the Colosseum is a standing arcade
+      // you see daylight through.
+      put(STONE_DARK, 0, 0.12, 0, 3.2, 0.24, 3.2, cyl);
+      ring(STONE, 22, 1.42, 0.66, 0.3, 1.1, 0.3);
+      ring(STONE_DARK, 18, 1.08, 0.5, 0.3, 0.8, 0.3);
+      ring(STONE, 14, 0.78, 0.38, 0.28, 0.56, 0.28);
+      put(STONE_DARK, 0, 0.3, 0, 1.0, 0.2, 1.0, cyl);
+      put(STONE, 0, 1.0, -1.3, 2.4, 1.9, 0.34);
+      put(STONE_DARK, 0, 2.06, -1.3, 2.5, 0.2, 0.44);
+    } else if (shape === "keep") {
+      // One square keep with a turret at each corner and nothing else: where
+      // a castle sprawls over a rise and a fortress is a wall with bastions,
+      // this is a single block standing on its own.
+      put(STONE_DARK, 0, 0.2, 0, 2.6, 0.4, 2.6);
+      put(STONE, 0, 1.7, 0, 1.9, 2.6, 1.9);
+      put(STONE_DARK, 0, 3.1, 0, 2.0, 0.2, 2.0);
+      for (const [dx, dz] of [[-0.85, 0.85], [0.85, 0.85], [-0.85, -0.85], [0.85, -0.85]]) {
+        put(STONE, dx, 3.1, dz, 0.5, 3.4, 0.5, cyl);
+        put(STONE_DARK, dx, 4.92, dz, 0.58, 0.24, 0.58, cyl);
+        put(LEAD, dx, 5.24, dz, 0.52, 0.44, 0.52, cone);
+      }
     } else {
       return null;
     }
@@ -3872,7 +4009,7 @@
       .map(([n, k, flag]) =>
         `<div class="stat${flag ? " sharp" : ""}"><span class="n">${n}</span><span class="k">${k}</span></div>`)
       .join("")
-      + `<p class="asof">Figures as at ${when}. Spend is FY26/27 to that date.</p>`;
+      + `<p class="asof">Figures as at <b>${when}</b>. Spend is FY26/27 to that date.</p>`;
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
   }
@@ -4379,6 +4516,30 @@
    * single narrow button and clears the deed on every viewport, so it stays.
    */
   const deed = document.getElementById("inspector");
+  const backToCity = document.getElementById("backToCityBtn");
+  const backToCityName = document.getElementById("backToCityName");
+  if (backToCity) {
+    backToCity.addEventListener("click", () => {
+      const id = backToCity.dataset.estate;
+      if (id) window.NWCity.focusEstate(id);
+    });
+  }
+
+  /* Which island the camera is standing over.
+   *
+   * Taken from where the camera is looking rather than from what is selected,
+   * because the two come apart: dismissing a title deed leaves the camera
+   * where it was, and the way back to a city has to still be there.
+   */
+  function islandUnderCamera() {
+    for (const island of layout.islands) {
+      if (Math.abs(view.target.x - island.ox) <= island.w / 2 + ISLAND_WATER
+       && Math.abs(view.target.z - island.oz) <= island.d / 2 + ISLAND_WATER) {
+        return island;
+      }
+    }
+    return null;
+  }
 
   function offerTheWayBack() {
     const many = (CITY.estates || []).length > 1;
@@ -4386,6 +4547,16 @@
     const reading = !!deed && deed.classList.contains("on");
     if (backOut) backOut.hidden = !(many && inside);
     if (intoCity) intoCity.hidden = !(many && !inside && !reading);
+    if (!backToCity) return;
+    /* Tighter than the city's own framing, with a margin, so the control does
+     * not flicker on and off while the camera sits at exactly that height. */
+    const island = inside ? islandUnderCamera() : null;
+    const closer = island && view.size < frameIsland(island).size * 0.88;
+    backToCity.hidden = !closer;
+    if (closer && backToCityName) {
+      backToCityName.textContent = island.label || "City view";
+      backToCity.dataset.estate = island.id;
+    }
   }
 
   listTheCities();
@@ -4512,9 +4683,23 @@
     document.getElementById("arcNote").textContent =
       `· ${stageText(j.total)} · ${Math.round(j.blueprint)} blueprint, `
       + `${Math.round(j.usage)} used, ${Math.round(j.ai)} AI`;
+    /* Two baselines under a category, not one.
+     *
+     * A category's score means one thing against the whole of VPC and another
+     * against the island it stands on, and the island is the comparison the
+     * person who owns that lot is judged on. With only the organisation
+     * figure underneath, a category reading 55 against a VPC 18 looked like a
+     * leader when its own city reads 20 and half the island is ahead of it.
+     */
     const n = CITY.totals.journey;
+    const island = (CITY.estates || []).length > 1
+      ? (CITY.estates || []).find((e) => e.id === category.estate)
+      : null;
     base.hidden = false;
-    base.textContent = `${wholeLabel()} overall ${Math.round(n.total)} / ${ARC_MAX}`;
+    base.textContent = (island
+      ? `${island.label} ${Math.round(island.totals.journey.total)} / ${ARC_MAX} · `
+      : "")
+      + `${wholeLabel()} overall ${Math.round(n.total)} / ${ARC_MAX}`;
     markStage(stageOf(j.total));
   }
 
