@@ -441,18 +441,19 @@ async function onAPhone(browser) {
    * category by spend, which said the same thing about a market with 23
    * blueprints and 3 in use as about one with 2 blueprints and 1.
    *
-   * The thin-base guard is the part worth pinning. Italy holds two
-   * blueprints, one of them the only category in Networks at 100, and rolls
-   * up above Germany's twenty-three. Quoting that as a rank would be a league
-   * table nobody could defend.
+   * The thin-base guard is the part worth pinning. VSOL holds two
+   * blueprints and rolls up to 55, above a Germany carrying forty-four at 47.
+   * Quoting that as a rank would be a league table nobody could defend. Italy
+   * used to be the example and has twelve blueprints now, which is what makes
+   * a thin market worth asserting rather than assuming.
    */
   const MARKET_ASKS = [
     ["which markets are doing best", /Furthest along of the \d+ markets/],
     ["which market is furthest behind", /Furthest behind of the \d+ markets/],
-    ["Germany", /Germany has adopted 23 blueprints and scores \d+ out of 100, \d+\w+ of the/],
-    ["Germany", /supplies two of the city's monuments/],
-    ["Italy", /too few to rank/],
-    ["UK", /supplies the city's Big Ben/],
+    ["Germany", /Germany has adopted 44 blueprints and scores \d+ out of 100, \d+\w+ of the/],
+    ["Germany", /supplies seven of the city's monuments/],
+    ["VSOL", /too few to rank/],
+    ["UK", /supplies four of the city's monuments/],
   ];
   for (const [question, shape] of MARKET_ASKS) {
     await page.fill("#askInput", question);
