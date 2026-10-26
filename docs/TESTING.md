@@ -331,14 +331,20 @@ anything about it feels wrong to show, that is the finding worth reporting.
     and what clicking it does.
 67. Click a name bar. The camera flies into that city and the control at the
     top becomes **Global view**. **Zoom into** goes away, because there is
-    nothing to pick between from inside a city.
-68. **Global view**, or the `R` key, brings you back out, and the list of
+    nothing to pick between from inside a city. The city should fill the
+    frame: district names readable, monuments recognisable, trams and
+    traffic visible. A rim of water, not a field of it.
+68. **Do that for every city, not just the first.** Each is framed from its
+    own built ground, so a small estate on a large plate fills the screen as
+    much as a large one does. An island that comes out smaller than the
+    others is the fault this is looking for.
+69. **Global view**, or the `R` key, brings you back out, and the list of
     cities comes back with it.
-69. Pick a different city from the list. The rail now reads that island's
+70. Pick a different city from the list. The rail now reads that island's
     score over the VPC score.
-70. Type a city's name into the ask box. It should land in the same place
+71. Type a city's name into the ask box. It should land in the same place
     clicking the name bar does.
-71. No monument stands on two islands. If Big Ben is on Networks, no other
+72. No monument stands on two islands. If Big Ben is on Networks, no other
     island has one.
 
 ---

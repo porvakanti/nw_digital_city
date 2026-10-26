@@ -4183,35 +4183,82 @@
     }
   }
 
+  /* How one city is framed when the camera goes to it.
+   *
+   * It used to be a fraction of the island's widest plate edge, and a plate
+   * is not the city standing on it: the apron is the empty ground a tall
+   * building leans over, and on IT&E it is a third of the plate's width.
+   * Framed with it, going into a city left the city filling about half the
+   * screen with sea round the rest, which is the complaint the opening view
+   * had before it was tightened the same way.
+   *
+   * So a city is framed the way the region is: the built ground plus a rim
+   * of water, measured through the projection that will draw it. Each
+   * island then gets the framing its own content needs rather than a share
+   * of the largest one's plate, which is what IT&E was paying for.
+   */
+  const ISLAND_WATER = 14;   // world units of water kept around one city
+
+  function frameIsland(island) {
+    return fitTo(new THREE.Box3(
+      new THREE.Vector3(island.ox - island.w / 2 - ISLAND_WATER, 0,
+                        island.oz - island.d / 2 - ISLAND_WATER),
+      new THREE.Vector3(island.ox + island.w / 2 + ISLAND_WATER, 22,
+                        island.oz + island.d / 2 + ISLAND_WATER)
+    ), 1.0);
+  }
+
   /* The widest framing that still counts as being inside a city.
    *
    * It used to be a fraction of the opening view, and the fraction stopped
    * meaning anything the day the opening view was tightened to the built
-   * ground: framing the largest island takes 112 units against an opening
-   * view of about 150, and the old fraction called that still outside, so
-   * the way back out stayed hidden with the camera sitting over one island.
+   * ground: it called the camera sitting over one island "still outside",
+   * and left the way back out hidden.
    *
-   * Measured against the thing it is deciding about instead. Going into a
-   * city frames that island's plate, so that framing and a little wider is
-   * inside one, and the opening view is never allowed to be.
+   * Measured against the thing it is deciding instead. Going into the
+   * largest city frames it at 69 units against an opening view of 151, so
+   * anything at that framing or half again as wide is inside a city, and
+   * the opening view is never allowed to be.
    */
-  const ISLAND_FRAME = 0.62;     // of the widest plate edge, when flown to
-  const WIDEST_ISLAND = layout.islands.reduce(
-    (most, i) => Math.max(most, i.plateW, i.plateD), 0);
+  let widest = { w: 0, h: 0, size: 0 };
+
+  function widestCityFrame() {
+    // Only the viewport can change it, and this is asked on every frame.
+    if (widest.w !== window.innerWidth || widest.h !== window.innerHeight) {
+      widest = {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        size: layout.islands.reduce(
+          (most, i) => Math.max(most, frameIsland(i).size), 0),
+      };
+    }
+    return widest.size;
+  }
 
   function insideACity() {
-    return view.size < Math.min(HOME.size * 0.92,
-                                WIDEST_ISLAND * ISLAND_FRAME * 1.15);
+    return view.size < Math.min(HOME.size * 0.92, widestCityFrame() * 1.45);
   }
 
   /* Exactly one of the two is on screen, and only ever with more than one
    * island: inside a city the control is the way out, outside it the control
-   * is the way in. */
+   * is the way in.
+   *
+   * The list of cities also stands down while a title deed is open. The deed
+   * is a tall panel pinned to the top right and the list is a wide bar
+   * across the top middle, so at the global view the deed covered the end of
+   * the list and took the cities at that end with it. Reading a lot is a
+   * commitment to that lot rather than a moment for picking a city, and
+   * dismissing the deed brings the list straight back. The way out is a
+   * single narrow button and clears the deed on every viewport, so it stays.
+   */
+  const deed = document.getElementById("inspector");
+
   function offerTheWayBack() {
     const many = (CITY.estates || []).length > 1;
     const inside = insideACity();
+    const reading = !!deed && deed.classList.contains("on");
     if (backOut) backOut.hidden = !(many && inside);
-    if (intoCity) intoCity.hidden = !(many && !inside);
+    if (intoCity) intoCity.hidden = !(many && !inside && !reading);
   }
 
   listTheCities();
@@ -6101,8 +6148,8 @@
       if (!island) return false;
       showCategory(null);
       showEstateOnArc(island.id);
-      const at = new THREE.Vector3(island.ox, 0, island.oz);
-      flyTo(at, Math.max(island.plateW, island.plateD) * ISLAND_FRAME);
+      const framed = frameIsland(island);
+      flyTo(framed.target, framed.size);
       sendFigure(new THREE.Vector3(island.ox, 0, island.oz + island.d * 0.3),
                  "fly", FLIGHT);
       walker.pinned = true;
@@ -6130,6 +6177,28 @@
           at: toScreen(new THREE.Vector3(
             i.ox, -0.42, i.oz + i.plateD / 2 + i.nameBar.d / 2 + 3.0)),
         } : null,
+        /* The island's built volume, in screen pixels.
+         *
+         * The eight corners rather than a box, because under this projection
+         * the volume is a hexagon on screen and its bounding box is half
+         * empty corner. Reported so a check can ask the question that
+         * matters when the camera goes to a city: is all of this city on
+         * screen, and how much of the screen does it take. Asking that of
+         * every island is what stops the framing being right for the one
+         * that happened to be looked at. */
+        screen: (() => {
+          const out = [];
+          for (const dx of [-i.w / 2, i.w / 2]) {
+            for (const dz of [-i.d / 2, i.d / 2]) {
+              for (const dy of [0, 22]) {
+                const at = toScreen(
+                  new THREE.Vector3(i.ox + dx, dy, i.oz + dz));
+                out.push([+at.x.toFixed(1), +at.y.toFixed(1)]);
+              }
+            }
+          }
+          return out;
+        })(),
       }));
     },
     focusDistrict(name) {
