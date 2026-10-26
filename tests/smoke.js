@@ -1336,27 +1336,43 @@ async function onAPhone(browser) {
    *
    * The flight is 1.2 seconds, so nothing read before then can be the
    * answer. It waits that out first and settles after.
+   *
+   * Waiting out the flight is still not enough on its own, because the clock
+   * says the flight is over and the pin is put where it belongs by the next
+   * frame, which on this host can be most of a second later. Two identical
+   * readings past 1.2 seconds can therefore both be the previous lot's. So
+   * the pin has to have moved off the lot it was on before a reading of it
+   * counts, and the lot's projected corners have to have stopped moving too:
+   * the pin reaches its world position in one frame while the camera is
+   * still flying, and the bubble is measured against those corners.
    */
   const FLIGHT_MS = 1200;
-  const settledPin = async () => {
+  const settledPin = async (before) => {
     let last = null;
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 64; i++) {
       await page.waitForTimeout(250);
       const now = await page.evaluate(() => window.NWCity.spotlightBox());
-      if (now && last && (i + 1) * 250 > FLIGHT_MS
-          && Math.abs(now.pin.y - last.pin.y) < 0.001
-          && Math.abs(now.pin.x - last.pin.x) < 0.001) {
-        return now;
-      }
+      if (!now) { last = null; continue; }
+      const moved = !before
+        || Math.abs(now.pin.x - before.pin.x) > 0.001
+        || Math.abs(now.pin.z - before.pin.z) > 0.001;
+      const still = last
+        && Math.abs(now.pin.y - last.pin.y) < 0.001
+        && Math.abs(now.pin.x - last.pin.x) < 0.001
+        && Math.abs(now.corners[0][0] - last.corners[0][0]) < 0.5
+        && Math.abs(now.corners[0][1] - last.corners[0][1]) < 0.5;
+      if (moved && still && (i + 1) * 250 > FLIGHT_MS) return now;
       last = now;
     }
     return last;
   };
 
   const marked = [];
+  let previousPin = await page.evaluate(() => window.NWCity.spotlightBox());
   for (const code of ["A251", "D408", "A221", "A311"]) {
     await page.evaluate((c) => window.NWCity.focus(c), code);
-    const seen = await settledPin();
+    const seen = await settledPin(previousPin);
+    previousPin = seen;
     if (!seen) { marked.push({ code, missing: true }); continue; }
     /* Against the silhouette, not its bounding box.
      *
@@ -1645,6 +1661,21 @@ async function onAPhone(browser) {
     repeated.length === 0,
     repeated.length ? `repeated: ${[...new Set(repeated)].join(", ")}`
       : `${standing.length} monuments, all different`);
+  /* And no two of them are drawn the same way.
+   *
+   * Different names on the same silhouette is the version of this a viewer
+   * actually meets: four castles stood on the sea at once, each with its own
+   * name on the tooltip and nothing to tell them apart from across a
+   * district. The shape is what carries the monument at that distance, so it
+   * has to be as unique as the name.
+   */
+  const silhouettes = await page.evaluate(() => window.NW_CITY.categories
+    .filter((c) => c.landmark).map((c) => c.landmark.shape));
+  const twice = [...new Set(silhouettes.filter((s, i) => silhouettes.indexOf(s) !== i))];
+  check("no two monuments are drawn as the same shape",
+    twice.length === 0,
+    twice.length ? `drawn more than once: ${twice.join(", ")}`
+      : `${new Set(silhouettes).size} silhouettes for ${silhouettes.length} monuments`);
   /* Occupancy reaches the monuments.
    *
    * Every one of the four categories anybody has run a sourcing event through
@@ -1758,9 +1789,25 @@ async function onAPhone(browser) {
     }
     return estates.length ? estates[0].label : "Networks";
   });
+  /* And it names the island as well as the sea.
+   *
+   * A category's score reads one way against the whole of VPC and another
+   * against the city it stands in, and the city is the comparison the person
+   * who owns that lot answers for. With only the organisation figure there, a
+   * category on 55 against a VPC 18 looked like a leader while half its own
+   * island was ahead of it.
+   */
+  const islandName = await page.evaluate(() => {
+    const data = window.NWCity.data;
+    const code = "A251";
+    const category = data.categories.find((c) => c.code === code);
+    const estate = (data.estates || []).find((e) => e.id === category.estate);
+    return (data.estates || []).length > 1 && estate ? estate.label : null;
+  });
   check("the arc reading names the selected category",
     /A251/.test(arcFollows.score) && arcFollows.baseShown
-      && arcFollows.base.includes(wholeName),
+      && arcFollows.base.includes(wholeName)
+      && (!islandName || arcFollows.base.includes(islandName)),
     `${arcFollows.score} | ${arcFollows.base}`);
 
   const arcClears = await page.evaluate(() => {

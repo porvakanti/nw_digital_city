@@ -182,29 +182,35 @@ anything about it feels wrong to show, that is the finding worth reporting.
 | J201 | User Experience Solutions | The Great Sphinx | Commercial & Services | Egypt, score 75 |
 | A212 | Operations Support System (OSS) Services | Berlin TV Tower | Network | Germany, score 65 |
 | B227 | Corporate Systems Services - Requirement Specifications, Design, Build, Deploy (CAPEX) | Tower of London | IT&E | UK, score 65 |
-| B301 | Construction Works (Offices, Call Centers and Other Properties exc. Retail and RBS) | Blarney Castle | Corporate Services and Property | Ireland, score 60 |
-| B408 | Manguarding and Security Electronic Services | The Reichstag | Corporate Services and Property | Germany, score 60 |
-| B411 | Health & Safety and PPEs | Belem Tower | Corporate Services and Property | Portugal, score 60 |
-| B901 | Fleet Services incl. Lease | The Victory Column | Corporate Services and Property | Germany, score 60 |
+| B301 | Construction Works (Offices, Call Centers and Other Properties exc. Retail and RBS) | The Palace of the Grand Master | Corporate Services and Property | Greece, score 60 |
+| B408 | Manguarding and Security Electronic Services | Berlin Cathedral | Corporate Services and Property | Germany, score 60 |
+| B411 | Health & Safety and PPEs | Jeronimos Monastery | Corporate Services and Property | Portugal, score 60 |
+| B901 | Fleet Services incl. Lease | The Hermann Monument | Corporate Services and Property | Germany, score 60 |
 | D408 | Self-Build Fibre & installation services | The Parthenon | Network | Greece, score 60 |
 | H201 | Datacentre Hardware & Servers | Galata Tower | IT&E | Turkey, score 60 |
-| B105 | Strategic Consultancy | The Hohenzollern Bridge | Corporate Services and Property | Germany, score 55 |
-| B111 | Corporate Systems Services - Demand, Design, Run, Operate and Maintain (OPEX) | The White Tower of Thessaloniki | IT&E | Greece, score 55 |
-| B232 | Analytics and Intelligence Professional Services - Pre/Post Application Development (OPEX) | The Lion Gate of Mycenae | IT&E | Greece, score 55 |
-| B423 | Customer Care & Technical Support | Neuschwanstein Castle | Commercial & Services | Germany, score 55 |
-| B607 | Permanent Recruitment | Bran Castle | Corporate Services and Property | VOIS Romania, score 55 |
+| B105 | Strategic Consultancy | Bremen Town Hall | Corporate Services and Property | Germany, score 55 |
+| B111 | Corporate Systems Services - Demand, Design, Run, Operate and Maintain (OPEX) | The Lion Gate of Mycenae | IT&E | Greece, score 55 |
+| B232 | Analytics and Intelligence Professional Services - Pre/Post Application Development (OPEX) | The Windmills of Mykonos | IT&E | Greece, score 55 |
+| B423 | Customer Care & Technical Support | The Victory Column | Commercial & Services | Germany, score 55 |
+| B607 | Permanent Recruitment | The Arch of Triumph | Corporate Services and Property | VOIS Romania, score 55 |
 | D333 | TV Software | Rozafa Castle | Network | Albania, score 55 |
 | D513 | Power Supply | Hagia Sophia | Network | Turkey, score 55 |
 | K202 | Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) - Software Support/Maintenance, and SaaS (OPEX) | Cologne Cathedral | IT&E | Germany, score 55 |
 | A314 | Access Transmission Services | Palace of the Parliament | Network | Romania, score 50 |
-| B228 | Corporate Systems - Software Support/Maintenance, and SaaS (OPEX) | The Windmills of Mykonos | IT&E | Greece, score 50 |
+| B228 | Corporate Systems - Software Support/Maintenance, and SaaS (OPEX) | The Odeon of Herodes Atticus | IT&E | Greece, score 50 |
 
-    No monument stands twice. Every market carries at least four of them, so a
-    market that is the furthest reach of a category on each of the four
-    islands can still give each one a monument of its own; Germany carries
-    eight, because fourteen qualifying categories name it and seven of them
-    reach it before any other market they named. Past that a category falls
-    through to another market on the same blueprint.
+    No monument stands twice, and no two are drawn as the same shape. Every
+    market carries at least four, so a market that is the furthest reach of a
+    category on each of the four islands can give each one a monument of its
+    own; Germany carries eleven, because fourteen qualifying categories name
+    it and seven of them reach it before any other market they named. Past
+    that a category falls through to another market on the same blueprint.
+
+    The shape matters as much as the name. Each of the 24 is a different
+    silhouette out of the 28 the renderer draws, because the build hands out
+    a shape nobody is standing on before it hands out a repeat. A run that
+    cannot manage it says so: it names the shape it had to draw twice, and
+    the fix is another entry in the market that ran out.
 
     One category clears the threshold and gets nothing. J403 is live in VGE
     alone, which is a group-wide entity rather than a country, so there is no
