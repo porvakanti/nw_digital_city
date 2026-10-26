@@ -201,6 +201,88 @@ class AddingAnEstateChangesNothingElse(unittest.TestCase):
         self.assertEqual(set(), overlap)
 
 
+class MonumentsAcrossTheRegion(unittest.TestCase):
+    """One monument stands once on the sea, or not at all.
+
+    A monument says which market carried a blueprint furthest. The same one
+    on two islands says that twice about two different categories, which is
+    not a thing the data can mean, and a viewer who recognises the shape has
+    no way to tell which of the two they are looking at.
+
+    Only Networks has market lists today, so nothing collides in the shipped
+    file. These fixtures give two estates the same market so the collision is
+    forced rather than waited for.
+    """
+
+    SAME_MARKET = {
+        "One": [
+            row("One", "Radio", "Access", "Alpha", "A101", active=2, draft=0,
+                used=2, ai=2, spend=40_000_000, markets="UK"),
+            row("One", "Radio", "Access", "Beta", "A102", active=2, draft=0,
+                used=2, ai=2, spend=30_000_000, markets="UK"),
+        ],
+        # The second island reaches the same market first and a second one
+        # after it, so there is somewhere for it to fall through to.
+        "Two": [
+            row("Two", "Offices", "Leasing", "Gamma", "B101", active=2, draft=0,
+                used=2, ai=2, spend=40_000_000, markets="UK, Italy"),
+            row("Two", "Offices", "Leasing", "Delta", "B102", active=2, draft=0,
+                used=2, ai=2, spend=30_000_000, markets="UK, Italy"),
+        ],
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        cls.path = workbook_of(cls.SAME_MARKET)
+        cls.book = openpyxl.load_workbook(cls.path, read_only=True, data_only=True)
+        cls.config = build_city.load_config()
+        cls.one = {"id": "one", "label": "One", "level1": "One", "sheet": "One"}
+        cls.two = {"id": "two", "label": "Two", "level1": "Two", "sheet": "Two"}
+
+    def named(self, categories):
+        return [c["landmark"]["name"] for c in categories if c.get("landmark")]
+
+    def test_islands_sharing_a_market_do_not_share_a_monument(self):
+        claimed = set()
+        first = build_city.read_estate(
+            self.book, None, self.one, self.config, claimed)
+        second = build_city.read_estate(
+            self.book, None, self.two, self.config, claimed)
+        awarded = self.named(first) + self.named(second)
+        self.assertEqual(len(awarded), len(set(awarded)),
+                         f"a monument was awarded twice: {awarded}")
+
+    def test_without_the_shared_claim_set_they_would(self):
+        """What the shared set is for, asserted so it cannot be dropped.
+
+        Each island claiming independently is the behaviour this replaced. If
+        this ever stops reproducing, the two cases have converged and the
+        check above is no longer testing anything.
+        """
+        first = build_city.read_estate(self.book, None, self.one, self.config)
+        second = build_city.read_estate(self.book, None, self.two, self.config)
+        awarded = self.named(first) + self.named(second)
+        self.assertLess(len(set(awarded)), len(awarded))
+
+    def test_a_claimed_monument_sends_the_island_to_its_next_market(self):
+        """A taken monument costs that market, not the category.
+
+        The category has more than one market behind it, so the scarce
+        monument should move the award along rather than cancel it. Stopping
+        at the first market would cost a qualifying category its landmark for
+        a reason that has nothing to do with it.
+        """
+        claimed = set()
+        first = build_city.read_estate(
+            self.book, None, self.one, self.config, claimed)
+        second = build_city.read_estate(
+            self.book, None, self.two, self.config, claimed)
+        self.assertIn("Big Ben", self.named(first))
+        self.assertTrue(self.named(second),
+                        "the second island qualified and got nothing")
+        self.assertNotIn("Big Ben", self.named(second))
+
+
 class TheShippedData(unittest.TestCase):
     """What data/city.json actually carries."""
 

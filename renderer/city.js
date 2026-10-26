@@ -1379,20 +1379,45 @@
    * At the near edge, because an isometric camera throws a tall building up
    * and back, and a name at the far edge is read through whatever stands in
    * front of it.
+   *
+   * The bar is also the way into its city. A name is what somebody points at
+   * when they mean "that one", so pointing at it is what takes the camera
+   * there.
    */
+
+  /* One lettering size for every city, and a bar cut to fit its own name.
+   *
+   * The bar used to be as wide as the island under it and the lettering a
+   * fraction of the bar, so the smallest island got the smallest lettering,
+   * and a long name on a small island got smaller lettering still. Four
+   * names at four sizes reads as a ranking, and it is not one: island area
+   * already says which estate is larger, and type size saying it again says
+   * it twice and less accurately.
+   *
+   * So the lettering is one height in world units everywhere and the bar
+   * grows to hold it. Nothing shrinks to fit, because nothing has to.
+   */
+  const ISLE_BAR_D = 11.5;   // bar depth in world units, front to back
+  const ISLE_BAR_PPU = 18;   // canvas pixels per world unit
   const islandNames = [];
 
-  function nameplate(text, width) {
-    const PPU = 56;
-    const w = Math.round(width * PPU);
-    const h = Math.round(width * PPU * 0.17);
+  function nameplate(text) {
+    const h = Math.round(ISLE_BAR_D * ISLE_BAR_PPU);
+    const size = Math.round(h * 0.42);
+    const pad = h * 0.16;
+    const label = String(text).toUpperCase();
+    const tracking = `${Math.round(size * 0.14)}px`;
+
+    // Measured first, then cut to the measurement. The bar is as wide as the
+    // name needs and no wider.
+    measurer.letterSpacing = tracking;
+    measurer.font = NAME_FONT(size);
+    const w = Math.round(measurer.measureText(label).width + pad * 2 + h * 1.1);
+
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
-
-    const pad = h * 0.16;
-    const size = Math.round(h * 0.46);
     ctx.fillStyle = "rgba(14,18,26,0.92)";
     ctx.beginPath();
     const r = h * 0.18;
@@ -1404,48 +1429,39 @@
     ctx.closePath();
     ctx.fill();
 
-    /* Shrink to fit rather than run off the end.
-     *
-     * Drawn at one size, "Corporate Services and Property" came out as
-     * "ATE SERVICES AND P": the canvas simply clipped it. A name that cannot
-     * be read is worse than a smaller one, and the bar is as wide as its own
-     * island, so a long name on a small island has least room and needs the
-     * most shrinking.
-     */
-    const label = text.toUpperCase();
-    const room = w - pad * 2 - h * 0.5;
-    let fitted = size;
-    for (; fitted > 10; fitted -= 1) {
-      ctx.letterSpacing = `${Math.round(fitted * 0.14)}px`;
-      ctx.font = NAME_FONT(fitted);
-      if (ctx.measureText(label).width <= room) break;
-    }
+    ctx.letterSpacing = tracking;
+    ctx.font = NAME_FONT(size);
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.fillStyle = "#f2f4f8";
-    ctx.fillText(label, w / 2, h / 2 + fitted * 0.04);
+    ctx.fillText(label, w / 2, h / 2 + size * 0.04);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.anisotropy = 4;
     const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(width, width * 0.17).rotateX(-Math.PI / 2),
+      new THREE.PlaneGeometry(w / ISLE_BAR_PPU, ISLE_BAR_D).rotateX(-Math.PI / 2),
       new THREE.MeshBasicMaterial({ map: texture, transparent: true })
     );
-    return mesh;
+    // The cap height in world units is the thing that has to come out the
+    // same on every island, so it is reported rather than inferred.
+    return { mesh, cap: size / ISLE_BAR_PPU, w: w / ISLE_BAR_PPU, d: ISLE_BAR_D };
   }
 
   function nameTheIslands(islands) {
     if (islands.length < 2) return;   // one island is the city, not a place in it
     for (const island of islands) {
-      const width = island.plateW * 0.92;
-      const plate = nameplate(island.label, width);
-      plate.position.set(
+      const bar = nameplate(island.label);
+      bar.mesh.position.set(
         island.ox,
         -0.42,
-        island.oz + island.plateD / 2 + width * 0.17 / 2 + 3.0
+        island.oz + island.plateD / 2 + ISLE_BAR_D / 2 + 3.0
       );
-      scene.add(plate);
-      islandNames.push(plate);
+      // What a click on it means.
+      bar.mesh.userData.estate = island.id;
+      bar.mesh.userData.label = island.label;
+      island.nameBar = { cap: bar.cap, w: bar.w, d: bar.d };
+      scene.add(bar.mesh);
+      islandNames.push(bar.mesh);
     }
   }
 
@@ -1534,6 +1550,82 @@
     island.plateD = island.d + 10 + clearance * 2;
   }
 
+  /* Now the plates are known, close the sea to the width it actually needs.
+   *
+   * Islands are placed before their plates exist, because a plate is as wide
+   * as its island plus the margin its own tallest building needs, and the
+   * buildings are assembled last. The placement therefore works from the
+   * districts alone and asks for more water than the plates turn out to
+   * want: the channel between the two northern islands came out 76 units
+   * wide against the SEA_GAP it was asked for. Every surplus unit of water
+   * is a unit the camera has to frame at the global view, and framing water
+   * is what made the cities too small to read anything on.
+   *
+   * So the islands are drawn back in along their own diagonal until the
+   * narrowest channel is the gap that was asked for, and everything already
+   * placed on them moves with them. It only ever contracts: the configured
+   * spacing stays the most water there can be, so a wider sea remains
+   * something the config can ask for.
+   */
+  function closeTheSea(layout) {
+    const islands = layout.islands;
+    if (islands.length < 2) return;
+    const at = (island) => ({
+      sx: Math.sign(island.ox), sz: Math.sign(island.oz),
+      span: Math.max(Math.abs(island.ox), Math.abs(island.oz)) * 2,
+    });
+    const was = islands.reduce((most, i) => Math.max(most, at(i).span), 0);
+    if (!was) return;
+
+    /* What each pair of islands needs between their centres.
+     *
+     * Two plates are clear of each other the moment they are clear on one
+     * axis, so a pair that sits diagonally takes the easier of the two and
+     * a pair in the same row or column has only the one to satisfy.
+     */
+    let needs = 0;
+    for (let i = 0; i < islands.length; i++) {
+      for (let j = i + 1; j < islands.length; j++) {
+        const a = islands[i], b = islands[j];
+        const ends = [];
+        if (at(a).sx !== at(b).sx) {
+          ends.push((a.plateW + b.plateW) / 2 + SEA_GAP);
+        }
+        if (at(a).sz !== at(b).sz) {
+          ends.push((a.plateD + b.plateD) / 2 + SEA_GAP);
+        }
+        // Two islands on the same corner would be a packing fault, not a
+        // spacing one, and there is nothing a spacing can do about it.
+        if (ends.length) needs = Math.max(needs, Math.min(...ends));
+      }
+    }
+    const now = Math.min(was, needs);
+    if (now >= was) return;
+
+    const half = (now - was) / 2;   // negative: every island moves inward
+    for (const island of islands) {
+      const corner = at(island);
+      const dx = corner.sx * half, dz = corner.sz * half;
+      island.ox += dx;
+      island.oz += dz;
+      for (const district of island.districts) {
+        district.cx += dx;
+        district.cz += dz;
+        for (const plot of district.plots) {
+          plot.cx += dx;
+          plot.cz += dz;
+        }
+      }
+      for (const building of island.buildings) {
+        building.x += dx;
+        building.z += dz;
+      }
+    }
+    layout.size = { w: layout.size.w + (now - was), d: layout.size.d + (now - was) };
+  }
+
+  closeTheSea(layout);
+
   // The region, as the camera has to frame it and the sea has to cover it.
   const bounds = layout.islands.reduce((box, island) => ({
     minX: Math.min(box.minX, island.ox - island.plateW / 2),
@@ -1543,6 +1635,29 @@
   }), { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity });
   const baseW = bounds.maxX - bounds.minX;
   const baseD = bounds.maxZ - bounds.minZ;
+
+  /* What the global view frames, which is not the same box.
+   *
+   * A plate is wider than the island on it by the margin the tallest
+   * building's projection needs, and that margin is empty ground on
+   * purpose: nothing stands in it and nothing is read in it. Framed with
+   * all four aprons and the sea around them, the opening view spent most of
+   * itself on water, and the districts, monuments and towers came out too
+   * small to make out. Telling the four cities apart is the one job the
+   * opening view has.
+   *
+   * So it frames the built ground plus enough water to still read as
+   * islands. The aprons fall outside the frame, which costs nothing,
+   * because an apron is the ground a tall building leans over rather than
+   * ground anything stands on.
+   */
+  const HOME_WATER = 15;
+  const homeBox = layout.islands.reduce((box, island) => ({
+    minX: Math.min(box.minX, island.ox - island.w / 2 - HOME_WATER),
+    maxX: Math.max(box.maxX, island.ox + island.w / 2 + HOME_WATER),
+    minZ: Math.min(box.minZ, island.oz - island.d / 2 - HOME_WATER),
+    maxZ: Math.max(box.maxZ, island.oz + island.d / 2 + HOME_WATER),
+  }), { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity });
 
   drawSea(layout.islands, bounds);
   drawLighthouse(layout.islands);
@@ -4047,11 +4162,85 @@
     backOutBtn.addEventListener("click", () => window.NWCity.reset());
   }
 
-  function offerTheWayBack() {
-    if (!backOut) return;
-    const many = (CITY.estates || []).length > 1;
-    backOut.hidden = !(many && view.size < HOME.size * 0.72);
+  /* And the way in, built from the estates rather than written out.
+   *
+   * One button per city, in the order the islands are placed in, so the list
+   * reads left to right the way the scoreboard does.
+   */
+  const intoCity = document.getElementById("intoCity");
+
+  function listTheCities() {
+    if (!intoCity) return;
+    const row = intoCity.querySelector(".row");
+    row.innerHTML = "";
+    for (const island of layout.islands) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = island.label;
+      button.dataset.estate = island.id;
+      button.addEventListener("click", () => window.NWCity.focusEstate(island.id));
+      row.appendChild(button);
+    }
   }
+
+  /* The widest framing that still counts as being inside a city.
+   *
+   * It used to be a fraction of the opening view, and the fraction stopped
+   * meaning anything the day the opening view was tightened to the built
+   * ground: framing the largest island takes 112 units against an opening
+   * view of about 150, and the old fraction called that still outside, so
+   * the way back out stayed hidden with the camera sitting over one island.
+   *
+   * Measured against the thing it is deciding about instead. Going into a
+   * city frames that island's plate, so that framing and a little wider is
+   * inside one, and the opening view is never allowed to be.
+   */
+  const ISLAND_FRAME = 0.62;     // of the widest plate edge, when flown to
+  const WIDEST_ISLAND = layout.islands.reduce(
+    (most, i) => Math.max(most, i.plateW, i.plateD), 0);
+
+  function insideACity() {
+    return view.size < Math.min(HOME.size * 0.92,
+                                WIDEST_ISLAND * ISLAND_FRAME * 1.15);
+  }
+
+  /* Exactly one of the two is on screen, and only ever with more than one
+   * island: inside a city the control is the way out, outside it the control
+   * is the way in. */
+  function offerTheWayBack() {
+    const many = (CITY.estates || []).length > 1;
+    const inside = insideACity();
+    if (backOut) backOut.hidden = !(many && inside);
+    if (intoCity) intoCity.hidden = !(many && !inside);
+  }
+
+  listTheCities();
+
+  /* The welcome card names the place it is welcoming somebody to.
+   *
+   * "Four cities, one sea" named a count rather than a place, and a count is
+   * the one thing about this that the config can change. An ocean has a name
+   * and keeps it, so the card carries the collective name the rail and the
+   * scoreboard already use, and the count goes in the line underneath where
+   * it is read once and costs nothing when it moves.
+   */
+  const COUNTS = ["no", "one", "two", "three", "four", "five", "six",
+                  "seven", "eight", "nine", "ten"];
+
+  function nameTheOcean() {
+    const heading = document.querySelector("#welcome h2");
+    const lede = document.getElementById("welcomeLede");
+    const islands = layout.islands.length;
+    if (!heading || islands < 2) return;   // one estate is a city, not an ocean
+    heading.textContent = `${wholeLabel()} Ocean`;
+    if (!lede) return;
+    const many = COUNTS[islands] || String(islands);
+    lede.textContent =
+      `${many.charAt(0).toUpperCase()}${many.slice(1)} Level 1 estates, each `
+      + "built as a city on its own island.";
+  }
+
+  nameTheOcean();
 
   function showEstateOnArc(id) {
     arcEstate = id || null;
@@ -4927,6 +5116,7 @@
   const BUBBLE_AVOID = [
     "masthead", "stats", "legend", "journey", "inspector",
     "arc", "trace", "chips", "ask", "caption", "hint", "touchbar",
+    "backOut", "intoCity",
   ];
 
   function bubbleObstacles() {
@@ -4956,10 +5146,10 @@
   // -------------------------------------------------------------- controls
   const HOME = fitTo(
     new THREE.Box3(
-      new THREE.Vector3(-baseW / 2, 0, -baseD / 2),
-      new THREE.Vector3(baseW / 2, 22, baseD / 2)
+      new THREE.Vector3(homeBox.minX, 0, homeBox.minZ),
+      new THREE.Vector3(homeBox.maxX, 22, homeBox.maxZ)
     ),
-    1.04
+    1.0
   );
   view.size = HOME.size;
   view.target.copy(HOME.target);
@@ -5094,14 +5284,41 @@
   const hoverEl = document.getElementById("hover");
   const pointer = new THREE.Vector2();
 
-  function categoryUnder(clientX, clientY) {
+  /* What the pointer is over: a lot, a city's nameplate, or nothing.
+   *
+   * One pass over both sets rather than one each. A nameplate is a flat bar
+   * lying on the water outside its island, and under this projection a tall
+   * building near that edge is thrown down the screen across it, so the two
+   * do compete for the same pixel. Asked separately, with the nameplate
+   * asked first, the bar won every one of those pixels and the tower behind
+   * it could not be hovered. Intersections come back nearest first, so the
+   * answer is whichever is actually in front.
+   */
+  function under(clientX, clientY) {
     pointer.set(
       (clientX / window.innerWidth) * 2 - 1,
       -(clientY / window.innerHeight) * 2 + 1
     );
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(pickTargets, false)[0];
-    return hit ? hit.object.userData.category : null;
+    const hit = raycaster.intersectObjects(
+      islandNames.length ? pickTargets.concat(islandNames) : pickTargets, false)[0];
+    if (!hit) return null;
+    const data = hit.object.userData;
+    return data.category ? { lot: data.category } : { island: data };
+  }
+
+  function categoryUnder(clientX, clientY) {
+    const found = under(clientX, clientY);
+    return found && found.lot ? found.lot : null;
+  }
+
+  /** Where the hover card goes: clear of the cursor, and on screen. */
+  function placeHover(clientX, clientY) {
+    const box = hoverEl.getBoundingClientRect();
+    const x = Math.min(clientX + 16, window.innerWidth - box.width - 12);
+    const y = Math.min(clientY + 16, window.innerHeight - box.height - 12);
+    hoverEl.style.left = `${Math.max(12, x)}px`;
+    hoverEl.style.top = `${Math.max(12, y)}px`;
   }
 
   renderer.domElement.addEventListener("pointermove", (e) => {
@@ -5109,7 +5326,22 @@
       hoverEl.classList.remove("on");
       return;
     }
-    const category = categoryUnder(e.clientX, e.clientY);
+    /* A nameplate says what it does when the pointer reaches it.
+     *
+     * A label that turns out to be a button is a pleasant surprise once and
+     * an invisible feature every other time, so the pointer changes over it
+     * and the card says where it goes. */
+    const found = under(e.clientX, e.clientY);
+    const named = found && found.island;
+    renderer.domElement.style.cursor = named ? "pointer" : "";
+    if (named) {
+      hoverEl.innerHTML =
+        `<b>${named.label}</b><br><span>Click to zoom into this city</span>`;
+      hoverEl.classList.add("on");
+      placeHover(e.clientX, e.clientY);
+      return;
+    }
+    const category = found && found.lot;
     if (!category) {
       hoverEl.classList.remove("on");
       return;
@@ -5132,11 +5364,7 @@
       (spend > 0 ? ` &middot; ${euro(spend)}` : "") + `</span>` + monument;
     hoverEl.classList.add("on");
     // Nudged clear of the cursor, and kept on screen near the edges.
-    const box = hoverEl.getBoundingClientRect();
-    const x = Math.min(e.clientX + 16, window.innerWidth - box.width - 12);
-    const y = Math.min(e.clientY + 16, window.innerHeight - box.height - 12);
-    hoverEl.style.left = `${Math.max(12, x)}px`;
-    hoverEl.style.top = `${Math.max(12, y)}px`;
+    placeHover(e.clientX, e.clientY);
   });
 
   renderer.domElement.addEventListener("pointerleave", () => {
@@ -5145,7 +5373,13 @@
 
   renderer.domElement.addEventListener("click", (e) => {
     if (moved > 6) return;
-    const clicked = categoryUnder(e.clientX, e.clientY);
+    // A city's own name is the plainest way into it.
+    const found = under(e.clientX, e.clientY);
+    if (found && found.island) {
+      window.NWCity.focusEstate(found.island.estate);
+      return;
+    }
+    const clicked = found && found.lot;
     if (clicked) {
       const spot = positionOf.get(clicked.code);
       showCategory(clicked);
@@ -5868,7 +6102,7 @@
       showCategory(null);
       showEstateOnArc(island.id);
       const at = new THREE.Vector3(island.ox, 0, island.oz);
-      flyTo(at, Math.max(island.plateW, island.plateD) * 0.62);
+      flyTo(at, Math.max(island.plateW, island.plateD) * ISLAND_FRAME);
       sendFigure(new THREE.Vector3(island.ox, 0, island.oz + island.d * 0.3),
                  "fly", FLIGHT);
       walker.pinned = true;
@@ -5886,6 +6120,16 @@
         id: i.id, label: i.label, x: i.ox, z: i.oz,
         w: i.w, d: i.d, plateW: i.plateW, plateD: i.plateD,
         districts: i.districts.length,
+        /* The nameplate standing off this island's beach, if there is one.
+         *
+         * Reported with where it currently lands on screen, because it is a
+         * control as well as a label and a check of a control has to be able
+         * to click it. */
+        name: i.nameBar ? {
+          ...i.nameBar,
+          at: toScreen(new THREE.Vector3(
+            i.ox, -0.42, i.oz + i.plateD / 2 + i.nameBar.d / 2 + 3.0)),
+        } : null,
       }));
     },
     focusDistrict(name) {

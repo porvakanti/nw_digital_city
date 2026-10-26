@@ -1113,7 +1113,14 @@
    */
   const TOUR = [
     {
-      title: "One city, one org.",
+      /* The title counts too.
+       *
+       * "One city, one org" was true of the single estate and is not true of
+       * a sea with one city on it per Level 1, which is the first thing the
+       * welcome card now says. */
+      title: ((CITY.estates || []).length > 1)
+        ? "One island per Level 1 estate."
+        : "One city, one org.",
       /* Counted rather than stated.
        *
        * This read "Eight coloured blocks" and named two districts by hand,
@@ -1133,9 +1140,23 @@
       })(),
       run: () => CITYVIEW.reset(),
     },
+    /* How to get into one, which the global view cannot show on its own.
+     *
+     * Four cities framed together are four shapes: the districts, the
+     * monuments and the towers are all there and none of them is legible at
+     * that height. The walkthrough is where a first-time viewer learns that
+     * going in is one click, so the step is here rather than in a tooltip
+     * nobody opens. Left out when there is one island, because then there is
+     * nowhere to go.
+     */
+    ...(((CITY.estates || []).length > 1) ? [{
+      title: "Go into a city.",
+      body: "Click a city's name on the water, or pick one from Zoom into at the top of the screen. Global view brings you back out, and so does pressing R. Everything else works the same once you are inside: the rules do not change between islands.",
+      run: () => CITYVIEW.focusEstate((CITY.estates || [])[0].id),
+    }] : []),
     {
       title: "Ask it about a category.",
-      body: "That word was typed in plain English. The agent worked out which of the 145 lots was meant, looked up its figures, dispatched the figure and rebuilt the lot. Watch the order it builds in: foundation, then the building, then the property, then the roof.",
+      body: `That word was typed in plain English. The agent worked out which of the ${CITY.categories.length} lots was meant, looked up its figures, dispatched the figure and rebuilt the lot. Watch the order it builds in: foundation, then the building, then the property, then the roof.`,
       run: () => submit("batteries"),
     },
     {
@@ -1145,7 +1166,15 @@
     },
     {
       title: "Where the work is.",
-      body: "Eighty-nine of the 145 lots are still empty ground, and some of them carry serious money. The agent ranks them and flies to the biggest.",
+      /* Counted, because both numbers moved the day the other three estates
+       * arrived and a walkthrough that quotes the old ones is the first thing
+       * a viewer reads. */
+      body: (() => {
+        const t = CITY.totals;
+        return `${t.empty_lots} of the ${t.categories} lots are still empty `
+          + "ground, and some of them carry serious money. The agent ranks "
+          + "them and flies to the biggest.";
+      })(),
       run: () => submit("Where are the biggest gaps?"),
     },
     {

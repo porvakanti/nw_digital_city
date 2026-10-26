@@ -68,16 +68,25 @@ estates:
   # follows spend per category, area ends up ordering exactly as spend does.
   square_plates: true
 
-  # How far apart the islands sit, in world units, measured between plate
-  # centres. Wide enough that they read as separate places rather than as one
-  # city with gaps in it.
+  # The most water there can be between the islands, in world units, measured
+  # between plate centres.
+  #
+  # Read as a ceiling rather than as a distance. The islands are placed
+  # before their plates exist, because a plate is as wide as its island plus
+  # the margin its own tallest building needs and the buildings are assembled
+  # last, so a figure set here is a guess made without the thing it is
+  # spacing. The renderer closes the sea afterwards to the channel the plates
+  # turn out to want, and every surplus unit of water is a unit the camera
+  # has to frame at the global view, which is what makes the cities too small
+  # to read. Raise it to push them apart; lowering it below what the plates
+  # need is what the renderer would have done anyway.
   spacing: 248
 
-  # `enabled` is what the data is built from. The renderer still draws a
-  # single plate, so turning an estate on before it can draw islands would put
-  # four estates' districts on one piece of ground and silently change every
-  # figure the documents quote. The three new estates stay off until the
-  # renderer lays out a sea; the build reads them the moment they are on.
+  # `enabled` is what the data is built from, and what the renderer draws an
+  # island for. Switching one on changes every region figure the documents
+  # quote, so the build has to be re-run and the checks with it: a config
+  # that lists an estate the committed data does not carry is a failure, not
+  # a warning.
   list:
     - id: network
       label: Network

@@ -326,7 +326,7 @@ def initials(person: str) -> str:
     return ".".join(p[0].upper() for p in parts[:3]) + "." if parts else ""
 
 
-def assign_landmarks(categories, config) -> None:
+def assign_landmarks(categories, config, taken=None) -> None:
     """Give the best-performing categories a monument from a market that
     actually adopted them.
 
@@ -356,7 +356,16 @@ def assign_landmarks(categories, config) -> None:
     # highest scorers keep them, and a category below the cut has earned its
     # height and its houses without earning a monument.
     eligible = qualifying if cap is None else qualifying[:cap]
-    taken = set()
+    # Shared across the whole region when one is handed in.
+    #
+    # Each island used to start with an empty set, so Big Ben could stand on
+    # Networks and on IT&E at the same time. A monument says which market
+    # carried a blueprint furthest, and two of the same one says that twice
+    # about different categories, which is not a thing the data can mean.
+    # Only Networks has market lists today, so nothing collides yet; it would
+    # have the day the other three arrive.
+    if taken is None:
+        taken = set()
     for category in eligible:
         placed = False
         for market, monuments in by_market.items():
@@ -430,7 +439,7 @@ def estates_in(config: dict) -> list[dict]:
     return [{"id": "network", "label": SCOPE_L1, "level1": SCOPE_L1, "order": 0}]
 
 
-def read_estate(workbook, refreshed, estate: dict, config: dict) -> list[dict]:
+def read_estate(workbook, refreshed, estate: dict, config: dict, taken=None) -> list[dict]:
     """Every category on one island.
 
     The estate names the sheet it is read from. Without one it is read from
@@ -504,10 +513,10 @@ def read_estate(workbook, refreshed, estate: dict, config: dict) -> list[dict]:
 
     # Stable ordering so the island looks the same every single run.
     categories.sort(key=lambda c: (c["district"] or "", c["plot"] or "", c["code"]))
-    # Monuments are awarded within an island, not across the region. The cap
-    # is what keeps one scarce, and a region-wide cap would hand every
-    # monument to the largest estate.
-    assign_landmarks(categories, config)
+    # The cap is per island: a region-wide one would hand every monument to
+    # the largest estate. Which monument is handed out is not, because the
+    # claim set is shared, so Big Ben stands on one island or on none.
+    assign_landmarks(categories, config, taken)
     return categories
 
 
@@ -549,8 +558,10 @@ def build(source: Path, out: Path, metrics: Path | None = None) -> dict:
         print(f"  refreshed model from {metrics.name}")
 
     categories, districts, summaries = [], [], []
+    # One monument may stand once in the region, not once per island.
+    claimed = set()
     for estate in estates_in(config):
-        mine = read_estate(workbook, refreshed, estate, config)
+        mine = read_estate(workbook, refreshed, estate, config, claimed)
         if not mine:
             print(f"  {estate['label']}: no categories found, skipped")
             continue
