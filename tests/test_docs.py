@@ -565,21 +565,30 @@ class TestWhatYouActuallySee(DocumentFigures):
                     f"{widest['code']} is live in {widest['metrics']['market_reach']} markets")
 
     def test_the_landmark_table(self):
-        """Every monument, its category and the market it came from.
+        """Every monument, its category, its island and the market it came from.
 
         The threshold moved from blueprint reach to the composite score, which
         changed which categories hold a monument and which market each one
         draws from. The table is rebuilt from the data so it cannot describe
         the previous rule.
+
+        Asked of the whole sea rather than of one island, because a monument
+        stands once across all of them: the table lost its meaning the moment
+        the second island earned one, and nothing in a single estate's view
+        would have said so.
         """
-        marked = [c for c in self.cats if c.get("landmark")]
+        whole = estate_view.load()
+        islands = {e["id"]: e["label"] for e in whole["estates"]}
+        marked = [c for c in whole["categories"] if c.get("landmark")]
         floor = self.config["landmarks"]["min_score"]
         self.quotes("TESTING.md",
-                    f"{len(marked)} monuments, one per category scoring {floor} or more")
+                    f"{len(marked)} monuments across the sea, one per category "
+                    f"scoring {floor} or more")
         for c in marked:
             self.quotes(
                 "TESTING.md",
                 f"| {c['code']} | {c['name']} | {c['landmark']['name']} | "
+                f"{islands[c['estate']]} | "
                 f"{c['landmark']['market']}, score {shown(c['journey']['total'])} |",
             )
 

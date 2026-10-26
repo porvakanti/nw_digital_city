@@ -153,7 +153,7 @@ if you are opening this for the first time.
 22. Five of the eight have **nothing** on the usage bar. That is the finding.
 23. **Categories.** 145 rows. A251 at the top on 100, the only category in
     Networks that has done the whole journey. A213 85, D506 75, D408 60.
-24. **People.** 30 rows out of 38 people. The eight below three categories are
+24. **People.** 28 rows out of 37 people. The nine below three categories are
     withheld on purpose: one category and one blueprint is a coin toss, not a
     track record.
 25. Every row shows three bars and names all three components against the
@@ -168,24 +168,33 @@ anything about it feels wrong to show, that is the finding worth reporting.
 
 ### F. The landmarks
 
-27. 8 monuments, one per category scoring 50 or more on the journey. The
-    monument marks progress; the shape says which market it travelled to:
+27. 9 monuments across the sea, one per category scoring 50 or more on the
+    journey. The monument marks progress; the shape says which market it
+    travelled to:
 
-| Code | Category | Monument | From |
-| --- | --- | --- | --- |
-| A251 | Network Professional Services | Big Ben | UK, score 100 |
-| A213 | Global Testing | Brandenburg Gate | Germany, score 85 |
-| D506 | Construction Services/Civil Works | The Pyramids | Egypt, score 75 |
-| A212 | Operations Support System (OSS) Services | Berlin TV Tower | Germany, score 65 |
-| D408 | Self-Build Fibre & installation services | The Parthenon | Greece, score 60 |
-| D513 | Power Supply | Hagia Sophia | Turkey, score 55 |
-| D333 | TV Software | Rozafa Castle | Albania, score 55 |
-| A314 | Access Transmission Services | Palace of the Parliament | Romania, score 50 |
+| Code | Category | Monument | Island | From |
+| --- | --- | --- | --- | --- |
+| A251 | Network Professional Services | Big Ben | Network | UK, score 100 |
+| A213 | Global Testing | Brandenburg Gate | Network | Germany, score 85 |
+| D506 | Construction Services/Civil Works | The Pyramids | Network | Egypt, score 75 |
+| J201 | User Experience Solutions | The Colosseum | Commercial & Services | Italy, score 75 |
+| A212 | Operations Support System (OSS) Services | Berlin TV Tower | Network | Germany, score 65 |
+| D408 | Self-Build Fibre & installation services | The Parthenon | Network | Greece, score 60 |
+| D513 | Power Supply | Hagia Sophia | Network | Turkey, score 55 |
+| D333 | TV Software | Rozafa Castle | Network | Albania, score 55 |
+| A314 | Access Transmission Services | Palace of the Parliament | Network | Romania, score 50 |
+
+    Sixteen other categories clear the threshold and get nothing, because the
+    config carries a landmark for only 8 of the 27 markets in the data.
+    Ireland, Portugal, the Czech Republic and the entities that are not
+    countries at all supply none, so a category that reached only those has
+    nothing to be given. That is a gap in the landmark table, not in the
+    data.
 
 28. Each stands **in place of** its building, on the ground, on a low stone
     terrace. The lot underneath is widened to the ground the shape needs, so a
     monument lot is visibly larger than its neighbours as well as taller:
-    every monument clears every plain tower. All eight are drawn to one
+    every monument clears every plain tower. All nine are drawn to one
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
 29. Each monument comes from a market that actually adopted that blueprint.

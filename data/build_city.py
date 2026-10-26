@@ -62,6 +62,8 @@ PERSONAL_FIELDS = {
     "Category Blueprint Owner ID",
     "CBPCoOwnersCSV",
     "VPC Category Manager",
+    # The same column, as the per-estate sheets spell it.
+    "Category Manager",
     "VPC Principal Category Manager",
     "VPC Head of Category",
     "Contact in VSSB/VSSA Sourcing Support",
@@ -254,7 +256,15 @@ def read_managers(workbook, config, level1=None, sheet_name=TAXONOMY_SHEET) -> d
     show = (config.get("people") or {}).get("show", "none")
     if show == "none":
         return {}
-    column = config["people"].get("source_column", "VPC Category Manager")
+    """The column is named more than one way across the workbook.
+
+    The taxonomy sheet calls it 'VPC Category Manager' and the per-estate
+    sheets call it 'Category Manager'. Both name the same person, so the
+    config holds the spellings it may answer to and the first one present
+    wins. A single string still works, and is read as a list of one.
+    """
+    asked = config["people"].get("source_column", "VPC Category Manager")
+    wanted = [asked] if isinstance(asked, str) else list(asked)
 
     if sheet_name not in workbook.sheetnames:
         return {}
@@ -262,8 +272,10 @@ def read_managers(workbook, config, level1=None, sheet_name=TAXONOMY_SHEET) -> d
     rows = rows_of(sheet)
     header = [clean(c) for c in next(rows)]
     idx = {name: i for i, name in enumerate(header) if name}
-    if column not in idx:
-        print(f"  no {column!r} column; categories will have no owner")
+    column = next((name for name in wanted if name in idx), None)
+    if column is None:
+        print(f"  no {' or '.join(map(repr, wanted))} column in {sheet_name!r};"
+              " categories will have no owner")
         return {}
 
     out = {}

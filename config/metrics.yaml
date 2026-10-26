@@ -597,7 +597,14 @@ score:
 # ---------------------------------------------------------------------------
 people:
   show: names
-  source_column: VPC Category Manager
+  # The spellings this column answers to, first one present wins.
+  #
+  # The taxonomy sheet calls it 'VPC Category Manager' and the per-estate
+  # sheets call it 'Category Manager'. They name the same person. A single
+  # name still works here and is read as a list of one.
+  source_column:
+    - Category Manager
+    - VPC Category Manager
 
 # ---------------------------------------------------------------------------
 # LANDMARKS

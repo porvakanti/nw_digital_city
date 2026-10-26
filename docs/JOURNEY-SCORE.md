@@ -198,8 +198,8 @@ behind them are also the ones holding blueprints.
 Two simpler choices both fail, and the failures are recorded because they will
 be asked about.
 
-**Count every category equally.** Correlation of **−0.42** with portfolio size
-across the 30 qualifying managers: it penalises whoever holds the most
+**Count every category equally.** Correlation of **−0.25** with portfolio size
+across the 28 qualifying managers: it penalises whoever holds the most
 categories.
 
 **Weight by spend directly.** One large category carries a group that has done
@@ -217,8 +217,8 @@ eleven of twelve at zero belongs.
 
 | | Equal | **Square root** | Raw spend |
 | --- | --- | --- | --- |
-| Correlation with portfolio size | −0.42 | **−0.37** | −0.31 |
-| Correlation with portfolio spend | +0.05 | **+0.15** | +0.20 |
+| Correlation with portfolio size | −0.25 | **−0.19** | −0.12 |
+| Correlation with portfolio spend | +0.02 | **+0.14** | +0.21 |
 
 Neither the size of a portfolio nor its spend decides the answer. That is the
 requirement.
@@ -325,20 +325,23 @@ eight districts have **zero** on usage, which is the finding.
 
 ### By manager
 
-30 of 38 qualify at a three-category minimum. Median 19, top 61.
+28 of 37 qualify at a three-category minimum. Median 15, top 50.
 
 | | Categories | Total | Blueprint | Usage | AI |
 | --- | --- | --- | --- | --- | --- |
-| 1st | 3 | 61 | 28 | 19 | 14 |
-| 2nd | 3 | 50 | 32 | 0 | 18 |
+| 1st | 3 | 50 | 32 | 0 | 18 |
+| 2nd | 4 | 36 | 36 | 0 | 0 |
 | 3rd | 4 | 36 | 36 | 0 | 0 |
-| 6th | 4 | 33 | 33 | 0 | 0 |
-| 9th | 15 | 23 | 22 | 0 | 2 |
-| 30th | 11 | 0 | 0 | 0 | 0 |
+| 6th | 3 | 29 | 29 | 0 | 0 |
+| 9th | 4 | 21 | 21 | 0 | 0 |
+| 28th | 11 | 0 | 0 | 0 | 0 |
 
 **Always show the three components, never just the total.** The leader is
-first because they are the only one with real usage, and that is visible in
-the split and invisible in the total.
+first on blueprint and AI together and has no usage at all, which the total
+hides and the split states. Five of the twenty-eight have any usage, and the
+best of them sits at 30, below the leader: a board that printed one number
+would rank writing a blueprint above anybody using it, and say nothing about
+having done so.
 
 Four surfaces carry a score, and all four carry the split: the arc across the
 top of the screen, the scoreboard, the agent's answers, and the title deed for
@@ -376,7 +379,7 @@ who to learn from. Not a slide.
 **Nobody picked their own categories.** Twelve inherited categories with no
 history is not a decision anyone made.
 
-**Seven of the 30 qualifying managers score zero** and would appear at zero on
+**Seven of the 28 qualifying managers score zero** and would appear at zero on
 any public board. One of them holds eleven categories.
 
 **It measures the record, not the effort.** A blueprint that took six months of
