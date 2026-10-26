@@ -80,20 +80,36 @@ const NAVIGATION = 90000;
  * city, which is the state the navigation checks are about. One of them read
  * "way in false, way out true" at the global view for exactly that reason.
  *
- * The flight is 1.2 seconds, so nothing before then can be the answer: it
- * waits that out first and settles after, and gives up rather than hanging.
+ * Where it is looking counts as well as how close it is. Watching the zoom
+ * alone accepted a flight that was still travelling: the zoom eases out, so
+ * near the end two readings a quarter second apart agree to the pixel while
+ * the camera still has seven units of ground to cross, and the check read
+ * IT&E as framed off its own centre.
+ *
+ * The flight is 1.2 seconds and the loop that carries it runs about once a
+ * second here, so two readings that agree before 2.4 seconds have most
+ * likely agreed because nothing moved between them rather than because the
+ * camera arrived. It waits that out first and settles after, and gives up
+ * rather than hanging.
  */
 async function cameraSettled(page, cap = 14000) {
+  const read = () => {
+    const s = window.NWCity.state();
+    return { size: s.size, x: s.target[0], z: s.target[1] };
+  };
   let last = null;
   for (let i = 0; i * 250 < cap; i++) {
     await page.waitForTimeout(250);
-    const now = await page.evaluate(() => window.NWCity.state().size);
-    if (last !== null && (i + 1) * 250 > 1200 && Math.abs(now - last) < 0.01) {
-      return now;
+    const now = await page.evaluate(read);
+    if (last !== null && (i + 1) * 250 > 2400
+        && Math.abs(now.size - last.size) < 0.01
+        && Math.abs(now.x - last.x) < 0.01
+        && Math.abs(now.z - last.z) < 0.01) {
+      return now.size;
     }
     last = now;
   }
-  return last;
+  return last && last.size;
 }
 
 /* Convex hull of a handful of points, and point-in-hull.
@@ -425,18 +441,19 @@ async function onAPhone(browser) {
    * category by spend, which said the same thing about a market with 23
    * blueprints and 3 in use as about one with 2 blueprints and 1.
    *
-   * The thin-base guard is the part worth pinning. Italy holds two
-   * blueprints, one of them the only category in Networks at 100, and rolls
-   * up above Germany's twenty-three. Quoting that as a rank would be a league
-   * table nobody could defend.
+   * The thin-base guard is the part worth pinning. VSOL holds two
+   * blueprints and rolls up to 55, above a Germany carrying forty-four at 47.
+   * Quoting that as a rank would be a league table nobody could defend. Italy
+   * used to be the example and has twelve blueprints now, which is what makes
+   * a thin market worth asserting rather than assuming.
    */
   const MARKET_ASKS = [
     ["which markets are doing best", /Furthest along of the \d+ markets/],
     ["which market is furthest behind", /Furthest behind of the \d+ markets/],
-    ["Germany", /Germany has adopted 23 blueprints and scores \d+ out of 100, \d+\w+ of the/],
-    ["Germany", /supplies two of the city's monuments/],
-    ["Italy", /too few to rank/],
-    ["UK", /supplies the city's Big Ben/],
+    ["Germany", /Germany has adopted 44 blueprints and scores \d+ out of 100, \d+\w+ of the/],
+    ["Germany", /supplies seven of the city's monuments/],
+    ["VSOL", /too few to rank/],
+    ["UK", /supplies four of the city's monuments/],
   ];
   for (const [question, shape] of MARKET_ASKS) {
     await page.fill("#askInput", question);
@@ -1534,10 +1551,22 @@ async function onAPhone(browser) {
     const config = window.NW_CONFIG.landmarks || {};
     const floor = config.min_score || 50;
     const earned = window.NW_CITY.categories.filter((c) => c.landmark);
+    // Every monument already standing somewhere, by name.
+    const standing = new Set(earned.map((c) => c.landmark.name));
     const shapes = new Set();
     for (const list of Object.values(config.by_market || {})) {
       for (const m of list) shapes.add(m.name);
     }
+    /* The monuments one market can draw from.
+     *
+     * Resolved through the alias map, the way the build resolves it: a
+     * shared-service centre has no landmarks of its own and reads the
+     * country that hosts it, so a check that looked the market name up
+     * directly would excuse a category the build placed.
+     */
+    const aliases = config.market_aliases || {};
+    const listFor = (market) =>
+      (config.by_market || {})[aliases[market] || market] || [];
     return {
       drawn: window.NWCity.monuments(),
       earned: earned.map((c) => c.code).sort(),
@@ -1549,22 +1578,42 @@ async function onAPhone(browser) {
                                 || !shapes.has(c.landmark.name))
         .map((c) => c.code),
       named: earned.map((c) => `${c.landmark.name} (${c.landmark.market})`),
-      /* Nobody over the threshold may be left without one.
+      /* Nobody over the threshold may be left without one for no reason.
        *
-       * Except where there is nothing to award from. A monument is drawn
-       * from a market that actually adopted the blueprint, so a category
-       * whose estate has not supplied its market list cannot have one and is
-       * not evidence of a fault. Those estates are named in the result so a
-       * run says which, rather than reading as a pass.
+       * There are two reasons, and both are the design rather than a fault.
+       * A monument is drawn from a market that actually adopted the
+       * blueprint, so a category whose markets supply no monument cannot
+       * have one: eighteen of the twenty-seven markets in the data carry a
+       * list, and the nine that do not are the group-wide entities, which
+       * name no country to draw a monument from. And a monument stands once
+       * on the whole sea, so a category can qualify, reach a market that
+       * does supply one, and still find every one of them already standing
+       * somewhere else.
+       *
+       * What is left after those two is a category that should have been
+       * given a monument and was not. The result names the ones that were
+       * excused and why, so a run says which rather than reading as a pass.
        */
       missed: window.NW_CITY.categories
         .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor
-                    && !c.landmark && (c.markets || []).length > 0)
+                    && !c.landmark)
+        .filter((c) => {
+          const reachable = (c.markets || []).flatMap(listFor);
+          // Nothing to award from at all.
+          if (!reachable.length) return false;
+          // Or everything it could reach is already standing elsewhere.
+          return !reachable.every((m) => standing.has(m.name));
+        })
         .map((c) => c.code),
-      unreachable: [...new Set(window.NW_CITY.categories
+      noMarket: window.NW_CITY.categories
         .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor
                     && !c.landmark && !(c.markets || []).length)
-        .map((c) => c.estate))],
+        .map((c) => c.code),
+      noLandmarkInMarket: window.NW_CITY.categories
+        .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor
+                    && !c.landmark && (c.markets || []).length
+                    && !(c.markets || []).some((m) => listFor(m).length))
+        .map((c) => c.code),
     };
   });
 
@@ -1572,8 +1621,11 @@ async function onAPhone(browser) {
     monuments.missed.length === 0,
     monuments.missed.length ? `no monument for ${monuments.missed.join(", ")}`
       : `all ${monuments.earned.length} at ${monuments.floor}+ are covered`
-        + (monuments.unreachable.length
-          ? `; none available on ${monuments.unreachable.join(", ")}, which have no market list yet`
+        + (monuments.noMarket.length
+          ? `; ${monuments.noMarket.length} with no market list`
+          : "")
+        + (monuments.noLandmarkInMarket.length
+          ? `; ${monuments.noLandmarkInMarket.length} whose markets supply no landmark`
           : ""));
   check("every landmark in the data is standing in the city",
     monuments.drawn.join(",") === monuments.earned.join(","),
@@ -1583,9 +1635,9 @@ async function onAPhone(browser) {
    * A monument says which market carried a blueprint furthest. The same one
    * on two islands says that twice about two different categories, which is
    * not a thing the data can mean, and a viewer who recognises the shape has
-   * no way to tell which of the two they are looking at. Only Networks has
-   * supplied a market list so far, so nothing can collide today; it could
-   * the day the other three arrive, which is the point of asserting it now.
+   * no way to tell which of the two they are looking at. All four islands
+   * carry market data now and Germany is named on every one of them, so this
+   * is the check that holds the claim up.
    */
   const standing = monuments.named.map((n) => n.replace(/ \(.*$/, ""));
   const repeated = standing.filter((n, i) => standing.indexOf(n) !== i);

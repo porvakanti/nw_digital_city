@@ -153,7 +153,7 @@ if you are opening this for the first time.
 22. Five of the eight have **nothing** on the usage bar. That is the finding.
 23. **Categories.** 145 rows. A251 at the top on 100, the only category in
     Networks that has done the whole journey. A213 85, D506 75, D408 60.
-24. **People.** 30 rows out of 38 people. The eight below three categories are
+24. **People.** 28 rows out of 37 people. The nine below three categories are
     withheld on purpose: one category and one blueprint is a coin toss, not a
     track record.
 25. Every row shows three bars and names all three components against the
@@ -168,24 +168,53 @@ anything about it feels wrong to show, that is the finding worth reporting.
 
 ### F. The landmarks
 
-27. 8 monuments, one per category scoring 50 or more on the journey. The
-    monument marks progress; the shape says which market it travelled to:
+27. 24 monuments across the sea, one per category scoring 50 or more on
+    the journey. The monument marks progress; the shape says which market it
+    travelled to:
 
-| Code | Category | Monument | From |
-| --- | --- | --- | --- |
-| A251 | Network Professional Services | Big Ben | UK, score 100 |
-| A213 | Global Testing | Brandenburg Gate | Germany, score 85 |
-| D506 | Construction Services/Civil Works | The Pyramids | Egypt, score 75 |
-| A212 | Operations Support System (OSS) Services | Berlin TV Tower | Germany, score 65 |
-| D408 | Self-Build Fibre & installation services | The Parthenon | Greece, score 60 |
-| D513 | Power Supply | Hagia Sophia | Turkey, score 55 |
-| D333 | TV Software | Rozafa Castle | Albania, score 55 |
-| A314 | Access Transmission Services | Palace of the Parliament | Romania, score 50 |
+| Code | Category | Monument | Island | From |
+| --- | --- | --- | --- | --- |
+| A251 | Network Professional Services | Big Ben | Network | UK, score 100 |
+| B231 | Analytics and Intelligence Professional Services - Application Development (CAPEX) | Tower Bridge | IT&E | UK, score 100 |
+| A213 | Global Testing | Brandenburg Gate | Network | Germany, score 85 |
+| B209 | IT Security Services & Requirement Specifications, Design, Build, Deploy | Stonehenge | IT&E | UK, score 75 |
+| D506 | Construction Services/Civil Works | The Pyramids | Network | Egypt, score 75 |
+| J201 | User Experience Solutions | The Great Sphinx | Commercial & Services | Egypt, score 75 |
+| A212 | Operations Support System (OSS) Services | Berlin TV Tower | Network | Germany, score 65 |
+| B227 | Corporate Systems Services - Requirement Specifications, Design, Build, Deploy (CAPEX) | Tower of London | IT&E | UK, score 65 |
+| B301 | Construction Works (Offices, Call Centers and Other Properties exc. Retail and RBS) | Blarney Castle | Corporate Services and Property | Ireland, score 60 |
+| B408 | Manguarding and Security Electronic Services | The Reichstag | Corporate Services and Property | Germany, score 60 |
+| B411 | Health & Safety and PPEs | Belem Tower | Corporate Services and Property | Portugal, score 60 |
+| B901 | Fleet Services incl. Lease | The Victory Column | Corporate Services and Property | Germany, score 60 |
+| D408 | Self-Build Fibre & installation services | The Parthenon | Network | Greece, score 60 |
+| H201 | Datacentre Hardware & Servers | Galata Tower | IT&E | Turkey, score 60 |
+| B105 | Strategic Consultancy | The Hohenzollern Bridge | Corporate Services and Property | Germany, score 55 |
+| B111 | Corporate Systems Services - Demand, Design, Run, Operate and Maintain (OPEX) | The White Tower of Thessaloniki | IT&E | Greece, score 55 |
+| B232 | Analytics and Intelligence Professional Services - Pre/Post Application Development (OPEX) | The Lion Gate of Mycenae | IT&E | Greece, score 55 |
+| B423 | Customer Care & Technical Support | Neuschwanstein Castle | Commercial & Services | Germany, score 55 |
+| B607 | Permanent Recruitment | Bran Castle | Corporate Services and Property | VOIS Romania, score 55 |
+| D333 | TV Software | Rozafa Castle | Network | Albania, score 55 |
+| D513 | Power Supply | Hagia Sophia | Network | Turkey, score 55 |
+| K202 | Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) - Software Support/Maintenance, and SaaS (OPEX) | Cologne Cathedral | IT&E | Germany, score 55 |
+| A314 | Access Transmission Services | Palace of the Parliament | Network | Romania, score 50 |
+| B228 | Corporate Systems - Software Support/Maintenance, and SaaS (OPEX) | The Windmills of Mykonos | IT&E | Greece, score 50 |
+
+    No monument stands twice. Every market carries at least four of them, so a
+    market that is the furthest reach of a category on each of the four
+    islands can still give each one a monument of its own; Germany carries
+    eight, because fourteen qualifying categories name it and seven of them
+    reach it before any other market they named. Past that a category falls
+    through to another market on the same blueprint.
+
+    One category clears the threshold and gets nothing. J403 is live in VGE
+    alone, which is a group-wide entity rather than a country, so there is no
+    country's landmark to draw from. That is the design: a monument says where
+    a blueprint travelled, and an entity is not a somewhere.
 
 28. Each stands **in place of** its building, on the ground, on a low stone
     terrace. The lot underneath is widened to the ground the shape needs, so a
     monument lot is visibly larger than its neighbours as well as taller:
-    every monument clears every plain tower. All eight are drawn to one
+    every monument clears every plain tower. All of them are drawn to one
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
 29. Each monument comes from a market that actually adopted that blueprint.

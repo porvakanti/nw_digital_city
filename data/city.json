@@ -1,7 +1,7 @@
 {
   "meta": {
-    "generated_at": "2026-10-25T22:13:59+00:00",
-    "source": "Digital_City_Data_request.xlsx",
+    "generated_at": "2026-10-26T12:53:16+00:00",
+    "source": "Digital_City_Data_TH.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network, IT&E, Commercial & Services, Corporate Services and Property (Level 1)",
     "anonymised": true,
@@ -14,6 +14,7 @@
       "Germany",
       "Greece",
       "Hungary",
+      "IoT",
       "Ireland",
       "Italy",
       "Mozambique",
@@ -26,7 +27,12 @@
       "UK",
       "VGE",
       "VGS",
+      "VOIS",
+      "VOIS Budapest",
+      "VOIS Malaga",
+      "VOIS Romania",
       "VPC",
+      "VSOL",
       "Vodacom Congo",
       "Vodacom Lesotho"
     ],
@@ -35,7 +41,7 @@
       "districts": 16,
       "plots": 79,
       "categories": 388,
-      "markets": 21
+      "markets": 27
     }
   },
   "totals": {
@@ -1962,9 +1968,7 @@
       "markets": [
         "Germany"
       ],
-      "owners": [
-        "Mohamed Bachar"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -2691,11 +2695,7 @@
       "definition": "Professional Services required to design, engineering, integrate, implement and execute activities testing and verifications activities in a lab or lib-like environment specifically excluding commercial services.   Includes provision of testing strategy, test list design and execution, HLD, LDD of node or node functions or tools integration or adaptation in lab/non-production enviironment to execute any verification activities",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Parikshit Kapila",
-        "Daniel Barta",
-        "Chirag Kapoor"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -2769,11 +2769,7 @@
       "definition": "EWL Support & Maintenance",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Parikshit Kapila",
-        "Daniel Barta",
-        "Chirag Kapoor"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -2810,9 +2806,7 @@
       "markets": [
         "Turkey"
       ],
-      "owners": [
-        "Graeme Brownlie"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -3129,9 +3123,7 @@
       "definition": "Operation and maintenance of Power Network Infrastructure Equipments",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Graeme Brownlie"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -3207,9 +3199,7 @@
       "definition": "RENEWABLE ENERGY CERTIFICATES to comply with Sustainability requirements",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Annie Sherbul"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -3244,9 +3234,7 @@
       "definition": "OTHER ENERGY SUPPLY to cover e.g. demand for landlord energy, fuel, gas etc",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Andreas Bauer"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -3736,9 +3724,7 @@
       "definition": "Fixed  Access Network - Support and maintenance",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Ashik Shetty"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -5070,9 +5056,7 @@
       "definition": "Support and Maintenance related to M-Pesa",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Jefferson Omari"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -5220,9 +5204,7 @@
       "definition": "All the CORE Network Support and Maintenance for Mobile Private Network customers",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "David Allard De Grandmaison"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -5405,9 +5387,7 @@
       "definition": "Support and Maintenance : Network specific DNS, Securenet, One Net, NGIN (excluding Charging), VONE&C, VPN, Traffic Management Function, (TMF), Multi Service Proxy (MSP), Roaming, ID Monitoring, Call Protect, Over the Air Platfrom (OTA) - Excluding ( CPE SW or PC & Mobile Client Apps)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Marina Braojosmolina"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -5568,9 +5548,7 @@
       "markets": [
         "Albania"
       ],
-      "owners": [
-        "Maria Rocio Ortega Gago"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -6572,9 +6550,7 @@
       "definition": "The scope of this material category is the support and maintenance of Transmission Microwave equipment. It includes:\n• Emergency Support\n• Fault Management (Fault report handling, general product improvements, updates, implementation of correction packages etc.)\n• Helpdesk",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [
-        "Iryna Samokhina"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -6697,9 +6673,7 @@
         "Albania",
         "Ireland"
       ],
-      "owners": [
-        "Desire Velascodrexler"
-      ],
+      "owners": [],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -6961,10 +6935,12 @@
       "name": "Datacentre Services & Servers, Other Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Implementation & Commissioning services related to Server infrastructure",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gyula Vincze"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -6996,10 +6972,12 @@
       "name": "Datacentre Services & Storage Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "All storage related infrastructure services (install, maintain and change configure, deploy)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Makarand Chaudhari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7031,10 +7009,12 @@
       "name": "Datacentre – IT infrastructure services",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Infrastructure build, operations, maintenance, support, management, relocation and disaster recovery services.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gyula Vincze"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7066,10 +7046,13 @@
       "name": "Datacentre Services & Platform and Infrastructure as a Service (PaaS)",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Cloud services( IaaS and Paas) - Example AWS, Google GCP, Microsoft Azure, Oracle DRCC or OCI",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gyula Vincze",
+        "Makarand Chaudhari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7101,10 +7084,12 @@
       "name": "Datacentre Hardware & Storage",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Storage Hardware",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Makarand Chaudhari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7136,10 +7121,14 @@
       "name": "Datacentre Hardware & Converged Infrastructure, Network Equipment etc.",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Converged infrastructure, IT equipment, products to include structured cabling and rack systems.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Mozambique"
+      ],
+      "owners": [
+        "Gyula Vincze"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -7153,7 +7142,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -7171,10 +7160,14 @@
       "name": "Datacentre Hardware & Servers",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "All Servers with Standard Warranty",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Turkey"
+      ],
+      "owners": [
+        "Gyula Vincze"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 20,
@@ -7188,7 +7181,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -7198,6 +7191,12 @@
         "ai_rfps": 1,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Galata Tower",
+        "shape": "roundtower",
+        "market": "Turkey",
+        "because": "scores 60 out of 100, and Turkey has adopted this blueprint"
       }
     },
     {
@@ -7206,10 +7205,12 @@
       "name": "Datacentre Software & Storage",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "All Storage software to include Backup, Virtualisation, De-duplication and Management Software",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Makarand Chaudhari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7241,10 +7242,12 @@
       "name": "Datacentre Software & Facility Management (e.g. DCIM etc.)",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Datacentre Supply and Services",
-      "definition": null,
+      "definition": "Data Center monitoring and management software, automation tools, etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gyula Vincze"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7276,10 +7279,14 @@
       "name": "Office IT Hardware & Laptops, Desktops, Video Conferencing, Printers, LAN Equipment's, Switches Etc.",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Office IT Supply and Services",
-      "definition": null,
+      "definition": "IT infrastructure, Personal Computers (Laptops, Desktops, Monitors), Printers, and related Hardware",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VOIS"
+      ],
+      "owners": [
+        "Andrea Villasanti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -7293,7 +7300,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -7311,10 +7318,12 @@
       "name": "Office IT Software & Operating Systems, Office and Other",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Office IT Supply and Services",
-      "definition": null,
+      "definition": "All Hardware (Personal Computers) related Software such as Operating System, Office Suites, etc. NOT being specific Application Software",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Andrea Villasanti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7346,10 +7355,12 @@
       "name": "Office IT Services & Infrastructure Services (e.g. Install, Maintain, Change, Add, Deploy, Resident Engineer Services, Dispatch Support Services Etc.)",
       "district": "Datacentre Solutions, Infrastructure, Office IT",
       "plot": "Office IT Supply and Services",
-      "definition": null,
+      "definition": "Office IT services & HW Support and Maintenance Services, Deployment, Installation, Customer Services Desk",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Andrea Villasanti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7381,10 +7392,14 @@
       "name": "Enterprise Services & Requirement Specifications, Design, Build, Deploy",
       "district": "Enterprise Products & Services",
       "plot": "Business Management (Internal IT)",
-      "definition": null,
+      "definition": "Internal IT Enterprise application implementation project activities: Requirements Specification, Design, Build, Deploy (CAPEX). This excludes any standard software licenses.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Ann Dhondt"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -7398,7 +7413,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -7416,10 +7431,12 @@
       "name": "Enterprise Services & Demand, Run, Operate and Maintain (BAU)",
       "district": "Enterprise Products & Services",
       "plot": "Business Management (Internal IT)",
-      "definition": null,
+      "definition": "Internal IT Enterprise related application maintenance services: run, maintain, operate (BAU) (including Demand and other IT PS activities outside projects) (opex). This does not include standard software support and maintenance services.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Eva Antwi"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7451,10 +7468,12 @@
       "name": "CoS-Enterprise Infrastructure Services - Servers, Other Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Server Hardware Services covering Install, Maintain, Add, Change, Deployment services for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7486,10 +7505,12 @@
       "name": "CoS Enterprise Infrastructure Services - Storage Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All storage related infrastructure services related to Enterprise Business (install, maintain and change configure, deploy) CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7521,10 +7542,12 @@
       "name": "CoS Enterprise Infrastructure – IT infrastructure Professional Services",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Professional Services covering Infrastructure operations and infrastructure management for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7556,10 +7579,12 @@
       "name": "CoS Enterprise Cloud Services - Infrastructure as a Service (IaaS), Platform as a Service (PaaS)",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Computing, Infrastructure and Storage Capabilities As a Service (e.g. Amazon.com, Google, Azure) for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marta Mancini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7591,10 +7616,12 @@
       "name": "CoS Enterprise Infrastructure Hardware - Storage",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Storage Hardware (All Flash Array, backup, archeival, NAS) for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7626,10 +7653,12 @@
       "name": "CoS Enterprise Infrastructure Hardware - Converged Infrastructure, Switches etc.",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Other Data center IT hardware like Converged infrastructure, switches, structured cabling and rack systems for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7661,10 +7690,12 @@
       "name": "CoS Enterprise Infrastructure Hardware - Servers",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Servers (x86, RISC, Engineered System, Mainframe) for Enterprise Business CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7696,10 +7727,12 @@
       "name": "CoS-Enterprise Infrastructure Software - Server",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Server software for Enterprise Business to include Operating System(RedHat, Windows etc) and Management Software CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7731,10 +7764,12 @@
       "name": "CoS-Enterprise Infrastructure Software - Storage",
       "district": "Enterprise Products & Services",
       "plot": "CoS Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Storage software for Enterprise Business to include Backup, De-duplication and Management Software CoS",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7766,10 +7801,12 @@
       "name": "Enterprise Digital Solution for Enterprise Customers",
       "district": "Enterprise Products & Services",
       "plot": "Digital Applications",
-      "definition": null,
+      "definition": "Cloud applications / SaaS for Collaboration & Productivity (Microsoft, Google, Skykick, etc.)  , Sales & Marketing (Wix, Hostopia) . Managed SaaS (Atlas)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Maria Archontaki"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7801,10 +7838,12 @@
       "name": "WIFI Operation Services",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Customer Solutions",
-      "definition": null,
+      "definition": "WIFI solution set up and operation running",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7836,10 +7875,12 @@
       "name": "WIFI Customised Solutions",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Customer Solutions",
-      "definition": null,
+      "definition": "WIFI customised HW and platforms",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -7871,7 +7912,7 @@
       "name": "Enterprise Cybersecurity - Secured Connectivity Hardware",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Cyber Security",
-      "definition": null,
+      "definition": "Secured Connectivity Hardware such as Firewalls",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -7906,7 +7947,7 @@
       "name": "Enterprise Cybersecurity - (Managed) Services",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Cyber Security",
-      "definition": null,
+      "definition": "Managed Security Services (E.g. Accenture /Mobius) , SIEM, SOC, MDR services",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -7941,7 +7982,7 @@
       "name": "Enterprise Cybersecurity - Secured Connectivity Software",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Cyber Security",
-      "definition": null,
+      "definition": "Secured Connectivity solution such as  Zscaler, Firewall software from the like of PaloAlto, Fortinet, Checkpoint, Cisco. etc. Code not to be used for the procurement of Security Hardware such as Firewalls (use code xxx)",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -7976,10 +8017,12 @@
       "name": "Enterprise Cyber Security- Software as a Service",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Cyber Security",
-      "definition": null,
+      "definition": "Cyber Security as a Service (CaaS)  solution sold  for example via Marketplace and Cyber hub in particular for SME (but not limited to) . E.g. TrendMicro, Security Scorecard, Lookout, Cyber safe, Cyber Smart, MSFT defender, etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Mahmut Oguzcan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8011,10 +8054,12 @@
       "name": "Enterprise Cybersecurity - End Point Management/Secured Employee",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Cyber Security",
-      "definition": null,
+      "definition": "Mobile Security /  End Point Management. E.g. Mobile iron/Ivanti, Omnissa (ex VMWare) , BlackBerry, Samsung Knox.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Mahmut Oguzcan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8046,10 +8091,14 @@
       "name": "Prof. Services for Enterprise (Excl. Internal IT & customer facing services)",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Digital & Security",
-      "definition": null,
+      "definition": "Professional services build for the customer (e.g. some suppliers might incude Altran, Prodapt, TCS, SLR Consultants, etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGE"
+      ],
+      "owners": [
+        "Ann Dhondt"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -8063,7 +8112,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -8081,10 +8130,12 @@
       "name": "Enterprise Infrastructure Services - Servers, Other Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Server Hardware Services covering Install, Maintain, Add, Change, Deployment services for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8116,10 +8167,12 @@
       "name": "Enterprise Infrastructure Services - Storage Infrastructure (Install, Maintain, Add, Change, Deploy)",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All storage related infrastructure services related to Enterprise Business (install, maintain and change configure, deploy)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8151,10 +8204,12 @@
       "name": "Enterprise Infrastructure Professional Services",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Professional Services covering Infrastructure operations and infrastructure management for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8186,10 +8241,12 @@
       "name": "Enterprise Cloud Services - Infrastructure as a Service (IaaS), Platform as a Service (PaaS)",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Computing, Infrastructure and Storage Capabilities As a Service (e.g. Amazon.com, Google, Azure) for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marta Mancini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8221,10 +8278,12 @@
       "name": "Enterprise Infrastructure Hardware - Storage",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Storage Hardware (All Flash Array, backup, archeival, NAS) for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8256,10 +8315,12 @@
       "name": "Enterprise Infrastructure Hardware - Converged Infrastructure, Switches etc.",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "Other Data center IT hardware like Converged infrastructure, switches, structured cabling and rack systems for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8291,10 +8352,12 @@
       "name": "Enterprise Infrastructure Hardware - Servers",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Servers (x86, RISC, Engineered System, Mainframe) for Enterprise Business",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8326,10 +8389,12 @@
       "name": "Enterprise Infrastructure Software - Server",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Server software for Enterprise Business to include Operating System(RedHat, Windows etc) and Management Software",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8361,10 +8426,12 @@
       "name": "Enterprise Infrastructure Software - Storage",
       "district": "Enterprise Products & Services",
       "plot": "Enterprise Infrastructure and Cloud",
-      "definition": null,
+      "definition": "All Storage software for Enterprise Business to include Backup, De-duplication and Management Software",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8396,10 +8463,14 @@
       "name": "Enterprise Fixed Connectivity- Customer facing services",
       "district": "Enterprise Products & Services",
       "plot": "Fixed Connectivity",
-      "definition": null,
+      "definition": "Fixed Connectivity related  customer facing  services activities (site surveys, field services, installation & commissioning, care support, etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "UK"
+      ],
+      "owners": [
+        "Juanito Haffner"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -8413,7 +8484,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -8431,7 +8502,7 @@
       "name": "Enterprise Fixed Connectivity  - Software /SaaS",
       "district": "Enterprise Products & Services",
       "plot": "Fixed Connectivity",
-      "definition": null,
+      "definition": "Software used in connection with  Enterprise Fixed connectivity ((E.g. IPVPN, WAN, SD-WAN, SASE, LAN,). Can be software rolled out on Enterprise CPE or also linked to the central platform (E.g. Hosting, orchestrator, controller, etc.)",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8466,10 +8537,12 @@
       "name": "Enterprise Fixed Connectivity Equipment (CPE, Gateways, etc.)",
       "district": "Enterprise Products & Services",
       "plot": "Fixed Connectivity",
-      "definition": null,
+      "definition": "Customer Premises Equipment (CPE) and other Equipment (E.g. physical Gateways, pltaform)  for Enterprise Fixed Connectivity  (E.g. IPVPN, WAN, SD-WAN, LAN, Ethernet) . Not to be used for Unified Communication devices (E.g. IP Phones, Headphones, Video devices, SBCs)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Juanito Haffner"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8501,10 +8574,12 @@
       "name": "Hardware and Documentations",
       "district": "Enterprise Products & Services",
       "plot": "Innovative Hardware Solution",
-      "definition": null,
+      "definition": "Hardware products from small innovative start-up companies for fast track process only",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tracy Brockman"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8536,10 +8611,15 @@
       "name": "IoT Platforms, SI & Enablers - Software and Services",
       "district": "Enterprise Products & Services",
       "plot": "Internet of Things (IoT) Solutions",
-      "definition": null,
+      "definition": "IoT Platforms, SI & Enablers - Software and Services (Supplier such as PTC, AVSystem, IoT.NXT [only for software & services], Celfocus, CGI, CapGemini, Wipro, Cycloid, TCS, Innowave, TechM, Deloitte)",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "IoT",
+        "VGS"
+      ],
+      "owners": [
+        "Esther Perez Ramirez"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -8553,7 +8633,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 0,
         "cbp_draft": 2,
         "cbp_total": 2,
@@ -8571,10 +8651,12 @@
       "name": "IoT Goods & Associated Services",
       "district": "Enterprise Products & Services",
       "plot": "Internet of Things (IoT) Solutions",
-      "definition": null,
+      "definition": "Scope includes IoT Hardware acquisition and re-selling, ancillary Installation and Integration Services, Maintenance and Support Services, Logistics Services, Field Services, 3rd party software acquisition and re-selling.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marta Mancini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8606,10 +8688,12 @@
       "name": "IoT E2E Solutions - Software, PaaS, AaaS and Services",
       "district": "Enterprise Products & Services",
       "plot": "Internet of Things (IoT) Solutions",
-      "definition": null,
+      "definition": "IOT End to End solutions which includes Software , PaaS, AaaS, Services should be related to IOT",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marta Mancini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -8641,7 +8725,7 @@
       "name": "Messaging /RCS/CPaaS",
       "district": "Enterprise Products & Services",
       "plot": "Mobility",
-      "definition": null,
+      "definition": "Messaging solution for Carrier Business (Vodafone Messaging Hub) and Enterprise customers (E.g. Infobip, IMI Mobile, Sinch, etc.) ; CPaaS (Twilio), etc.",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8676,7 +8760,7 @@
       "name": "Device (E.g. Laptop) as a Service",
       "district": "Enterprise Products & Services",
       "plot": "Mobility",
-      "definition": null,
+      "definition": "procurement of Device as a Service solution for Enterprise Customers. \nNot to be used for Device Life Cycle Management (DLM Mobile) managed under the Group Commercial Devices team",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8711,7 +8795,7 @@
       "name": "Enterprise Laptop/Desktops equipment",
       "district": "Enterprise Products & Services",
       "plot": "Mobility",
-      "definition": null,
+      "definition": "Enterprise solutions not covered under codes created for Fixed Connectivity, Cyber Security, Unified Comms, Digital Applications, Mobility,  IT Infrastructure & Cloud and IoT Services",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8746,10 +8830,14 @@
       "name": "Other Enterprise Products & Services",
       "district": "Enterprise Products & Services",
       "plot": "Other Enterprise Products & Servcies",
-      "definition": null,
+      "definition": "Enterprise solutions not covered under codes created for Fixed Connectivity, Cyber Security, Unified Comms, Digital Applications, Mobility,  IT Infrastructure & Cloud and IoT Services",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Italy"
+      ],
+      "owners": [
+        "Konstantinos Choutas"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -8763,7 +8851,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -8781,7 +8869,7 @@
       "name": "Sales & Commercial Support Services",
       "district": "Enterprise Products & Services",
       "plot": "Sales & Commercial Support Services",
-      "definition": null,
+      "definition": "•\tDigital Sales providing a complete end to end go-to-market sales coverage model to target the accounts, territories and segments\n•\tCommercial Services encompassing a range of activities designed to support and enhance the commercial operations, including qualification support, through enhanced tailored commercial management, to Bid, Pricing, Governance and Post-Sales commercial activities.\n•\tSales Operations and Support covering the strategic and operational management of sales processes, support for the sales team in daily operations, and implementation of best practices to ensure efficient sales cycles, Request to Order cycle and customer relationship management.\n•\tBusiness Products and Services support, covering end-to-end or parts of product lifecycle management, from launch to in-life to end-of-life activities.\n•\tService Delivery support specifically focused on customer journey post-sales transition phase guiding and supporting Vodafone Business customers from order placement to service activation. \n•\tSolution Architecture and Technical Consultancy offering expert technical consultancy and solutions architecture, designing and implementing standard & bespoke technical solutions.\n•\tCustomer Service Desk providing a central point of contact for all IT-related issues and requests, offering timely support, incident management, and user assistance.\n•\tCustomer Service Operations manage and maintain day-to-day IT services, ensuring operational continuity, performance optimization, and alignment with SLAs.\n•\tTechnical Delivery encompassing 24/7 technical support for incidents, change implementation, problem resolution and service request fulfilment for managed customers.\n•\tBusiness Readiness support prepares organizations for change, ensuring systems, processes, and people are aligned and ready for new service implementations and transitions.",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8816,7 +8904,7 @@
       "name": "Unified Communications Equipment",
       "district": "Enterprise Products & Services",
       "plot": "Unified Communications",
-      "definition": null,
+      "definition": "Unified Communication devices (E.g. IP Phones, Headphones, Video devices, Voice CPE Routers) , Unified Comms physical infrastructure  (E.g. SBC from Audio codes, etc.)",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8851,7 +8939,7 @@
       "name": "Unified Communications Software/SaaS",
       "district": "Enterprise Products & Services",
       "plot": "Unified Communications",
-      "definition": null,
+      "definition": "Software used in connection with  Enterprise Unified Communication (E.g. VB UC/Ring Central, VONE-M, VONE-C, Operator Connect/Commsgroup, Contact Center, Network Mobile Recording  )",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8886,7 +8974,7 @@
       "name": "Unified Communications Customer facing services",
       "district": "Enterprise Products & Services",
       "plot": "Unified Communications",
-      "definition": null,
+      "definition": "Unified Communication  related  customer facing  services activities (site surveys, field services, installation & commissioning, care support, etc.)",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -8921,10 +9009,23 @@
       "name": "Analytics and Intelligence Professional Services - Application Development (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Analytics and Intelligence",
-      "definition": null,
+      "definition": "Analytics and Intelligence application domain Professional services: Design, Build, Deploy Professional Services (CAPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Portugal",
+        "Romania",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 35,
@@ -8938,7 +9039,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 10,
         "cbp_active": 5,
         "cbp_draft": 5,
         "cbp_total": 10,
@@ -8948,6 +9049,12 @@
         "ai_rfps": 3,
         "cbp_used": 2,
         "journey_score": 100
+      },
+      "landmark": {
+        "name": "Tower Bridge",
+        "shape": "bridge",
+        "market": "UK",
+        "because": "scores 100 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -8956,10 +9063,22 @@
       "name": "Analytics and Intelligence Professional Services - Pre/Post Application Development (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Analytics and Intelligence",
-      "definition": null,
+      "definition": "Analytics and Intelligence application domain Professional services: demand (e.g. PMO, Analysis), design , run, maintain, operate (BAU) (OPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Portugal",
+        "Romania",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -8973,7 +9092,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 9,
         "cbp_active": 7,
         "cbp_draft": 3,
         "cbp_total": 10,
@@ -8983,6 +9102,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The Lion Gate of Mycenae",
+        "shape": "gate",
+        "market": "Greece",
+        "because": "scores 55 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -8991,10 +9116,12 @@
       "name": "Analytics and Intelligence Hardware",
       "district": "IT Applications & Related Services",
       "plot": "Analytics and Intelligence",
-      "definition": null,
+      "definition": "Analytics and Intelligence Hardware",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9026,10 +9153,12 @@
       "name": "Analytics and Intelligence Software - Licenses (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Analytics and Intelligence",
-      "definition": null,
+      "definition": "Analytics and Intelligence Software - Licenses (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9061,10 +9190,12 @@
       "name": "Analytics and Intelligence Software - Software Support/Maintenance, and SaaS (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Analytics and Intelligence",
-      "definition": null,
+      "definition": "Analytics and Intelligence Software Support/Maintenance, and SaaS (OPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9096,10 +9227,23 @@
       "name": "Corporate Systems Services - Demand, Design, Run, Operate and Maintain (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Corporate Systems (i.e. ERP) domain related application Professional services: demand (e.g. PMO, Analysis), design , run, maintain, operate (BAU) (OPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Portugal",
+        "Romania",
+        "Spain",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9113,7 +9257,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 10,
         "cbp_active": 7,
         "cbp_draft": 3,
         "cbp_total": 10,
@@ -9123,6 +9267,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The White Tower of Thessaloniki",
+        "shape": "roundtower",
+        "market": "Greece",
+        "because": "scores 55 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -9131,10 +9281,12 @@
       "name": "Business Support Systems & Software Maintenance, Support incl. SaaS",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Software for Revenue Assurance, Fraud management, Project Portfolio Management, Collaboration tools",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9166,10 +9318,23 @@
       "name": "Corporate Systems Services - Requirement Specifications, Design, Build, Deploy (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Corporate Systems (i.e. ERP) domain related Design, Build, Deploy Professional Services (CAPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Portugal",
+        "Romania",
+        "Turkey",
+        "UK",
+        "VGS",
+        "VPC"
+      ],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9183,7 +9348,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 10,
         "cbp_active": 6,
         "cbp_draft": 5,
         "cbp_total": 11,
@@ -9193,6 +9358,12 @@
         "ai_rfps": 3,
         "cbp_used": 0,
         "journey_score": 65
+      },
+      "landmark": {
+        "name": "Tower of London",
+        "shape": "fortress",
+        "market": "UK",
+        "because": "scores 65 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -9201,10 +9372,14 @@
       "name": "Corporate Systems - Software Support/Maintenance, and SaaS (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Corporate Systems (i.e.Enterprise Resource Planning -ERP-) Standard Software Maintenance and SaaS. Includes software for Finance, HR and Supply Chain functions (Opex).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Greece"
+      ],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -9218,7 +9393,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -9228,6 +9403,12 @@
         "ai_rfps": 3,
         "cbp_used": 0,
         "journey_score": 50
+      },
+      "landmark": {
+        "name": "The Windmills of Mykonos",
+        "shape": "windmill",
+        "market": "Greece",
+        "because": "scores 50 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -9236,10 +9417,12 @@
       "name": "Corporate Systems application software. Includes applications designed for Finance, HR and Supply Chain functions (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Corporate Systems (i.e. ERP) domain application software. Includes applications designed for Finance, HR and Supply Chain functions (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9271,10 +9454,12 @@
       "name": "Business Support Systems & Licenses",
       "district": "IT Applications & Related Services",
       "plot": "Corporate Systems",
-      "definition": null,
+      "definition": "Software and support services (including SaaS) for Revenue Assurance, Fraud management, Project Portfolio Management, Collaboration tools",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Attila Kurucz"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9306,10 +9491,19 @@
       "name": "IT Security Services & Demand, Run, Operate and Maintain (BAU)",
       "district": "IT Applications & Related Services",
       "plot": "Cyber-Security",
-      "definition": null,
+      "definition": "IT Security related application maintenance services: run, maintain, operate (BAU) (including Demand and other IT PS activities outside projects) (OPEX). This does not include standard software support and maintenance services.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany",
+        "Romania",
+        "South Africa",
+        "Spain",
+        "UK"
+      ],
+      "owners": [
+        "Panagiotis Antonatos",
+        "Vinayak Khanna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9323,7 +9517,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 5,
         "cbp_active": 5,
         "cbp_draft": 0,
         "cbp_total": 5,
@@ -9341,10 +9535,18 @@
       "name": "IT Security Services & Requirement Specifications, Design, Build, Deploy",
       "district": "IT Applications & Related Services",
       "plot": "Cyber-Security",
-      "definition": null,
+      "definition": "IT Security application and infrastructure implementation project activities: Requirements Specification, Design, Build, Deploy (CAPEX).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany",
+        "Spain",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Panagiotis Antonatos",
+        "Vinayak Khanna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -9358,7 +9560,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 4,
         "cbp_active": 4,
         "cbp_draft": 0,
         "cbp_total": 4,
@@ -9368,6 +9570,12 @@
         "ai_rfps": 1,
         "cbp_used": 1,
         "journey_score": 75
+      },
+      "landmark": {
+        "name": "Stonehenge",
+        "shape": "stonecircle",
+        "market": "UK",
+        "because": "scores 75 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -9376,10 +9584,13 @@
       "name": "IT Security Hardware/Appliances",
       "district": "IT Applications & Related Services",
       "plot": "Cyber-Security",
-      "definition": null,
+      "definition": "This domain deals with Hardware for Cyber-security technology and products; \nFirewalls used in Networks (Fortinet/Juniper), GRX/GTP FW and GI FW, Perimeter FWs please use D423\nFor Cyber-Security HW Support & Maintenance please use K408\nwhich are typically designed to protect networks, IT system / server assets from unauthorised access (e.g. firewalls, remote access gateways, etc.)\n& allows monitoring of network and IT device configuration (e.g. hardening tools, monitoring tools, config integrity tools, etc.)\n& to analyse network traffic on various layers for anomalies while data in transit (e.g. IDS/IPS/DPI)\n& to manipulate traffic flows in order to ensure performance and service availability (e.g. scrubbing)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Panagiotis Antonatos",
+        "Vinayak Khanna"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9411,10 +9622,17 @@
       "name": "IT Security Systems & Software Licenses (OPEX), Hardware and Software Maintenance, Support incl. SaaS",
       "district": "IT Applications & Related Services",
       "plot": "Cyber-Security",
-      "definition": null,
+      "definition": "This domain deals with IT security software and all related support & maintenance services, which are typically designed\n& to filter malicious or illegal content (e.g. radical content, illegal content, blacklisted content, AntiSpam etc.)\n& to filter traffic payload for active malicious content (e.g. AV Filters)\n& to allow age verification before content access\n& to block sensitive and classified information from being sent to unauthorised target addresses\n& to ensure corporate policies for sensitive data are enforced throughout the network\n& to collect security alerts & events and run cross correlation processes for security analysis\n& to quantify and qualify security events in terms of severity and priority\n& to allow security analysis across different event feeds\n& to support incident analysis and provide case tracking tools and workflows\n& Encrypt data files, databases or external media (USB sticks, laptops)\n& Restrict and manage access rights to data based on a user or client's identity\n& Retrieve and correlate electronic information and/or reconstitute a series of events which serve as legal evidence in computer forensics investigations\n& help record, measure and manage business risks (risk management tools)\n& help manage and monitor the control implementation status and compliance requirements of regulations and industry standards (e.g. SOX and PCI requirements, Data Protection Requirements)\n\nSecurity hardware support and maintenance\n\nTypical products:\nContent Filter, Antivirus & Desktop (endpoint), Antivirus & Mobile (network), Antivirus & Enterprise Systems (network), Antivirus & NAS (network), Antivirus & Server (endpoint), AntiSpam, Data Loss Prevention, Policy Enforcement, Content Access & Age Verification\nSIEM Tools, Log Collection & Management, Security Ticket Management (case tracking), Database Activity Monitoring (DAM), File Integrity Monitoring (FIM)\nDigital Rights Management tools, laptop encryption software, file encryption software, database encryption, digital certificates and PKI infrastructure\nVulnerability scanners, security testing tools\nIT Forensics & Server & Client, IT Forensics & Mobile, Network Forensics, Evidence Preservation, Security Reporting Tools, Security Communication Tools\nRisk Management tools, SOX/ PCI/ ISO27001 compliance monitoring tools",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "South Africa",
+        "VGS",
+        "VPC"
+      ],
+      "owners": [
+        "Panagiotis Antonatos",
+        "Vinayak Khanna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9428,7 +9646,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 3,
         "cbp_active": 4,
         "cbp_draft": 0,
         "cbp_total": 4,
@@ -9446,10 +9664,15 @@
       "name": "IT Security Systems & Software Licenses (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Cyber-Security",
-      "definition": null,
+      "definition": "This domain deals with IT security software, which are typically designed\n& to filter malicious or illegal content (e.g. radical content, illegal content, blacklisted content, Antispam etc.)\n& to filter traffic payload for active malicious content (e.g. AV Filters)\n& to allow age verification before content access\n& to block sensitive and classified information from being sent to unauthorised target addresses\n& to ensure corporate policies for sensitive data are enforced throughout the network\n& to collect security alerts & events and run cross correlation processes for security analysis\n& to quantify and qualify security events in terms of severity and priority\n& to allow security analysis across different event feeds\n& to support incident analysis and provide case tracking tools and workflows\n& Encrypt data files, databases or external media (USB sticks, laptops)\n& Restrict and manage access rights to data based on a user or client's identity\n& Retrieve and correlate electronic information and/or reconstitute a series of events which serve as legal evidence in computer forensics investigations\n& help record, measure and manage business risks (risk management tools)\n& help manage and monitor the control implementation status and compliance requirements of regulations and industry standards (e.g. SOX and PCI requirements, Data Protection Requirements)\n\nTypical products:\nContent Filter, Antivirus & Desktop (endpoint), Antivirus & Mobile (network), Antivirus & Enterprise Systems (network), Antivirus & NAS (network), Antivirus & Server (endpoint), Antispam, Data Loss Prevention, Policy Enforcement, Content Access & Age Verification\nSIEM Tools, Log Collection & Management, Security Ticket Management (case tracking), Database Activity Monitoring (DAM), File Integrity Monitoring (FIM)\nDigital Rights Management tools, laptop encryption software, file encryption software, database encryption, digital certificates and PKI infrastructure\nVulnerability scanners, security testing tools\nIT Forensics & Server & Client, IT Forensics & Mobile, Network Forensics, Evidence Preservation, Security Reporting Tools, Security Communication Tools\nRisk Management tools, SOX/ PCI/ ISO27001 compliance monitoring tools",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VPC"
+      ],
+      "owners": [
+        "Panagiotis Antonatos",
+        "Vinayak Khanna"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -9463,7 +9686,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -9481,10 +9704,13 @@
       "name": "Digital Channels & Engineering Services (i.e. Retail, Online Channels and Contact Centre)  - Requirement Specifications, Design, Build, Deploy (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Digital Channels & Engineering",
-      "definition": null,
+      "definition": "Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) Professional Services for application implementation project activities: Requirements Specification, Design, Build, Deploy (CAPEX).",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Neymat dellavalle",
+        "Leyla Ocak"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9516,10 +9742,15 @@
       "name": "Digital Channels & Engineering Services (i.e. Retail, Online Channels and Contact Centre) - Demand, Run, Operate and Maintain (BAU)-(OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Digital Channels & Engineering",
-      "definition": null,
+      "definition": "Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) related  Professional services for run, maintain, operate (BAU) (including Demand and other IT PS activities outside projects) (OPEX).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "South Africa"
+      ],
+      "owners": [
+        "Neymat dellavalle",
+        "Leyla Ocak"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -9533,7 +9764,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -9551,10 +9782,13 @@
       "name": "Digital Channels & Engineering  (i.e. Retail, Online Channels and Contact Centre)- Hardware (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Digital Channels & Engineering",
-      "definition": null,
+      "definition": "Digital Channels & Engineering - All Hardware (i.e. Retail, Online Channels and Contact Centre) (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Neymat dellavalle",
+        "Leyla Ocak"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9586,10 +9820,13 @@
       "name": "Digital Channels & Engineering Software (i.e. Retail, Online Channels and Contact Centre) - Licenses (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Digital Channels & Engineering",
-      "definition": null,
+      "definition": "Software licenses for Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) systems (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Neymat dellavalle",
+        "Leyla Ocak"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9621,10 +9858,18 @@
       "name": "Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) - Software Support/Maintenance, and SaaS (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Digital Channels & Engineering",
-      "definition": null,
+      "definition": "Software maintenance and SaaS for the Digital Channels & Engineering  (i.e. Retail, Online Channels and Contact Centre) systems (OPEX).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany",
+        "Ireland",
+        "VGS",
+        "VSOL"
+      ],
+      "owners": [
+        "Neymat dellavalle",
+        "Leyla Ocak"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9638,7 +9883,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 4,
         "cbp_active": 2,
         "cbp_draft": 2,
         "cbp_total": 4,
@@ -9648,6 +9893,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Cologne Cathedral",
+        "shape": "cathedral",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -9656,10 +9907,13 @@
       "name": "Modernisation Garage - Customer Management (Billing & CRM) Software Support/Maintenance, and SaaS (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Modernisation Garage - Software maintenance and SaaS for the billing & CRM systems (OPEX).",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Robert Mark",
+        "Ludde"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9691,10 +9945,29 @@
       "name": "CRM/Billing Services (Consumer segment) - Demand, Design, Build, Deploy (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Modernisation Garage  – IT Professional Services for the Consumer stack of CRM/Billing, such as demand (e.g. PMO, Analysis), design , run, operate and maintain (OPEX). Note: for the IT Professional services concerning platforms and systems supporting the B2B/Enterprise stack (SOHO, SME, etc. and any other B2B activities) of Vodafone’s business, please use the categories for IT Enterprise Professional Services -> B247 (OPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Mozambique",
+        "Portugal",
+        "Romania",
+        "South Africa",
+        "Spain",
+        "Tanzania",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Robert Mark",
+        "Ludde"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9708,7 +9981,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 15,
         "cbp_active": 10,
         "cbp_draft": 5,
         "cbp_total": 15,
@@ -9726,10 +9999,27 @@
       "name": "CRM/Billing domain Services (Consumer segment)  - Demand, Design, Run, Operate and Maintain (BAU) (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Modernisation Garage – IT Professional Services for the Consumer stack of CRM/Billing, such as Design, Build, Deploy Services (CAPEX) Note: for the IT Professional services concerning platforms and systems supporting the B2B/Enterprise stack (SOHO, SME, etc. and any other B2B activities) of Vodafone’s business, please use the categories for IT Enterprise Professional Services -> B247 (OPEX)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Mozambique",
+        "Portugal",
+        "Romania",
+        "South Africa",
+        "Tanzania",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Robert Mark",
+        "Ludde"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9743,7 +10033,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 13,
         "cbp_active": 4,
         "cbp_draft": 9,
         "cbp_total": 13,
@@ -9761,10 +10051,13 @@
       "name": "Modernisation Garage - Customer Management (Billing & CRM) Software - Licenses (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Modernisation Garage - Software licenses for the Billing & CRM systems (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Robert Mark",
+        "Ludde"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9796,10 +10089,14 @@
       "name": "Middleware & Integration Software Support/Maintenance, and SaaS (OPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Software maintenance and SaaS for Middleware & Integration systems (OPEX).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic"
+      ],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -9813,7 +10110,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -9831,10 +10128,12 @@
       "name": "Middleware & Integration Software - Licenses (CAPEX)",
       "district": "IT Applications & Related Services",
       "plot": "Modernisation Garage",
-      "definition": null,
+      "definition": "Software licenses for the Middleware & Integration systems (CAPEX)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tansu Guncan"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9866,10 +10165,12 @@
       "name": "Content aggregation metadata and tools",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Platforms, software and tools for the aggregation and distribution of content metadata to be used in TV & Digital Multimedia environments",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Katarzyna Platek"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9901,10 +10202,14 @@
       "name": "Content Platforms, Software & User Interfaces",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Customer facing applications/software, services and user interface systems",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VPC"
+      ],
+      "owners": [
+        "Katarzyna Platek"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -9918,7 +10223,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -9936,10 +10241,12 @@
       "name": "Roaming, Data & Financial Clearing",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "For the clearing of roaming data clearning,  and financial data clearing activities pertaining Content services and platforms",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Katarzyna Platek"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -9971,10 +10278,17 @@
       "name": "Linear TV Content",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Any type of linear content which is viewed or used, include linear TV channels and broadcastings systems",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Portugal",
+        "Romania"
+      ],
+      "owners": [
+        "Peter Fox",
+        "Jonathan Bennett"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -9988,7 +10302,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 3,
         "cbp_active": 3,
         "cbp_draft": 0,
         "cbp_total": 3,
@@ -10006,10 +10320,13 @@
       "name": "On Demand TV Content  (TVOD, SVOD, AVOD)",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Any type of on-demand content which is viewed or used, include on-demand video, movies and channels",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Fox",
+        "Jonathan Bennett"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10041,10 +10358,15 @@
       "name": "Over the Top Streaming Content (OTT)",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Any type of over the top streaming content which is viewed or used, include music and video streaming platforms, services and apps",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Ireland"
+      ],
+      "owners": [
+        "Peter Fox",
+        "Jonathan Bennett"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -10058,7 +10380,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -10076,10 +10398,13 @@
       "name": "Content Rights Management, Copyrights & Levies",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "Any assocated payments to copyright, collecting societies and levies related to the procurement of content",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Fox",
+        "Jonathan Bennett"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10111,10 +10436,13 @@
       "name": "Cloud Gaming Platforms",
       "district": "Content",
       "plot": "Content",
-      "definition": null,
+      "definition": "The procurement of Cloud Gaming Platforms for Content",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Fox",
+        "Jonathan Bennett"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10146,10 +10474,22 @@
       "name": "Customer Care & Technical Support",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity for In-bound Customer Care & Technical Support services. The code refers only to phone activities.\nHR sourcing (including Temp employees for CRM), Consultancy for customer care activities, process improvement for Customer Care by 3rd parties, administrative and financial outsourced activities related to Customer Care & Technical support to be excluded",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Germany",
+        "Ireland",
+        "Romania"
+      ],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10163,7 +10503,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 4,
         "cbp_active": 3,
         "cbp_draft": 1,
         "cbp_total": 4,
@@ -10173,6 +10513,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Neuschwanstein Castle",
+        "shape": "castle",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -10181,10 +10527,17 @@
       "name": "Directory Assistance",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity for Directory Assistance services: phone services used to find out a specific telephone number and/or address of a residence, business, or government entity.\nHR sourcing (including Temp employees for CRM), Consultancy for customer care activities, process improvement for Directory Assistance by 3rd parties, administrative and financial outsourced activities related to Directory Assistance to be excluded",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10216,10 +10569,17 @@
       "name": "Debt Collection (Customer Operations)",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity related to collecting debt, prior to financially writing off the debt as \"bad debt\" and engaging collection agencies. The code refers only to phone collections service.\nLegal services for Bad Debt, Physical debt collection activities, HR sourcing (including Temp employees for CRM),process improvement for Debt collection by 3rd parties, administrative and financial outsourced activities related to Debt Collection to be excluded",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10251,10 +10611,17 @@
       "name": "Credit Referencing (Customer Operations)",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity for Credit Referencing activities: credit reference refers only to information, the name of an individual, or the name of an organization that can provide details about an individual's past track record with credit.\nCredit bureau licencing, HR sourcing (including Temp employees for CRM),process improvement for Credit referencing by 3rd parties, administrative and financial outsourced activities related to Credit referencing to be excluded",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10286,10 +10653,19 @@
       "name": "Telesales & Acquisition Campaigns",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity for Telesales / Telemarketing activities related to new customer acquisition.\nHR sourcing (including Temp employees for CRM), Consultancy for telesales, process improvement for Telesales & Acquisitions by 3rd parties, administrative and financial outsourced activities related to Telesales & Acquisition to be excluded",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany"
+      ],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -10303,7 +10679,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -10321,10 +10697,19 @@
       "name": "Telesales & Retention",
       "district": "Customer Operations",
       "plot": "Call Center Outsourcing Service",
-      "definition": null,
+      "definition": "All external charges and fees associated with outsourced call centre or contact centre activity for Telesales / Telemarketing activities related to retention of existing customers.\nHR sourcing (including Temp employees for CRM), Consultancy for retention activities, process improvement for Telesales & Retention by 3rd parties, administrative and financial outsourced activities related to Telesales & Retention to be excluded",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany"
+      ],
+      "owners": [
+        "Jens Schneider",
+        "Maria Gomez",
+        "Elsa Bartolome",
+        "Rita Balko",
+        "Burak Ozenli",
+        "Tatiana Madon"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -10338,7 +10723,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -10356,10 +10741,12 @@
       "name": "R&D Enterprise",
       "district": "Customer Operations",
       "plot": "Research & Development",
-      "definition": null,
+      "definition": "All 3rd Party Spend associated with Group R&D Enterprise",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Tracy Brockman"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10391,10 +10778,21 @@
       "name": "Market Research",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "Quantitative & Qualitative - market research or consumer insights projects",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10408,7 +10806,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 8,
         "cbp_active": 5,
         "cbp_draft": 3,
         "cbp_total": 8,
@@ -10426,10 +10824,24 @@
       "name": "Market Data & Intelligence",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "For Vodafone customised data/reports on competitors, industry trends, insights across markets, must not include consultancy work and annual subscriptions.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Germany",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10443,7 +10855,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 11,
         "cbp_active": 6,
         "cbp_draft": 5,
         "cbp_total": 11,
@@ -10461,10 +10873,21 @@
       "name": "Creative Agency Fees",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "Retainer fee paid for Brand, Creative, Public Relations, Public Affairs and Point of Sale Agency",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Egypt",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10478,7 +10901,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 8,
         "cbp_active": 7,
         "cbp_draft": 1,
         "cbp_total": 8,
@@ -10496,10 +10919,12 @@
       "name": "Production Pass-Through Costs",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "All indirect costs the production house is paying on Vodafone's behalf",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10531,10 +10956,12 @@
       "name": "Adhoc fee paid to the agency",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "Fee paid to the agencies based on rate card (e.g. adhoc projects which are not included in the retainer fee)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10566,10 +10993,12 @@
       "name": "Agency pass through costs",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "Thirds party costs paid via the agencies (example but not limited to licences, research, creative assets, usage rights, subscription fees)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10601,10 +11030,22 @@
       "name": "User Experience Solutions",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "All spend associated with User Experience such as design, development, testing and professional services",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Egypt",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -10618,7 +11059,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 9,
         "cbp_active": 6,
         "cbp_draft": 3,
         "cbp_total": 9,
@@ -10628,6 +11069,12 @@
         "ai_rfps": 1,
         "cbp_used": 1,
         "journey_score": 75
+      },
+      "landmark": {
+        "name": "The Great Sphinx",
+        "shape": "statue",
+        "market": "Egypt",
+        "because": "scores 75 out of 100, and Egypt has adopted this blueprint"
       }
     },
     {
@@ -10636,10 +11083,16 @@
       "name": "Production Direct Costs",
       "district": "Marketing & Media",
       "plot": "Agencies",
-      "definition": null,
+      "definition": "Spend associated with the production, post-production and distribution of Vodafone advertising materials (TV and non-TV)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "South Africa",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10653,7 +11106,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 3,
         "cbp_active": 3,
         "cbp_draft": 0,
         "cbp_total": 3,
@@ -10671,10 +11124,14 @@
       "name": "Marketing Technology (non DSP)",
       "district": "Marketing & Media",
       "plot": "Digital Media inhoused",
-      "definition": null,
+      "definition": "Tools and platforms used in: managing Vodafone marketing campaigns (includes media tech stack software such as Adserver, Ad Bidding, Ad Verification, DCO, etc) necessary to execute campaigns on 3rd party sites; supporting productivity, planning, attribution activities",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany"
+      ],
+      "owners": [
+        "Agnieszka Shkurenko"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -10688,7 +11145,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -10706,10 +11163,12 @@
       "name": "Paid Search (PPC) & Search Engine Optimisation (SEO)",
       "district": "Marketing & Media",
       "plot": "Digital Media inhoused",
-      "definition": null,
+      "definition": "Any costs associated with PPC & SEO",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Agnieszka Shkurenko"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10741,10 +11200,12 @@
       "name": "Digital Advertising (Direct Buy & DSP)",
       "district": "Marketing & Media",
       "plot": "Digital Media inhoused",
-      "definition": null,
+      "definition": "All digital media buy other than Search and Affiliates",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Agnieszka Shkurenko"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10776,10 +11237,12 @@
       "name": "Affiliates",
       "district": "Marketing & Media",
       "plot": "Digital Media inhoused",
-      "definition": null,
+      "definition": "Affiliate fees/commission",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Agnieszka Shkurenko"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10811,10 +11274,12 @@
       "name": "Digital Advertising via Media Agency",
       "district": "Marketing & Media",
       "plot": "Digital Media via Agency",
-      "definition": null,
+      "definition": "All digital media purchased via Agency",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10846,10 +11311,23 @@
       "name": "Loyalty Agency Fees",
       "district": "Marketing & Media",
       "plot": "Engagement Marketing",
-      "definition": null,
+      "definition": "Agency fees related to loyalty / reward programs and platforms.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10863,7 +11341,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 10,
         "cbp_active": 4,
         "cbp_draft": 6,
         "cbp_total": 10,
@@ -10881,10 +11359,12 @@
       "name": "Sponsorship",
       "district": "Marketing & Media",
       "plot": "Engagement Marketing",
-      "definition": null,
+      "definition": "Spend associated with the acquisition of sponsorship rights.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10916,10 +11396,23 @@
       "name": "Vodafone Branded Goods",
       "district": "Marketing & Media",
       "plot": "Engagement Marketing",
-      "definition": null,
+      "definition": "Merchandise - Vodafone branded giveaways / promotional items",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Egypt",
+        "Greece",
+        "Ireland",
+        "Italy",
+        "Romania",
+        "South Africa",
+        "Turkey",
+        "UK",
+        "VGS"
+      ],
+      "owners": [
+        "Stephane Cesari"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -10933,7 +11426,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 10,
         "cbp_active": 5,
         "cbp_draft": 5,
         "cbp_total": 10,
@@ -10951,10 +11444,12 @@
       "name": "Direct purchase of TV/Cinema/Radio/Print/Out of Home",
       "district": "Marketing & Media",
       "plot": "Media as Direct Buy",
-      "definition": null,
+      "definition": "Direct purchase of TV / Cinema airtime / space Radio and Audio, including digital radio and podcasts / Newspapers and Magazines Posters and Hoardings",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -10986,10 +11481,12 @@
       "name": "Media Agency/Consultants Fees",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "Media Agency fee or commission",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11021,10 +11518,12 @@
       "name": "TV / Cinema",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "TV/Cinema airtime/space",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11056,10 +11555,12 @@
       "name": "Radio",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "Radio and Audio, including digital radio and podcasts",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11091,10 +11592,12 @@
       "name": "Print",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "Newspapers and Magazines",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11126,10 +11629,12 @@
       "name": "Out of Home",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "Posters and Hoardings",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11161,10 +11666,12 @@
       "name": "Media Investment Mixed",
       "district": "Marketing & Media",
       "plot": "Media via Agency",
-      "definition": null,
+      "definition": "Multi channel traditional media purchases (non digital)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anca Marc"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11196,10 +11703,16 @@
       "name": "Strategic Consultancy",
       "district": "Corporate Services",
       "plot": "Discretionary Business Consulting",
-      "definition": null,
+      "definition": "Strategic Consultancy & advisory services that help Vodafone in the development of high level strategy and implementation plans.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany",
+        "VSOL"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11213,7 +11726,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 1,
         "cbp_draft": 1,
         "cbp_total": 2,
@@ -11223,6 +11736,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The Hohenzollern Bridge",
+        "shape": "bridge",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -11231,10 +11750,15 @@
       "name": "Functional",
       "district": "Corporate Services",
       "plot": "Discretionary Business Consulting",
-      "definition": null,
+      "definition": "Functional Consultancy & advisory services utilising market expertise, e.g. Customer segmentation with Retail, Product or Proposition development within Marketing, Strategic Initiatives within Supply Chain Management, MandA, Legal/best practice advice within Tax, HR, Sarbanes Oxley etc.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VPC"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11248,7 +11772,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11266,10 +11790,13 @@
       "name": "Benchmarking",
       "district": "Corporate Services",
       "plot": "Discretionary Business Consulting",
-      "definition": null,
+      "definition": "Benchmarking Consultancy & advisory services that assess the operating efficiency and capacity within Vodafone functions, provide marketplace analysis etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11301,10 +11828,13 @@
       "name": "Technology Consulting",
       "district": "Corporate Services",
       "plot": "Discretionary Business Consulting",
-      "definition": null,
+      "definition": "Technology consulting services are advisory services that help clients assess different technology strategies and, in doing so, align their technology strategies with their business or process strategies. It may entail suggesting and implementing certain technology solutions into the business or organization in order to streamline certain processes by increasing efficiency and cutting costs. Technology Consulting services, helps IT and business leaders define and execute a technology agenda to support their business strategy, harnessing the power of technology innovation while getting value out of their legacy environments. These services support customers’ Technology initiatives by providing strategic, architectural, operational and implementation planning. \n(Strategic planning includes advisory services that help clients assess their Technology needs and formulate system implementation plans. \nArchitecture planning includes advisory services that combine strategic plans and knowledge of emerging technologies to create the logical design of the system and the supporting infrastructure to meet customer requirements. \nOperational assessment/benchmarking include services that assess the operating efficiency and capacity of a client’s Technology environment. \nImplementation planning includes services aimed at advising customers on the rollout and testing of new solution deployments.)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11336,10 +11866,15 @@
       "name": "Debt Collection (Corp Serv)",
       "district": "Corporate Services",
       "plot": "Financial Services",
-      "definition": null,
+      "definition": "Debt Collection agencies including outsourced activities (Anything except debt collection activities handled by call centers)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "UK"
+      ],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11353,7 +11888,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11371,10 +11906,15 @@
       "name": "Banking Services",
       "district": "Corporate Services",
       "plot": "Financial Services",
-      "definition": null,
+      "definition": "Banking fees",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "UK"
+      ],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11388,7 +11928,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11406,10 +11946,15 @@
       "name": "Cash Collection",
       "district": "Corporate Services",
       "plot": "Financial Services",
-      "definition": null,
+      "definition": "Cash Collection (Security companies coming to pick up cash in vodafone stores)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "UK"
+      ],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11423,7 +11968,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11441,10 +11986,15 @@
       "name": "Payment Services",
       "district": "Corporate Services",
       "plot": "Financial Services",
-      "definition": null,
+      "definition": "Commissions paid to payment gateway providers (card acquiring fees, etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "UK"
+      ],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11458,7 +12008,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11476,10 +12026,15 @@
       "name": "Credit Referencing (Corp Serv)",
       "district": "Corporate Services",
       "plot": "Financial Services",
-      "definition": null,
+      "definition": "Credit Referencing & ID checks, credit checks, company solvancy and individuals credit checks",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "UK"
+      ],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11493,7 +12048,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11511,10 +12066,14 @@
       "name": "VLO Supply Chain Management & Strategic Sourcing",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Supply Chain Management & Strategic Sourcing skills. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11528,7 +12087,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11546,10 +12105,14 @@
       "name": "VLO Leadership and People Development",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery to support leadership and management development interventions. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -11563,7 +12126,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -11581,10 +12144,14 @@
       "name": "VLO Content Management",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs related to Content Management such as aggregators e.g. LinkedIn, x-skill areas e.g. badges, etc. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of Content Management.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11598,7 +12165,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11616,10 +12183,12 @@
       "name": "VLO Language",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for language skills for e.g. English, Spanish, Italian etc. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11651,10 +12220,14 @@
       "name": "VLO Programme, Project, Service, and Risk Management",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Programme Management, Project Management, Service Management & Risk Management skills. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11668,7 +12241,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11686,10 +12259,14 @@
       "name": "VLO Coaching",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs related to all coaching delivered. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of coaching.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11703,7 +12280,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11721,10 +12298,14 @@
       "name": "VLO Networks & Connectivity",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of learning & training activities in Networks & Connectivity skills such as 2G, 3G, 4G, 5G Radio and Core Networks, Fixed Networks, IP Networks, IP Multimedia Subsystem (IMS), Multi-Access Edge Computing (MEC), Mobile Private Networks (MPN), Mobile Network Security, Cisco qualifications (CCNA, CCNP, CCIE, CCDE). Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "UK"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11738,7 +12319,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11756,10 +12337,12 @@
       "name": "VLO IoT",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of learning & training activities in IoT skills, including IoT Platforms, Products and Solutions. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -11791,10 +12374,14 @@
       "name": "VLO Software Engineering, DevOps, APIs",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of learning & training activities in Software Engineering and DevOps skills, which includes DevOps and SRE, Coding languages, Software Development frameworks, Software Arquitecture, Q&A/testing, CI/CD and similar topics. Also includes API & Microservices skills, IT Architecture & frameworks such as TOGAF. Costs for venue (either regular training or communities initiatives attendance), platforms, licenses, certifications, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -11808,7 +12395,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -11826,10 +12413,14 @@
       "name": "VLO Cloud",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of learning & training activities in Cloud platform skills, such as AWS, GCP, Azure, VMWare. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11843,7 +12434,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11861,10 +12452,14 @@
       "name": "VLO Data, AI, Automation",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of learning & training activities in AI & Data skills. Includes Machine Learning, Deep Learning; Data Engineering; Data Science; Data Analytics & business intellegance skills. Also includes Robotics or Automation skills. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11878,7 +12473,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -11896,10 +12491,14 @@
       "name": "VLO Cyber Security",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development and delivery of all learning and skill development activities for Cyber Security skills; including mobile security, cloud security, devsecops, application security, platform security, vulnerability management, Intrusion Detection/ Prevention and all other cyber skills . Includes costs for venue, platforms, certifications, ad-hoc or catalogue services, license subscriptions, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -11913,7 +12512,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -11931,10 +12530,15 @@
       "name": "VLO Design (incl UX, UI)",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Design skills such as Design Thinking, UX, UI, Service Design, Research. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany",
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -11948,7 +12552,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -11966,10 +12570,14 @@
       "name": "VLO Product Management",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Product Management (PoM) skills. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -11983,7 +12591,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -12001,10 +12609,14 @@
       "name": "VLO Business/Commercial Acumen",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Business & Commercial Acumen  skills. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -12018,7 +12630,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -12036,10 +12648,14 @@
       "name": "VLO Customer and Digital Operations",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Customer Operations skills e.g. Conversation design, chatbots. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -12053,7 +12669,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -12071,10 +12687,14 @@
       "name": "VLO Sales Business",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of activities for Sales skills related to B2B. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -12088,7 +12708,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -12106,10 +12726,14 @@
       "name": "VLO Agile (SAFe, SCRUM, OKR)",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Agile skills e.g. SAFe, SCRUM, OKR etc.. Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -12123,7 +12747,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -12141,10 +12765,12 @@
       "name": "VLO - Other Technical Skills",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "All costs related to Technical skills not listed e.g. Digital Enablement skills, Office 365",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12176,10 +12802,12 @@
       "name": "VLO - Marketing",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of  activities for Marketing skills e.g.AoM, Segment, CVM, Brand & Media, and Digital Marketing.  Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12211,10 +12839,12 @@
       "name": "VLO - Other Commercial Skills",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "All costs related to Commercial skills not listed",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12246,10 +12876,12 @@
       "name": "VLO Sales Consumer",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery of activities for Sales skills related to B2C (including Retail). Includes costs for venue, platforms, licences, 3rd party and any other associated costs delivered as part of this skill.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12281,10 +12913,12 @@
       "name": "VLO - Other Sales & Service Skills",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "All costs related to Sales & Service skills not listed - includes Human skills e.g. negiotiation",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12316,10 +12950,12 @@
       "name": "VLO Other Professional Skills",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs relating to other Professional skills not listed. Such as Soft/Transversal E.g.  skills/Onboarding/HR Skills/Financial, change management/ Diversity inclusion culture",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12351,10 +12987,12 @@
       "name": "VLO Team Effectiveness",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs for design, development, delivery to support team effectiveness activities. This includes costs for diagnostic tools, team feedback, venue, platforms, licences, 3rd party and any other associated costs delivered as part of this.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12386,10 +13024,12 @@
       "name": "VLO Performance, Reskilling and Communications",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs related to all PD and performance activity, Reskilling, communications and campaigns",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12421,10 +13061,12 @@
       "name": "VLO Content Tools",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Costs related to Tools and technology’s used to create digital learning content for example eLearning, video content etc",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12456,10 +13098,12 @@
       "name": "VLO Talent Development and Assessments",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Talent development interventions (Staff Band + higher levels) including design, development, delivery of assessment activities (whether that is assessment for selection or development). Includes costs for platforms, licences, 3rd party (e.g. assessors/assessor training) and any other associated costs delivered as part of this skill.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12491,10 +13135,12 @@
       "name": "Health, Safety, Wellbeing, Environment and CSR training.",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Health, Safety, Wellbeing, and Environment training services: demand, design , running payments, maintain, operate (BAU)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12526,10 +13172,12 @@
       "name": "Frontline Training",
       "district": "Corporate Services",
       "plot": "HR Learning and Development",
-      "definition": null,
+      "definition": "Frontline Activity and training for the internal and/or external frontline teams including the design, set up and delivery costs associated with the training",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Bolaji Sekinat Shutti"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12561,10 +13209,12 @@
       "name": "Permanent Recruitment & Executive Search",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Recruitment based on Executive Search (retained search) & Typically Band E and above recruitment methodology",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12596,10 +13246,14 @@
       "name": "Temporary Recruitment",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Recruitment for high volume temporary resources i.e. retail, call centre, secretarial and administration temporary resources",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic"
+      ],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -12613,7 +13267,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -12631,10 +13285,15 @@
       "name": "Permanent Recruitment",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Recruitment costs for all Permanent hires (excluding Recruitment & Executive Search B602)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGE",
+        "VOIS Romania"
+      ],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -12648,7 +13307,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 1,
         "cbp_draft": 1,
         "cbp_total": 2,
@@ -12658,6 +13317,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Bran Castle",
+        "shape": "castle",
+        "market": "VOIS Romania",
+        "because": "scores 55 out of 100, and VOIS Romania has adopted this blueprint"
       }
     },
     {
@@ -12666,10 +13331,12 @@
       "name": "Contractor (OPEX)",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Recruitment for Interim Resources engaged to work for a limited period under a Time and Materials Agreement. Resource is paid via a 3rd party Supplier, but expectations and outcomes are managed by Vodafone directly. Interim Resource is attributed to headcount and allocated to OPEX.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12701,10 +13368,12 @@
       "name": "Project Contractor (CAPEX)",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Recruitment for Interim Resources engaged to work for a limited period under a Time and Materials Agreement relating to a specific project. Resource is paid via a 3rd party Supplier, but expectations and outcomes are managed by Vodafone directly. Interim Resource is attributed to headcount and allocated to CAPEX.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12736,10 +13405,12 @@
       "name": "Outplacement Services",
       "district": "Corporate Services",
       "plot": "HR Resourcing",
-      "definition": null,
+      "definition": "Includes services for employees made redundant. This includes help with CV preparation, training on interview skills, looking for job techniques.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Guillermo Simo Claros"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12771,10 +13442,12 @@
       "name": "Reward and Recognition",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Includes all services provided by reward and recognition companies, i.e. share incentives, loyalty programmes, recognition programmes (for example shopping vouchers)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12806,10 +13479,12 @@
       "name": "Relocation Services",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "International and national relocation services for Vodafone employees. Includes, Household moves, house searching, language training in the host country, temporary accommodation, etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12841,10 +13516,12 @@
       "name": "Candidate Verification",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Candidate verification services\n& Includes standard checks of: ID, right to work, residency, professional qualifications, education validations, standard employment referencing, security checks, criminal checks, etc.\n& EXCLUDES ASSESSEMENT SERVICES (e.g. Customer Operations: Internal Assessment for development & External Assessment for recruitment, Retail: Internal Assessment for development & External Assessment for recruitment, assessment centre platform for candidates, personality tests and tools etc), which are to be coded on category code B643 Assessments.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12876,10 +13553,15 @@
       "name": "Occupational Health",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Includes services relating to health insurance and HR health programmes",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VOIS",
+        "VOIS Budapest"
+      ],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -12893,7 +13575,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -12911,10 +13593,12 @@
       "name": "Language Translation",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "This includes translation, localisation, interpreting, etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12946,10 +13630,12 @@
       "name": "Payroll",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Includes all payroll providers",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -12981,10 +13667,12 @@
       "name": "Pension",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Includes all pension providers",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13016,10 +13704,12 @@
       "name": "Restaurant Ticket",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Vouchers provided, sometimes with employee contribution, as part of a salary cycle issue, that provides access to various shopping rights. Typically using vouchers in place of cash when purchasing restaurant/café meals and groceries.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Peter Antal"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13051,10 +13741,14 @@
       "name": "Employee Listening",
       "district": "Corporate Services",
       "plot": "HR Services",
-      "definition": null,
+      "definition": "Employee listening tools and surveys including Spirit Beat, pulse, onboarding and exit, and other key listening moments in the employee lifecycle",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "VGS"
+      ],
+      "owners": [
+        "Upendra Kumar Mishra"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -13068,7 +13762,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -13086,10 +13780,12 @@
       "name": "Penalties",
       "district": "Corporate Services",
       "plot": "Legal Services",
-      "definition": null,
+      "definition": "Penalties paid to customers, suppliers or employees",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13121,10 +13817,12 @@
       "name": "BAU Legal Services",
       "district": "Corporate Services",
       "plot": "Legal Services",
-      "definition": null,
+      "definition": "Any repeatable legal services required as part of business as usual processes. E.g. trade mark registrations, contract support, routine product support, corporate secretariat,  property services,  routine compliance or advice outside of major/transformation projects.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13156,10 +13854,12 @@
       "name": "Transaction/Project Legal Services",
       "district": "Corporate Services",
       "plot": "Legal Services",
-      "definition": null,
+      "definition": "Legal Services related to specific transactions or projects which are outside of normal business operation e.g. mergers and acquisitions, new lines of business and  major transformation projects",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13191,10 +13891,12 @@
       "name": "Legal Incident Services",
       "district": "Corporate Services",
       "plot": "Legal Services",
-      "definition": null,
+      "definition": "Legal services required due to an event or incident. E.g. litigation and related costs",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Abhi Krishna"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13226,10 +13928,16 @@
       "name": "Mail and Courier Services",
       "district": "Corporate Services",
       "plot": "Mail and Courier Services",
-      "definition": null,
+      "definition": "Includes Franking, Postage, Envelopes, Courier Services ( Excl. Terminal, Marketing Logistics)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Albania",
+        "Germany",
+        "Greece"
+      ],
+      "owners": [
+        "Noemi Koroknay"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -13243,7 +13951,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 3,
         "cbp_active": 3,
         "cbp_draft": 0,
         "cbp_total": 3,
@@ -13261,10 +13969,12 @@
       "name": "Group Travel",
       "district": "Corporate Services",
       "plot": "Meetings & Events",
-      "definition": null,
+      "definition": "Flight, accommodation, transportation and any other cost associated with Group Travel only . The definition of Group Travel is when 9 or more than 9 people are travelling together on one booking at the same time, to the same location for the same business purpose. This category should not be used for transient (individual) travel spend i.e. individuals or smaller numbers.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Iryna Telpis"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13296,10 +14006,12 @@
       "name": "Charges related to meetings and/or events",
       "district": "Corporate Services",
       "plot": "Meetings & Events",
-      "definition": null,
+      "definition": "Charges related to such meetings and/or events that are to take place onsite or offsite, organized by Vodafone. Inclusive of but not limited to venue booking costs, accommodation costs (if linked to a venue), catering costs, transportation costs.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Iryna Telpis"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13331,10 +14043,12 @@
       "name": "Incentive Events",
       "district": "Corporate Services",
       "plot": "Meetings & Events",
-      "definition": null,
+      "definition": "Flight, accommodation, transportation and any other cost (e.g. client entertainment) associated with Incentive Travel only . The definition of an incentive is when more people are travelling together on one booking at the same time, to the same location for the same business purpose (reward travel). This category should not be used for transient (individual) travel spend i.e. individuals or smaller numbers.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Iryna Telpis"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13366,10 +14080,14 @@
       "name": "Events",
       "district": "Corporate Services",
       "plot": "Meetings & Events",
-      "definition": null,
+      "definition": "All charges (hosting, organizing and carrying out a time-limited event, e.g. Vodafone organizes a Xmas Party for its  staff)  related to events / conference organized by Vodafone and that take place offsite, inclusive of but not limited to production costs, logistic costs, event management agency costs. Travel related costs if any (eg. flights, transportation, accommodation) must not be categorized under this code.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "IoT"
+      ],
+      "owners": [
+        "Iryna Telpis"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13383,7 +14101,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13401,10 +14119,12 @@
       "name": "Hybrid /Digital Events",
       "district": "Corporate Services",
       "plot": "Meetings & Events",
-      "definition": null,
+      "definition": "A virtual event is an online event organized by Vodafone where people interact in a virtual environment on the web rather than meeting in a physical location. Virtual events are typically online, multi-session events that often include webinars and webcasts.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Iryna Telpis"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13436,10 +14156,14 @@
       "name": "Print Management / Agency Fees",
       "district": "Corporate Services",
       "plot": "Print",
-      "definition": null,
+      "definition": "Print Management Fees",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Ireland"
+      ],
+      "owners": [
+        "Noemi Koroknay"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13453,7 +14177,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13471,10 +14195,14 @@
       "name": "External/Commercial Print Production.",
       "district": "Corporate Services",
       "plot": "Print",
-      "definition": null,
+      "definition": "External/Commercial Print Production e.g. Leaflets, brochures, magazines, posters, booklets, POS material ( floor and window graphics, stickers, hanging pieces etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Ireland"
+      ],
+      "owners": [
+        "Noemi Koroknay"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13488,7 +14216,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13506,10 +14234,12 @@
       "name": "Internal/Print Production",
       "district": "Corporate Services",
       "plot": "Print",
-      "definition": null,
+      "definition": "Internal - Print Production e.g. Business Cards, Stationery paper ( Branded envelopes and letterhead ), Compliments slip, Internal communications (posters, leaflets)",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Noemi Koroknay"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13541,10 +14271,15 @@
       "name": "Bill Printing and Fulfilment",
       "district": "Corporate Services",
       "plot": "Print",
-      "definition": null,
+      "definition": "Bill Printing and Fulfilment",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Greece",
+        "Ireland"
+      ],
+      "owners": [
+        "Noemi Koroknay"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -13558,7 +14293,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 1,
         "cbp_draft": 1,
         "cbp_total": 2,
@@ -13576,10 +14311,15 @@
       "name": "Accounting",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All charges and fees associated with the Accounting services delivered by Consultancy Partners.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "South Africa"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13593,7 +14333,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13611,10 +14351,15 @@
       "name": "Statutory Audit & Non Group Public Limited Company (PLC) Auditor",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All charges and fee's associated with these service in relation to Non Group PLC auditors",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13628,7 +14373,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13646,10 +14391,15 @@
       "name": "Statutory Audit & Group Public Limited Company (PLC) Auditor",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All charges and fee's associated with these service in relation to Group PLC auditor",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13663,7 +14413,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13681,10 +14431,15 @@
       "name": "Tax",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All charges and fees associated with the Tax services delivered by Consultancy Partners.",
       "blueprint_state": "draft",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Italy"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 10,
         "usage": 0,
@@ -13698,7 +14453,7 @@
       },
       "metrics": {
         "blueprint_state": "draft",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 0,
         "cbp_draft": 1,
         "cbp_total": 1,
@@ -13716,10 +14471,13 @@
       "name": "Mergers & Acquisitions",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All charges and fee's associated with M&A service",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13751,10 +14509,13 @@
       "name": "SOX s404",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "All costs related to Sarbanes Oxley",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13786,10 +14547,13 @@
       "name": "Internal Audit",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "Internal Audit provides independent assurance to Vodafone’s management and Board on the achievement of Vodafone’s objectives and mitigate risks to acceptable levels by assessing the efficiency/effectiveness of business processes, operations (including safeguarding of assets being them financial, people, infrastructure, data and, ultimately reputation), the reliability of financial and management reporting, compliance with laws, regulations and company’s predefined policies/process flows. Internal audit services objective is to improve an organization's governance, risk management and management controls by providing insight and improvement recommendations based on analyses and assessments of data and processes.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13821,10 +14585,15 @@
       "name": "Outsourced Services",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "Outsourced Professional Services are operational and recurring activities, which take place every month for a year or longer (example: recurring vendor quality assurance audit service; review Telesales Activity Volumes; periodic Surveys, Measurement and reporting of TNPS…). \nThis category excludes Call Centre, Marketing or Technology (IT or Network design/development/maintenance/operations) related outsourced services",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Italy"
+      ],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -13838,7 +14607,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -13856,7 +14625,7 @@
       "name": "Finance Operations",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "Procure-to-Pay, Order-to-Cash, Record-to-Report and the comprehensive management and reporting off all those services.",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -13891,7 +14660,7 @@
       "name": "Advanced Finance",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "•\tAdvanced Finance Services - Advisory (AN-AFS) covers expert financial advice, including strategic financial planning, investment analysis, managing financial assets and liabilities and risk management. \n•\tTransactional Advanced Finance Services (TR-AFS) specialize in managing complex financial transactions and accounting for multiple business areas, including cross-border payments, allocations and cash collection, foreign exchange management, and advanced financial reporting.\n•\tWorking Capital: Comprehensive treasury and cash management services.",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -13926,7 +14695,7 @@
       "name": "Supply Chain Management",
       "district": "Corporate Services",
       "plot": "Professional Fees (Non & Discretionary Business Consulting)",
-      "definition": null,
+      "definition": "•\tCategory Sourcing Support\n•\tContract to Catalogue Operations\n•\tPurchasing Operations\n•\tSupplier Management & Commercial Contract Management\n•\tSCM Centre of Excellence\n•\tLogistics Support",
       "blueprint_state": "none",
       "markets": [],
       "owners": [],
@@ -13961,10 +14730,13 @@
       "name": "Subscriptions and Publications",
       "district": "Corporate Services",
       "plot": "Subscriptions and Publications",
-      "definition": null,
+      "definition": "Fees/charges associated with annual subscriptions to standards bodies, professional forums and publications",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Gergo Horvath",
+        "Giacomo Iachini"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -13996,10 +14768,12 @@
       "name": "Short-Term Accommodation",
       "district": "Corporate Services",
       "plot": "Travel",
-      "definition": null,
+      "definition": "Bookings relating to an apartment and/or self-catering facility for a consecutive period of more than 14 days.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14031,10 +14805,12 @@
       "name": "Employee Transportation",
       "district": "Corporate Services",
       "plot": "Travel",
-      "definition": null,
+      "definition": "Ground transportation (i.e. buses) for UK and Greece only with preferred suppliers.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14066,10 +14842,12 @@
       "name": "Transient Travel Spend (incl. travel agency fees)",
       "district": "Corporate Services",
       "plot": "Travel",
-      "definition": null,
+      "definition": "Transient Travel transactional spend and fees. This mat.cat. does not include group bookings or spend related to meetings & events bookings.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14101,10 +14879,18 @@
       "name": "Construction Works (Offices, Call Centers and Other Properties exc. Retail and RBS)",
       "district": "Property Management Services",
       "plot": "Capital Projects",
-      "definition": null,
+      "definition": "Design, supervision, project management, engineering, construction, refit, upgrade and refurbishment works for offices, call centres, and any major new build - that sits in Capex budget (excluding retail stores and radio base stations)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Greece",
+        "Ireland",
+        "Portugal",
+        "VGS"
+      ],
+      "owners": [
+        "Anna Baranova",
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -14118,7 +14904,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 4,
         "cbp_active": 3,
         "cbp_draft": 1,
         "cbp_total": 4,
@@ -14128,6 +14914,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Blarney Castle",
+        "shape": "castle",
+        "market": "Ireland",
+        "because": "scores 60 out of 100, and Ireland has adopted this blueprint"
       }
     },
     {
@@ -14136,10 +14928,12 @@
       "name": "PropTech (property technology) Smart Solutions & Services",
       "district": "Property Management Services",
       "plot": "Capital Projects",
-      "definition": null,
+      "definition": "Provision of Technologies, Software or Services applied to the property sector of Real Estate, including but not limited, to the following areas such as Building Analytics, Back Office Management, Transactions Management, Building Plan & Structure, Market Research, Investing, Blockchain, etc",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14171,10 +14965,13 @@
       "name": "Office Furniture",
       "district": "Property Management Services",
       "plot": "Capital Projects",
-      "definition": null,
+      "definition": "Furniture & Desking, Chairs, storage and standalone furniture",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova",
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14206,10 +15003,13 @@
       "name": "Office / External Equipt, Fixtures and Fittings (excl. MFD / Audio Visual)",
       "district": "Property Management Services",
       "plot": "Capital Projects",
-      "definition": null,
+      "definition": "Office equipment (e.g. bins, shredders etc.), fittings, and infrastructure excluding Multi-Functional Devices and Audio Visual equipment",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova",
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14241,10 +15041,12 @@
       "name": "PropTech  (property technology) Smart Solutions & Equipment",
       "district": "Property Management Services",
       "plot": "Capital Projects",
-      "definition": null,
+      "definition": "Provision of Devices or Sensors applied to the property sector of Real Estate including, but not limited, to the following areas such as Conference Room/Desk Management, Parking,  Energy Efficiency, Lighting, Windows, Security, etc",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14276,10 +15078,12 @@
       "name": "Repairs and Maintenance",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Repairs and maintenance to Vodafone facilities (excluding RBS), outside of a bundled contract, including discrete projects.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14311,10 +15115,14 @@
       "name": "Hard FM Services Bundle",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Repairs and Maintenance to Vodafone Facilities, in a bundled contract (including payments to workmen and all consumables).",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Albania"
+      ],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -14328,7 +15136,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -14346,10 +15154,12 @@
       "name": "Helpdesk Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Helpdesk Services related to Facilities Management",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14381,10 +15191,12 @@
       "name": "Reception, Site, Porterage Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Reception, Site Services, Porterage",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14416,10 +15228,12 @@
       "name": "Catering, Vending Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Catering and Vending Services incl. equipment and consumables",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14451,10 +15265,12 @@
       "name": "Cleaning Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Cleaning including materials and consumables",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14486,10 +15302,12 @@
       "name": "Waste Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Disposal of office waste",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14521,10 +15339,12 @@
       "name": "Multifunctional Devices",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Provision of Multi-Functional Devices and individual Fax Machines, Photocopiers, Printers etc.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14556,10 +15376,18 @@
       "name": "Manguarding and Security Electronic Services",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Includes security staff and equipment (non-capitalised spend)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Albania",
+        "Germany",
+        "Portugal",
+        "Romania",
+        "VOIS Malaga"
+      ],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -14573,7 +15401,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 5,
         "cbp_active": 5,
         "cbp_draft": 1,
         "cbp_total": 6,
@@ -14583,6 +15411,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "The Reichstag",
+        "shape": "dome",
+        "market": "Germany",
+        "because": "scores 60 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -14591,10 +15425,12 @@
       "name": "Archiving",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Archiving services both paper and electronic archiving",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14626,10 +15462,15 @@
       "name": "Health & Safety and PPEs",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Health and Safety services, equipment or consumables (excluding employee benefits, wellbeing & occupational health services)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Portugal",
+        "VPC"
+      ],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -14643,7 +15484,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -14653,6 +15494,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Belem Tower",
+        "shape": "fortress",
+        "market": "Portugal",
+        "because": "scores 60 out of 100, and Portugal has adopted this blueprint"
       }
     },
     {
@@ -14661,10 +15508,12 @@
       "name": "Moves Management",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Management of the internal re-location of offices, including planning and logistics.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14696,10 +15545,14 @@
       "name": "Soft FM Services Bundle",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Soft Facility Management related services to Vodafone Facilities (excluding RBS), in a bundled contract (cleaning, security, catering, business services, reception, landscaping, pest control, waste management, archieving and mail room services etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Albania"
+      ],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -14713,7 +15566,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -14731,10 +15584,15 @@
       "name": "Total FM Services Bundle",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "A bundle of 2 or more Facility Management related services managed by 1 supplier (repair and maintenance, cleaning, security, catering, business services, reception, landscaping, pest control, archieving and mail room services, waste management etc.)",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Greece",
+        "South Africa"
+      ],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -14748,7 +15606,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 2,
         "cbp_draft": 0,
         "cbp_total": 2,
@@ -14766,10 +15624,12 @@
       "name": "Office Stationery and Consumables",
       "district": "Property Management Services",
       "plot": "Facility Management",
-      "definition": null,
+      "definition": "Stationary etc. Excludes IT consumables",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Admirim Sulaj"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14801,10 +15661,12 @@
       "name": "Employee shuttle transportation services.",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "Employee shuttle transportation services. This excludes spend from UK and Greece which are B705.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14836,10 +15698,17 @@
       "name": "Fleet Services incl. Lease",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "All charges and fees associated with fleet service provision including vehicle lease cost",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Germany",
+        "Romania",
+        "South Africa"
+      ],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 20,
@@ -14853,7 +15722,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 4,
         "cbp_active": 4,
         "cbp_draft": 0,
         "cbp_total": 4,
@@ -14863,6 +15732,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "The Victory Column",
+        "shape": "obelisk",
+        "market": "Germany",
+        "because": "scores 60 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -14871,10 +15746,12 @@
       "name": "Fuel",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "Fuel costs",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14906,10 +15783,12 @@
       "name": "Vehicle Purchases",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "Total purchase cost of Vodafone acquired vehicles including all optional extra costs. This excludes car purchases for customer marketing prizes which should be raised under Marketing.",
       "blueprint_state": "active",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 20,
@@ -14941,10 +15820,12 @@
       "name": "Vehicle Repair and Maintenance",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "Vehicle repair and maintenance charges",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -14976,10 +15857,12 @@
       "name": "Vehicle Charges, Taxes and Road Tolls",
       "district": "Property Management Services",
       "plot": "Fleet Services",
-      "definition": null,
+      "definition": "Vehicle Charges, Taxes and Road Tolls",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Emin Guluyev"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15011,10 +15894,12 @@
       "name": "Real Estate Lease Management Services (Core)",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Allocation Date",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15046,10 +15931,12 @@
       "name": "Leases and Rentals & Offices",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Rentals and other charges related to offices, call centres, warehouses.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15081,10 +15968,12 @@
       "name": "Leases and Rentals & Retail Stores",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Rentals and other charges related to retail stores.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15116,10 +16005,12 @@
       "name": "Leases and Rentals & Technical Buildings",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Rentals and other charges related to data centres, MSCs.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15151,10 +16042,12 @@
       "name": "Leases and Rentals & Other",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Rentals and other charges related to residential and other real estate types.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15186,10 +16079,12 @@
       "name": "Real Estate Energy & Non-Network",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (Core)",
-      "definition": null,
+      "definition": "Energy spend for all real estate types excluding Network.",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15221,10 +16116,14 @@
       "name": "Real Estate Lease Management Services (RBS)",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (RBS)",
-      "definition": null,
+      "definition": "Professional fees for end-to-end Radio Base Stations lease management activities.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany"
+      ],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -15238,7 +16137,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -15256,10 +16155,14 @@
       "name": "Leases and Rentals & Base Stations",
       "district": "Property Management Services",
       "plot": "Real Estate Leasing (RBS)",
-      "definition": null,
+      "definition": "Rentals and other charges related to Radio Base Stations.",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Germany"
+      ],
+      "owners": [
+        "Marco Mattucci"
+      ],
       "journey": {
         "blueprint": 25,
         "usage": 0,
@@ -15273,7 +16176,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 1,
         "cbp_active": 1,
         "cbp_draft": 0,
         "cbp_total": 1,
@@ -15291,10 +16194,15 @@
       "name": "Furniture (joinery incl. external signage and fascias)",
       "district": "Property Management Services",
       "plot": "Retail",
-      "definition": null,
+      "definition": "Furniture for retail stores including external signage and fascias",
       "blueprint_state": "active",
-      "markets": [],
-      "owners": [],
+      "markets": [
+        "Czech Republic",
+        "Turkey"
+      ],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 40,
         "usage": 0,
@@ -15308,7 +16216,7 @@
       },
       "metrics": {
         "blueprint_state": "active",
-        "market_reach": 0,
+        "market_reach": 2,
         "cbp_active": 1,
         "cbp_draft": 1,
         "cbp_total": 2,
@@ -15326,10 +16234,12 @@
       "name": "Construction and Refit Works for Retail",
       "district": "Property Management Services",
       "plot": "Retail",
-      "definition": null,
+      "definition": "Design, supervision, project management, engineering, construction, refit, upgrade and refurbishment works for retail stores",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15361,10 +16271,12 @@
       "name": "Uniforms (and other textile products)",
       "district": "Property Management Services",
       "plot": "Retail",
-      "definition": null,
+      "definition": "Uniforms for Retail sales teams including give away products for Retail campaigns",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15396,10 +16308,12 @@
       "name": "Product Security Equipments for Retail Stores",
       "district": "Property Management Services",
       "plot": "Retail",
-      "definition": null,
+      "definition": "Security products to protect live devices displayed in the Retail store",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,
@@ -15431,10 +16345,12 @@
       "name": "Retail Stationery",
       "district": "Property Management Services",
       "plot": "Retail",
-      "definition": null,
+      "definition": "Stationery for retail stores excl. IT consumables",
       "blueprint_state": "none",
       "markets": [],
-      "owners": [],
+      "owners": [
+        "Anna Baranova"
+      ],
       "journey": {
         "blueprint": 0,
         "usage": 0,

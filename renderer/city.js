@@ -2929,15 +2929,20 @@
 
   /* ------------------------------------------------------------- landmarks
    *
-   * Five categories are live in five or more markets, and each gets a world
-   * landmark drawn from a market that actually adopted that blueprint. The
-   * rule is the point: a landmark that came from nowhere would be decoration,
-   * one from an adopting market says this blueprint travelled. The pairing is
-   * decided in the build, in config/metrics.yaml; this only draws it.
+   * A high-scoring category gets a world landmark drawn from a market that
+   * actually adopted that blueprint. The rule is the point: a landmark that
+   * came from nowhere would be decoration, one from an adopting market says
+   * this blueprint travelled. The pairing is decided in the build, in
+   * config/metrics.yaml; this only draws it.
    *
-   * Ordinary lots are instanced, one draw call per shape. There are only five
-   * of these, so each is a plain group. Five extra draw calls buys geometry
-   * that no instancing scheme would have given us.
+   * Nineteen archetypes, because the table offers four monuments in every
+   * market and the four in any one market have to be told apart. A shape is
+   * reused across markets, never within one: a round tower is Pisa in Italy
+   * and Clonmacnoise in Ireland, and no category can hold both.
+   *
+   * Ordinary lots are instanced, one draw call per shape. There are at most a
+   * few dozen monuments in the whole sea, so each is a plain group. The extra
+   * draw calls buy geometry that no instancing scheme would have given us.
    */
   function landmarkGroup(shape) {
     const group = new THREE.Group();
@@ -3045,6 +3050,128 @@
       put(GOLD, 0, 4.02, 0, 1.3, 0.16, 1.3, cyl);
       put(STONE, 0, 5.1, 0, 0.2, 1.2, 0.2, cyl);
       put(STONE_DARK, 0, 5.9, 0, 0.08, 0.7, 0.08, cyl);
+    } else if (shape === "bridge") {
+      // Two towers, a deck between them, the span carried out to both banks.
+      put(STONE_DARK, 0, 0.5, 0, 3.0, 0.22, 0.9);
+      for (const dx of [-0.95, 0.95]) {
+        put(STONE, dx, 1.35, 0, 0.62, 2.7, 0.78);
+        put(STONE_DARK, dx, 2.78, 0, 0.74, 0.18, 0.9);
+        put(LEAD, dx, 3.18, 0, 0.6, 0.72, 0.72, pyramid);
+        put(GOLD, dx, 3.66, 0, 0.08, 0.3, 0.08);
+      }
+      put(STONE, 0, 1.55, 0, 1.3, 0.2, 0.62);
+      put(STONE_DARK, 0, 1.0, 0, 1.3, 0.16, 0.5);
+      for (const dx of [-1.52, 1.52]) {
+        put(STONE_DARK, dx, 0.3, 0, 0.5, 0.6, 0.8);
+      }
+    } else if (shape === "roundtower") {
+      // Stacked arcaded drums under a bell stage, standing a little off true.
+      put(STONE_DARK, 0, 0.14, 0, 2.0, 0.28, 2.0, cyl);
+      for (let i = 0; i < 6; i++) {
+        const lean = i * 0.06;
+        put(STONE, lean, 0.52 + i * 0.6, 0, 1.45, 0.46, 1.45, cyl);
+        put(STONE_DARK, lean, 0.8 + i * 0.6, 0, 1.56, 0.14, 1.56, cyl);
+      }
+      put(STONE, 0.4, 4.1, 0, 1.15, 0.5, 1.15, cyl);
+      put(STONE_DARK, 0.4, 4.42, 0, 1.26, 0.14, 1.26, cyl);
+      put(GOLD, 0.4, 4.64, 0, 0.1, 0.3, 0.1);
+    } else if (shape === "cathedral") {
+      // A long nave, a crossing spire, two west towers under open spires.
+      put(STONE_DARK, 0, 0.16, 0, 2.3, 0.32, 1.5);
+      put(STONE, 0.25, 1.0, 0, 1.7, 1.4, 1.1);
+      put(STONE_DARK, 0.25, 1.88, 0, 1.8, 0.44, 1.2, pyramid);
+      put(STONE, 0.25, 2.2, 0, 0.3, 1.0, 0.3, cyl);
+      put(STONE_DARK, 0.25, 2.95, 0, 0.26, 0.8, 0.26, cone);
+      for (const dz of [-0.42, 0.42]) {
+        put(STONE, -0.82, 1.9, dz, 0.56, 3.2, 0.56);
+        put(STONE_DARK, -0.82, 3.64, dz, 0.64, 0.28, 0.64);
+        put(LEAD, -0.82, 4.4, dz, 0.5, 1.24, 0.5, cone);
+      }
+    } else if (shape === "obelisk") {
+      // A stepped base, a tapered needle, a gilt pyramidion.
+      put(STONE_DARK, 0, 0.18, 0, 2.2, 0.36, 2.2);
+      put(STONE_DARK, 0, 0.5, 0, 1.6, 0.3, 1.6);
+      put(STONE, 0, 1.0, 0, 1.0, 0.7, 1.0);
+      put(STONE, 0, 3.05, 0, 0.56, 3.4, 0.56);
+      put(GOLD, 0, 5.1, 0, 0.58, 0.8, 0.58, pyramid);
+    } else if (shape === "arch") {
+      // A triumphal arch: two piers, an archway between, an attic above.
+      put(STONE_DARK, 0, 0.16, 0, 2.6, 0.32, 1.4);
+      for (const dx of [-0.85, 0.85]) {
+        put(STONE, dx, 1.3, 0, 0.9, 2.3, 1.2);
+        put(STONE_DARK, dx, 1.3, 0.62, 0.16, 1.6, 0.16, cyl);
+        put(STONE_DARK, dx, 1.3, -0.62, 0.16, 1.6, 0.16, cyl);
+      }
+      put(STONE, 0, 2.2, 0, 0.9, 0.5, 1.2);
+      put(STONE_DARK, 0, 2.6, 0, 2.7, 0.3, 1.35);
+      put(STONE, 0, 3.0, 0, 2.3, 0.5, 1.15);
+      put(GOLD, 0, 3.46, 0, 0.5, 0.42, 0.3);
+    } else if (shape === "windmill") {
+      // A whitewashed drum under a conical cap, sails on the face.
+      //
+      // The sails are a cross of two bars rather than four turned blades:
+      // put() writes position and scale and no rotation, and a cross at this
+      // size reads as sails from every angle the camera can take.
+      put(STONE_DARK, 0, 0.14, 0, 2.1, 0.28, 2.1, cyl);
+      put(STONE, 0, 1.5, 0, 1.5, 2.6, 1.5, cyl);
+      put(STONE_DARK, 0, 2.95, 0, 1.7, 0.3, 1.7, cyl);
+      put(LEAD, 0, 3.45, 0, 1.62, 0.9, 1.62, cone);
+      put(LEAD, 0, 2.2, 1.0, 0.26, 3.0, 0.14);
+      put(LEAD, 0, 2.2, 1.0, 3.0, 0.26, 0.14);
+      put(STONE_DARK, 0, 2.2, 1.1, 0.4, 0.4, 0.16);
+    } else if (shape === "statue") {
+      // A figure on a plinth, one arm raised.
+      //
+      // The figure carries the shape, so it takes most of the height: the
+      // first pass put a two-unit figure on a two-and-a-half-unit plinth and
+      // from across a district it read as a stump on a block.
+      put(STONE_DARK, 0, 0.2, 0, 2.2, 0.4, 2.2);
+      put(STONE_DARK, 0, 0.58, 0, 1.7, 0.36, 1.7);
+      put(STONE, 0, 1.2, 0, 1.2, 0.9, 1.2);
+      put(STONE_DARK, 0, 1.73, 0, 1.4, 0.16, 1.4);
+      put(LEAD, -0.24, 2.4, 0, 0.36, 1.3, 0.42);
+      put(LEAD, 0.24, 2.4, 0, 0.36, 1.3, 0.42);
+      put(LEAD, 0, 3.52, 0, 0.94, 1.1, 0.62);
+      put(LEAD, 0.66, 3.96, 0, 0.24, 1.5, 0.24);
+      put(LEAD, -0.6, 3.42, 0, 0.22, 1.0, 0.22);
+      put(LEAD, 0, 4.36, 0, 0.5, 0.5, 0.5, sphere);
+    } else if (shape === "aqueduct") {
+      // Two tiers of arcading carrying a channel across the lot.
+      put(STONE_DARK, 0, 0.14, 0, 3.0, 0.28, 1.0);
+      for (let i = 0; i < 5; i++) {
+        put(STONE, -1.2 + i * 0.6, 1.1, 0, 0.26, 1.9, 0.8);
+      }
+      put(STONE_DARK, 0, 2.15, 0, 3.0, 0.2, 0.9);
+      for (let i = 0; i < 9; i++) {
+        put(STONE, -1.3 + i * 0.325, 2.75, 0, 0.16, 1.0, 0.7);
+      }
+      put(STONE_DARK, 0, 3.35, 0, 3.0, 0.2, 0.8);
+      put(STONE, 0, 3.56, 0, 2.9, 0.22, 0.5);
+    } else if (shape === "stonecircle") {
+      // A lintelled outer ring around a taller inner horseshoe.
+      //
+      // Ten stones, not fourteen, and three inside rather than five. A ring
+      // has to be seen through to read as a ring: packed any tighter than
+      // this it comes out as a drum with grooves cut in it.
+      put(STONE_DARK, 0, 0.1, 0, 3.0, 0.2, 3.0, cyl);
+      ring(STONE, 10, 1.32, 1.1, 0.3, 2.2, 0.2);
+      ring(STONE_DARK, 10, 1.32, 2.32, 0.52, 0.24, 0.26);
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 5) * Math.PI * 2 - 0.9;
+        put(STONE, Math.cos(a) * 0.62, 1.5, Math.sin(a) * 0.62, 0.4, 3.0, 0.26);
+      }
+    } else if (shape === "fortress") {
+      // A curtain wall on a rock, four corner bastions, a gatehouse.
+      put(STONE_DARK, 0, 0.25, 0, 3.0, 0.5, 2.4, cyl);
+      put(STONE, 0, 1.0, 0, 2.4, 1.0, 1.9);
+      ring(STONE_DARK, 12, 1.15, 1.62, 0.26, 0.3, 0.26);
+      for (const [dx, dz] of [[-1.0, 0.75], [1.0, 0.75], [-1.0, -0.75], [1.0, -0.75]]) {
+        put(STONE, dx, 1.3, dz, 0.66, 2.0, 0.66, cyl);
+        put(STONE_DARK, dx, 2.42, dz, 0.78, 0.22, 0.78, cyl);
+      }
+      put(STONE, 0, 1.7, 0.78, 0.9, 2.4, 0.5);
+      put(STONE_DARK, 0, 2.98, 0.78, 1.0, 0.2, 0.6);
+      put(LEAD, 0, 3.3, 0.78, 0.3, 0.44, 0.06);
     } else {
       return null;
     }
@@ -5819,6 +5946,16 @@
         + `<td>${Math.round(c.metrics.journey_score)} out of 100, from ${c.landmark.market}</td></tr>`)
       .join("");
 
+    /* How deep the monument table is, read from the table itself.
+     *
+     * Written out rather than asserted in prose so the paragraph cannot
+     * outlive the config: the floor is the shallowest market's list, and the
+     * count is how many markets carry one at all. */
+    const marketLists = Object.values((CONFIG.landmarks || {}).by_market || {});
+    const marketCount = marketLists.length;
+    const listFloor = marketLists.length
+      ? Math.min(...marketLists.map((list) => list.length)) : 0;
+
     const caveats = (copy.caveats || []).map((item) =>
       `<div class="caveat"><div class="title">${item.title}</div><p>${item.body}</p></div>`
     ).join("");
@@ -5935,6 +6072,14 @@
                exist, which is the number that matters; past that, the lowest
                scorers of the qualifying set go without.`
             : "There is no cap on the number, so the threshold is the only lever."}</p>
+        <p>And a monument stands once across the whole sea. ${marketCount}
+          markets carry a list of ${listFloor} monuments or more, which is one
+          for a category on each of the four islands, and a category takes the
+          first one nobody has claimed. When a market's list is spent it falls
+          through to the next market on the same blueprint, so the shape
+          always names somewhere the blueprint actually reached. A category
+          live only in a group-wide entity names no country at all, and earns
+          its height and its houses without a monument.</p>
         <table><thead><tr><th>Monument</th><th>Lot</th><th>Earned</th></tr></thead>
           <tbody>${monuments}</tbody></table>
       </section>
