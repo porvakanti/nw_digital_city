@@ -644,6 +644,15 @@
   // Low segment counts: these appear on at most a handful of monuments, and a
   // sphere is the one shape the brick vocabulary cannot fake.
   const sphere = new THREE.SphereGeometry(0.5, 14, 10);
+  /* An invisible solid, for the pointer to hit.
+   *
+   * Declared up here with the geometries because the island grounds are built
+   * while the sea is laid out, which is long before the lots are, and a const
+   * cannot be read before the line that declares it has run. */
+  const pickMaterial = new THREE.MeshBasicMaterial({
+    transparent: true, opacity: 0, depthWrite: false,
+  });
+
   /* The reactor beam, tapered.
    *
    * A straight cylinder is the same width at the roof as it is thirteen units
@@ -1400,6 +1409,9 @@
   const ISLE_BAR_D = 11.5;   // bar depth in world units, front to back
   const ISLE_BAR_PPU = 18;   // canvas pixels per world unit
   const islandNames = [];
+  // The islands' own ground, as a way into a city. Separate from the
+  // nameplates because it is only offered at the wide view.
+  const islandGrounds = [];
 
   function nameplate(text) {
     const h = Math.round(ISLE_BAR_D * ISLE_BAR_PPU);
@@ -1462,6 +1474,27 @@
       island.nameBar = { cap: bar.cap, w: bar.w, d: bar.d };
       scene.add(bar.mesh);
       islandNames.push(bar.mesh);
+
+      /* And the island itself.
+       *
+       * A nameplate is a 320-pixel target on a screen whose left column is
+       * panels from the masthead to the ask box, so one city's name lands
+       * under the guide and cannot be pressed at all. The ground is the
+       * thing nothing can cover: an island is a third of the view wide, so
+       * some of it is always exposed whatever the panels do.
+       *
+       * Low and under the lots, so a click on a building is still a click on
+       * that building. Only live at the wide view, where picking out a single
+       * lot is not a thing anybody is doing: inside a city the ground belongs
+       * to the city, not to the way out of it.
+       */
+      const ground = new THREE.Mesh(box, pickMaterial);
+      ground.scale.set(island.plateW, 0.6, island.plateD);
+      ground.position.set(island.ox, 0.3, island.oz);
+      ground.userData.estate = island.id;
+      ground.userData.label = island.label;
+      scene.add(ground);
+      islandGrounds.push(ground);
     }
   }
 
@@ -2923,10 +2956,6 @@
   buildStreetscape();
 
   const pickTargets = [];
-  const pickMaterial = new THREE.MeshBasicMaterial({
-    transparent: true, opacity: 0, depthWrite: false,
-  });
-
   /* ------------------------------------------------------------- landmarks
    *
    * A high-scoring category gets a world landmark drawn from a market that
@@ -4012,6 +4041,10 @@
       + `<p class="asof">Figures as at <b>${when}</b>. Spend is FY26/27 to that date.</p>`;
     document.getElementById("scope").textContent =
       `${CITY.meta.counts.districts} districts · ${CITY.meta.counts.plots} plots · ${CITY.meta.counts.categories} buildings`;
+    // The masthead is only as tall as what has just been written into it, so
+    // the guide underneath is measured against it here rather than at load,
+    // when the figures are not in yet.
+    keepTheLeftColumnClear();
   }
 
   /* The sea only needs explaining when there is one.
@@ -4539,6 +4572,27 @@
       }
     }
     return null;
+  }
+
+  /* Keep the left column's panels off each other.
+   *
+   * The guide is pinned to the bottom left and the masthead to the top left,
+   * and the only thing between them was a constant in the stylesheet that
+   * guessed the masthead's height. Adding a line to the masthead made the
+   * guess wrong and the guide opened across the date the figures are true as
+   * of, which is the one line on the screen that has to be read before the
+   * figures are believed.
+   *
+   * Measured on load and on resize, because the masthead's height depends on
+   * how its chips wrap, which depends on the width.
+   */
+  function keepTheLeftColumnClear() {
+    const masthead = document.getElementById("masthead");
+    const guide = document.getElementById("legend");
+    if (!masthead || !guide) return;
+    const below = masthead.getBoundingClientRect().bottom;
+    const room = Math.max(160, window.innerHeight - below - 20 - 16);
+    guide.style.maxHeight = `${Math.round(room)}px`;
   }
 
   function offerTheWayBack() {
@@ -5659,8 +5713,17 @@
       -(clientY / window.innerHeight) * 2 + 1
     );
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(
-      islandNames.length ? pickTargets.concat(islandNames) : pickTargets, false)[0];
+    /* One raycast over everything that can be picked.
+     *
+     * Asked separately with the nameplates first, a bar took every pixel of
+     * the tower thrown down the screen across it. The island grounds join the
+     * same cast and sit below the lots, so a lot always wins where there is
+     * one.
+     */
+    const targets = islandNames.length
+      ? pickTargets.concat(islandNames, insideACity() ? [] : islandGrounds)
+      : pickTargets;
+    const hit = raycaster.intersectObjects(targets, false)[0];
     if (!hit) return null;
     const data = hit.object.userData;
     return data.category ? { lot: data.category } : { island: data };
@@ -6332,6 +6395,7 @@
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     applyCamera();
+    keepTheLeftColumnClear();
   });
 
   // ------------------------------------------------------------- public API

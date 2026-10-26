@@ -1280,6 +1280,57 @@ async function onAPhone(browser) {
       "one island, which is the city and is not named on the water");
   }
 
+  /* And the island itself is a way in, on every island.
+   *
+   * A nameplate is a 320-pixel target, and the left column of this screen is
+   * panels from the masthead to the ask box: one city's name landed under the
+   * guide and could not be pressed at all, which is the kind of fault that
+   * only shows up on the city that happens to be in that corner. The ground
+   * cannot be covered the same way, so the check walks all four and asks for
+   * a point on each that no panel is over.
+   */
+  const wayIn = [];
+  for (const id of await page.evaluate(() =>
+    window.NWCity.islands().map((i) => i.id))) {
+    await page.evaluate(() => window.NWCity.reset());
+    await cameraSettled(page);
+    const spot = await page.evaluate((want) => {
+      const island = window.NWCity.islands().find((i) => i.id === want);
+      const xs = island.screen.map((c) => c[0]);
+      const ys = island.screen.map((c) => c[1]);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      const y0 = Math.min(...ys), y1 = Math.max(...ys);
+      for (let fx = 0.2; fx <= 0.8; fx += 0.15) {
+        for (let fy = 0.2; fy <= 0.8; fy += 0.15) {
+          const x = Math.round(x0 + (x1 - x0) * fx);
+          const y = Math.round(y0 + (y1 - y0) * fy);
+          const el = document.elementFromPoint(x, y);
+          if (el && el.tagName === "CANVAS") return { x, y };
+        }
+      }
+      return null;
+    }, id);
+    if (!spot) { wayIn.push(`${id}: no exposed ground`); continue; }
+    await page.mouse.click(spot.x, spot.y);
+    await cameraSettled(page);
+    const landed = await page.evaluate((want) => {
+      const island = window.NWCity.islands().find((i) => i.id === want);
+      const state = window.NWCity.state();
+      return { off: Math.hypot(state.target[0] - island.x, state.target[1] - island.z),
+               size: state.size, deed: !!document.querySelector("#inspector.on") };
+    }, id);
+    // A click that found a lot instead opens that lot's deed, which is the
+    // right answer for a lot and not an answer about the island.
+    if (!landed.deed && landed.off > 2) {
+      wayIn.push(`${id}: landed ${landed.off.toFixed(1)} away`);
+    }
+  }
+  check("every island's own ground is a way into that city",
+    wayIn.length === 0,
+    wayIn.length ? wayIn.join("; ") : "all four reached by clicking their ground");
+  await page.evaluate(() => window.NWCity.reset());
+  await cameraSettled(page);
+
   /* A monument has to be taller than every plain tower.
    *
    * It used to replace the tower and was drawn at a fixed height, so the five

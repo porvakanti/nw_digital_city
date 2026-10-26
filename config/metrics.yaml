@@ -527,6 +527,11 @@ score:
       label: Traditional
       detail: a blueprint exists
       detail_zero: no blueprint yet
+      # What the band means for a whole estate rather than for one lot. The
+      # per-lot wording was being used for both, so the organisation read
+      # "Traditional: a blueprint exists", which is nonsense about 388 lots:
+      # a few hundred of them have no blueprint at all.
+      detail_org: most of the estate short of a live blueprint
       means: >-
         Anything short of a blueprint live in more than one market. The
         blueprint is missing, drafted, or live in a single market. Nothing in
@@ -536,6 +541,7 @@ score:
       from: 40
       label: Connected
       detail: one blueprint, several markets
+      detail_org: written down across the estate, and not yet used
       means: >-
         The rules are written and live in several markets, and that is all. 40
         of the 100 marks are for the blueprint alone, so a category arriving
@@ -545,6 +551,7 @@ score:
       from: 54
       label: Smart
       detail: in use, and with AI
+      detail_org: written down, and used in places
       means: >-
         The blueprint, plus something real on top of it: a sourcing event run
         through it, worth 20, or a brief generated from its own rules, worth
