@@ -168,33 +168,53 @@ anything about it feels wrong to show, that is the finding worth reporting.
 
 ### F. The landmarks
 
-27. 9 monuments across the sea, one per category scoring 50 or more on the
-    journey. The monument marks progress; the shape says which market it
+27. 24 monuments across the sea, one per category scoring 50 or more on
+    the journey. The monument marks progress; the shape says which market it
     travelled to:
 
 | Code | Category | Monument | Island | From |
 | --- | --- | --- | --- | --- |
 | A251 | Network Professional Services | Big Ben | Network | UK, score 100 |
+| B231 | Analytics and Intelligence Professional Services - Application Development (CAPEX) | Tower Bridge | IT&E | UK, score 100 |
 | A213 | Global Testing | Brandenburg Gate | Network | Germany, score 85 |
+| B209 | IT Security Services & Requirement Specifications, Design, Build, Deploy | Stonehenge | IT&E | UK, score 75 |
 | D506 | Construction Services/Civil Works | The Pyramids | Network | Egypt, score 75 |
-| J201 | User Experience Solutions | The Colosseum | Commercial & Services | Italy, score 75 |
+| J201 | User Experience Solutions | The Great Sphinx | Commercial & Services | Egypt, score 75 |
 | A212 | Operations Support System (OSS) Services | Berlin TV Tower | Network | Germany, score 65 |
+| B227 | Corporate Systems Services - Requirement Specifications, Design, Build, Deploy (CAPEX) | Tower of London | IT&E | UK, score 65 |
+| B301 | Construction Works (Offices, Call Centers and Other Properties exc. Retail and RBS) | Blarney Castle | Corporate Services and Property | Ireland, score 60 |
+| B408 | Manguarding and Security Electronic Services | The Reichstag | Corporate Services and Property | Germany, score 60 |
+| B411 | Health & Safety and PPEs | Belem Tower | Corporate Services and Property | Portugal, score 60 |
+| B901 | Fleet Services incl. Lease | The Victory Column | Corporate Services and Property | Germany, score 60 |
 | D408 | Self-Build Fibre & installation services | The Parthenon | Network | Greece, score 60 |
-| D513 | Power Supply | Hagia Sophia | Network | Turkey, score 55 |
+| H201 | Datacentre Hardware & Servers | Galata Tower | IT&E | Turkey, score 60 |
+| B105 | Strategic Consultancy | The Hohenzollern Bridge | Corporate Services and Property | Germany, score 55 |
+| B111 | Corporate Systems Services - Demand, Design, Run, Operate and Maintain (OPEX) | The White Tower of Thessaloniki | IT&E | Greece, score 55 |
+| B232 | Analytics and Intelligence Professional Services - Pre/Post Application Development (OPEX) | The Lion Gate of Mycenae | IT&E | Greece, score 55 |
+| B423 | Customer Care & Technical Support | Neuschwanstein Castle | Commercial & Services | Germany, score 55 |
+| B607 | Permanent Recruitment | Bran Castle | Corporate Services and Property | VOIS Romania, score 55 |
 | D333 | TV Software | Rozafa Castle | Network | Albania, score 55 |
+| D513 | Power Supply | Hagia Sophia | Network | Turkey, score 55 |
+| K202 | Digital Channels & Engineering (i.e. Retail, Online Channels and Contact Centre) - Software Support/Maintenance, and SaaS (OPEX) | Cologne Cathedral | IT&E | Germany, score 55 |
 | A314 | Access Transmission Services | Palace of the Parliament | Network | Romania, score 50 |
+| B228 | Corporate Systems - Software Support/Maintenance, and SaaS (OPEX) | The Windmills of Mykonos | IT&E | Greece, score 50 |
 
-    Sixteen other categories clear the threshold and get nothing, because the
-    config carries a landmark for only 8 of the 27 markets in the data.
-    Ireland, Portugal, the Czech Republic and the entities that are not
-    countries at all supply none, so a category that reached only those has
-    nothing to be given. That is a gap in the landmark table, not in the
-    data.
+    No monument stands twice. Every market carries at least four of them, so a
+    market that is the furthest reach of a category on each of the four
+    islands can still give each one a monument of its own; Germany carries
+    eight, because fourteen qualifying categories name it and seven of them
+    reach it before any other market they named. Past that a category falls
+    through to another market on the same blueprint.
+
+    One category clears the threshold and gets nothing. J403 is live in VGE
+    alone, which is a group-wide entity rather than a country, so there is no
+    country's landmark to draw from. That is the design: a monument says where
+    a blueprint travelled, and an entity is not a somewhere.
 
 28. Each stands **in place of** its building, on the ground, on a low stone
     terrace. The lot underneath is widened to the ground the shape needs, so a
     monument lot is visibly larger than its neighbours as well as taller:
-    every monument clears every plain tower. All nine are drawn to one
+    every monument clears every plain tower. All of them are drawn to one
     height, because the monument marks that the threshold was passed and the
     score itself is on the title deed, the arc and the scoreboard.
 29. Each monument comes from a market that actually adopted that blueprint.

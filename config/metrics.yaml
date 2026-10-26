@@ -635,35 +635,150 @@ landmarks:
   caption: >-
     A monument replaces the building, on a lot widened to hold it
 
-  # Ordered by preference. The highest-scoring category picks first, and takes
-  # the first unused monument from the first of its markets that appears here.
+  # Markets that have no landmarks of their own, and whose list to read.
   #
-  # A market may list several monuments. Germany carries 23 of the 112
-  # blueprint records, more than any other market, so it carries more than one
-  # high scorer; with a single monument per market the second of them would
-  # have been left with nothing.
+  # Three kinds of name turn up in the market column. A country is itself. A
+  # shared-service centre names the city that hosts it, so it borrows that
+  # country's monuments: a blueprint adopted by the Malaga centre travelled to
+  # Spain. A group-wide entity names no geography at all, so it is aliased
+  # nowhere and the category falls through to the countries on the same
+  # blueprint. That leaves one gap by construction: a category whose only
+  # market is a group entity gets no monument however well it scores, which is
+  # the honest answer, since there is no country to draw one from.
+  market_aliases:
+    VOIS Malaga: Spain
+    VOIS Romania: Romania
+    VOIS Budapest: Hungary
+    Vodacom Congo: DR Congo
+    Vodacom Lesotho: Lesotho
+
+  # Ordered by preference. The highest-scoring category picks first, and takes
+  # the first unclaimed monument from the first of its markets that appears
+  # here.
+  #
+  # Four monuments in every market, and never fewer. One each was enough while
+  # only Networks carried market data; with all four islands reading it,
+  # Germany is named by fourteen qualifying categories and VGS by eleven, so a
+  # single monument per market left the rest of a market's high scorers with
+  # bare lots. Four is the number of islands, so a market that is major for one
+  # category on each island can still give all four a monument of its own.
+  #
+  # Past four, a market falls through to another market on the same blueprint,
+  # which is why four is a floor rather than a guess at the maximum: a category
+  # scoring 50 or over names eight markets on average, and only three of the
+  # qualifying categories name a single one. The build prints a warning naming
+  # any category it could not place, and the fix is one more line here.
+  #
+  # A shape may be reused across markets and may not repeat inside one. The
+  # four in any market have to be distinguishable from each other, because
+  # those are the four a single market's categories choose between; two markets
+  # sharing a round tower are never in the same choice.
   #
   # Every shape listed here must be implemented in renderer/city.js. Five were
-  # declared and never built, which went unnoticed only because the old
-  # threshold happened to need exactly the five that existed.
+  # declared and never built at one point, which went unnoticed only because
+  # the threshold happened to need exactly the five that existed.
   by_market:
     UK:
       - {name: Big Ben, shape: clocktower}
+      - {name: Tower Bridge, shape: bridge}
+      - {name: Stonehenge, shape: stonecircle}
+      - {name: Tower of London, shape: fortress}
     Egypt:
       - {name: The Pyramids, shape: pyramid}
+      - {name: The Great Sphinx, shape: statue}
+      - {name: The Luxor Obelisk, shape: obelisk}
+      - {name: The Citadel of Cairo, shape: fortress}
     Italy:
       - {name: The Colosseum, shape: colosseum}
+      - {name: The Leaning Tower of Pisa, shape: roundtower}
+      - {name: Florence Cathedral, shape: dome}
+      - {name: The Rialto Bridge, shape: bridge}
     Greece:
       - {name: The Parthenon, shape: parthenon}
+      - {name: The White Tower of Thessaloniki, shape: roundtower}
+      - {name: The Lion Gate of Mycenae, shape: gate}
+      - {name: The Windmills of Mykonos, shape: windmill}
+    # Eight rather than four, and the one market measured rather than assumed.
+    # Germany is named by fourteen of the qualifying categories, more than any
+    # other market, and it sits early enough in this order that seven of them
+    # reach it before any other market they name. Four left three of those
+    # seven on bare lots. The eighth entry is the spare: it is what a market
+    # needs so that the next category to cross the threshold does not have to
+    # wait for a config change.
     Germany:
       - {name: Brandenburg Gate, shape: gate}
       - {name: Berlin TV Tower, shape: spire_sphere}
+      - {name: Cologne Cathedral, shape: cathedral}
+      - {name: Neuschwanstein Castle, shape: castle}
+      - {name: The Reichstag, shape: dome}
+      - {name: The Victory Column, shape: obelisk}
+      - {name: The Hohenzollern Bridge, shape: bridge}
+      - {name: The Porta Nigra, shape: arch}
     Turkey:
       - {name: Hagia Sophia, shape: dome}
+      - {name: Galata Tower, shape: roundtower}
+      - {name: Topkapi Palace, shape: palace}
+      - {name: The Aqueduct of Valens, shape: aqueduct}
     Albania:
       - {name: Rozafa Castle, shape: castle}
+      - {name: Berat Fortress, shape: fortress}
+      - {name: The Clock Tower of Tirana, shape: clocktower}
+      - {name: The Amphitheatre of Butrint, shape: colosseum}
     Romania:
       - {name: Palace of the Parliament, shape: palace}
+      - {name: Bran Castle, shape: castle}
+      - {name: The Black Church of Brasov, shape: cathedral}
+      - {name: The Arch of Triumph, shape: arch}
+    Ireland:
+      - {name: Blarney Castle, shape: castle}
+      - {name: The Round Tower of Clonmacnoise, shape: roundtower}
+      - {name: The Spire of Dublin, shape: obelisk}
+      - {name: The Ha'penny Bridge, shape: bridge}
+    Portugal:
+      - {name: Belem Tower, shape: fortress}
+      - {name: Jeronimos Monastery, shape: cathedral}
+      - {name: Pena Palace, shape: palace}
+      - {name: The Aqueduct of the Free Waters, shape: aqueduct}
+    Czech Republic:
+      - {name: Charles Bridge, shape: bridge}
+      - {name: The Prague Astronomical Clock, shape: clocktower}
+      - {name: St Vitus Cathedral, shape: cathedral}
+      - {name: Prague Castle, shape: castle}
+    Spain:
+      - {name: The Sagrada Familia, shape: cathedral}
+      - {name: The Alhambra, shape: palace}
+      - {name: The Aqueduct of Segovia, shape: aqueduct}
+      - {name: The Torre del Oro, shape: roundtower}
+    Hungary:
+      - {name: The Hungarian Parliament, shape: palace}
+      - {name: Fisherman's Bastion, shape: fortress}
+      - {name: The Chain Bridge, shape: bridge}
+      - {name: St Stephen's Basilica, shape: dome}
+    South Africa:
+      - {name: The Union Buildings, shape: palace}
+      - {name: The Castle of Good Hope, shape: fortress}
+      - {name: Cape Town City Hall, shape: clocktower}
+      - {name: The Mandela Bridge, shape: bridge}
+    Mozambique:
+      - {name: The Fortress of Maputo, shape: fortress}
+      - {name: Maputo Central Station, shape: dome}
+      - {name: Maputo Cathedral, shape: cathedral}
+      - {name: The Maputo-Katembe Bridge, shape: bridge}
+    Tanzania:
+      - {name: The House of Wonders, shape: palace}
+      - {name: The Old Fort of Zanzibar, shape: fortress}
+      - {name: The Askari Monument, shape: statue}
+      - {name: Azania Front Cathedral, shape: cathedral}
+    DR Congo:
+      - {name: The Limete Tower, shape: obelisk}
+      - {name: The Palais de la Nation, shape: palace}
+      - {name: Notre-Dame du Congo, shape: cathedral}
+      - {name: The Matadi Bridge, shape: bridge}
+    Lesotho:
+      - {name: Thaba Bosiu, shape: fortress}
+      - {name: The Royal Palace of Maseru, shape: palace}
+      - {name: Our Lady of Victories Cathedral, shape: cathedral}
+      - {name: The Qiloane Pinnacle, shape: obelisk}
 
 # ---------------------------------------------------------------------------
 # METRIC REGISTRY

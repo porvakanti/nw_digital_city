@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-10-26T12:19:35+00:00",
+    "generated_at": "2026-10-26T12:53:16+00:00",
     "source": "Digital_City_Data_TH.xlsx",
     "source_extract_date": "2026-08-06",
     "scope": "Network, IT&E, Commercial & Services, Corporate Services and Property (Level 1)",
@@ -7191,6 +7191,12 @@
         "ai_rfps": 1,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Galata Tower",
+        "shape": "roundtower",
+        "market": "Turkey",
+        "because": "scores 60 out of 100, and Turkey has adopted this blueprint"
       }
     },
     {
@@ -9043,6 +9049,12 @@
         "ai_rfps": 3,
         "cbp_used": 2,
         "journey_score": 100
+      },
+      "landmark": {
+        "name": "Tower Bridge",
+        "shape": "bridge",
+        "market": "UK",
+        "because": "scores 100 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -9090,6 +9102,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The Lion Gate of Mycenae",
+        "shape": "gate",
+        "market": "Greece",
+        "because": "scores 55 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -9249,6 +9267,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The White Tower of Thessaloniki",
+        "shape": "roundtower",
+        "market": "Greece",
+        "because": "scores 55 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -9334,6 +9358,12 @@
         "ai_rfps": 3,
         "cbp_used": 0,
         "journey_score": 65
+      },
+      "landmark": {
+        "name": "Tower of London",
+        "shape": "fortress",
+        "market": "UK",
+        "because": "scores 65 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -9373,6 +9403,12 @@
         "ai_rfps": 3,
         "cbp_used": 0,
         "journey_score": 50
+      },
+      "landmark": {
+        "name": "The Windmills of Mykonos",
+        "shape": "windmill",
+        "market": "Greece",
+        "because": "scores 50 out of 100, and Greece has adopted this blueprint"
       }
     },
     {
@@ -9534,6 +9570,12 @@
         "ai_rfps": 1,
         "cbp_used": 1,
         "journey_score": 75
+      },
+      "landmark": {
+        "name": "Stonehenge",
+        "shape": "stonecircle",
+        "market": "UK",
+        "because": "scores 75 out of 100, and UK has adopted this blueprint"
       }
     },
     {
@@ -9851,6 +9893,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Cologne Cathedral",
+        "shape": "cathedral",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -10465,6 +10513,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Neuschwanstein Castle",
+        "shape": "castle",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -11017,10 +11071,10 @@
         "journey_score": 75
       },
       "landmark": {
-        "name": "The Colosseum",
-        "shape": "colosseum",
-        "market": "Italy",
-        "because": "scores 75 out of 100, and Italy has adopted this blueprint"
+        "name": "The Great Sphinx",
+        "shape": "statue",
+        "market": "Egypt",
+        "because": "scores 75 out of 100, and Egypt has adopted this blueprint"
       }
     },
     {
@@ -11682,6 +11736,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "The Hohenzollern Bridge",
+        "shape": "bridge",
+        "market": "Germany",
+        "because": "scores 55 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -13257,6 +13317,12 @@
         "ai_rfps": 1,
         "cbp_used": 0,
         "journey_score": 55
+      },
+      "landmark": {
+        "name": "Bran Castle",
+        "shape": "castle",
+        "market": "VOIS Romania",
+        "because": "scores 55 out of 100, and VOIS Romania has adopted this blueprint"
       }
     },
     {
@@ -14848,6 +14914,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Blarney Castle",
+        "shape": "castle",
+        "market": "Ireland",
+        "because": "scores 60 out of 100, and Ireland has adopted this blueprint"
       }
     },
     {
@@ -15339,6 +15411,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "The Reichstag",
+        "shape": "dome",
+        "market": "Germany",
+        "because": "scores 60 out of 100, and Germany has adopted this blueprint"
       }
     },
     {
@@ -15416,6 +15494,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "Belem Tower",
+        "shape": "fortress",
+        "market": "Portugal",
+        "because": "scores 60 out of 100, and Portugal has adopted this blueprint"
       }
     },
     {
@@ -15648,6 +15732,12 @@
         "ai_rfps": 0,
         "cbp_used": 1,
         "journey_score": 60
+      },
+      "landmark": {
+        "name": "The Victory Column",
+        "shape": "obelisk",
+        "market": "Germany",
+        "because": "scores 60 out of 100, and Germany has adopted this blueprint"
       }
     },
     {

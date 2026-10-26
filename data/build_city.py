@@ -348,15 +348,18 @@ def assign_landmarks(categories, config, taken=None) -> None:
     from a market that adopted it, so the monument says where it travelled
     rather than decorating.
 
-    A market may supply more than one monument, because a market carrying
-    several high scorers would otherwise leave the lower-scoring ones with
-    nothing. Each monument is still used once, highest score first, so the
-    strongest performer gets the first choice from its markets.
+    Every market supplies four monuments, because a market carrying several
+    high scorers would otherwise leave all but the first of them with nothing.
+    Each monument is used once across the whole sea, highest score first, so
+    the strongest performer takes the first choice from its markets and the
+    next one down takes what is left. A market whose four are all standing
+    somewhere else falls through to the next market on the same blueprint.
     """
     rules = config.get("landmarks") or {}
     floor = rules.get("min_score", 50)
     cap = rules.get("max_landmarks")
     by_market = rules.get("by_market") or {}
+    aliases = rules.get("market_aliases") or {}
 
     qualifying = sorted(
         (c for c in categories
@@ -378,26 +381,42 @@ def assign_landmarks(categories, config, taken=None) -> None:
     # have the day the other three arrive.
     if taken is None:
         taken = set()
+
+    def lists_for(category):
+        """The monument lists this category may draw from, in table order.
+
+        A market either holds a list of its own or is aliased onto one: a
+        shared-service centre has no landmarks, so it reads the country that
+        hosts it. Each list is paired with the market name as the data spells
+        it, because that is the market that adopted the blueprint and the one
+        the title deed has to credit.
+        """
+        found = {}
+        for market in category["markets"]:
+            key = aliases.get(market, market)
+            if key in by_market:
+                found.setdefault(key, market)
+        return [(key, found[key]) for key in by_market if key in found]
+
     for category in eligible:
-        placed = False
-        for market, monuments in by_market.items():
-            if market not in category["markets"]:
+        for key, market in lists_for(category):
+            monument = next(
+                (m for m in by_market[key] if m["name"] not in taken), None)
+            # Every monument in that market is standing somewhere else, so
+            # try the next market on the same blueprint. Four deep per market
+            # means this is rare, and a category that runs out of markets
+            # entirely is named in the warning below.
+            if monument is None:
                 continue
-            for monument in monuments:
-                if monument["name"] in taken:
-                    continue
-                taken.add(monument["name"])
-                category["landmark"] = {
-                    "name": monument["name"],
-                    "shape": monument["shape"],
-                    "market": market,
-                    "because": (f"scores {round(category['journey']['total'])} out of "
-                                f"100, and {market} has adopted this blueprint"),
-                }
-                placed = True
-                break
-            if placed:
-                break
+            taken.add(monument["name"])
+            category["landmark"] = {
+                "name": monument["name"],
+                "shape": monument["shape"],
+                "market": market,
+                "because": (f"scores {round(category['journey']['total'])} out of "
+                            f"100, and {market} has adopted this blueprint"),
+            }
+            break
 
     named = [c for c in categories if c.get("landmark")]
     short = [c["code"] for c in eligible if not c.get("landmark")]

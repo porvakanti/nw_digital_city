@@ -1556,6 +1556,16 @@ async function onAPhone(browser) {
     for (const list of Object.values(config.by_market || {})) {
       for (const m of list) shapes.add(m.name);
     }
+    /* The monuments one market can draw from.
+     *
+     * Resolved through the alias map, the way the build resolves it: a
+     * shared-service centre has no landmarks of its own and reads the
+     * country that hosts it, so a check that looked the market name up
+     * directly would excuse a category the build placed.
+     */
+    const aliases = config.market_aliases || {};
+    const listFor = (market) =>
+      (config.by_market || {})[aliases[market] || market] || [];
     return {
       drawn: window.NWCity.monuments(),
       earned: earned.map((c) => c.code).sort(),
@@ -1572,9 +1582,9 @@ async function onAPhone(browser) {
        * There are two reasons, and both are the design rather than a fault.
        * A monument is drawn from a market that actually adopted the
        * blueprint, so a category whose markets supply no monument cannot
-       * have one: today nineteen of the twenty-seven markets in the data
-       * have no landmark configured, among them Ireland, Portugal and the
-       * entities that are not countries at all. And a monument stands once
+       * have one: eighteen of the twenty-seven markets in the data carry a
+       * list, and the nine that do not are the group-wide entities, which
+       * name no country to draw a monument from. And a monument stands once
        * on the whole sea, so a category can qualify, reach a market that
        * does supply one, and still find every one of them already standing
        * somewhere else.
@@ -1587,8 +1597,7 @@ async function onAPhone(browser) {
         .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor
                     && !c.landmark)
         .filter((c) => {
-          const reachable = (c.markets || [])
-            .flatMap((m) => (config.by_market || {})[m] || []);
+          const reachable = (c.markets || []).flatMap(listFor);
           // Nothing to award from at all.
           if (!reachable.length) return false;
           // Or everything it could reach is already standing elsewhere.
@@ -1602,8 +1611,7 @@ async function onAPhone(browser) {
       noLandmarkInMarket: window.NW_CITY.categories
         .filter((c) => c.blueprint_state === "active" && c.journey.total >= floor
                     && !c.landmark && (c.markets || []).length
-                    && !(c.markets || []).some(
-                      (m) => ((config.by_market || {})[m] || []).length))
+                    && !(c.markets || []).some((m) => listFor(m).length))
         .map((c) => c.code),
     };
   });
@@ -1626,9 +1634,9 @@ async function onAPhone(browser) {
    * A monument says which market carried a blueprint furthest. The same one
    * on two islands says that twice about two different categories, which is
    * not a thing the data can mean, and a viewer who recognises the shape has
-   * no way to tell which of the two they are looking at. Only Networks has
-   * supplied a market list so far, so nothing can collide today; it could
-   * the day the other three arrive, which is the point of asserting it now.
+   * no way to tell which of the two they are looking at. All four islands
+   * carry market data now and Germany is named on every one of them, so this
+   * is the check that holds the claim up.
    */
   const standing = monuments.named.map((n) => n.replace(/ \(.*$/, ""));
   const repeated = standing.filter((n, i) => standing.indexOf(n) !== i);
