@@ -331,7 +331,9 @@ anything about it feels wrong to show, that is the finding worth reporting.
     and what clicking it does.
 67. Click a name bar. The camera flies into that city and the control at the
     top becomes **Global view**. **Zoom into** goes away, because there is
-    nothing to pick between from inside a city.
+    nothing to pick between from inside a city. The city should fill the
+    frame: district names readable, monuments recognisable, trams and
+    traffic visible. A rim of water, not a field of it.
 68. **Global view**, or the `R` key, brings you back out, and the list of
     cities comes back with it.
 69. Pick a different city from the list. The rail now reads that island's

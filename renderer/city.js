@@ -4183,25 +4183,60 @@
     }
   }
 
+  /* How one city is framed when the camera goes to it.
+   *
+   * It used to be a fraction of the island's widest plate edge, and a plate
+   * is not the city standing on it: the apron is the empty ground a tall
+   * building leans over, and on IT&E it is a third of the plate's width.
+   * Framed with it, going into a city left the city filling about half the
+   * screen with sea round the rest, which is the complaint the opening view
+   * had before it was tightened the same way.
+   *
+   * So a city is framed the way the region is: the built ground plus a rim
+   * of water, measured through the projection that will draw it. Each
+   * island then gets the framing its own content needs rather than a share
+   * of the largest one's plate, which is what IT&E was paying for.
+   */
+  const ISLAND_WATER = 14;   // world units of water kept around one city
+
+  function frameIsland(island) {
+    return fitTo(new THREE.Box3(
+      new THREE.Vector3(island.ox - island.w / 2 - ISLAND_WATER, 0,
+                        island.oz - island.d / 2 - ISLAND_WATER),
+      new THREE.Vector3(island.ox + island.w / 2 + ISLAND_WATER, 22,
+                        island.oz + island.d / 2 + ISLAND_WATER)
+    ), 1.0);
+  }
+
   /* The widest framing that still counts as being inside a city.
    *
    * It used to be a fraction of the opening view, and the fraction stopped
    * meaning anything the day the opening view was tightened to the built
-   * ground: framing the largest island takes 112 units against an opening
-   * view of about 150, and the old fraction called that still outside, so
-   * the way back out stayed hidden with the camera sitting over one island.
+   * ground: it called the camera sitting over one island "still outside",
+   * and left the way back out hidden.
    *
-   * Measured against the thing it is deciding about instead. Going into a
-   * city frames that island's plate, so that framing and a little wider is
-   * inside one, and the opening view is never allowed to be.
+   * Measured against the thing it is deciding instead. Going into the
+   * largest city frames it at 69 units against an opening view of 151, so
+   * anything at that framing or half again as wide is inside a city, and
+   * the opening view is never allowed to be.
    */
-  const ISLAND_FRAME = 0.62;     // of the widest plate edge, when flown to
-  const WIDEST_ISLAND = layout.islands.reduce(
-    (most, i) => Math.max(most, i.plateW, i.plateD), 0);
+  let widest = { w: 0, h: 0, size: 0 };
+
+  function widestCityFrame() {
+    // Only the viewport can change it, and this is asked on every frame.
+    if (widest.w !== window.innerWidth || widest.h !== window.innerHeight) {
+      widest = {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        size: layout.islands.reduce(
+          (most, i) => Math.max(most, frameIsland(i).size), 0),
+      };
+    }
+    return widest.size;
+  }
 
   function insideACity() {
-    return view.size < Math.min(HOME.size * 0.92,
-                                WIDEST_ISLAND * ISLAND_FRAME * 1.15);
+    return view.size < Math.min(HOME.size * 0.92, widestCityFrame() * 1.45);
   }
 
   /* Exactly one of the two is on screen, and only ever with more than one
@@ -6101,8 +6136,8 @@
       if (!island) return false;
       showCategory(null);
       showEstateOnArc(island.id);
-      const at = new THREE.Vector3(island.ox, 0, island.oz);
-      flyTo(at, Math.max(island.plateW, island.plateD) * ISLAND_FRAME);
+      const framed = frameIsland(island);
+      flyTo(framed.target, framed.size);
       sendFigure(new THREE.Vector3(island.ox, 0, island.oz + island.d * 0.3),
                  "fly", FLIGHT);
       walker.pinned = true;
