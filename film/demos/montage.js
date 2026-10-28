@@ -14,10 +14,11 @@
   mark.src = '../../renderer/vest-mark.png';
   const BAND = 930;
   const RED = '#e60000';
+  const BEATS = { problem: 'THE PROBLEM', answer: 'THE ANSWER', how: 'HOW IT WORKS', result: 'THE RESULT' };
   const NUMBERED = ['pa', 'ava', 'neg', 'hw', 'sw', 'obl', 'ex', 'lk', 'dc', 'mp'];
 
   // ------------------------------------------------------------ the band
-  function band(ctx, T, cfg) {
+  function band(ctx, T, cfg, beat) {
     ctx.fillStyle = '#07080c';
     ctx.fillRect(0, BAND, W, H - BAND);
     const ch = [...cfg.chapters].reverse().find((c) => T >= c.at - 1e-6);
@@ -35,14 +36,31 @@
     const a = ramp(T, ch.at + 0.15, ch.at + 0.55);
     const n = NUMBERED.indexOf(ch.id);
     const left = n >= 0 ? `${String(n + 1).padStart(2, '0')} / 10   ${ch.verb}` : ch.id === 'proof' ? 'VP&C · DIGITAL' : 'VP&C · ROADMAP';
-    label(ctx, left, 56, BAND + 88, { size: 22, color: '#ff4d4d', alpha: a, ls: 5 });
+    const ly = beat ? BAND + 118 : BAND + 88;
+    label(ctx, left, 56, ly, { size: 22, color: '#ff4d4d', alpha: a, ls: 5 });
+    if (beat) {
+      const k = back(ramp(T, beat.from + 0.1, beat.from + 0.45)) * (1 - ramp(T, beat.to - 0.2, beat.to));
+      if (k > 0) {
+        font(ctx, 24, 800, SANS, 2);
+        const w = ctx.measureText(beat.text).width + 40;
+        ctx.save();
+        ctx.translate(56, BAND + 52);
+        ctx.scale(k, k);
+        ctx.globalAlpha = clamp(k);
+        ctx.fillStyle = RED;
+        ctx.beginPath(); ctx.roundRect(0, -26, w, 46, 23); ctx.fill();
+        ctx.fillStyle = INK;
+        ctx.fillText(beat.text, 20, 6);
+        ctx.restore();
+      }
+    }
     const right = n >= 0 ? ch.name : ch.id === 'proof' ? 'Already delivering' : 'Next six months';
     font(ctx, 26, 650, SANS, 0);
     ctx.save();
     ctx.globalAlpha = a * 0.92;
     ctx.fillStyle = INK;
     ctx.textAlign = 'right';
-    ctx.fillText(right, W - 56, BAND + 88);
+    ctx.fillText(right, W - 56, beat ? BAND + 120 : BAND + 88);
     ctx.restore();
   }
 
@@ -209,11 +227,21 @@
         s.addColorStop(0, 'rgba(0,0,0,0.35)'); s.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = s; ctx.fillRect(0, 0, W, 140);
       }
+      // Each agent tells its story in beats: the problem, the answer, how
+      // it works, the result. The band names the beat while it runs.
+      let beat = null;
+      if (cut.beat) {
+        const i = cfg.cuts.indexOf(cut);
+        let a = i, b = i;
+        while (a > 0 && cfg.cuts[a - 1].beat === cut.beat && cfg.cuts[a - 1].ch === cut.ch) a--;
+        while (b < cfg.cuts.length - 1 && cfg.cuts[b + 1].beat === cut.beat && cfg.cuts[b + 1].ch === cut.ch) b++;
+        beat = { text: BEATS[cut.beat], from: cfg.cuts[a].at, to: cfg.cuts[b].at + cfg.cuts[b].dur };
+      }
       if (id === 'proof') proof(ctx, T, at, dur);
       if (cut.ch === 'pa') academy(ctx, T, cut);
       if (id === 'road') roadmap(ctx, T, at, dur);
       if (id === 'end') close(ctx, T, at);
-      if (id !== 'end') band(ctx, T, cfg);
+      if (id !== 'end') band(ctx, T, cfg, beat);
     },
   };
 })();
