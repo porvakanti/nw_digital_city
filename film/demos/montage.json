@@ -1045,13 +1045,13 @@
    ]
   },
   {
-   "id": "dc4",
+   "id": "dc5",
    "at": 169.4,
-   "dur": 3.0,
+   "dur": 2.6,
    "ch": "dc",
    "src": [
     167.0,
-    169.967
+    169.567
    ],
    "cam": [
     [
@@ -1069,13 +1069,13 @@
    ]
   },
   {
-   "id": "dc5",
-   "at": 172.4,
-   "dur": 2.6,
+   "id": "dc4",
+   "at": 172.0,
+   "dur": 3.0,
    "ch": "dc",
    "src": [
-    170.0,
-    172.567
+    169.6,
+    172.967
    ],
    "cam": [
     [
@@ -1105,8 +1105,8 @@
    "dur": 4.0,
    "ch": "mp",
    "src": [
-    172.6,
-    175.767
+    173.0,
+    176.167
    ],
    "cam": [
     [
@@ -1130,8 +1130,8 @@
    "dur": 4.5,
    "ch": "mp",
    "src": [
-    175.8,
-    180.267
+    176.2,
+    180.667
    ],
    "cam": [
     [
@@ -1154,8 +1154,8 @@
    "dur": 4.0,
    "ch": "mp",
    "src": [
-    180.3,
-    184.267
+    180.7,
+    184.667
    ],
    "cam": [
     [
@@ -1178,8 +1178,8 @@
    "dur": 3.5,
    "ch": "mp",
    "src": [
-    184.3,
-    187.767
+    184.7,
+    188.167
    ],
    "cam": [
     [
@@ -1202,8 +1202,8 @@
    "dur": 4.0,
    "ch": "mp",
    "src": [
-    187.8,
-    191.767
+    188.2,
+    192.167
    ],
    "cam": [
     [
@@ -1325,8 +1325,8 @@
   },
   {
    "id": "dc1",
-   "at": 160.4,
-   "text": "Put it all together, | and a whole function levels up. | Digital City: | every team's district grows as it adopts, | from traditional, to autonomous."
+   "at": 160.1,
+   "text": "Imagine procurement as a city. | Every category is a plot of land. | As teams adopt, their buildings grow. | Using the blueprint unlocks smart. | A.I. completes the journey: autonomous. | And the league shows who's leading."
   },
   {
    "id": "rd1",
