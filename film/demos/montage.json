@@ -1,0 +1,1367 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 210.0,
+ "accent": "#e60000",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "+2%",
+ "pitch": "+0Hz",
+ "bpm": 120,
+ "script": "montage",
+ "score": "montage_score",
+ "pauseLong": 0.3,
+ "pauseShort": 0.12,
+ "captionMap": {
+  "VP and C": "VP&C",
+  "Ask Ava": "AskAVA",
+  "D to C": "D2C",
+  "Re-costing": "reCosting"
+ },
+ "chapters": [
+  {
+   "id": "proof",
+   "at": 0.0,
+   "verb": "",
+   "name": "WE'RE ALREADY DELIVERING"
+  },
+  {
+   "id": "pa",
+   "at": 12.0,
+   "verb": "LEARN",
+   "name": "Prompt Academy"
+  },
+  {
+   "id": "ava",
+   "at": 37.0,
+   "verb": "ASK",
+   "name": "AskAVA"
+  },
+  {
+   "id": "neg",
+   "at": 55.0,
+   "verb": "NEGOTIATE",
+   "name": "Sourcing Negotiation Agent"
+  },
+  {
+   "id": "hw",
+   "at": 73.0,
+   "verb": "COST",
+   "name": "D2C Product reCosting"
+  },
+  {
+   "id": "sw",
+   "at": 89.0,
+   "verb": "COST",
+   "name": "D2C Should Cost"
+  },
+  {
+   "id": "obl",
+   "at": 105.0,
+   "verb": "RECOVER",
+   "name": "Obligation Management"
+  },
+  {
+   "id": "ex",
+   "at": 124.0,
+   "verb": "BRIEF",
+   "name": "Executive Supplier Intelligence"
+  },
+  {
+   "id": "lk",
+   "at": 142.0,
+   "verb": "ANALYSE",
+   "name": "Conversational Analytics"
+  },
+  {
+   "id": "dc",
+   "at": 160.0,
+   "verb": "ADOPT",
+   "name": "Digital City"
+  },
+  {
+   "id": "road",
+   "at": 175.0,
+   "verb": "",
+   "name": "ROADMAP"
+  },
+  {
+   "id": "mp",
+   "at": 186.0,
+   "verb": "SHARE",
+   "name": "Agent Marketplace"
+  },
+  {
+   "id": "end",
+   "at": 206.0,
+   "verb": "",
+   "name": ""
+  }
+ ],
+ "cuts": [
+  {
+   "id": "proof",
+   "at": 0.0,
+   "dur": 12.0,
+   "ch": "proof",
+   "src": [
+    0.0,
+    5.967
+   ],
+   "cam": [
+    [
+     0,
+     240,
+     280,
+     1400
+    ],
+    [
+     1,
+     300,
+     300,
+     1320
+    ]
+   ],
+   "filter": "blur(20px) brightness(0.3) saturate(0.7)"
+  },
+  {
+   "id": "pa2",
+   "at": 12.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    6.0,
+    10.967
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     130,
+     1160
+    ],
+    [
+     1,
+     430,
+     150,
+     1080
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "pa1",
+   "at": 16.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    11.0,
+    14.967
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     90,
+     1250
+    ],
+    [
+     1,
+     360,
+     120,
+     1150
+    ]
+   ]
+  },
+  {
+   "id": "pa3",
+   "at": 20.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    15.0,
+    19.967
+   ],
+   "cam": [
+    [
+     0,
+     330,
+     150,
+     1250
+    ],
+    [
+     1,
+     390,
+     180,
+     1150
+    ]
+   ]
+  },
+  {
+   "id": "pa4",
+   "at": 24.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    20.0,
+    24.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     330,
+     1050
+    ],
+    [
+     1,
+     600,
+     360,
+     980
+    ]
+   ]
+  },
+  {
+   "id": "pa5",
+   "at": 28.0,
+   "dur": 3.5,
+   "ch": "pa",
+   "src": [
+    25.0,
+    28.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     160,
+     1000
+    ],
+    [
+     1,
+     600,
+     190,
+     940
+    ]
+   ]
+  },
+  {
+   "id": "pa6",
+   "at": 31.5,
+   "dur": 5.5,
+   "ch": "pa",
+   "src": [
+    29.0,
+    34.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     170,
+     1000
+    ],
+    [
+     1,
+     600,
+     200,
+     940
+    ]
+   ]
+  },
+  {
+   "id": "ava1",
+   "at": 37.0,
+   "dur": 2.8,
+   "ch": "ava",
+   "src": [
+    35.0,
+    37.767
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "ava2",
+   "at": 39.8,
+   "dur": 6.0,
+   "ch": "ava",
+   "src": [
+    37.8,
+    43.767
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ava3",
+   "at": 45.8,
+   "dur": 3.6,
+   "ch": "ava",
+   "src": [
+    43.8,
+    46.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ava4",
+   "at": 49.4,
+   "dur": 5.6,
+   "ch": "ava",
+   "src": [
+    47.0,
+    52.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg1",
+   "at": 55.0,
+   "dur": 3.0,
+   "ch": "neg",
+   "src": [
+    52.6,
+    55.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "neg2",
+   "at": 58.0,
+   "dur": 5.0,
+   "ch": "neg",
+   "src": [
+    55.6,
+    60.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg3",
+   "at": 63.0,
+   "dur": 4.0,
+   "ch": "neg",
+   "src": [
+    60.6,
+    64.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg4",
+   "at": 67.0,
+   "dur": 6.0,
+   "ch": "neg",
+   "src": [
+    64.6,
+    70.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw1",
+   "at": 73.0,
+   "dur": 2.6,
+   "ch": "hw",
+   "src": [
+    70.6,
+    73.167
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "hw2",
+   "at": 75.6,
+   "dur": 2.8,
+   "ch": "hw",
+   "src": [
+    73.2,
+    75.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw3",
+   "at": 78.4,
+   "dur": 7.0,
+   "ch": "hw",
+   "src": [
+    76.0,
+    82.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw4",
+   "at": 85.4,
+   "dur": 3.6,
+   "ch": "hw",
+   "src": [
+    83.0,
+    86.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw2",
+   "at": 89.0,
+   "dur": 2.7,
+   "ch": "sw",
+   "src": [
+    86.6,
+    89.267
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "sw3",
+   "at": 91.7,
+   "dur": 3.0,
+   "ch": "sw",
+   "src": [
+    89.3,
+    92.267
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw4",
+   "at": 94.7,
+   "dur": 6.9,
+   "ch": "sw",
+   "src": [
+    92.3,
+    99.167
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw5",
+   "at": 101.6,
+   "dur": 3.4,
+   "ch": "sw",
+   "src": [
+    99.2,
+    102.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl1",
+   "at": 105.0,
+   "dur": 3.6,
+   "ch": "obl",
+   "src": [
+    102.6,
+    106.167
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "obl2",
+   "at": 108.6,
+   "dur": 2.8,
+   "ch": "obl",
+   "src": [
+    106.2,
+    108.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl3",
+   "at": 111.4,
+   "dur": 7.0,
+   "ch": "obl",
+   "src": [
+    109.0,
+    115.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl4",
+   "at": 118.4,
+   "dur": 5.6,
+   "ch": "obl",
+   "src": [
+    116.0,
+    121.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex1",
+   "at": 124.0,
+   "dur": 3.0,
+   "ch": "ex",
+   "src": [
+    121.6,
+    124.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "ex2",
+   "at": 127.0,
+   "dur": 2.4,
+   "ch": "ex",
+   "src": [
+    124.6,
+    126.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex3",
+   "at": 129.4,
+   "dur": 5.0,
+   "ch": "ex",
+   "src": [
+    127.0,
+    131.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex4",
+   "at": 134.4,
+   "dur": 4.0,
+   "ch": "ex",
+   "src": [
+    132.0,
+    135.967
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex5",
+   "at": 138.4,
+   "dur": 3.6,
+   "ch": "ex",
+   "src": [
+    136.0,
+    139.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk1",
+   "at": 142.0,
+   "dur": 2.8,
+   "ch": "lk",
+   "src": [
+    139.6,
+    142.367
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "lk2",
+   "at": 144.8,
+   "dur": 5.0,
+   "ch": "lk",
+   "src": [
+    142.4,
+    147.367
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk3",
+   "at": 149.8,
+   "dur": 6.0,
+   "ch": "lk",
+   "src": [
+    147.4,
+    153.367
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk4",
+   "at": 155.8,
+   "dur": 4.2,
+   "ch": "lk",
+   "src": [
+    153.4,
+    157.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "dc1",
+   "at": 160.0,
+   "dur": 4.0,
+   "ch": "dc",
+   "src": [
+    157.6,
+    161.567
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "dc2",
+   "at": 164.0,
+   "dur": 2.4,
+   "ch": "dc",
+   "src": [
+    161.6,
+    163.967
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc3",
+   "at": 166.4,
+   "dur": 3.0,
+   "ch": "dc",
+   "src": [
+    164.0,
+    166.967
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc4",
+   "at": 169.4,
+   "dur": 3.0,
+   "ch": "dc",
+   "src": [
+    167.0,
+    169.967
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc5",
+   "at": 172.4,
+   "dur": 2.6,
+   "ch": "dc",
+   "src": [
+    170.0,
+    172.567
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "road",
+   "at": 175.0,
+   "dur": 11.0,
+   "ch": "road",
+   "in": "flash"
+  },
+  {
+   "id": "mp1",
+   "at": 186.0,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    172.6,
+    175.767
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "mp2",
+   "at": 190.0,
+   "dur": 4.5,
+   "ch": "mp",
+   "src": [
+    175.8,
+    180.267
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp3",
+   "at": 194.5,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    180.3,
+    184.267
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp4",
+   "at": 198.5,
+   "dur": 3.5,
+   "ch": "mp",
+   "src": [
+    184.3,
+    187.767
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp5",
+   "at": 202.0,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    187.8,
+    191.767
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "end",
+   "at": 206.0,
+   "dur": 4.0,
+   "ch": "end"
+  }
+ ],
+ "lines": [
+  {
+   "id": "p1",
+   "at": 0.7,
+   "text": "At VP and C, A.I. is already at work."
+  },
+  {
+   "id": "p2",
+   "at": 3.6,
+   "text": "A hundred and ten million euros of value. | One hundred percent sourcing adoption. | And more than five hundred ideas, from you."
+  },
+  {
+   "id": "pa1",
+   "at": 12.6,
+   "text": "It starts with learning. | Prompt Academy."
+  },
+  {
+   "id": "pa2",
+   "at": 16.4,
+   "text": "Follow guided learning paths."
+  },
+  {
+   "id": "pa3",
+   "at": 20.2,
+   "text": "Practise on real procurement tasks."
+  },
+  {
+   "id": "pa4",
+   "at": 24.3,
+   "text": "Get scored on every prompt."
+  },
+  {
+   "id": "pa5",
+   "at": 31.4,
+   "text": "And watch your skills grow."
+  },
+  {
+   "id": "pa6",
+   "at": 34.2,
+   "text": "Coming in January."
+  },
+  {
+   "id": "ava1",
+   "at": 37.4,
+   "text": "Then, answers. | Ask Ava, your A.I. procurement assistant."
+  },
+  {
+   "id": "ava2",
+   "at": 42.6,
+   "text": "Purchase orders, invoices, contracts, suppliers. | Every answer grounded in approved documents, with its sources."
+  },
+  {
+   "id": "neg1",
+   "at": 55.4,
+   "text": "Walk into every negotiation fully briefed. | The Sourcing Negotiation Agent scores every bid, | simulates the award, | and lands one clear recommendation."
+  },
+  {
+   "id": "neg2",
+   "at": 67.2,
+   "text": "A hundred and fifty-four thousand pounds, in projected savings."
+  },
+  {
+   "id": "hw1",
+   "at": 73.4,
+   "text": "Know the number before the supplier names it. | D to C Product Re-costing prices any hardware model against the latest data. | In seconds."
+  },
+  {
+   "id": "sw1",
+   "at": 89.4,
+   "text": "For software services, | D to C Should Cost builds a defensible range, | before the first quote arrives."
+  },
+  {
+   "id": "sw2",
+   "at": 99.8,
+   "text": "Know what it should cost, before you negotiate."
+  },
+  {
+   "id": "obl1",
+   "at": 105.4,
+   "text": "Every contract makes promises. | Obligation Management checks them across every purchase order, | flags the breach, | and calculates the claim."
+  },
+  {
+   "id": "obl2",
+   "at": 117.2,
+   "text": "Over a hundred and seven thousand pounds, from one late delivery."
+  },
+  {
+   "id": "ex1",
+   "at": 124.4,
+   "text": "Before every supplier meeting: | Executive Supplier Intelligence. | Spend, risk, contracts and news. | The whole supplier, on one screen."
+  },
+  {
+   "id": "lk1",
+   "at": 142.4,
+   "text": "And for your data, | just ask. | Conversational Analytics in Looker | turns a plain-English question into the chart, | the table, | and the insight."
+  },
+  {
+   "id": "dc1",
+   "at": 160.4,
+   "text": "Put it all together, | and a whole function levels up. | Digital City: | every team's district grows as it adopts, | from traditional, to autonomous."
+  },
+  {
+   "id": "rd1",
+   "at": 175.5,
+   "text": "Thirty-four A.I. use cases, | in the next six months."
+  },
+  {
+   "id": "rd2",
+   "at": 181.4,
+   "text": "And the next one | could be yours."
+  },
+  {
+   "id": "mp1",
+   "at": 186.4,
+   "text": "Agent Marketplace. | Every agent, in one place."
+  },
+  {
+   "id": "mp2",
+   "at": 190.8,
+   "text": "Anyone can contribute. | Try it, | rate it, | improve it."
+  },
+  {
+   "id": "mp3",
+   "at": 197.0,
+   "text": "The best ideas are picked every month, to scale."
+  },
+  {
+   "id": "mp4",
+   "at": 202.2,
+   "text": "Built by our people, | for our people."
+  },
+  {
+   "id": "end1",
+   "at": 206.2,
+   "text": "The future won't happen to us. | We'll build it."
+  }
+ ]
+}
