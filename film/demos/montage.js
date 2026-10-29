@@ -103,12 +103,13 @@
   function academy(ctx, T, cut) {
     const { id, at } = cut;
     if (id === 'pa2') {
+      const d = cut.titleDelay || 0;  // lets the title wait for the line that names it
       const a = ramp(T, at, at + 0.35) * (1 - ramp(T, at + 3.5, at + 4.0));
       ctx.fillStyle = `rgba(7,8,12,${0.78 * a})`;
       ctx.fillRect(0, 0, W, BAND);
-      label(ctx, 'LEARN · PRACTISE · LEVEL UP', W / 2, 360, { size: 22, color: RED, align: 'center', ls: 8, alpha: ramp(T, at + 0.6, at + 1.0) * (1 - ramp(T, at + 3.4, at + 3.7)) });
-      slam(ctx, 'Prompt Academy', W / 2, 520, { t: T, tin: at + 0.75, tout: at + 3.5, size: 150, weight: 900, ls: -5 });
-      const bar = eio(ramp(T, at + 1.1, at + 1.7)) * (1 - ramp(T, at + 3.3, at + 3.7));
+      label(ctx, 'LEARN · PRACTISE · LEVEL UP', W / 2, 360, { size: 22, color: RED, align: 'center', ls: 8, alpha: ramp(T, at + d + 0.6, at + d + 1.0) * (1 - ramp(T, at + 3.4, at + 3.7)) });
+      slam(ctx, 'Prompt Academy', W / 2, 520, { t: T, tin: at + d + 0.75, tout: at + 3.5, size: 150, weight: 900, ls: -5 });
+      const bar = eio(ramp(T, at + d + 1.1, at + d + 1.7)) * (1 - ramp(T, at + 3.3, at + 3.7));
       ctx.fillStyle = RED; ctx.fillRect(W / 2 - 240 * bar, 570, 480 * bar, 9);
     }
     const tags = { pa1: 'GUIDED LEARNING PATHS', pa3: 'REAL PROCUREMENT CHALLENGES', pa4: 'SCORED ON EVERY PROMPT', pa5: 'A SANDBOX TO EXPERIMENT', pa6: 'YOUR SKILLS PROFILE' };

@@ -1,0 +1,1562 @@
+{
+ "fps": 30,
+ "srcFps": 30,
+ "length": 210.0,
+ "accent": "#e60000",
+ "voice": "en-GB-SoniaNeural",
+ "rate": "+2%",
+ "pitch": "+0Hz",
+ "bpm": 120,
+ "script": "montage",
+ "score": "montage_score",
+ "pauseLong": 0.3,
+ "pauseShort": 0.12,
+ "captionMap": {
+  "VP and C": "VP&C",
+  "Ask Ava": "AskAVA",
+  "D to C": "D2C",
+  "Re-costing": "reCosting"
+ },
+ "chapters": [
+  {
+   "id": "proof",
+   "at": 0.0,
+   "verb": "",
+   "name": "WE'RE ALREADY DELIVERING"
+  },
+  {
+   "id": "pa",
+   "at": 12.0,
+   "verb": "LEARN",
+   "name": "Prompt Academy"
+  },
+  {
+   "id": "ava",
+   "at": 37.0,
+   "verb": "ASK",
+   "name": "AskAVA"
+  },
+  {
+   "id": "neg",
+   "at": 55.0,
+   "verb": "NEGOTIATE",
+   "name": "Sourcing Negotiation Agent"
+  },
+  {
+   "id": "hw",
+   "at": 73.0,
+   "verb": "COST",
+   "name": "D2C Product reCosting"
+  },
+  {
+   "id": "sw",
+   "at": 89.0,
+   "verb": "COST",
+   "name": "D2C Should Cost"
+  },
+  {
+   "id": "obl",
+   "at": 105.0,
+   "verb": "RECOVER",
+   "name": "Obligation Management"
+  },
+  {
+   "id": "ex",
+   "at": 124.0,
+   "verb": "BRIEF",
+   "name": "Executive Supplier Intelligence"
+  },
+  {
+   "id": "lk",
+   "at": 142.0,
+   "verb": "ANALYSE",
+   "name": "Conversational Analytics"
+  },
+  {
+   "id": "dc",
+   "at": 160.0,
+   "verb": "ADOPT",
+   "name": "Digital City"
+  },
+  {
+   "id": "road",
+   "at": 175.0,
+   "verb": "",
+   "name": "ROADMAP"
+  },
+  {
+   "id": "mp",
+   "at": 186.0,
+   "verb": "SHARE",
+   "name": "Agent Marketplace"
+  },
+  {
+   "id": "end",
+   "at": 206.0,
+   "verb": "",
+   "name": ""
+  }
+ ],
+ "cuts": [
+  {
+   "id": "proof",
+   "at": 0.0,
+   "dur": 12.0,
+   "ch": "proof",
+   "src": [
+    0.0,
+    5.967
+   ],
+   "cam": [
+    [
+     0,
+     240,
+     280,
+     1400
+    ],
+    [
+     1,
+     300,
+     300,
+     1320
+    ]
+   ],
+   "filter": "blur(20px) brightness(0.3) saturate(0.7)"
+  },
+  {
+   "id": "pa2",
+   "at": 12.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    6.0,
+    10.967
+   ],
+   "cam": [
+    [
+     0,
+     380,
+     130,
+     1160
+    ],
+    [
+     1,
+     430,
+     150,
+     1080
+    ]
+   ],
+   "in": "flash",
+   "titleDelay": 0.6
+  },
+  {
+   "id": "pa1",
+   "at": 16.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    11.0,
+    14.967
+   ],
+   "cam": [
+    [
+     0,
+     300,
+     90,
+     1250
+    ],
+    [
+     1,
+     360,
+     120,
+     1150
+    ]
+   ]
+  },
+  {
+   "id": "pa3",
+   "at": 20.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    15.0,
+    19.967
+   ],
+   "cam": [
+    [
+     0,
+     330,
+     150,
+     1250
+    ],
+    [
+     1,
+     390,
+     180,
+     1150
+    ]
+   ]
+  },
+  {
+   "id": "pa4",
+   "at": 24.0,
+   "dur": 4.0,
+   "ch": "pa",
+   "src": [
+    20.0,
+    24.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     330,
+     1050
+    ],
+    [
+     1,
+     600,
+     360,
+     980
+    ]
+   ]
+  },
+  {
+   "id": "pa5",
+   "at": 28.0,
+   "dur": 3.5,
+   "ch": "pa",
+   "src": [
+    25.0,
+    28.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     160,
+     1000
+    ],
+    [
+     1,
+     600,
+     190,
+     940
+    ]
+   ]
+  },
+  {
+   "id": "pa6",
+   "at": 31.5,
+   "dur": 5.5,
+   "ch": "pa",
+   "src": [
+    29.0,
+    34.967
+   ],
+   "cam": [
+    [
+     0,
+     560,
+     170,
+     1000
+    ],
+    [
+     1,
+     600,
+     200,
+     940
+    ]
+   ]
+  },
+  {
+   "id": "ava1",
+   "at": 37.0,
+   "dur": 4.0,
+   "ch": "ava",
+   "src": [
+    35.0,
+    38.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "ava2",
+   "at": 41.0,
+   "dur": 2.4,
+   "ch": "ava",
+   "src": [
+    39.0,
+    41.367
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ava3",
+   "at": 43.4,
+   "dur": 6.0,
+   "ch": "ava",
+   "src": [
+    41.4,
+    47.367
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ava4",
+   "at": 49.4,
+   "dur": 3.2,
+   "ch": "ava",
+   "src": [
+    47.4,
+    50.567
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ava5",
+   "at": 52.6,
+   "dur": 2.4,
+   "ch": "ava",
+   "src": [
+    50.6,
+    52.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg1",
+   "at": 55.0,
+   "dur": 4.0,
+   "ch": "neg",
+   "src": [
+    53.0,
+    56.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "neg2",
+   "at": 59.0,
+   "dur": 3.0,
+   "ch": "neg",
+   "src": [
+    57.0,
+    59.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg3",
+   "at": 62.0,
+   "dur": 2.5,
+   "ch": "neg",
+   "src": [
+    60.0,
+    62.467
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg4",
+   "at": 64.5,
+   "dur": 3.0,
+   "ch": "neg",
+   "src": [
+    62.5,
+    65.467
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg5",
+   "at": 67.5,
+   "dur": 3.0,
+   "ch": "neg",
+   "src": [
+    65.5,
+    68.467
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "neg6",
+   "at": 70.5,
+   "dur": 2.5,
+   "ch": "neg",
+   "src": [
+    68.5,
+    70.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw1",
+   "at": 73.0,
+   "dur": 5.0,
+   "ch": "hw",
+   "src": [
+    71.0,
+    75.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "hw2",
+   "at": 78.0,
+   "dur": 2.4,
+   "ch": "hw",
+   "src": [
+    76.0,
+    78.367
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw3",
+   "at": 80.4,
+   "dur": 2.6,
+   "ch": "hw",
+   "src": [
+    78.4,
+    80.967
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "hw4",
+   "at": 83.0,
+   "dur": 6.0,
+   "ch": "hw",
+   "src": [
+    81.0,
+    86.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw1",
+   "at": 89.0,
+   "dur": 4.0,
+   "ch": "sw",
+   "src": [
+    87.0,
+    90.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "sw2",
+   "at": 93.0,
+   "dur": 2.4,
+   "ch": "sw",
+   "src": [
+    91.0,
+    93.367
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw3",
+   "at": 95.4,
+   "dur": 2.8,
+   "ch": "sw",
+   "src": [
+    93.4,
+    96.167
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "sw4",
+   "at": 98.2,
+   "dur": 6.8,
+   "ch": "sw",
+   "src": [
+    96.2,
+    102.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl1",
+   "at": 105.0,
+   "dur": 4.0,
+   "ch": "obl",
+   "src": [
+    103.0,
+    106.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "obl2",
+   "at": 109.0,
+   "dur": 2.9,
+   "ch": "obl",
+   "src": [
+    107.0,
+    109.867
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl3",
+   "at": 111.9,
+   "dur": 2.6,
+   "ch": "obl",
+   "src": [
+    109.9,
+    112.467
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl4",
+   "at": 114.5,
+   "dur": 6.0,
+   "ch": "obl",
+   "src": [
+    112.5,
+    118.467
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "obl5",
+   "at": 120.5,
+   "dur": 3.5,
+   "ch": "obl",
+   "src": [
+    118.5,
+    121.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex1",
+   "at": 124.0,
+   "dur": 4.5,
+   "ch": "ex",
+   "src": [
+    122.0,
+    126.467
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "ex2",
+   "at": 128.5,
+   "dur": 2.0,
+   "ch": "ex",
+   "src": [
+    126.5,
+    128.467
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex3",
+   "at": 130.5,
+   "dur": 2.4,
+   "ch": "ex",
+   "src": [
+    128.5,
+    130.867
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex4",
+   "at": 132.9,
+   "dur": 4.0,
+   "ch": "ex",
+   "src": [
+    130.9,
+    134.867
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex5",
+   "at": 136.9,
+   "dur": 1.9,
+   "ch": "ex",
+   "src": [
+    134.9,
+    136.767
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "ex6",
+   "at": 138.8,
+   "dur": 3.2,
+   "ch": "ex",
+   "src": [
+    136.8,
+    139.967
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk1",
+   "at": 142.0,
+   "dur": 4.0,
+   "ch": "lk",
+   "src": [
+    140.0,
+    143.967
+   ],
+   "beat": "problem",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "lk2",
+   "at": 146.0,
+   "dur": 2.6,
+   "ch": "lk",
+   "src": [
+    144.0,
+    146.567
+   ],
+   "beat": "answer",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk3",
+   "at": 148.6,
+   "dur": 4.0,
+   "ch": "lk",
+   "src": [
+    146.6,
+    150.567
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk4",
+   "at": 152.6,
+   "dur": 5.0,
+   "ch": "lk",
+   "src": [
+    150.6,
+    155.567
+   ],
+   "beat": "how",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "lk5",
+   "at": 157.6,
+   "dur": 2.4,
+   "ch": "lk",
+   "src": [
+    155.6,
+    157.967
+   ],
+   "beat": "result",
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "dc1",
+   "at": 160.0,
+   "dur": 4.0,
+   "ch": "dc",
+   "src": [
+    158.0,
+    161.967
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ],
+   "in": "wipe"
+  },
+  {
+   "id": "dc2",
+   "at": 164.0,
+   "dur": 2.4,
+   "ch": "dc",
+   "src": [
+    162.0,
+    164.367
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc3",
+   "at": 166.4,
+   "dur": 3.0,
+   "ch": "dc",
+   "src": [
+    164.4,
+    167.367
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc5",
+   "at": 169.4,
+   "dur": 2.6,
+   "ch": "dc",
+   "src": [
+    167.4,
+    169.967
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "dc4",
+   "at": 172.0,
+   "dur": 3.0,
+   "ch": "dc",
+   "src": [
+    170.0,
+    173.367
+   ],
+   "cam": [
+    [
+     0,
+     110,
+     0,
+     1700
+    ],
+    [
+     1,
+     170,
+     0,
+     1600
+    ]
+   ]
+  },
+  {
+   "id": "road",
+   "at": 175.0,
+   "dur": 11.0,
+   "ch": "road",
+   "in": "flash"
+  },
+  {
+   "id": "mp1",
+   "at": 186.0,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    173.4,
+    176.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ],
+   "in": "flash"
+  },
+  {
+   "id": "mp2",
+   "at": 190.0,
+   "dur": 4.5,
+   "ch": "mp",
+   "src": [
+    176.6,
+    181.067
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp3",
+   "at": 194.5,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    181.1,
+    185.067
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp4",
+   "at": 198.5,
+   "dur": 3.5,
+   "ch": "mp",
+   "src": [
+    185.1,
+    188.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "mp5",
+   "at": 202.0,
+   "dur": 4.0,
+   "ch": "mp",
+   "src": [
+    188.6,
+    192.567
+   ],
+   "cam": [
+    [
+     0,
+     0,
+     0,
+     1920
+    ],
+    [
+     1,
+     64,
+     36,
+     1792
+    ]
+   ]
+  },
+  {
+   "id": "end",
+   "at": 206.0,
+   "dur": 4.0,
+   "ch": "end"
+  }
+ ],
+ "lines": [
+  {
+   "id": "p1",
+   "at": 0.7,
+   "text": "At VP and C, A.I. is already at work."
+  },
+  {
+   "id": "p2",
+   "at": 3.6,
+   "text": "A hundred and ten million euros of value. | One hundred percent sourcing adoption. | And more than five hundred ideas, from you."
+  },
+  {
+   "id": "pa1",
+   "at": 12.4,
+   "text": "And here's what's coming next. | It starts with learning: | Prompt Academy."
+  },
+  {
+   "id": "pa2",
+   "at": 17.2,
+   "text": "Follow guided learning paths."
+  },
+  {
+   "id": "pa3",
+   "at": 20.6,
+   "text": "Practise on real procurement tasks."
+  },
+  {
+   "id": "pa4",
+   "at": 24.3,
+   "text": "Get scored on every prompt."
+  },
+  {
+   "id": "pa5",
+   "at": 31.4,
+   "text": "And watch your skills grow."
+  },
+  {
+   "id": "pa6",
+   "at": 34.2,
+   "text": "Coming in January."
+  },
+  {
+   "id": "ava1",
+   "at": 37.3,
+   "text": "Teams ask hundreds of procurement questions every day. | The answers are buried in documents."
+  },
+  {
+   "id": "ava2",
+   "at": 43.6,
+   "text": "Ask Ava answers in seconds. | Ask how to raise a purchase order, | and it walks you through it, step by step, | citing the approved sources."
+  },
+  {
+   "id": "neg1",
+   "at": 55.3,
+   "text": "Who do we push? | How much leverage do we have? | The answers are scattered across RFPs, bids and reports."
+  },
+  {
+   "id": "neg2",
+   "at": 62.8,
+   "text": "The Sourcing Negotiation Agent builds the briefing in minutes: | every bid scored, | and one clear recommendation, | so you walk into every negotiation fully briefed."
+  },
+  {
+   "id": "hw1",
+   "at": 73.3,
+   "text": "Every hardware renewal comes down to one question: | what should this cost, today?"
+  },
+  {
+   "id": "hw2",
+   "at": 78.6,
+   "text": "D to C Product Re-costing finds the model, | and re-costs it against the latest data, | in seconds."
+  },
+  {
+   "id": "sw1",
+   "at": 89.3,
+   "text": "For software services, | the price usually starts with the supplier's quote."
+  },
+  {
+   "id": "sw2",
+   "at": 94.0,
+   "text": "D to C Should Cost flips that. | Pick the project, the complexity and the market, | and get a defensible range, | before the first quote arrives."
+  },
+  {
+   "id": "obl1",
+   "at": 105.3,
+   "text": "Every contract makes promises. | But checking them is manual, | so broken promises rarely become claims."
+  },
+  {
+   "id": "obl2",
+   "at": 112.8,
+   "text": "Obligation Management checks every order against the contract, | flags the breach, | and calculates the claim, | so no value is left on the table."
+  },
+  {
+   "id": "ex1",
+   "at": 124.3,
+   "text": "Before every supplier meeting, an executive gets a forty-page pack, | pulled from a dozen systems."
+  },
+  {
+   "id": "ex2",
+   "at": 130.6,
+   "text": "Executive Supplier Intelligence puts it on one screen: | spend, risk, contracts and news. | And you can simply ask it."
+  },
+  {
+   "id": "lk1",
+   "at": 142.3,
+   "text": "Getting answers from data usually means reports, | filters, | and exports."
+  },
+  {
+   "id": "lk2",
+   "at": 147.6,
+   "text": "With Conversational Analytics in Looker, | just ask in plain English, | and get the chart, the table and the insight, in seconds."
+  },
+  {
+   "id": "dc1",
+   "at": 160.1,
+   "text": "Imagine procurement as a city. | Every category is a plot of land. | As teams adopt, their buildings grow. | Using the blueprint unlocks smart. | A.I. completes the journey: autonomous. | And the league shows who's leading."
+  },
+  {
+   "id": "rd1",
+   "at": 175.5,
+   "text": "Thirty-four A.I. use cases, | in the next six months."
+  },
+  {
+   "id": "rd2",
+   "at": 181.4,
+   "text": "And the next one | could be yours."
+  },
+  {
+   "id": "mp1",
+   "at": 186.4,
+   "text": "Agent Marketplace. | Every agent, in one place."
+  },
+  {
+   "id": "mp2",
+   "at": 190.8,
+   "text": "Anyone can contribute. | Try it, | rate it, | improve it."
+  },
+  {
+   "id": "mp3",
+   "at": 197.0,
+   "text": "The best ideas are picked every month, to scale."
+  },
+  {
+   "id": "mp4",
+   "at": 202.2,
+   "text": "Built by our people, | for our people."
+  },
+  {
+   "id": "end1",
+   "at": 206.2,
+   "text": "The future won't happen to us. | We'll build it."
+  }
+ ]
+}
