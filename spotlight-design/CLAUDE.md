@@ -1,6 +1,6 @@
-# CLAUDE.md: Showcase Studio
+# CLAUDE.md: Spotlight
 
-Showcase Studio turns a screen recording of an internal AI tool into a short,
+Spotlight turns a screen recording of an internal AI tool into a short,
 narrated, captioned and scored film in the house style. Colleagues upload a
 recording, answer four questions, review an AI-drafted storyboard and press
 render. They need no video or coding skills.
@@ -38,6 +38,11 @@ Firestore, media is in Cloud Storage, and sign-in is Entra ID through IAP.
   Never use `edge-tts` or any reverse-engineered endpoint. AI comes from
   Vertex AI through `apps/api/app/ai/provider.py`; no other path calls a
   model.
+- **Don't build sign-in.** Entra ID through IAP is to be implemented by the
+  platform team, reusing their existing setup. The API only verifies the IAP
+  JWT header (`x-goog-iap-jwt-assertion`) and reads the user from it. Local
+  development uses a fake user, and only when `ENV=dev`. Don't create Entra
+  app registrations, Identity Platform tenants or IAP configuration.
 - **The frontend and backend deploy separately.** `apps/web` never imports
   from `apps/api` or `apps/worker`, and the reverse is also true. They share
   only `packages/timeline-schema` and `packages/film-kit`. Each app has its

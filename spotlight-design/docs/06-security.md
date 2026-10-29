@@ -2,6 +2,11 @@
 
 ## Sign-in: Entra ID through Identity-Aware Proxy
 
+> **Status: to be implemented by the platform team**, reusing their existing
+> IAP and Entra ID setup. The Claude Code build only implements the API side:
+> verifying the IAP JWT on every request, plus a fake user for local
+> development.
+
 ```mermaid
 sequenceDiagram
   actor U as Colleague
@@ -10,7 +15,7 @@ sequenceDiagram
   participant E as Microsoft Entra ID
   participant W as web / api
 
-  U->>LB: https://studio.<internal-domain>/
+  U->>LB: https://spotlight.<internal-domain>/
   LB->>IdP: not signed in → IAP external identities sign-in page
   IdP->>E: OIDC (or SAML) sign-in
   E-->>IdP: id token (oid, email, name, groups)
@@ -27,7 +32,7 @@ sequenceDiagram
   - Praga sets up the Entra app registration together with the Entra
     admins (see `07-deploy-gcp.md`).
 - **Access:** restrict to an Entra **group** (for example
-  `Showcase-Studio-Users`). Map it with an IAP access condition, or check
+  `Spotlight-Users`). Map it with an IAP access condition, or check
   the `groups` claim in the API.
 - **API:** verify `x-goog-iap-jwt-assertion` on every request (issuer
   `https://cloud.google.com/iap`, audience = the backend service). Reject
@@ -41,10 +46,10 @@ sequenceDiagram
 
 | Data | Where | Retention | Notes |
 |---|---|---|---|
-| Raw recordings | `gs://<proj>-studio-uploads` | **7 days** (lifecycle rule), then deleted | Only needed until the mezzanine copy exists |
-| Mezzanine, proxy, frames, thumbnails | `gs://<proj>-studio-media` | While the film exists. Frames for 3 days. | Frames are temporary render inputs |
-| Narration cache | `gs://<proj>-studio-media/tts-cache/` | 90 days | Keyed by hash |
-| Final outputs | `gs://<proj>-studio-renders` | While the film exists | MP4, SRT, thumbnail |
+| Raw recordings | `gs://<proj>-spotlight-uploads` | **7 days** (lifecycle rule), then deleted | Only needed until the mezzanine copy exists |
+| Mezzanine, proxy, frames, thumbnails | `gs://<proj>-spotlight-media` | While the film exists. Frames for 3 days. | Frames are temporary render inputs |
+| Narration cache | `gs://<proj>-spotlight-media/tts-cache/` | 90 days | Keyed by hash |
+| Final outputs | `gs://<proj>-spotlight-renders` | While the film exists | MP4, SRT, thumbnail |
 | Films, versions, storyboards, jobs | Firestore (Native mode) | While the film exists. Deleting a film deletes everything. | No media in Firestore |
 
 - **Buckets:**

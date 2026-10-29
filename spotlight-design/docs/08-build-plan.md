@@ -34,6 +34,8 @@ yet.
   TypeScript.
 - `packages/audio`:
   - Cloud TTS phrase synthesis with cache;
+  - a voice audition script (`make audition`) that reads one test script
+    in every candidate British voice, so the team can pick the three;
   - narration chain;
   - captions with splitting;
   - score presets (`lift`) from `music.py`;
@@ -85,6 +87,8 @@ yet.
 - The draft endpoint, with validation and retry.
 - `suggest_line` and `find_sensitive`.
 - Screens:
+  - Voice picker on New film: three cards, each with a ▶ sample, plus a
+    voice switch in the storyboard.
   - Brief.
   - Drafting.
   - Storyboard:
@@ -108,6 +112,8 @@ yet.
 - A user can do everything with the keyboard and a screen reader (beat
   cards, buttons, form fields), meeting WCAG 2.2 AA for the editor
   controls.
+- Each of the three voices plays its sample, and changing the voice
+  re-voices the whole film on the next preview.
 - With `AI_ENABLED=false`, the storyboard starts empty and everything else
   works.
 
@@ -135,7 +141,9 @@ yet.
 
 **Build:**
 - Terraform for everything in `07-deploy-gcp.md`.
-- IAP with Identity Platform and Entra OIDC, documented step by step.
+- **Sign-in: to be implemented by the platform team** (IAP with Entra ID,
+  reusing their existing setup). In this phase, only document what the app
+  expects: the IAP audience and the optional group check.
 - Cloud Armor.
 - Monitoring and alerts.
 - Retention rules.
@@ -146,8 +154,9 @@ yet.
 
 **Acceptance:**
 - A fresh project can be stood up from `infra/` plus the documented manual
-  Entra steps in under a day.
-- A user outside the Entra group is refused at IAP.
+  sign-in setup from the platform team in under a day.
+- Once the platform team has set up sign-in, a user outside the allowed
+  group is refused at IAP.
 - An API call without a valid IAP JWT gets 401.
 - 10 concurrent renders all finish, with no task over 30 minutes.
 - Deleting a film removes every object and document (verified by a script).
@@ -162,5 +171,5 @@ yet.
 - Translated narration and captions.
 - Usage dashboard.
 - Brand presets per function.
-- Switching to Claude when it is approved on Vertex AI: set
+- Switching to Claude when it becomes available on Vertex AI: set
   `AI_PROVIDER=claude`, then run the provider contract tests.

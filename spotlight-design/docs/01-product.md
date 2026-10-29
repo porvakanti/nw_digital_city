@@ -4,7 +4,7 @@
 
 The demo films for the leadership summit worked, and now every team wants
 one. Today each film is hand-made by one person, which makes that person the
-bottleneck. Showcase Studio lets teams make their own films in the same
+bottleneck. Spotlight lets teams make their own films in the same
 style without learning video editing.
 
 **The outcome:** a team with a screen recording of its tool gets a finished,
@@ -81,6 +81,11 @@ journey
    - The user enters a name (the tool's name) and picks a length (Short,
      Standard or Full).
    - Optionally they pick an accent colour from the brand palette.
+   - They pick **the voice**: three cards, each with a name, a short
+     description (for example "warm, measured") and a ▶ button that plays
+     a 6-second sample. The first voice is pre-selected. They can change it
+     later in the storyboard; the whole film re-voices on the next
+     preview.
    - They upload the recording: MP4 or MOV, up to 2 GB and 15 minutes. The
      upload goes straight to storage with a progress bar, and the user can
      carry on with step 3 while it uploads.
@@ -140,7 +145,7 @@ journey
 - The fixed beat structure, with three lengths.
 - The house style, with an accent colour.
 - AI drafting with Gemini.
-- Google voice, captions, generated score.
+- A choice of three voices with samples, captions, generated score.
 - Masking, preview, final render, download and share link.
 - Version history.
 
@@ -164,7 +169,7 @@ journey
 | Screen | Main parts |
 |---|---|
 | Your films | Grid of film cards (thumbnail, name, status, updated), New film |
-| New film | Name, length picker, accent swatches, upload drop zone |
+| New film | Name, length picker, accent swatches, voice picker (three voices, each with a sample), upload drop zone |
 | Brief | Four questions with examples, Continue |
 | Drafting | Progress steps, cancel |
 | Storyboard | Beat cards (left), preview (right), timeline strip (bottom), length meter, Preview button |

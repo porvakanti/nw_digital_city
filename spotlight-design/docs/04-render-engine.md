@@ -176,10 +176,19 @@ Ensure the visible area keeps the masks in frame.
 
 ### Narration
 
-- Google Cloud Text-to-Speech, **British English voice**. The default voice
-  is chosen by auditioning the candidates (Chirp 3 HD, Studio, Neural2)
-  against the demo films. It is configurable, `TTS_VOICE`, and never
-  hard-coded.
+- Google Cloud Text-to-Speech, **three British English voices** for the
+  user to choose from, for example two female and one male, of different
+  characters. They're chosen in an audition in Phase 1: read the same test
+  script with the candidates (Chirp 3 HD, Studio, Neural2) and compare them
+  with the demo films.
+  - The voices are **configuration, not code**. `TTS_VOICES` is a JSON list
+    of `{id, name, description, rate}`, and the first one is the default.
+  - Each voice has a **6-second sample** ("Every contract makes promises.
+    But checking them is manual…"). The worker generates the samples on
+    deploy, stores them in `media/voice-samples/`, and `GET /api/voices`
+    serves them.
+  - A voice can be removed from the list later. Films that already use it
+    keep their cached narration and still render.
 - Synthesise **phrase by phrase** (the parts split by `|`), then join them
   with engine-controlled pauses. Caption timing then comes from measured
   phrase lengths, so it works with any voice, including ones without SSML

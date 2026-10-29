@@ -1,6 +1,6 @@
-# Showcase Studio: design pack
+# Spotlight: design pack
 
-Showcase Studio lets colleagues turn a screen recording of an AI tool into a
+Spotlight lets colleagues turn a screen recording of an AI tool into a
 polished 60 to 120 second film: narrated, captioned, scored and on brand, in
 the same style as the VP&C demo films. Nobody needs to edit video or write
 code.
@@ -31,8 +31,8 @@ Code session with:
 | Decision | Choice | Why |
 |---|---|---|
 | Platform | Google Cloud | Where the application will run. |
-| Voice | Google Cloud Text-to-Speech, a British English voice | Keeps everything in GCP. The free voice service the demo films used is not licensed for a product. |
-| AI model | Gemini on Vertex AI, behind a provider interface | Approved in GCP today. Claude on Vertex AI is a configuration switch when it is approved. |
-| Sign-in | Microsoft Entra ID through Identity-Aware Proxy | Colleagues use their normal work accounts. |
+| Voice | Google Cloud Text-to-Speech, three British English voices to pick from, each with a sample | Keeps everything in GCP. The free voice service the demo films used is not licensed for a product. |
+| AI model | The latest Gemini model available on our AI platform, through Vertex AI, behind a provider interface | Available in our GCP today. Claude on Vertex AI is a configuration switch when it becomes available. |
+| Sign-in | Microsoft Entra ID through Identity-Aware Proxy. **To be implemented by the platform team**, reusing their existing setup. It is not part of the Claude Code build. | Colleagues use their normal work accounts. The app only verifies the identity IAP passes in. |
 | Scope of v1 | Single films only | Montages, like the community-call film, come in v2. |
-| Deployment | Frontend and backend as separate services, from one repository | Follows the architecture board's guidance. |
+| Deployment | Frontend and backend as separate services, from one repository, inside our GCP environment (VPC) | Follows the architecture board's guidance. |

@@ -33,7 +33,7 @@ flowchart LR
   subgraph ai[Vertex AI and Google APIs]
     gemini[Gemini<br/>video understanding, drafting]
     claude[Claude on Vertex<br/>later, via provider switch]
-    tts[Cloud Text-to-Speech<br/>British English voice]
+    tts[Cloud Text-to-Speech<br/>three British English voices]
   end
 
   notify[Email / Teams webhook]
@@ -229,6 +229,7 @@ version starting from `storyboard`.
 | `POST /api/films/{id}/versions/{v}/draft` | AI draft of the storyboard |
 | `GET` / `PATCH /api/films/{id}/versions/{v}/storyboard` | Read or autosave the storyboard |
 | `POST /api/films/{id}/versions/{v}/suggest-line` | AI rewrite of one line |
+| `GET /api/voices` | The three voices: id, name, description, sample URL |
 | `POST /api/voice/preview` | Speak one line |
 | `POST /api/films/{id}/versions/{v}/render` | `{quality: draft \| final}` |
 | `GET /api/films/{id}/versions/{v}/outputs` | Signed URLs for MP4, SRT, thumbnail |

@@ -19,12 +19,14 @@ class AIProvider(Protocol):
 def get_provider() -> AIProvider:
     match settings.AI_PROVIDER:          # "gemini" (default) | "claude"
         case "gemini": return GeminiProvider(model=settings.GEMINI_MODEL)
-        case "claude": return ClaudeProvider(model=settings.CLAUDE_MODEL)   # placeholder until approved
+        case "claude": return ClaudeProvider(model=settings.CLAUDE_MODEL)   # placeholder until available
 ```
 
 - **`GeminiProvider`** uses `google-genai` with `vertexai=True`, the project
-  and the location. The model comes from `GEMINI_MODEL`: use the current
-  Gemini Pro model approved in your project for drafting, and Flash for
+  and the location. The model comes from `GEMINI_MODEL`: the **latest
+  Gemini model available on our AI platform**, set by configuration and
+  never hard-coded. Use the most capable model for drafting, and the fastest
+  (`GEMINI_FAST_MODEL`) for
   `suggest_line`.
 - **`ClaudeProvider`** is a placeholder with the same interface, using
   `anthropic[vertex]` (`AnthropicVertex`). Claude doesn't read video
@@ -94,7 +96,7 @@ def get_provider() -> AIProvider:
 brief, and the beat's length budget in seconds.
 
 **Output:** three alternatives within the budget, in the same rules. This
-uses the Flash model and should come back in under 3 seconds.
+uses the fast model (`GEMINI_FAST_MODEL`) and should come back in under 3 seconds.
 
 ## 3. Find sensitive areas
 
@@ -118,16 +120,16 @@ the mask tool as dashed boxes, each with **Hide** and **Ignore**.
 - Prompts and responses are **not logged**. Only metadata is logged: model,
   latency, token counts and validation outcome.
 - The recording is passed by `gs://` URI, never downloaded to the API.
-- A setting `AI_ENABLED=false` turns off every AI feature. The storyboard
-  then starts from an empty template, for teams that can't send a recording
-  to a model.
+- A setting `AI_ENABLED=false` turns off every AI feature, as a technical
+  fallback if the AI platform is unavailable. The storyboard then starts
+  from an empty template.
 
 ## Cost (indicative)
 
 | Call | Volume per film | Cost per film |
 |---|---|---|
-| Draft (Pro model, one 2 to 10 minute proxy video plus a few thousand tokens) | 1 to 2 | cents to a few tens of cents, depending on video length and model |
-| Suggest line (Flash) | 5 to 20 | under a cent in total |
+| Draft (most capable model, one 2 to 10 minute proxy video plus a few thousand tokens) | 1 to 2 | cents to a few tens of cents, depending on video length and model |
+| Suggest line (fast model) | 5 to 20 | under a cent in total |
 | Sensitive areas | 1 | as for the draft |
 | Text-to-speech | about 1,000 to 2,000 characters, cached | under a cent |
 

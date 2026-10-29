@@ -6,7 +6,7 @@ filtered by path, separate Cloud Run services). They share only the two
 packages under `packages/`.
 
 ```
-showcase-studio/
+spotlight/
 ├── CLAUDE.md
 ├── Makefile                         # dev, test, golden, lint
 ├── package.json                     # pnpm workspace root (web + packages)
@@ -91,7 +91,7 @@ showcase-studio/
 |---|---|---|---|
 | Image | `web:<sha>` | `api:<sha>` | `worker:<sha>` |
 | Build trigger paths | `apps/web/**`, `packages/film-kit/**`, `packages/timeline-schema/**` | `apps/api/**`, `packages/audio/**`, `packages/timeline-schema/**` | `apps/worker/**`, `packages/**` |
-| Runs as | Cloud Run service `studio-web` | Cloud Run service `studio-api` | Cloud Run Jobs `studio-prepare`, `studio-render`, `studio-stitch` |
+| Runs as | Cloud Run service `spotlight-web` | Cloud Run service `spotlight-api` | Cloud Run Jobs `spotlight-prepare`, `spotlight-render`, `spotlight-stitch` |
 | Exposed | LB path `/*` | LB path `/api/*` | not exposed |
 | Service account | `sa-web` (no data access) | `sa-api` | `sa-worker` |
 
